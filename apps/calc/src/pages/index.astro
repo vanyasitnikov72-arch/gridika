@@ -1,117 +1,58 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import UnifiedCalculator from '../components/UnifiedCalculator';
 
-const title = 'Онлайн-калькуляторы налогов, зарплат и финансов РФ 2026';
-const description = 'Точные и бесплатные финансовые онлайн-калькуляторы для России: расчёт зарплаты на руки по новой шкале НДФЛ, налог самозанятых, кредиты и ипотека.';
-
-const calculators = [
-  {
-    title: 'Зарплата на руки (НДФЛ)',
-    description: 'Расчёт чистой зарплаты (Net) из оклада (Gross) и наоборот по прогрессивной 5-ступенчатой шкале НДФЛ (13–22%). Учёт вычетов на детей и взносов работодателя.',
-    href: '/zarplata-na-ruki',
-    status: 'Доступен',
-    badgeClass: 'bg-emerald-100 text-emerald-800',
-    icon: '💰',
-    category: 'Налоги и работа',
-  },
-  {
-    title: 'Налог самозанятого (НПД)',
-    description: 'Ставки 4% и 6%, годовой лимит дохода 2,4 млн ₽, налоговый бонус 10 000 ₽ и прогноз остатка лимита до конца года.',
-    href: '/zarplata-na-ruki', // Временно перенаправляем или держим для MVP
-    status: 'В разработке',
-    badgeClass: 'bg-amber-100 text-amber-800',
-    icon: '🧾',
-    category: 'Налоги и бизнес',
-  },
-  {
-    title: 'Кредит с досрочным погашением',
-    description: 'Аннуитетный и дифференцированный график платежей, сравнение стратегий «сократить срок» или «уменьшить платёж», расчёт экономии на процентах.',
-    href: '#',
-    status: 'В разработке',
-    badgeClass: 'bg-slate-100 text-slate-600',
-    icon: '📊',
-    category: 'Кредиты и займы',
-  },
-  {
-    title: 'Ипотека или аренда',
-    description: 'Математическое сравнение покупки жилья в ипотеку и долгосрочной аренды с инвестированием первоначального взноса на горизонте от 3 до 20 лет.',
-    href: '#',
-    status: 'В разработке',
-    badgeClass: 'bg-slate-100 text-slate-600',
-    icon: '🏠',
-    category: 'Недвижимость',
-  },
-];
+const title = 'Единый финансовый онлайн-калькулятор РФ 2026: Зарплата, Налоги, Кредиты, Ипотека';
+const description = 'Универсальный онлайн-калькулятор для России: расчёт зарплаты на руки по прогрессивной шкале НДФЛ 2025–2026 (176-ФЗ), налог самозанятых (НПД), досрочное погашение кредита и сравнение ипотеки с арендой.';
 ---
 
 <BaseLayout title={title} description={description}>
   <!-- Главный баннер -->
-  <section class="py-12 md:py-20 bg-gradient-to-b from-emerald-50/50 to-transparent border-b border-slate-200/60">
+  <section class="py-10 md:py-14 bg-gradient-to-b from-emerald-50/70 via-slate-50 to-transparent border-b border-slate-200/60">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 text-center">
-      <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full mb-4">
-        Актуально на 2025–2026 год
+      <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full mb-3">
+        Все расчёты в одном окне • Актуально на 2026 г.
       </span>
-      <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight max-w-3xl mx-auto">
-        Точные и независимые финансовые калькуляторы
+      <h1 class="text-3xl md:text-5xl font-black text-slate-900 tracking-tight max-w-3xl mx-auto">
+        Единый финансовый калькулятор
       </h1>
-      <p class="text-slate-600 mt-4 text-lg md:text-xl max-w-2xl mx-auto">
-        Без регистрации, без рекламы на старте и без отправки ваших данных на сервер. Все вычисления производятся прямо в браузере.
+      <p class="text-slate-600 mt-3 text-base md:text-lg max-w-2xl mx-auto">
+        Точные расчёты налогов, зарплат, кредитов и недвижимости. Переключайтесь между инструментами в один клик.
       </p>
-
-      <div class="mt-8 flex justify-center gap-4">
-        <a
-          href="/zarplata-na-ruki"
-          class="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/25 transition-all text-base"
-        >
-          Калькулятор зарплаты (НДФЛ) →
-        </a>
-      </div>
     </div>
   </section>
 
-  <!-- Каталог калькуляторов -->
-  <section class="max-w-5xl mx-auto px-4 sm:px-6 py-12 md:py-16">
-    <div class="flex items-center justify-between mb-8">
-      <div>
-        <h2 class="text-2xl font-bold text-slate-900">Каталог калькуляторов</h2>
-        <p class="text-sm text-slate-500 mt-1">Выберите необходимый расчёт</p>
+  <!-- Интерактивный единый калькулятор -->
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 -mt-6 md:-mt-8 mb-16">
+    <UnifiedCalculator client:load initialTab="salary" />
+  </section>
+
+  <!-- Блок преимуществ -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 py-8 border-t border-slate-200/60 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center md:text-left">
+      <div class="p-4 rounded-xl bg-white border border-slate-200/70">
+        <div class="text-2xl mb-2">⚡</div>
+        <h3 class="font-bold text-slate-900 text-sm mb-1">Мгновенный расчёт</h3>
+        <p class="text-xs text-slate-500">Работает локально прямо в браузере без задержек сети.</p>
       </div>
-    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {calculators.map((calc) => (
-        <a
-          href={calc.href}
-          class={`block bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm transition-all hover:shadow-md hover:border-emerald-300 relative group ${
-            calc.status === 'В разработке' ? 'cursor-default pointer-events-none opacity-80' : ''
-          }`}
-        >
-          <div class="flex items-start justify-between gap-4 mb-3">
-            <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-              {calc.icon}
-            </div>
-            <span class={`text-xs font-bold px-2.5 py-1 rounded-full ${calc.badgeClass}`}>
-              {calc.status}
-            </span>
-          </div>
+      <div class="p-4 rounded-xl bg-white border border-slate-200/70">
+        <div class="text-2xl mb-2">🔒</div>
+        <h3 class="font-bold text-slate-900 text-sm mb-1">100% приватно</h3>
+        <p class="text-xs text-slate-500">Суммы ваших доходов и кредитов не отправляются на сервер.</p>
+      </div>
 
-          <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider block mb-1">
-            {calc.category}
-          </span>
-          <h3 class="text-xl font-bold text-slate-900 group-hover:text-emerald-700 transition-colors mb-2">
-            {calc.title}
-          </h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            {calc.description}
-          </p>
+      <div class="p-4 rounded-xl bg-white border border-slate-200/70">
+        <div class="text-2xl mb-2">📜</div>
+        <h3 class="font-bold text-slate-900 text-sm mb-1">По законам 2026</h3>
+        <p class="text-xs text-slate-500">5 ступеней НДФЛ по 176-ФЗ, актуальные лимиты и вычеты.</p>
+      </div>
 
-          {calc.status === 'Доступен' && (
-            <div class="mt-4 text-emerald-600 font-semibold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-              Открыть калькулятор →
-            </div>
-          )}
-        </a>
-      ))}
+      <div class="p-4 rounded-xl bg-white border border-slate-200/70">
+        <div class="text-2xl mb-2">🖨️</div>
+        <h3 class="font-bold text-slate-900 text-sm mb-1">Печать и ссылки</h3>
+        <p class="text-xs text-slate-500">Сохраняйте результат в PDF или делитесь готовой ссылкой.</p>
+      </div>
     </div>
   </section>
 </BaseLayout>

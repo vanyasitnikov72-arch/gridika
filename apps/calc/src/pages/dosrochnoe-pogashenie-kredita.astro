@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import UnifiedCalculator from '../components/UnifiedCalculator';
+
+const title = 'Калькулятор досрочного погашения кредита онлайн: аннуитет и дифференцированный';
+const description = 'Бесплатный калькулятор досрочного погашения кредита: расчёт экономии на процентах, сокращение срока или уменьшение ежемесячного платежа, подробный график выплат.';
+
+const faqs = [
+  {
+    q: 'Что выгоднее при досрочном погашении: сокращать срок или уменьшать платёж?',
+    a: 'С финансовой точки зрения максимальную экономию на процентах даёт «сокращение срока кредита». При уменьшении срока основной долг гасится быстрее, и банк начисляет меньше процентов. «Уменьшение платежа» снижает ежемесячную финансовую нагрузку и риски, но суммарная экономия на процентах при этом ниже.',
+  },
+  {
+    q: 'В чём разница между аннуитетным и дифференцированным платежом?',
+    a: 'При аннуитетном платеже сумма взноса одинакова каждый месяц на протяжении всего срока кредита (в начале вы платите больше процентов, к концу — больше основного долга). При дифференцированном платеже основной долг гасится равными долями, а проценты начисляются на остаток — поэтому ежемесячный платёж максимален в первый месяц и постепенно снижается к концу срока.',
+  },
+  {
+    q: 'Может ли банк брать комиссию или штраф за досрочное погашение?',
+    a: 'Нет. Согласно Федеральному закону № 353-ФЗ «О потребительском кредите (займе)», заёмщик имеет законное право на досрочный возврат кредита (полный или частичный) без каких-либо комиссий и штрафов.',
+  },
+];
+
+const schemaJson = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebApplication',
+      name: 'Калькулятор досрочного погашения кредита',
+      description,
+      applicationCategory: 'FinanceApplication',
+      operatingSystem: 'All',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'RUB' },
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: faqs.map((faq) => ({
+        '@type': 'Question',
+        name: faq.q,
+        acceptedAnswer: { '@type': 'Answer', text: faq.a },
+      })),
+    },
+  ],
+};
+---
+
+<BaseLayout title={title} description={description} schemaJson={schemaJson}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-12">
+    <!-- Хлебные крошки -->
+    <nav class="flex text-xs text-slate-500 mb-6 gap-2 print:hidden">
+      <a href="/" class="hover:text-emerald-600 transition-colors">Главная</a>
+      <span>/</span>
+      <span class="text-slate-800 font-semibold">Досрочное погашение кредита</span>
+    </nav>
+
+    <!-- Заголовок страницы -->
+    <div class="mb-8">
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+        Калькулятор досрочного погашения кредита
+      </h1>
+      <p class="text-slate-600 mt-2 text-base md:text-lg">
+        Узнайте, сколько вы сэкономите на переплате банку при внесении дополнительных досрочных платежей, и сравните стратегии погашения.
+      </p>
+    </div>
+
+    <!-- Интерактивный калькулятор -->
+    <div class="mb-14">
+      <UnifiedCalculator client:load initialTab="loan" />
+    </div>
+
+    <!-- FAQ -->
+    <section class="mb-12">
+      <h2 class="text-xl md:text-2xl font-bold text-slate-900 mb-6">
+        Частые вопросы о кредитах и досрочном погашении
+      </h2>
+      <div class="space-y-4">
+        {faqs.map((faq) => (
+          <details class="group bg-white rounded-xl border border-slate-200/80 p-5 open:ring-2 open:ring-indigo-500/20 transition-all">
+            <summary class="font-semibold text-slate-900 cursor-pointer list-none flex items-center justify-between">
+              <span>{faq.q}</span>
+              <span class="text-indigo-600 font-bold group-open:rotate-180 transition-transform">↓</span>
+            </summary>
+            <p class="mt-3 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+              {faq.a}
+            </p>
+          </details>
+        ))}
+      </div>
+    </section>
+  </div>
+</BaseLayout>

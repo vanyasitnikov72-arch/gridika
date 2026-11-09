@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import SalaryCalculator from '../components/SalaryCalculator';
+import UnifiedCalculator from '../components/UnifiedCalculator';
 
 const title = 'Калькулятор зарплаты на руки 2026: прогрессивный НДФЛ, вычеты и оклад';
 const description = 'Точный онлайн-калькулятор зарплаты на руки (Net) из оклада (Gross) и наоборот с учётом 5-ступенчатой шкалы НДФЛ 2025–2026 (13–22%, закон № 176-ФЗ), вычетов на детей и взносов.';
@@ -96,7 +96,7 @@ const schemaJson = {
 
     <!-- Интерактивный калькулятор -->
     <div class="mb-14">
-      <SalaryCalculator client:load />
+      <UnifiedCalculator client:load initialTab="salary" />
     </div>
 
     <!-- Блок: Как мы считаем (формулы и закон) -->

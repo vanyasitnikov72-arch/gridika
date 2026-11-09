@@ -1,0 +1,100 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import UnifiedCalculator from '../components/UnifiedCalculator';
+
+const title = 'Калькулятор налога самозанятого (НПД) 2026: ставки 4% и 6%, бонус 10 000 ₽';
+const description = 'Онлайн-калькулятор налога на профессиональный доход (самозанятые) для России: ставки 4% от физлиц, 6% от юрлиц, списание бонуса 10 000 ₽ и контроль годового лимита 2,4 млн ₽.';
+
+const faqs = [
+  {
+    q: 'Какие ставки налога действуют для самозанятых?',
+    a: '4% — при получении дохода от физических лиц. 6% — при получении дохода от юридических лиц и индивидуальных предпринимателей. Налог начисляется только на фактически полученный доход.',
+  },
+  {
+    q: 'Как работает налоговый бонус 10 000 рублей?',
+    a: 'При первой регистрации самозанятому предоставляется бонус 10 000 ₽. Он списывается автоматически налоговой инспекцией: снижает ставку 4% до 3% (1% покрывается бонусом) и ставку 6% до 4% (2% покрывается бонусом), пока вся сумма 10 000 ₽ не будет исчерпана.',
+  },
+  {
+    q: 'Какой лимит дохода у самозанятых в 2026 году?',
+    a: 'Максимальный доход составляет 2 400 000 рублей в календарный год. При превышении этого лимита право на применение НПД теряется до конца года: доход свыше лимита облагается НДФЛ 13% или требует перехода на УСН в качестве ИП.',
+  },
+  {
+    q: 'Нужно ли самозанятому платить фиксированные страховые взносы?',
+    a: 'Нет, самозанятые освобождены от обязательных фиксированных страховых взносов на пенсионное и медицинское страхование. Взносы в Социальный фонд РФ можно перечислять добровольно для накопления пенсионного стажа и баллов.',
+  },
+];
+
+const schemaJson = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebApplication',
+      name: 'Калькулятор налога самозанятого (НПД) 2026',
+      description,
+      applicationCategory: 'FinanceApplication',
+      operatingSystem: 'All',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'RUB' },
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: faqs.map((faq) => ({
+        '@type': 'Question',
+        name: faq.q,
+        acceptedAnswer: { '@type': 'Answer', text: faq.a },
+      })),
+    },
+  ],
+};
+---
+
+<BaseLayout title={title} description={description} schemaJson={schemaJson}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-12">
+    <!-- Хлебные крошки -->
+    <nav class="flex text-xs text-slate-500 mb-6 gap-2 print:hidden">
+      <a href="/" class="hover:text-emerald-600 transition-colors">Главная</a>
+      <span>/</span>
+      <span class="text-slate-800 font-semibold">Калькулятор самозанятого (НПД)</span>
+    </nav>
+
+    <!-- Заголовок страницы -->
+    <div class="mb-8">
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+        Калькулятор налога самозанятого (НПД 2026)
+      </h1>
+      <p class="text-slate-600 mt-2 text-base md:text-lg">
+        Рассчитайте сумму налога к уплате с доходов от физлиц (4%) и юрлиц (6%), списание стартового вычета 10 000 ₽ и остаток до годового лимита 2,4 млн ₽.
+      </p>
+    </div>
+
+    <!-- Интерактивный калькулятор -->
+    <div class="mb-14">
+      <UnifiedCalculator client:load initialTab="npd" />
+    </div>
+
+    <!-- FAQ -->
+    <section class="mb-12">
+      <h2 class="text-xl md:text-2xl font-bold text-slate-900 mb-6">
+        Частые вопросы о налоге самозанятых (НПД)
+      </h2>
+      <div class="space-y-4">
+        {faqs.map((faq) => (
+          <details class="group bg-white rounded-xl border border-slate-200/80 p-5 open:ring-2 open:ring-teal-500/20 transition-all">
+            <summary class="font-semibold text-slate-900 cursor-pointer list-none flex items-center justify-between">
+              <span>{faq.q}</span>
+              <span class="text-teal-600 font-bold group-open:rotate-180 transition-transform">↓</span>
+            </summary>
+            <p class="mt-3 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+              {faq.a}
+            </p>
+          </details>
+        ))}
+      </div>
+    </section>
+
+    <!-- Нормативная база -->
+    <div class="p-4 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-500 flex flex-wrap items-center justify-between gap-2">
+      <span>Нормативная база: Федеральный закон от 27.11.2018 № 422-ФЗ</span>
+      <span>Данные проверены: ноябрь 2026</span>
+    </div>
+  </div>
+</BaseLayout>
