@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'preact/hooks';
 import SalaryTab from './tabs/SalaryTab';
 import NpdTab from './tabs/NpdTab';
+import UsnTab from './tabs/UsnTab';
+import CompareTab from './tabs/CompareTab';
 import LoanTab from './tabs/LoanTab';
 import MortgageVsRentTab from './tabs/MortgageVsRentTab';
 
-export type TabKey = 'salary' | 'npd' | 'loan' | 'mortgage';
+export type TabKey = 'salary' | 'npd' | 'usn' | 'compare' | 'loan' | 'mortgage';
 
 interface TabItem {
   key: TabKey;
@@ -16,6 +18,8 @@ interface TabItem {
 const TABS: TabItem[] = [
   { key: 'salary', label: 'Зарплата (НДФЛ)', icon: '💰' },
   { key: 'npd', label: 'Самозанятый (НПД)', icon: '🧾' },
+  { key: 'usn', label: 'ИП на УСН 6%', icon: '💼' },
+  { key: 'compare', label: 'Сравнение режимов', icon: '⚖️' },
   { key: 'loan', label: 'Кредит с досрочкой', icon: '📊' },
   { key: 'mortgage', label: 'Ипотека vs Аренда', icon: '🏠' },
 ];
@@ -32,7 +36,7 @@ export default function UnifiedCalculator({ initialTab = 'salary' }: Props) {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     const tabParam = params.get('tab') as TabKey | null;
-    if (tabParam && ['salary', 'npd', 'loan', 'mortgage'].includes(tabParam)) {
+    if (tabParam && ['salary', 'npd', 'usn', 'compare', 'loan', 'mortgage'].includes(tabParam)) {
       setActiveTab(tabParam);
     }
   }, []);
@@ -96,6 +100,8 @@ export default function UnifiedCalculator({ initialTab = 'salary' }: Props) {
       <div class="p-6 md:p-8">
         {activeTab === 'salary' && <SalaryTab />}
         {activeTab === 'npd' && <NpdTab />}
+        {activeTab === 'usn' && <UsnTab />}
+        {activeTab === 'compare' && <CompareTab />}
         {activeTab === 'loan' && <LoanTab />}
         {activeTab === 'mortgage' && <MortgageVsRentTab />}
 

@@ -7,9 +7,25 @@ export interface ChildrenDeductionInput {
   disabledCount?: number;
 }
 
+export type TaxpayerStatus = 'resident' | 'remoteForeign' | 'nonResident';
+
+export interface PayoutSplit {
+  advancePercent: number;
+  advanceGross: number;
+  advanceNdfl: number;
+  advanceNet: number;
+  finalSalaryGross: number;
+  finalSalaryNdfl: number;
+  finalSalaryNet: number;
+}
+
 export interface NdflCalculationInput {
   /** Базовый оклад (Gross) в месяц, руб. */
   monthlyGross: number;
+  /** Статус налогоплательщика: резидент РФ, дистанционщик за рубежом (389-ФЗ) или нерезидент (30%) */
+  taxpayerStatus?: TaxpayerStatus;
+  /** Процент аванса (по умолчанию 45%) */
+  advancePercent?: number;
   /** Количество месяцев работы в году (по умолчанию 12) */
   monthsCount?: number;
   /** Вычеты на детей */
@@ -67,6 +83,10 @@ export interface NdflCalculationResult {
   regionalBonusMonthly: number;
   /** Районный коэффициент */
   regionalMultiplier: number;
+  /** Статус налогоплательщика */
+  taxpayerStatus: TaxpayerStatus;
+  /** Разделение на аванс и зарплату */
+  payoutSplit: PayoutSplit;
   /** Среднемесячная выплата на руки Net */
   monthlyNetAverage: number;
   /** Сумма на руки в первый месяц */
@@ -186,15 +206,17 @@ export function calculateSalaryFromGross(input: NdflCalculationInput): NdflCalcu
   const bonus = Math.max(0, input.monthlyBonus ?? 0);
   const regionalMultiplier = Math.max(1, input.regionalMultiplier ?? 1.0);
   const monthsCount = Math.max(1, Math.min(12, input.monthsCount ?? 12));
-  
+  const taxpayerStatus = input.taxpayerStatus ?? 'resident';
+  const advancePercent = Math.min(60, Math.max(30, input.advancePercent ?? 45));
+
   // Районная надбавка начисляется на оклад + премии
   const basePlusBonus = baseSalary + bonus;
   const regionalBonusMonthly = Math.round(basePlusBonus * (regionalMultiplier - 1));
   const fullMonthlyGross = basePlusBonus + regionalBonusMonthly;
 
-  const childMonthlyDeduction = calculateMonthlyChildDeduction(input.children);
+  const childMonthlyDeduction = taxpayerStatus === 'nonResident' ? 0 : calculateMonthlyChildDeduction(input.children);
   const deductionLimit = ratesData.ndfl.childDeductions.annualIncomeLimit;
-  let remainingPropertyExempt = Math.max(0, input.taxExemptDeductionRemaining ?? 0);
+  let remainingPropertyExempt = taxpayerStatus === 'nonResident' ? 0 : Math.max(0, input.taxExemptDeductionRemaining ?? 0);
 
   let cumulativeBaseGross = 0;
   let cumulativeRegionalGross = 0;
@@ -236,7 +258,14 @@ export function calculateSalaryFromGross(input: NdflCalculationInput): NdflCalcu
     cumulativeTaxableBase += monthTaxable;
 
     let cumulativeTaxTotal = 0;
-    if (regionalMultiplier > 1.0) {
+
+    if (taxpayerStatus === 'nonResident') {
+      // Фиксированная ставка 30% для нерезидентов (ст. 224 п. 3 НК РФ)
+      cumulativeTaxTotal = Math.round(cumulativeTaxableBase * 0.30);
+    } else if (taxpayerStatus === 'remoteForeign') {
+      // Дистанционные сотрудники за пределами РФ (389-ФЗ): 13% до 5 млн, 15% свыше
+      cumulativeTaxTotal = calculateNorthernTax(cumulativeTaxableBase);
+    } else if (regionalMultiplier > 1.0) {
       // Раздельный учёт: базовая часть по 5-ступенчатой шкале, северная часть по 2-ступенчатой шкале (до 5 млн 13%, свыше 15%)
       const baseShare = fullMonthlyGross > 0 ? basePlusBonus / fullMonthlyGross : 1;
       const baseTaxable = cumulativeTaxableBase * baseShare;
@@ -278,6 +307,26 @@ export function calculateSalaryFromGross(input: NdflCalculationInput): NdflCalcu
   const effectiveTaxRate = annualGross > 0 ? annualNdfl / annualGross : 0;
   const monthlyNetAverage = monthsCount > 0 ? Math.round(annualNet / monthsCount) : 0;
 
+  // Расчёт аванса и зарплаты за средний месяц
+  const avgMonthlyTax = monthsCount > 0 ? Math.round(annualNdfl / monthsCount) : 0;
+  const advanceGross = Math.round(fullMonthlyGross * (advancePercent / 100));
+  const advanceNdfl = Math.round(avgMonthlyTax * (advancePercent / 100));
+  const advanceNet = advanceGross - advanceNdfl;
+
+  const finalSalaryGross = fullMonthlyGross - advanceGross;
+  const finalSalaryNdfl = avgMonthlyTax - advanceNdfl;
+  const finalSalaryNet = finalSalaryGross - finalSalaryNdfl;
+
+  const payoutSplit: PayoutSplit = {
+    advancePercent,
+    advanceGross,
+    advanceNdfl,
+    advanceNet,
+    finalSalaryGross,
+    finalSalaryNdfl,
+    finalSalaryNet,
+  };
+
   // Итоговая разбивка по шкале за год
   const { brackets: bracketsBreakdown } = calculateProgressiveTax(cumulativeTaxableBase);
 
@@ -294,6 +343,8 @@ export function calculateSalaryFromGross(input: NdflCalculationInput): NdflCalcu
     monthlyGross: fullMonthlyGross,
     regionalBonusMonthly,
     regionalMultiplier,
+    taxpayerStatus,
+    payoutSplit,
     monthlyNetAverage,
     monthlyNetFirstMonth: months[0]?.netSalary ?? 0,
     monthlyNetLastMonth: months[months.length - 1]?.netSalary ?? 0,

@@ -4,9 +4,9 @@ import {
   calculateGrossFromNet,
   formatRubles,
   formatPercent,
-  parseNumberInput,
   type ChildrenDeductionInput,
   type NdflCalculationResult,
+  type TaxpayerStatus,
 } from '@temka/core';
 
 const REGIONS = [
@@ -22,6 +22,8 @@ const REGIONS = [
 export default function SalaryTab() {
   const [mode, setMode] = useState<'gross' | 'net'>('gross');
   const [salaryNum, setSalaryNum] = useState<number>(150000);
+  const [taxpayerStatus, setTaxpayerStatus] = useState<TaxpayerStatus>('resident');
+  const [advancePercent, setAdvancePercent] = useState<number>(45);
   const [monthlyBonus, setMonthlyBonus] = useState<number>(0);
   const [regionalMultiplier, setRegionalMultiplier] = useState<number>(1.0);
   const [hasChildren, setHasChildren] = useState<boolean>(false);
@@ -47,6 +49,8 @@ export default function SalaryTab() {
     if (mode === 'gross') {
       return calculateSalaryFromGross({
         monthlyGross: salaryNum,
+        taxpayerStatus,
+        advancePercent,
         monthlyBonus,
         regionalMultiplier,
         children: childrenConfig,
@@ -55,6 +59,8 @@ export default function SalaryTab() {
       });
     } else {
       return calculateGrossFromNet(salaryNum, {
+        taxpayerStatus,
+        advancePercent,
         monthlyBonus,
         regionalMultiplier,
         children: childrenConfig,
@@ -62,7 +68,7 @@ export default function SalaryTab() {
         isMsp,
       });
     }
-  }, [mode, salaryNum, monthlyBonus, regionalMultiplier, childrenConfig, hasPropertyExempt, propertyExemptAmount, isMsp]);
+  }, [mode, salaryNum, taxpayerStatus, advancePercent, monthlyBonus, regionalMultiplier, childrenConfig, hasPropertyExempt, propertyExemptAmount, isMsp]);
 
   return (
     <div class="space-y-6">
@@ -160,6 +166,59 @@ export default function SalaryTab() {
 
         {showAdvanced && (
           <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4">
+            {/* Статус налогоплательщика */}
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">
+                Статус налогоплательщика:
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setTaxpayerStatus('resident')}
+                  class={`p-2 rounded-xl text-xs font-bold border transition-all text-left ${
+                    taxpayerStatus === 'resident'
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  <span class="block">Резидент РФ</span>
+                  <span class={`text-[10px] block font-normal ${taxpayerStatus === 'resident' ? 'text-emerald-100' : 'text-slate-400'}`}>
+                    Шкала 13%–22% (176-ФЗ)
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setTaxpayerStatus('remoteForeign')}
+                  class={`p-2 rounded-xl text-xs font-bold border transition-all text-left ${
+                    taxpayerStatus === 'remoteForeign'
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  <span class="block">Дистанционщик за рубежом</span>
+                  <span class={`text-[10px] block font-normal ${taxpayerStatus === 'remoteForeign' ? 'text-emerald-100' : 'text-slate-400'}`}>
+                    13% до 5 млн ₽ (389-ФЗ)
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setTaxpayerStatus('nonResident')}
+                  class={`p-2 rounded-xl text-xs font-bold border transition-all text-left ${
+                    taxpayerStatus === 'nonResident'
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  <span class="block">Нерезидент РФ</span>
+                  <span class={`text-[10px] block font-normal ${taxpayerStatus === 'nonResident' ? 'text-emerald-100' : 'text-slate-400'}`}>
+                    Фиксированная ставка 30%
+                  </span>
+                </button>
+              </div>
+            </div>
+
             {/* Районный коэффициент */}
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">
@@ -314,6 +373,48 @@ export default function SalaryTab() {
           <span class="text-[11px] text-slate-500 block mt-1">
             {result.regionalMultiplier > 1 ? `вкл. надбавку ${formatRubles(result.regionalBonusMonthly)}` : `всего в год: ${formatRubles(result.annualGross)}`}
           </span>
+        </div>
+      </div>
+
+      {/* Разбивка на Аванс и Зарплату (по ст. 136 ТК РФ и правилам с 2023 года) */}
+      <div class="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+            📅 Реальные выплаты на карту в течение месяца:
+          </span>
+          <span class="text-[11px] text-slate-400">НДФЛ удерживается при каждой выплате</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+            <div>
+              <span class="font-bold text-slate-800 block">Аванс (20–25 число)</span>
+              <span class="text-[11px] text-slate-500">
+                начислено {formatRubles(result.payoutSplit.advanceGross)}, НДФЛ {formatRubles(result.payoutSplit.advanceNdfl)}
+              </span>
+            </div>
+            <div class="text-right">
+              <span class="text-lg font-black text-emerald-700 block">
+                {formatRubles(result.payoutSplit.advanceNet)}
+              </span>
+              <span class="text-[10px] text-emerald-800 font-semibold">на карту</span>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+            <div>
+              <span class="font-bold text-slate-800 block">Зарплата (5–10 число)</span>
+              <span class="text-[11px] text-slate-500">
+                начислено {formatRubles(result.payoutSplit.finalSalaryGross)}, НДФЛ {formatRubles(result.payoutSplit.finalSalaryNdfl)}
+              </span>
+            </div>
+            <div class="text-right">
+              <span class="text-lg font-black text-emerald-700 block">
+                {formatRubles(result.payoutSplit.finalSalaryNet)}
+              </span>
+              <span class="text-[10px] text-emerald-800 font-semibold">на карту</span>
+            </div>
+          </div>
         </div>
       </div>
 
