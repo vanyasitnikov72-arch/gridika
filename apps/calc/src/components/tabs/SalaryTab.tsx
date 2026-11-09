@@ -9,18 +9,30 @@ import {
   type NdflCalculationResult,
 } from '@temka/core';
 
+const REGIONS = [
+  { label: 'Стандартный (без надбавок)', value: 1.0 },
+  { label: 'Урал, Поволжье (1.15)', value: 1.15 },
+  { label: 'Новосибирск, Омск, Алтай (1.20)', value: 1.20 },
+  { label: 'Красноярск, Иркутск, Кузбасс (1.30)', value: 1.30 },
+  { label: 'Хабаровск, Архангельск, Карелия (1.40)', value: 1.40 },
+  { label: 'Магадан, Мурманск, Сахалин (1.70)', value: 1.70 },
+  { label: 'Чукотка, Камчатка, Норильск (2.00)', value: 2.00 },
+];
+
 export default function SalaryTab() {
   const [mode, setMode] = useState<'gross' | 'net'>('gross');
-  const [salaryInput, setSalaryInput] = useState<string>('150 000');
+  const [salaryNum, setSalaryNum] = useState<number>(150000);
+  const [monthlyBonus, setMonthlyBonus] = useState<number>(0);
+  const [regionalMultiplier, setRegionalMultiplier] = useState<number>(1.0);
   const [hasChildren, setHasChildren] = useState<boolean>(false);
   const [firstCount, setFirstCount] = useState<number>(0);
   const [secondCount, setSecondCount] = useState<number>(0);
   const [thirdCount, setThirdCount] = useState<number>(0);
-  const [disabledCount] = useState<number>(0);
+  const [hasPropertyExempt, setHasPropertyExempt] = useState<boolean>(false);
+  const [propertyExemptAmount, setPropertyExemptAmount] = useState<number>(260000);
   const [isMsp, setIsMsp] = useState<boolean>(false);
+  const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
   const [showMonthsBreakdown, setShowMonthsBreakdown] = useState<boolean>(false);
-
-  const salaryNum = useMemo(() => parseNumberInput(salaryInput), [salaryInput]);
 
   const childrenConfig: ChildrenDeductionInput | undefined = useMemo(() => {
     if (!hasChildren) return undefined;
@@ -28,39 +40,40 @@ export default function SalaryTab() {
       firstCount,
       secondCount,
       thirdAndMoreCount: thirdCount,
-      disabledCount,
     };
-  }, [hasChildren, firstCount, secondCount, thirdCount, disabledCount]);
+  }, [hasChildren, firstCount, secondCount, thirdCount]);
 
   const result: NdflCalculationResult = useMemo(() => {
     if (mode === 'gross') {
       return calculateSalaryFromGross({
         monthlyGross: salaryNum,
+        monthlyBonus,
+        regionalMultiplier,
         children: childrenConfig,
+        taxExemptDeductionRemaining: hasPropertyExempt ? propertyExemptAmount : 0,
         isMsp,
       });
     } else {
       return calculateGrossFromNet(salaryNum, {
+        monthlyBonus,
+        regionalMultiplier,
         children: childrenConfig,
+        taxExemptDeductionRemaining: hasPropertyExempt ? propertyExemptAmount : 0,
         isMsp,
       });
     }
-  }, [mode, salaryNum, childrenConfig, isMsp]);
-
-  const setPreset = (amount: number) => {
-    setSalaryInput(formatRubles(amount, { withSymbol: false }).replace(/\u00A0/g, ' '));
-  };
+  }, [mode, salaryNum, monthlyBonus, regionalMultiplier, childrenConfig, hasPropertyExempt, propertyExemptAmount, isMsp]);
 
   return (
     <div class="space-y-6">
-      {/* Переключатель режима и заголовок */}
+      {/* Шапка режима */}
       <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
         <div>
-          <h3 class="text-xl font-bold text-slate-900">
-            {mode === 'gross' ? 'Расчёт зарплаты на руки (Net)' : 'Расчёт оклада (Gross)'}
+          <h3 class="text-xl font-black text-slate-900">
+            {mode === 'gross' ? 'Расчёт зарплаты на руки (Net)' : 'Расчёт оклада от суммы на руки'}
           </h3>
           <p class="text-xs text-slate-500 mt-0.5">
-            5-ступенчатая шкала НДФЛ 13%–22% по закону № 176-ФЗ
+            Точный расчёт по 5-ступенчатой шкале НДФЛ 2026 года (176-ФЗ)
           </p>
         </div>
 
@@ -68,53 +81,63 @@ export default function SalaryTab() {
           <button
             type="button"
             onClick={() => setMode('gross')}
-            class={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            class={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
               mode === 'gross'
                 ? 'bg-white text-emerald-800 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            От оклада до выплаты
+            От оклада (Gross)
           </button>
           <button
             type="button"
             onClick={() => setMode('net')}
-            class={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            class={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
               mode === 'net'
                 ? 'bg-white text-emerald-800 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Сколько просить на руки
+            От желаемой суммы (Net)
           </button>
         </div>
       </div>
 
-      {/* Поле ввода */}
-      <div>
-        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
-          {mode === 'gross' ? 'Оклад до вычета налогов' : 'Сумма на руки в месяц'}
-        </label>
-        <div class="relative max-w-md">
-          <input
-            type="text"
-            value={salaryInput}
-            onInput={(e) => setSalaryInput((e.target as HTMLInputElement).value)}
-            placeholder="150 000"
-            class="w-full pl-4 pr-12 py-3 text-2xl font-black rounded-xl border-2 border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50 outline-none text-slate-900"
-          />
-          <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xl font-bold text-slate-400">
-            ₽
+      {/* Основной ввод с ползунком */}
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-bold uppercase tracking-wider text-slate-700">
+            {mode === 'gross' ? 'Оклад по трудовому договору' : 'Сумма на руки в месяц'}
+          </label>
+          <span class="text-xl font-black text-emerald-700">
+            {formatRubles(salaryNum)}
           </span>
         </div>
 
-        <div class="flex flex-wrap gap-2 mt-2.5">
-          {[60000, 100000, 150000, 250000, 500000].map((preset) => (
+        <div class="relative">
+          <input
+            type="range"
+            min="20000"
+            max="1000000"
+            step="5000"
+            value={salaryNum}
+            onInput={(e) => setSalaryNum(parseInt((e.target as HTMLInputElement).value, 10) || 0)}
+            class="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+          />
+        </div>
+
+        {/* Быстрые кнопки */}
+        <div class="flex flex-wrap gap-2 pt-1">
+          {[50000, 100000, 150000, 250000, 450000, 800000].map((preset) => (
             <button
               key={preset}
               type="button"
-              onClick={() => setPreset(preset)}
-              class="px-2.5 py-1 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-600 text-xs font-medium rounded-lg transition-colors"
+              onClick={() => setSalaryNum(preset)}
+              class={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${
+                salaryNum === preset
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+              }`}
             >
               {formatRubles(preset)}
             </button>
@@ -122,116 +145,191 @@ export default function SalaryTab() {
         </div>
       </div>
 
-      {/* Чекбоксы: Дети и МСП */}
-      <div class="pt-2 border-t border-slate-100 space-y-3">
-        <label class="flex items-center gap-2 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={hasChildren}
-            onChange={(e) => setHasChildren((e.target as HTMLInputElement).checked)}
-            class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500"
-          />
-          <span class="text-xs font-semibold text-slate-700">
-            Есть дети (вычеты: 1-й — 1 400 ₽, 2-й — 2 800 ₽, 3-й — 6 000 ₽ до лимита 450 тыс. ₽)
-          </span>
-        </label>
+      {/* Тонкие настройки (Вычеты, Регион, МСП) */}
+      <div class="pt-4 border-t border-slate-100 space-y-4">
+        <div class="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1.5"
+          >
+            <span>{showAdvanced ? '▲ Скрыть дополнительные параметры' : '⚙️ Тонкие параметры (дети, регион, вычеты, МСП)'}</span>
+          </button>
+          <span class="text-[11px] text-slate-400">для максимальной точности</span>
+        </div>
 
-        {hasChildren && (
-          <div class="bg-emerald-50/60 p-3 rounded-xl border border-emerald-100 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {showAdvanced && (
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4">
+            {/* Районный коэффициент */}
             <div>
-              <span class="block text-[11px] font-medium text-slate-700 mb-1">1-й ребёнок</span>
-              <input
-                type="number"
-                min="0"
-                value={firstCount}
-                onInput={(e) => setFirstCount(parseInt((e.target as HTMLInputElement).value, 10) || 0)}
-                class="w-full p-2 bg-white rounded-lg border border-emerald-200 text-xs font-bold"
-              />
+              <label class="block text-xs font-bold text-slate-700 mb-1">
+                Районный коэффициент / Северная надбавка:
+              </label>
+              <select
+                value={regionalMultiplier}
+                onChange={(e) => setRegionalMultiplier(parseFloat((e.target as HTMLSelectElement).value))}
+                class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none"
+              >
+                {REGIONS.map((r) => (
+                  <option key={r.value} value={r.value}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
+              <p class="text-[11px] text-slate-500 mt-1">
+                По ст. 224 НК РФ (176-ФЗ) на районные надбавки распространяется льготная 2-ступенчатая шкала (13% до 5 млн ₽).
+              </p>
             </div>
+
+            {/* Дети */}
             <div>
-              <span class="block text-[11px] font-medium text-slate-700 mb-1">2-й ребёнок</span>
-              <input
-                type="number"
-                min="0"
-                value={secondCount}
-                onInput={(e) => setSecondCount(parseInt((e.target as HTMLInputElement).value, 10) || 0)}
-                class="w-full p-2 bg-white rounded-lg border border-emerald-200 text-xs font-bold"
-              />
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={hasChildren}
+                  onChange={(e) => setHasChildren((e.target as HTMLInputElement).checked)}
+                  class="w-4 h-4 text-emerald-600 rounded border-slate-300"
+                />
+                <span class="text-xs font-bold text-slate-800">
+                  Стандартные вычеты на детей (лимит дохода 450 000 ₽/год)
+                </span>
+              </label>
+
+              {hasChildren && (
+                <div class="grid grid-cols-3 gap-3 mt-2">
+                  <div class="bg-white p-2 rounded-lg border border-slate-200">
+                    <span class="block text-[10px] text-slate-500 font-bold">1-й ребёнок (1 400 ₽)</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={firstCount}
+                      onInput={(e) => setFirstCount(parseInt((e.target as HTMLInputElement).value, 10) || 0)}
+                      class="w-full mt-1 p-1 font-bold text-xs border rounded"
+                    />
+                  </div>
+                  <div class="bg-white p-2 rounded-lg border border-slate-200">
+                    <span class="block text-[10px] text-slate-500 font-bold">2-й ребёнок (2 800 ₽)</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={secondCount}
+                      onInput={(e) => setSecondCount(parseInt((e.target as HTMLInputElement).value, 10) || 0)}
+                      class="w-full mt-1 p-1 font-bold text-xs border rounded"
+                    />
+                  </div>
+                  <div class="bg-white p-2 rounded-lg border border-slate-200">
+                    <span class="block text-[10px] text-slate-500 font-bold">3-й и более (6 000 ₽)</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={thirdCount}
+                      onInput={(e) => setThirdCount(parseInt((e.target as HTMLInputElement).value, 10) || 0)}
+                      class="w-full mt-1 p-1 font-bold text-xs border rounded"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Имущественный вычет через работодателя */}
             <div>
-              <span class="block text-[11px] font-medium text-slate-700 mb-1">3-й и более</span>
-              <input
-                type="number"
-                min="0"
-                value={thirdCount}
-                onInput={(e) => setThirdCount(parseInt((e.target as HTMLInputElement).value, 10) || 0)}
-                class="w-full p-2 bg-white rounded-lg border border-emerald-200 text-xs font-bold"
-              />
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={hasPropertyExempt}
+                  onChange={(e) => setHasPropertyExempt((e.target as HTMLInputElement).checked)}
+                  class="w-4 h-4 text-emerald-600 rounded border-slate-300"
+                />
+                <span class="text-xs font-bold text-slate-800">
+                  Уведомление о вычете за покупку квартиры/лечение (НДФЛ временно 0%)
+                </span>
+              </label>
+
+              {hasPropertyExempt && (
+                <div class="mt-2 flex items-center gap-2">
+                  <span class="text-xs text-slate-500">Остаток налоговой базы вычета:</span>
+                  <input
+                    type="number"
+                    step="10000"
+                    value={propertyExemptAmount}
+                    onInput={(e) => setPropertyExemptAmount(parseInt((e.target as HTMLInputElement).value, 10) || 0)}
+                    class="w-36 p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold"
+                  />
+                  <span class="text-xs text-slate-500">₽</span>
+                </div>
+              )}
+            </div>
+
+            {/* МСП */}
+            <div>
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={isMsp}
+                  onChange={(e) => setIsMsp((e.target as HTMLInputElement).checked)}
+                  class="w-4 h-4 text-emerald-600 rounded border-slate-300"
+                />
+                <span class="text-xs font-semibold text-slate-700">
+                  Работодатель входит в реестр МСП (ставка страховых взносов 15% свыше МРОТ)
+                </span>
+              </label>
             </div>
           </div>
         )}
-
-        <label class="flex items-center gap-2 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={isMsp}
-            onChange={(e) => setIsMsp((e.target as HTMLInputElement).checked)}
-            class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500"
-          />
-          <span class="text-xs text-slate-600">
-            Работодатель из реестра МСП (пониженные страховые взносы 15% свыше МРОТ)
-          </span>
-        </label>
       </div>
 
-      {/* Результаты в карточках */}
+      {/* Главные результаты */}
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200">
           <span class="text-[11px] uppercase font-bold text-emerald-800">На руки (Net)</span>
           <div class="text-2xl font-black text-emerald-950 mt-1">
             {formatRubles(result.monthlyNetAverage)}
           </div>
-          <span class="text-[11px] text-emerald-700 block mt-1">в среднем в месяц</span>
+          <span class="text-[11px] text-emerald-700 block mt-1">
+            {result.monthlyNetFirstMonth !== result.monthlyNetLastMonth ? (
+              <>В нач. года: {formatRubles(result.monthlyNetFirstMonth)}, в конце: {formatRubles(result.monthlyNetLastMonth)}</>
+            ) : (
+              'ежемесячно'
+            )}
+          </span>
         </div>
 
-        <div class="p-4 rounded-xl bg-rose-50 border border-rose-200">
+        <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200">
           <span class="text-[11px] uppercase font-bold text-rose-800">Налог НДФЛ</span>
           <div class="text-2xl font-black text-rose-950 mt-1">
             {formatRubles(Math.round(result.annualNdfl / 12))}
           </div>
           <span class="text-[11px] text-rose-700 block mt-1">
-            ставка {formatPercent(result.effectiveTaxRate, 1)}
+            эффективная ставка: {formatPercent(result.effectiveTaxRate, 1)} (за год: {formatRubles(result.annualNdfl)})
           </span>
         </div>
 
-        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
-          <span class="text-[11px] uppercase font-bold text-slate-700">Оклад (Gross)</span>
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+          <span class="text-[11px] uppercase font-bold text-slate-700">
+            {mode === 'gross' ? 'Полный оклад Gross' : 'Требуемый оклад Gross'}
+          </span>
           <div class="text-2xl font-black text-slate-900 mt-1">
             {formatRubles(result.monthlyGross)}
           </div>
           <span class="text-[11px] text-slate-500 block mt-1">
-            всего в год: {formatRubles(result.annualGross)}
+            {result.regionalMultiplier > 1 ? `вкл. надбавку ${formatRubles(result.regionalBonusMonthly)}` : `всего в год: ${formatRubles(result.annualGross)}`}
           </span>
         </div>
       </div>
 
-      {/* Шкала ступеней налога */}
-      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
-        <span class="font-bold text-slate-700 block mb-2">Ступени шкалы НДФЛ:</span>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {result.bracketsBreakdown.map((b) => (
-            <div
-              key={b.label}
-              class={`p-2 rounded-lg border flex items-center justify-between ${
-                b.taxableAmountInBracket > 0
-                  ? 'bg-white border-emerald-300 font-semibold text-slate-900'
-                  : 'border-slate-200 text-slate-400 bg-transparent'
-              }`}
-            >
-              <span>{b.label} ({b.maxIncome ? `до ${formatRubles(b.maxIncome)}` : 'свыше 50 млн'})</span>
-              <span>{b.taxInBracket > 0 ? formatRubles(b.taxInBracket) : '0 ₽'}</span>
-            </div>
-          ))}
+      {/* Затраты компании */}
+      <div class="bg-indigo-50/60 p-4 rounded-xl border border-indigo-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div>
+          <span class="font-bold text-indigo-950 block">Полные затраты работодателя на сотрудника:</span>
+          <span class="text-slate-600">
+            Страховые взносы: {formatRubles(Math.round(result.employerCosts.totalContributions / 12))}/мес ({formatPercent(result.employerCosts.contributionsPercentOfGross, 1)} от оклада)
+          </span>
+        </div>
+        <div class="text-right">
+          <span class="text-base font-black text-indigo-950 block">
+            {formatRubles(Math.round(result.employerCosts.totalCostForEmployer / 12))} / мес
+          </span>
+          <span class="text-[10px] text-indigo-600">ФОТ + все взносы</span>
         </div>
       </div>
 
@@ -240,9 +338,9 @@ export default function SalaryTab() {
         <button
           type="button"
           onClick={() => setShowMonthsBreakdown(!showMonthsBreakdown)}
-          class="text-xs font-semibold text-emerald-700 hover:text-emerald-800 flex items-center gap-1"
+          class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1"
         >
-          <span>{showMonthsBreakdown ? '▲ Скрыть помесячный график' : '▼ Показать помесячный график'}</span>
+          <span>{showMonthsBreakdown ? '▲ Скрыть помесячный график' : '▼ Показать подробный помесячный график выплат'}</span>
         </button>
 
         {showMonthsBreakdown && (
@@ -251,20 +349,22 @@ export default function SalaryTab() {
               <thead class="bg-slate-100 text-slate-700 font-semibold border-b">
                 <tr>
                   <th class="p-2.5">Месяц</th>
-                  <th class="p-2.5">Оклад</th>
+                  <th class="p-2.5">Начислено</th>
                   <th class="p-2.5">Вычет</th>
+                  <th class="p-2.5">Доход с нач. года</th>
                   <th class="p-2.5">НДФЛ</th>
                   <th class="p-2.5">На руки</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
                 {result.months.map((m) => (
-                  <tr key={m.month}>
+                  <tr key={m.month} class="hover:bg-slate-50">
                     <td class="p-2 font-medium">{m.month}-й мес.</td>
                     <td class="p-2">{formatRubles(m.gross)}</td>
                     <td class="p-2 text-slate-500">{m.deductions > 0 ? formatRubles(m.deductions) : '—'}</td>
-                    <td class="p-2 text-rose-600 font-semibold">{formatRubles(m.ndflMonthly)}</td>
-                    <td class="p-2 text-emerald-700 font-bold">{formatRubles(m.netSalary)}</td>
+                    <td class="p-2 text-slate-600">{formatRubles(m.cumulativeGross)}</td>
+                    <td class="p-2 text-rose-600 font-bold">{formatRubles(m.ndflMonthly)}</td>
+                    <td class="p-2 text-emerald-700 font-black">{formatRubles(m.netSalary)}</td>
                   </tr>
                 ))}
               </tbody>

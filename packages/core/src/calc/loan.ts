@@ -1,20 +1,22 @@
 /**
  * Кредитный калькулятор с поддержкой аннуитетного и дифференцированного платежа,
- * а также досрочного погашения (уменьшение срока или уменьшение платежа).
+ * досрочных погашений (сокращение срока или уменьшение платежа) и страховки.
  */
 
 export type LoanType = 'annuity' | 'differentiated';
 export type EarlyStrategy = 'reduceTerm' | 'reducePayment';
 
 export interface OneTimeEarlyPayment {
+  id?: string;
   month: number;
   amount: number;
+  strategy?: EarlyStrategy;
 }
 
 export interface LoanInput {
   /** Сумма кредита, руб. */
   principal: number;
-  /** Годовая процентная ставка (например 18.5 для 18.5%) */
+  /** Годовая процентная ставка (например 21 для 21%) */
   annualRate: number;
   /** Срок кредита в месяцах */
   termMonths: number;
@@ -24,8 +26,10 @@ export interface LoanInput {
   monthlyEarlyRepayment?: number;
   /** Разовые досрочные погашения */
   oneTimeEarlyPayments?: OneTimeEarlyPayment[];
-  /** Стратегия при досрочном погашении */
+  /** Стратегия по умолчанию при досрочном погашении */
   earlyStrategy?: EarlyStrategy;
+  /** Ежегодная страховка (% от остатка долга, например 0.8%) */
+  annualInsuranceRate?: number;
 }
 
 export interface LoanScheduleMonth {
@@ -34,6 +38,7 @@ export interface LoanScheduleMonth {
   principalPortion: number;
   interestPortion: number;
   earlyRepayment: number;
+  insurancePortion: number;
   remainingPrincipal: number;
 }
 
@@ -46,7 +51,7 @@ export interface LoanCalculationResult {
   
   /** Базовый ежемесячный платёж (первый месяц) */
   monthlyPaymentFirstMonth: number;
-  /** Базовый ежемесячный платёж (последний месяц, актуально для дифференцированного) */
+  /** Базовый ежемесячный платёж (последний месяц) */
   monthlyPaymentLastMonth: number;
   
   /** Общая сумма выплат без досрочных погашений */
@@ -60,6 +65,8 @@ export interface LoanCalculationResult {
   actualTotalInterest: number;
   /** Сэкономленные проценты */
   interestSaved: number;
+  /** Всего уплачено за страховку */
+  totalInsurancePaid: number;
   
   /** Детальный график платежей */
   schedule: LoanScheduleMonth[];
@@ -84,15 +91,21 @@ export function calculateLoan(input: LoanInput): LoanCalculationResult {
   const termMonths = Math.max(1, input.termMonths);
   const type: LoanType = input.type ?? 'annuity';
   const monthlyEarly = Math.max(0, input.monthlyEarlyRepayment ?? 0);
-  const oneTimeMap = new Map<number, number>();
+  const insuranceRate = Math.max(0, input.annualInsuranceRate ?? 0) / 100 / 12;
+
+  const oneTimeMap = new Map<number, { amount: number; strategy?: EarlyStrategy }>();
   (input.oneTimeEarlyPayments ?? []).forEach((p) => {
-    oneTimeMap.set(p.month, (oneTimeMap.get(p.month) ?? 0) + Math.max(0, p.amount));
+    const existing = oneTimeMap.get(p.month);
+    oneTimeMap.set(p.month, {
+      amount: (existing?.amount ?? 0) + Math.max(0, p.amount),
+      strategy: p.strategy,
+    });
   });
-  const strategy: EarlyStrategy = input.earlyStrategy ?? 'reduceTerm';
+  const defaultStrategy: EarlyStrategy = input.earlyStrategy ?? 'reduceTerm';
 
   const monthlyRate = annualRate / 100 / 12;
 
-  // 1. Расчёт базового варианта (без досрочных платежей)
+  // 1. Базовый вариант без досрочки
   let baseTotalPayment = 0;
   let baseTotalInterest = 0;
   let baseFirstMonth = 0;
@@ -105,7 +118,6 @@ export function calculateLoan(input: LoanInput): LoanCalculationResult {
     baseTotalPayment = basePmt * termMonths;
     baseTotalInterest = Math.max(0, baseTotalPayment - principal);
   } else {
-    // Дифференцированный
     const principalPerMonth = principal / termMonths;
     baseFirstMonth = Math.round(principalPerMonth + principal * monthlyRate);
     let rem = principal;
@@ -121,19 +133,22 @@ export function calculateLoan(input: LoanInput): LoanCalculationResult {
     baseTotalPayment = principal + baseTotalInterest;
   }
 
-  // 2. Расчёт с учётом досрочных погашений
+  // 2. Расчёт с досрочными платежами и страховкой
   const schedule: LoanScheduleMonth[] = [];
   let remainingPrincipal = principal;
   let currentAnnuityPayment = calculateAnnuityPayment(remainingPrincipal, annualRate, termMonths);
   let currentDiffPrincipalPmt = principal / termMonths;
   let actualTotalPayment = 0;
   let actualTotalInterest = 0;
+  let totalInsurancePaid = 0;
 
   for (let m = 1; m <= termMonths; m++) {
     if (remainingPrincipal <= 0.01) break;
 
     const interestForMonth = Math.round(remainingPrincipal * monthlyRate);
+    const insuranceForMonth = Math.round(remainingPrincipal * insuranceRate);
     actualTotalInterest += interestForMonth;
+    totalInsurancePaid += insuranceForMonth;
 
     let regularPayment = 0;
     let principalPortion = 0;
@@ -152,13 +167,15 @@ export function calculateLoan(input: LoanInput): LoanCalculationResult {
 
     remainingPrincipal = Math.max(0, remainingPrincipal - principalPortion);
 
-    // Досрочное погашение
-    const oneTime = oneTimeMap.get(m) ?? 0;
-    const totalExtraAvailable = monthlyEarly + oneTime;
+    // Досрочные погашения
+    const oneTime = oneTimeMap.get(m);
+    const oneTimeAmount = oneTime?.amount ?? 0;
+    const paymentStrategy = oneTime?.strategy ?? defaultStrategy;
+    const totalExtraAvailable = monthlyEarly + oneTimeAmount;
     const actualExtra = Math.min(remainingPrincipal, totalExtraAvailable);
     remainingPrincipal = Math.max(0, remainingPrincipal - actualExtra);
 
-    const totalMonthPayment = regularPayment + actualExtra;
+    const totalMonthPayment = regularPayment + actualExtra + insuranceForMonth;
     actualTotalPayment += totalMonthPayment;
 
     schedule.push({
@@ -167,13 +184,14 @@ export function calculateLoan(input: LoanInput): LoanCalculationResult {
       principalPortion: Math.round(principalPortion),
       interestPortion: interestForMonth,
       earlyRepayment: actualExtra,
+      insurancePortion: insuranceForMonth,
       remainingPrincipal: Math.round(remainingPrincipal),
     });
 
     if (remainingPrincipal <= 0.01) break;
 
     // Пересчёт платежа при стратегии reducePayment
-    if (actualExtra > 0 && strategy === 'reducePayment') {
+    if (actualExtra > 0 && paymentStrategy === 'reducePayment') {
       const remainingMonths = termMonths - m;
       if (remainingMonths > 0) {
         if (type === 'annuity') {
@@ -202,6 +220,24 @@ export function calculateLoan(input: LoanInput): LoanCalculationResult {
     actualTotalPayment,
     actualTotalInterest,
     interestSaved,
+    totalInsurancePaid,
     schedule,
   };
+}
+
+/**
+ * Экспорт графика платежей в CSV (для Excel)
+ */
+export function exportScheduleToCsv(schedule: LoanScheduleMonth[]): string {
+  const headers = ['Номер месяца', 'Общий платеж (руб)', 'Основной долг (руб)', 'Проценты (руб)', 'Досрочно (руб)', 'Страховка (руб)', 'Остаток долга (руб)'];
+  const rows = schedule.map((row) => [
+    row.month,
+    row.payment,
+    row.principalPortion,
+    row.interestPortion,
+    row.earlyRepayment,
+    row.insurancePortion,
+    row.remainingPrincipal,
+  ]);
+  return [headers.join(';'), ...rows.map((r) => r.join(';'))].join('\r\n');
 }

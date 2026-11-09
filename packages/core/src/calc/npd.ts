@@ -12,10 +12,14 @@ export interface NpdCalculationInput {
   initialBonus?: number;
   /** Суммарный доход с начала года до текущего периода, руб. */
   priorCumulativeIncome?: number;
+  /** Процент комиссии маркетплейса / эквайринга (например 15 для 15%) */
+  commissionRate?: number;
+  /** Включать ли добровольные страховые взносы в СФР на пенсионный стаж */
+  includePensionContributions?: boolean;
 }
 
 export interface NpdCalculationResult {
-  /** Общий доход за период */
+  /** Общий доход за период (база налога по чекам) */
   totalIncome: number;
   /** Налог без учёта вычета (базовый) */
   baseTax: number;
@@ -29,9 +33,15 @@ export interface NpdCalculationResult {
   bonusRemaining: number;
   /** Итоговый налог к уплате за период */
   taxToPay: number;
-  /** Чистый доход после уплаты налога */
+  /** Комиссия площадок / эквайринга, руб. */
+  commissionAmount: number;
+  /** Сумма, поступившая на карту (до уплаты налога) */
+  payoutOnCard: number;
+  /** Добровольный взнос в СФР на пенсию (в месяц) */
+  pensionContributionMonthly: number;
+  /** Чистый остаток после всех налогов, комиссий и взносов */
   netIncome: number;
-  /** Эффективная процентная ставка налога */
+  /** Эффективная процентная ставка налога от дохода */
   effectiveRate: number;
   /** Суммарный доход с начала года */
   totalCumulativeIncome: number;
@@ -45,6 +55,7 @@ export interface NpdCalculationResult {
 
 export const NPD_ANNUAL_LIMIT = 2400000;
 export const NPD_MAX_BONUS = 10000;
+export const ANNUAL_PENSION_CONTRIBUTION_2026 = 53658; // 1 год стажа в СФР
 
 export function calculateNpd(input: NpdCalculationInput): NpdCalculationResult {
   const indIncome = Math.max(0, input.incomeFromIndividuals);
@@ -58,7 +69,7 @@ export function calculateNpd(input: NpdCalculationInput): NpdCalculationResult {
 
   let bonusRemaining = Math.max(0, Math.min(NPD_MAX_BONUS, input.initialBonus ?? NPD_MAX_BONUS));
 
-  // Базовые ставки: 4% с физлиц, 6% с юрлиц
+  // Базовые ставки: 4% с физлиц, 6% с юрлиц (исчисляются с полной выручки до комиссий!)
   const baseTaxInd = indIncome * 0.04;
   const baseTaxLegal = legalIncome * 0.06;
   const baseTax = Math.round(baseTaxInd + baseTaxLegal);
@@ -74,7 +85,18 @@ export function calculateNpd(input: NpdCalculationInput): NpdCalculationResult {
 
   const totalBonusUsed = Math.round(actualIndBonus + actualLegalBonus);
   const taxToPay = Math.max(0, baseTax - totalBonusUsed);
-  const netIncome = totalIncome - taxToPay;
+
+  // Комиссия маркетплейса/эквайринга
+  const commissionRate = Math.max(0, input.commissionRate ?? 0) / 100;
+  const commissionAmount = Math.round(totalIncome * commissionRate);
+  const payoutOnCard = Math.max(0, totalIncome - commissionAmount);
+
+  // Добровольные взносы в СФР
+  const pensionContributionMonthly = input.includePensionContributions
+    ? Math.round(ANNUAL_PENSION_CONTRIBUTION_2026 / 12)
+    : 0;
+
+  const netIncome = Math.max(0, payoutOnCard - taxToPay - pensionContributionMonthly);
   const effectiveRate = totalIncome > 0 ? taxToPay / totalIncome : 0;
 
   return {
@@ -85,6 +107,9 @@ export function calculateNpd(input: NpdCalculationInput): NpdCalculationResult {
     bonusUsed: totalBonusUsed,
     bonusRemaining: Math.round(bonusRemaining),
     taxToPay,
+    commissionAmount,
+    payoutOnCard,
+    pensionContributionMonthly,
     netIncome,
     effectiveRate,
     totalCumulativeIncome,
