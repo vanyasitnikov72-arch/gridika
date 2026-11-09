@@ -1,0 +1,58 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalUrl?: string;
+  schemaJson?: Record<string, unknown>;
+}
+
+const { title, description, canonicalUrl, schemaJson } = Astro.props;
+const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://calc.temka.local';
+const fullCanonical = canonicalUrl || `${siteUrl}${Astro.url.pathname}`;
+---
+
+<!doctype html>
+<html lang="ru" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={fullCanonical} />
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={fullCanonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content="ru_RU" />
+
+    <meta name="theme-color" content="#16a34a" />
+
+    {schemaJson && (
+      <script type="application/ld+json" set:html={JSON.stringify(schemaJson)} />
+    )}
+
+    <style is:global>
+      @media print {
+        header, footer, .no-print {
+          display: none !important;
+        }
+        body {
+          background: white !important;
+          color: black !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col bg-slate-50 text-slate-800 antialiased selection:bg-emerald-200">
+    <Header />
+    <main class="flex-grow">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

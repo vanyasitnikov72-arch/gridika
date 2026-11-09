@@ -1,0 +1,21 @@
+{
+  "name": "temka-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:calc": "pnpm --filter @temka/calc dev",
+    "build:calc": "pnpm --filter @temka/calc build",
+    "test": "pnpm --filter @temka/core test",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "vitest": "^3.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}
