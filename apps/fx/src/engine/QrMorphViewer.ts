@@ -5,6 +5,7 @@ import { generateTargetShapePositions, type TargetShapeType } from './shapes';
 export interface ThemeConfig {
   id: string;
   name: string;
+  subtitle: string;
   bgColor: string;
   groundColor: string;
   voxelColor: string;
@@ -14,54 +15,59 @@ export interface ThemeConfig {
 }
 
 export const THEMES: Record<string, ThemeConfig> = {
-  'dark-gold': {
-    id: 'dark-gold',
-    name: 'Черное золото',
-    bgColor: '#0b0c10',
-    groundColor: '#12141c',
-    voxelColor: '#222533',
-    accentColor: '#f59e0b',
-    finderColor: '#fbbf24',
-    isDark: true,
-  },
-  'cyberpunk': {
-    id: 'cyberpunk',
-    name: 'Киберпанк Неон',
-    bgColor: '#090914',
-    groundColor: '#13112c',
-    voxelColor: '#312e81',
-    accentColor: '#06b6d4',
-    finderColor: '#f43f5e',
-    isDark: true,
-  },
-  'minimal': {
-    id: 'minimal',
-    name: 'Студийный светлый',
-    bgColor: '#f8fafc',
+  'studio-minimal': {
+    id: 'studio-minimal',
+    name: 'Фарфор и Графит',
+    subtitle: 'Чистый студийный минимализм',
+    bgColor: '#f9fafb',
     groundColor: '#ffffff',
-    voxelColor: '#1e293b',
-    accentColor: '#2563eb',
-    finderColor: '#0284c7',
+    voxelColor: '#18181b',
+    accentColor: '#3b82f6',
+    finderColor: '#2563eb',
     isDark: false,
   },
-  'emerald': {
-    id: 'emerald',
-    name: 'Изумрудная матрица',
-    bgColor: '#04130c',
-    groundColor: '#062819',
-    voxelColor: '#064e3b',
-    accentColor: '#10b981',
-    finderColor: '#34d399',
-    isDark: true,
+  'warm-linen': {
+    id: 'warm-linen',
+    name: 'Теплый лен и Орех',
+    subtitle: 'Мягкий премиальный бежевый',
+    bgColor: '#faf8f5',
+    groundColor: '#f4efe8',
+    voxelColor: '#29221d',
+    accentColor: '#b45309',
+    finderColor: '#9a3412',
+    isDark: false,
   },
-  'sunset': {
-    id: 'sunset',
-    name: 'Закатный градиент',
-    bgColor: '#13091e',
-    groundColor: '#200e33',
-    voxelColor: '#4c1d95',
-    accentColor: '#f97316',
-    finderColor: '#fb923c',
+  'nordic-frost': {
+    id: 'nordic-frost',
+    name: 'Северный Лед',
+    subtitle: 'Светлый холодный хром',
+    bgColor: '#f4f8fa',
+    groundColor: '#e8f1f5',
+    voxelColor: '#0f172a',
+    accentColor: '#0284c7',
+    finderColor: '#0ea5e9',
+    isDark: false,
+  },
+  'sage-ceramic': {
+    id: 'sage-ceramic',
+    name: 'Шалфей и Керамика',
+    subtitle: 'Оливковый природный тон',
+    bgColor: '#f5f7f4',
+    groundColor: '#e9eee8',
+    voxelColor: '#19261f',
+    accentColor: '#16a34a',
+    finderColor: '#15803d',
+    isDark: false,
+  },
+  'dark-obsidian': {
+    id: 'dark-obsidian',
+    name: 'Глубокий Обсидиан',
+    subtitle: 'Контрастный темный графит',
+    bgColor: '#0f1117',
+    groundColor: '#181b24',
+    voxelColor: '#272a38',
+    accentColor: '#6366f1',
+    finderColor: '#818cf8',
     isDark: true,
   },
 };
@@ -137,7 +143,7 @@ export class QrMorphViewer {
     this.container = options.container;
     this.text = options.text;
     this.shape = options.shape;
-    this.theme = THEMES[options.themeId] || THEMES['dark-gold'];
+    this.theme = THEMES[options.themeId] || THEMES['studio-minimal'];
     this.onStateChange = options.onStateChange;
     this.onReady = options.onReady;
 
@@ -171,31 +177,31 @@ export class QrMorphViewer {
     this.container.innerHTML = '';
     this.container.appendChild(this.renderer.domElement);
 
-    // 3. Lighting
+    // 3. Lighting (balanced for crisp soft studio light)
     this.ambientLight = new THREE.AmbientLight(
-      this.theme.isDark ? 0xffffff : 0xede9fe,
-      this.theme.isDark ? 0.7 : 0.9
+      this.theme.isDark ? 0xffffff : 0xf8fafc,
+      this.theme.isDark ? 0.7 : 1.15
     );
     this.scene.add(this.ambientLight);
 
-    this.dirLight = new THREE.DirectionalLight(0xffffff, this.theme.isDark ? 1.5 : 1.2);
-    this.dirLight.position.set(20, 45, 25);
+    this.dirLight = new THREE.DirectionalLight(0xffffff, this.theme.isDark ? 1.5 : 1.4);
+    this.dirLight.position.set(22, 45, 26);
     this.dirLight.castShadow = true;
     this.dirLight.shadow.mapSize.width = 1024;
     this.dirLight.shadow.mapSize.height = 1024;
     this.dirLight.shadow.bias = -0.001;
     this.scene.add(this.dirLight);
 
-    this.pointLight = new THREE.PointLight(this.theme.accentColor, 2, 60);
+    this.pointLight = new THREE.PointLight(this.theme.accentColor, this.theme.isDark ? 2 : 1.2, 60);
     this.pointLight.position.set(-15, 20, -15);
     this.scene.add(this.pointLight);
 
-    // 4. Ground pedestal
-    const groundGeo = new THREE.CylinderGeometry(20, 21, 1.2, 48);
+    // 4. Ground pedestal (clean ceramic cylinder)
+    const groundGeo = new THREE.CylinderGeometry(20, 20.8, 1.2, 64);
     const groundMat = new THREE.MeshStandardMaterial({
       color: this.theme.groundColor,
-      roughness: 0.4,
-      metalness: 0.3,
+      roughness: this.theme.isDark ? 0.4 : 0.6,
+      metalness: this.theme.isDark ? 0.3 : 0.05,
     });
     this.groundMesh = new THREE.Mesh(groundGeo, groundMat);
     this.groundMesh.position.y = -0.7;
@@ -388,11 +394,15 @@ export class QrMorphViewer {
     }
 
     if (newThemeId !== this.theme.id) {
-      this.theme = THEMES[newThemeId] || THEMES['dark-gold'];
+      this.theme = THEMES[newThemeId] || THEMES['studio-minimal'];
       this.scene.background = new THREE.Color(this.theme.bgColor);
-      (this.groundMesh.material as THREE.MeshStandardMaterial).color.set(this.theme.groundColor);
+      const mat = this.groundMesh.material as THREE.MeshStandardMaterial;
+      mat.color.set(this.theme.groundColor);
+      mat.roughness = this.theme.isDark ? 0.4 : 0.6;
+      mat.metalness = this.theme.isDark ? 0.3 : 0.05;
       this.pointLight.color.set(this.theme.accentColor);
-      this.ambientLight.intensity = this.theme.isDark ? 0.7 : 0.9;
+      this.pointLight.intensity = this.theme.isDark ? 2 : 1.2;
+      this.ambientLight.intensity = this.theme.isDark ? 0.7 : 1.15;
       needsRebuild = true;
     }
 

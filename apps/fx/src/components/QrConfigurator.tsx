@@ -7,11 +7,11 @@ import { generateEmbedCode } from '../engine/standaloneGenerator';
 import confetti from 'canvas-confetti';
 
 const SHAPE_OPTIONS: { id: TargetShapeType; label: string; icon: string; desc: string }[] = [
-  { id: 'city', label: 'Мегаполис', icon: '🏙️', desc: 'Небоскребы с разной высотой и проспектами' },
-  { id: 'crystal', label: 'Кристалл', icon: '💎', desc: 'Парящий алмазный октаэдр с гранями' },
-  { id: 'pyramid', label: 'Пирамида', icon: '🏛️', desc: 'Ступенчатый монолит с ярусами' },
-  { id: 'heart', label: '3D Сердце', icon: '💖', desc: 'Объемное воксельное сердце' },
-  { id: 'sphere', label: 'Сфера', icon: '🌐', desc: 'Геодезическая планетарная сфера' },
+  { id: 'city', label: 'Мегаполис', icon: '🏙️', desc: 'Архитектурный 3D город' },
+  { id: 'crystal', label: 'Кристалл', icon: '💎', desc: 'Алмазный октаэдр' },
+  { id: 'pyramid', label: 'Пирамида', icon: '🏛️', desc: 'Ступенчатый монолит' },
+  { id: 'heart', label: '3D Сердце', icon: '💖', desc: 'Объемная воксельная форма' },
+  { id: 'sphere', label: 'Сфера', icon: '🌐', desc: 'Геодезическая сфера' },
 ];
 
 export function QrConfigurator() {
@@ -20,7 +20,7 @@ export function QrConfigurator() {
 
   const [text, setText] = useState('https://temka.io');
   const [shape, setShape] = useState<TargetShapeType>('city');
-  const [themeId, setThemeId] = useState<string>('dark-gold');
+  const [themeId, setThemeId] = useState<string>('studio-minimal');
   const [currentState, setCurrentState] = useState<'qr' | 'morphed'>('qr');
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [copied, setCopied] = useState(false);
@@ -50,7 +50,7 @@ export function QrConfigurator() {
     };
   }, []);
 
-  // Update viewer on state changes
+  // Update viewer on configuration changes
   useEffect(() => {
     if (viewerRef.current) {
       viewerRef.current.updateConfig(text, shape, themeId);
@@ -61,7 +61,7 @@ export function QrConfigurator() {
   const runValidation = (newText: string, currentThemeId: string) => {
     try {
       const { modules } = generateQrMatrix(newText);
-      const th = THEMES[currentThemeId] || THEMES['dark-gold'];
+      const th = THEMES[currentThemeId] || THEMES['studio-minimal'];
       const res = validateQrScan(modules, newText, th.voxelColor, th.bgColor);
       setValidation(res);
     } catch (e) {
@@ -108,7 +108,7 @@ export function QrConfigurator() {
       await navigator.clipboard.writeText(code);
       setCopied(true);
       confetti({
-        particleCount: 50,
+        particleCount: 40,
         spread: 60,
         origin: { y: 0.8 },
       });
@@ -120,27 +120,27 @@ export function QrConfigurator() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      {/* LEFT: 3D Live Interactive Stage */}
+      {/* LEFT: 3D Stage Viewport */}
       <div className="lg:col-span-7 flex flex-col gap-4">
-        <div className="relative w-full aspect-square max-h-[580px] rounded-3xl overflow-hidden border border-slate-800 bg-slate-950/80 shadow-2xl shadow-indigo-950/30 flex flex-col items-center justify-center group">
-          {/* 3D WebGL Canvas container */}
+        <div className="relative w-full aspect-square max-h-[580px] rounded-3xl overflow-hidden border border-zinc-200/90 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col items-center justify-center group transition-shadow hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)]">
+          {/* 3D WebGL Canvas */}
           <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
           {/* Top Floating Badge Bar */}
           <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
             {/* Mode badge */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-slate-700/60 text-xs font-medium text-slate-200 pointer-events-auto shadow-md">
-              <span className={`w-2 h-2 rounded-full ${currentState === 'qr' ? 'bg-emerald-400 animate-pulse' : 'bg-cyan-400'}`} />
-              {currentState === 'qr' ? 'Режим QR-кода' : `3D фигура: ${SHAPE_OPTIONS.find((s) => s.id === shape)?.label}`}
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-zinc-200/90 text-xs font-medium text-zinc-800 pointer-events-auto shadow-sm">
+              <span className={`w-2 h-2 rounded-full ${currentState === 'qr' ? 'bg-zinc-900' : 'bg-blue-600'}`} />
+              <span>{currentState === 'qr' ? 'Режим QR-кода' : `3D фигура: ${SHAPE_OPTIONS.find((s) => s.id === shape)?.label}`}</span>
             </div>
 
-            {/* Camera verification status badge */}
+            {/* Scanner status badge */}
             {validation && (
               <div
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border shadow-md ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-md border shadow-sm ${
                   validation.isValid
-                    ? 'bg-emerald-950/70 border-emerald-500/40 text-emerald-300'
-                    : 'bg-amber-950/70 border-amber-500/40 text-amber-300'
+                    ? 'bg-emerald-50/90 border-emerald-200 text-emerald-800'
+                    : 'bg-amber-50/90 border-amber-200 text-amber-800'
                 }`}
                 title={validation.message}
               >
@@ -152,15 +152,15 @@ export function QrConfigurator() {
 
           {/* Bottom Interactive Hint */}
           <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between pointer-events-none">
-            <span className="text-[11px] font-medium text-slate-400 bg-slate-900/70 backdrop-blur-md px-3 py-1 rounded-lg border border-slate-800">
-              {currentState === 'qr' ? '👆 Кликните по QR для трансформации' : '🔄 Зажмите и вращайте 3D модель'}
+            <span className="text-xs font-medium text-zinc-600 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-zinc-200/80 shadow-sm">
+              {currentState === 'qr' ? '👆 Кликните по QR для трансформации' : '🔄 Зажмите мышь для 3D вращения'}
             </span>
 
             <button
               onClick={handleToggleMorph}
-              className="pointer-events-auto px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all active:scale-95"
+              className="pointer-events-auto px-3.5 py-1.5 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-medium shadow-sm transition-all active:scale-95"
             >
-              {currentState === 'qr' ? 'Собрать 3D фигуру ➔' : 'Вернуть в QR-код ↺'}
+              {currentState === 'qr' ? 'Собрать 3D фигуру →' : 'Вернуть в QR ↺'}
             </button>
           </div>
         </div>
@@ -170,13 +170,13 @@ export function QrConfigurator() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleToggleMorph}
-              className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-sm font-medium transition-colors"
+              className="px-4 py-2.5 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-800 text-sm font-medium transition-colors shadow-sm"
             >
-              {currentState === 'qr' ? '✨ Анимация взрыва' : '📱 Собрать в QR'}
+              {currentState === 'qr' ? '✨ Анимация' : '📱 В QR-код'}
             </button>
             <button
               onClick={handleDownloadPng}
-              className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-sm font-medium transition-colors flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-800 text-sm font-medium transition-colors shadow-sm flex items-center gap-1.5"
             >
               <span>📸</span>
               <span>Скачать PNG</span>
@@ -185,7 +185,7 @@ export function QrConfigurator() {
 
           <button
             onClick={handleOpenEmbedModal}
-            className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 text-white font-semibold text-sm shadow-xl shadow-indigo-500/25 transition-all active:scale-95 flex items-center justify-center gap-2"
+            className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white font-medium text-sm shadow-sm hover:shadow transition-all active:scale-95 flex items-center justify-center gap-2"
           >
             <span>⚡</span>
             <span>Получить код для Tilda</span>
@@ -193,18 +193,18 @@ export function QrConfigurator() {
         </div>
       </div>
 
-      {/* RIGHT: Customization Controls Panel */}
-      <div className="lg:col-span-5 flex flex-col gap-6 bg-slate-900/90 border border-slate-800/80 rounded-3xl p-6 shadow-xl backdrop-blur-xl">
+      {/* RIGHT: Settings & Controls Panel */}
+      <div className="lg:col-span-5 flex flex-col gap-6 bg-white border border-zinc-200/90 rounded-3xl p-6 sm:p-7 shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
         <div>
-          <h2 className="text-xl font-bold text-white tracking-tight">Настройка эффекта</h2>
-          <p className="text-sm text-slate-400 mt-1">
-            Измените ссылку, фигуру и цвета — превью обновляется мгновенно.
+          <h2 className="text-xl font-bold text-zinc-950 tracking-tight">Настройка эффекта</h2>
+          <p className="text-sm text-zinc-500 mt-1">
+            Минималистичный 3D-элемент, готовый для вставки на ваш сайт.
           </p>
         </div>
 
         {/* 1. Target URL / Text */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
             Ссылка или текст для QR-кода
           </label>
           <div className="relative">
@@ -213,12 +213,12 @@ export function QrConfigurator() {
               value={text}
               onInput={(e) => setText((e.target as HTMLInputElement).value)}
               placeholder="https://vash-sait.ru"
-              className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700/80 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 text-white text-sm outline-none transition-all font-mono"
+              className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200 focus:bg-white focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 text-zinc-900 text-sm outline-none transition-all font-mono"
             />
             {text && (
               <button
                 onClick={() => setText('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 text-xs px-1"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 text-xs px-1"
               >
                 ✕
               </button>
@@ -226,16 +226,16 @@ export function QrConfigurator() {
           </div>
           {/* Quick presets */}
           <div className="flex flex-wrap gap-1.5 mt-1">
-            <span className="text-[11px] text-slate-500 mr-1 py-0.5">Примеры:</span>
+            <span className="text-[11px] text-zinc-400 mr-1 py-0.5">Примеры:</span>
             {[
-              { label: 'Telegram-канал', url: 'https://t.me/durov' },
-              { label: 'Сайт портфолио', url: 'https://designer-portfolio.ru' },
+              { label: 'Портфолио', url: 'https://designer-portfolio.ru' },
+              { label: 'Telegram-канал', url: 'https://t.me/channel' },
               { label: 'Меню ресторана', url: 'https://cafe-menu.ru' },
             ].map((preset) => (
               <button
                 key={preset.label}
                 onClick={() => setText(preset.url)}
-                className="text-[11px] px-2 py-0.5 rounded-md bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors"
+                className="text-[11px] px-2.5 py-1 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-600 hover:text-zinc-900 font-medium transition-colors"
               >
                 {preset.label}
               </button>
@@ -245,7 +245,7 @@ export function QrConfigurator() {
 
         {/* 2. Choose 3D Morph Target Shape */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
             3D фигура для трансформации
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -257,14 +257,16 @@ export function QrConfigurator() {
                   onClick={() => setShape(opt.id)}
                   className={`flex items-start gap-2.5 p-3 rounded-2xl border text-left transition-all ${
                     isSelected
-                      ? 'bg-indigo-950/60 border-indigo-500 text-white shadow-md shadow-indigo-950/50'
-                      : 'bg-slate-950/60 border-slate-800/80 text-slate-300 hover:border-slate-700 hover:bg-slate-950'
+                      ? 'bg-zinc-950 border-zinc-950 text-white shadow-sm'
+                      : 'bg-white border-zinc-200/90 text-zinc-800 hover:border-zinc-300 hover:bg-zinc-50'
                   }`}
                 >
-                  <span className="text-2xl">{opt.icon}</span>
+                  <span className="text-xl">{opt.icon}</span>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold">{opt.label}</div>
-                    <div className="text-[11px] text-slate-400 line-clamp-1">{opt.desc}</div>
+                    <div className={`text-[11px] truncate ${isSelected ? 'text-zinc-300' : 'text-zinc-500'}`}>
+                      {opt.desc}
+                    </div>
                   </div>
                 </button>
               );
@@ -274,8 +276,8 @@ export function QrConfigurator() {
 
         {/* 3. Choose Color Palette / Theme */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Цветовая тема
+          <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+            Цветовая палитра
           </label>
           <div className="grid grid-cols-1 gap-2">
             {Object.values(THEMES).map((th: ThemeConfig) => {
@@ -286,33 +288,36 @@ export function QrConfigurator() {
                   onClick={() => setThemeId(th.id)}
                   className={`flex items-center justify-between p-3 rounded-2xl border transition-all ${
                     isSelected
-                      ? 'bg-slate-800/90 border-indigo-500 ring-1 ring-indigo-500'
-                      : 'bg-slate-950/60 border-slate-800/80 hover:border-slate-700'
+                      ? 'bg-zinc-50 border-zinc-950 ring-1 ring-zinc-950'
+                      : 'bg-white border-zinc-200/90 hover:border-zinc-300 hover:bg-zinc-50/50'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     {/* Swatch palette */}
                     <div className="flex items-center -space-x-1">
                       <span
-                        className="w-4 h-4 rounded-full border border-slate-800"
+                        className="w-4 h-4 rounded-full border border-zinc-300 shadow-inner"
                         style={{ backgroundColor: th.bgColor }}
                       />
                       <span
-                        className="w-4 h-4 rounded-full border border-slate-800"
+                        className="w-4 h-4 rounded-full border border-zinc-300 shadow-inner"
                         style={{ backgroundColor: th.voxelColor }}
                       />
                       <span
-                        className="w-4 h-4 rounded-full border border-slate-800"
+                        className="w-4 h-4 rounded-full border border-zinc-300 shadow-inner"
                         style={{ backgroundColor: th.accentColor }}
                       />
-                      <span
-                        className="w-4 h-4 rounded-full border border-slate-800"
-                        style={{ backgroundColor: th.finderColor }}
-                      />
                     </div>
-                    <span className="text-sm font-medium text-slate-200">{th.name}</span>
+                    <div className="flex flex-col text-left">
+                      <span className="text-sm font-medium text-zinc-900">{th.name}</span>
+                      <span className="text-[11px] text-zinc-500">{th.subtitle}</span>
+                    </div>
                   </div>
-                  {isSelected && <span className="text-indigo-400 text-sm">✓</span>}
+                  {isSelected && (
+                    <span className="w-5 h-5 rounded-full bg-zinc-950 text-white flex items-center justify-center text-xs">
+                      ✓
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -320,15 +325,15 @@ export function QrConfigurator() {
         </div>
 
         {/* Quick Tilda Step Guide */}
-        <div className="p-4 rounded-2xl bg-indigo-950/20 border border-indigo-800/30 flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-indigo-300 font-semibold text-xs uppercase tracking-wider">
+        <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200/90 flex flex-col gap-2">
+          <div className="flex items-center gap-2 text-zinc-900 font-semibold text-xs uppercase tracking-wider">
             <span>🚀</span>
-            <span>Как вставить на Tilda за 1 минуту:</span>
+            <span>Установка на сайт:</span>
           </div>
-          <ol className="text-xs text-slate-300 space-y-1 list-decimal list-inside pl-1">
-            <li>Нажмите <b>«Получить код для Tilda»</b> ниже</li>
-            <li>В редакторе страницы Tilda добавьте блок <b>T123 (HTML-код)</b></li>
-            <li>Вставьте скопированный код и опубликуйте страницу</li>
+          <ol className="text-xs text-zinc-600 space-y-1 list-decimal list-inside pl-1">
+            <li>Скопируйте код кнопкой ниже</li>
+            <li>В Tilda добавьте блок <b>T123 (HTML-код)</b></li>
+            <li>Вставьте код и опубликуйте страницу</li>
           </ol>
         </div>
 
@@ -336,13 +341,13 @@ export function QrConfigurator() {
         <div className="flex gap-2">
           <button
             onClick={handleCopyCode}
-            className="flex-1 py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2"
+            className="flex-1 py-3 px-4 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white font-medium text-sm shadow-sm hover:shadow transition-all flex items-center justify-center gap-2"
           >
-            <span>{copied ? '✓ Скопировано в буфер!' : '📋 Быстро скопировать код'}</span>
+            <span>{copied ? '✓ Скопировано в буфер!' : '📋 Скопировать код'}</span>
           </button>
           <button
             onClick={handleOpenEmbedModal}
-            className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-sm transition-colors"
+            className="py-3 px-4 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-800 font-medium text-sm transition-colors shadow-sm"
           >
             Инструкция
           </button>
@@ -351,18 +356,18 @@ export function QrConfigurator() {
 
       {/* EMBED CODE MODAL */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-          <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl bg-white border border-zinc-200 rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col gap-5">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-bold text-white">Код для вставки в Tilda / сайт</h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Полностью автономный код без сторонних тяжелых библиотек. Работает на любых доменах.
+                <h3 className="text-lg font-bold text-zinc-950">Код для вставки в Tilda</h3>
+                <p className="text-xs text-zinc-500 mt-0.5">
+                  Самодостаточный HTML/JS блок. Работает на любых доменах без сложных настроек.
                 </p>
               </div>
               <button
                 onClick={() => setShowModal(false)}
-                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-sm"
+                className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-600 flex items-center justify-center text-sm transition-colors"
               >
                 ✕
               </button>
@@ -370,34 +375,34 @@ export function QrConfigurator() {
 
             {/* Code Snippet Box */}
             <div className="relative">
-              <pre className="w-full max-h-64 overflow-y-auto p-4 rounded-2xl bg-slate-950 border border-slate-800 text-indigo-300 font-mono text-xs leading-relaxed select-all">
+              <pre className="w-full max-h-64 overflow-y-auto p-4 rounded-2xl bg-zinc-950 text-zinc-300 font-mono text-xs leading-relaxed select-all">
                 {embedCode}
               </pre>
               <button
                 onClick={handleCopyCode}
-                className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs shadow-md transition-all flex items-center gap-1.5"
+                className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium text-xs backdrop-blur-md border border-white/20 transition-all flex items-center gap-1.5"
               >
                 <span>{copied ? '✓ Скопировано' : '📋 Копировать'}</span>
               </button>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80 text-xs text-slate-300 flex items-start gap-2.5">
-              <span className="text-amber-400 text-base leading-none">💡</span>
+            <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 text-xs text-zinc-600 flex items-start gap-2.5">
+              <span className="text-zinc-900 text-base leading-none">💡</span>
               <div>
-                <b className="text-white">Совет для Тильды:</b> Высоту блока можно легко менять прямо в первой строчке кода (<code className="text-indigo-300 font-mono">height: 480px</code>). Код адаптируется под экраны телефонов и планшетов автоматически.
+                <b className="text-zinc-900">Подсказка для Tilda:</b> Высоту блока можно изменить прямо в первой строчке кода (<code className="text-zinc-900 font-mono font-medium">height: 480px</code>). Код адаптируется под экраны смартфонов и планшетов автоматически.
               </div>
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium transition-colors"
+                className="px-5 py-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-sm font-medium transition-colors"
               >
                 Закрыть
               </button>
               <button
                 onClick={handleCopyCode}
-                className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold shadow-lg shadow-indigo-600/30 transition-all"
+                className="px-6 py-2.5 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white text-sm font-medium shadow-sm transition-all"
               >
                 {copied ? '✓ Код скопирован!' : 'Скопировать код'}
               </button>

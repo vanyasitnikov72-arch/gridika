@@ -11,40 +11,46 @@ const {
 ---
 
 <!doctype html>
-<html lang="ru" class="scroll-smooth dark">
+<html lang="ru" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#090a0f" />
+    <meta name="theme-color" content="#ffffff" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   </head>
-  <body class="bg-[#07080d] text-slate-100 font-sans antialiased selection:bg-indigo-500/30 selection:text-indigo-200 min-h-screen flex flex-col">
-    <!-- Ambient top glow -->
-    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-indigo-600/10 via-violet-600/5 to-transparent blur-3xl pointer-events-none -z-10" />
+  <body class="bg-[#fafafa] text-zinc-900 font-sans antialiased selection:bg-zinc-900 selection:text-white min-h-screen flex flex-col">
+    <!-- Subtle top ambient light glow -->
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-80 bg-gradient-to-b from-zinc-200/40 via-zinc-100/20 to-transparent blur-3xl pointer-events-none -z-10" />
 
     <slot />
   </body>
 </html>
 
 <style is:global>
-  /* Custom scrollbar */
+  /* Refined typography */
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.011em;
+  }
+
+  /* Minimal clean scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #090a0f;
+    background: #fafafa;
   }
   ::-webkit-scrollbar-thumb {
-    background: #1e2230;
-    border-radius: 4px;
+    background: #e4e4e7;
+    border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #2d3348;
+    background: #d4d4d8;
   }
 </style>
