@@ -177,14 +177,15 @@ export class QrMorphViewer {
     this.container.innerHTML = '';
     this.container.appendChild(this.renderer.domElement);
 
-    // 3. Lighting (balanced for crisp soft studio light)
+    // 3. Lighting (balanced for tactile Soft 3D studio aesthetic)
     this.ambientLight = new THREE.AmbientLight(
-      this.theme.isDark ? 0xffffff : 0xf8fafc,
-      this.theme.isDark ? 0.7 : 1.15
+      this.theme.isDark ? 0xffffff : 0xf1f5f9,
+      this.theme.isDark ? 0.7 : 1.25
     );
     this.scene.add(this.ambientLight);
 
-    this.dirLight = new THREE.DirectionalLight(0xffffff, this.theme.isDark ? 1.5 : 1.4);
+    // Key light (soft warm top-right)
+    this.dirLight = new THREE.DirectionalLight(0xffffff, this.theme.isDark ? 1.5 : 1.5);
     this.dirLight.position.set(22, 45, 26);
     this.dirLight.castShadow = true;
     this.dirLight.shadow.mapSize.width = 1024;
@@ -192,16 +193,17 @@ export class QrMorphViewer {
     this.dirLight.shadow.bias = -0.001;
     this.scene.add(this.dirLight);
 
-    this.pointLight = new THREE.PointLight(this.theme.accentColor, this.theme.isDark ? 2 : 1.2, 60);
-    this.pointLight.position.set(-15, 20, -15);
+    // Rim/Accent light for edge reflections
+    this.pointLight = new THREE.PointLight(this.theme.accentColor, this.theme.isDark ? 2 : 1.5, 70);
+    this.pointLight.position.set(-18, 22, -18);
     this.scene.add(this.pointLight);
 
-    // 4. Ground pedestal (clean ceramic cylinder)
+    // 4. Ground pedestal (tactile ceramic cylinder)
     const groundGeo = new THREE.CylinderGeometry(20, 20.8, 1.2, 64);
     const groundMat = new THREE.MeshStandardMaterial({
       color: this.theme.groundColor,
-      roughness: this.theme.isDark ? 0.4 : 0.6,
-      metalness: this.theme.isDark ? 0.3 : 0.05,
+      roughness: this.theme.isDark ? 0.4 : 0.55,
+      metalness: this.theme.isDark ? 0.3 : 0.06,
     });
     this.groundMesh = new THREE.Mesh(groundGeo, groundMat);
     this.groundMesh.position.y = -0.7;
