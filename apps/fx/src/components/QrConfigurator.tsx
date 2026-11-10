@@ -184,33 +184,6 @@ export function QrConfigurator() {
     }
   };
 
-  const handleResetView = () => {
-    if (viewerRef.current) {
-      viewerRef.current.setState('qr');
-      setCurrentState('qr');
-    }
-  };
-
-  const handleCycleTheme = () => {
-    if (shape === 'tree') {
-      const seasonOrder: TreeSeason[] = ['spring', 'summer', 'autumn'];
-      const nextIdx = (seasonOrder.indexOf(season) + 1) % seasonOrder.length;
-      setSeason(seasonOrder[nextIdx]);
-    } else if (shape === 'city') {
-      const timeOrder: TimeOfDay[] = ['day', 'sunset', 'night'];
-      const nextIdx = (timeOrder.indexOf(timeOfDay) + 1) % timeOrder.length;
-      setTimeOfDay(timeOrder[nextIdx]);
-    } else if (shape === 'island') {
-      const islandOrder: IslandMode[] = ['summer', 'winter', 'volcano'];
-      const nextIdx = (islandOrder.indexOf(islandMode) + 1) % islandOrder.length;
-      setIslandMode(islandOrder[nextIdx]);
-    } else {
-      const themeKeys = Object.keys(THEMES);
-      const currentIndex = themeKeys.indexOf(themeId);
-      const nextTheme = themeKeys[(currentIndex + 1) % themeKeys.length];
-      setThemeId(nextTheme);
-    }
-  };
 
   const handleDownloadPng = () => {
     if (!viewerRef.current) return;
@@ -627,131 +600,36 @@ export function QrConfigurator() {
 
         </div>
 
-        {/* BOTTOM DOCK BAR (Direct 1:1 Mirror of Sofa Cake Dock) */}
-        <div className="mt-5 pt-4 flex flex-wrap items-center justify-between gap-4 relative z-10">
-          
-          {/* LEFT: SQUIRCLE BUTTONS CONNECTED BY DASHES (Reference Dock) */}
-          <div className="flex items-center gap-2">
-            {/* Squircle 1: QR Mode */}
-            <button
-              onClick={handleSetQrMode}
-              title="Режим QR-кода (сканируемый)"
-              aria-label="Режим QR-кода"
-              className={`w-9 h-9 rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-95 ${
-                currentState === 'qr'
-                  ? 'bg-[#19C37D] text-[#132A22] shadow-emerald-700/20 font-bold'
-                  : 'bg-[#eee9de] hover:bg-[#e4ded2] text-[#57534e]'
-              }`}
-            >
-              {/* QR Code Icon */}
-              <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                <path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 20h3M20 14v3" />
-              </svg>
-            </button>
+        {/* BOTTOM DOCK BAR: Arrow CTA & Download PNG */}
+        <div className="mt-5 pt-4 flex items-center gap-2 relative z-10">
+          {/* Arrow CTA Button (Get code for Tilda T123) */}
+          <button
+            onClick={handleOpenEmbedModal}
+            title="Получить код для Tilda T123"
+            aria-label="Получить код для Tilda"
+            className="w-9 h-9 rounded-2xl bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer"
+          >
+            <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
 
-            {/* Subtle Dash */}
-            <span className="text-[#d8d2c4] select-none text-xs font-light">—</span>
+          {/* Subtle Dash */}
+          <span className="text-[#d8d2c4] select-none text-xs font-light">—</span>
 
-            {/* Squircle 2: 3D Shape Mode (Morph) */}
-            <button
-              onClick={handleSetShapeMode}
-              title={`Режим 3D-формы (${SHAPE_OPTIONS.find((s) => s.id === shape)?.label || 'Форма'})`}
-              aria-label="Режим 3D-формы"
-              className={`w-9 h-9 rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-95 ${
-                currentState === 'morphed'
-                  ? 'bg-[#19C37D] text-[#132A22] shadow-emerald-700/20 font-bold'
-                  : 'bg-[#eee9de] hover:bg-[#e4ded2] text-[#57534e]'
-              }`}
-            >
-              {/* 3D Cube / Shape Icon */}
-              <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                <line x1="12" y1="22.08" x2="12" y2="12" />
-              </svg>
-            </button>
-
-            {/* Subtle Dash */}
-            <span className="text-[#d8d2c4] select-none text-xs font-light">—</span>
-
-            {/* Squircle 3: Download PNG */}
-            <button
-              onClick={handleDownloadPng}
-              title="Скачать PNG снимок"
-              aria-label="Скачать PNG снимок"
-              className="w-9 h-9 rounded-2xl bg-[#eee9de] hover:bg-[#e4ded2] text-[#132A22] flex items-center justify-center transition-colors shadow-sm active:scale-95"
-            >
-              {/* Download Icon */}
-              <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-            </button>
-          </div>
-
-          {/* CENTER: FLOATING WHITE PILL DOCK WITH ARROW (Direct Sofa Cake Reference Dock) */}
-          <div className="bg-white rounded-full pl-4 sm:pl-5 pr-2 py-1.5 shadow-[0_10px_28px_rgba(85,70,50,0.1)] border border-[#ede7db] flex items-center gap-3.5">
-            {/* Palette Icon */}
-            <button
-              onClick={handleCycleTheme}
-              className="text-[#78716c] hover:text-[#19C37D] transition-all hover:scale-110 active:scale-90 cursor-pointer"
-              title="Сменить цветовую тему / сезон"
-              aria-label="Сменить цветовую тему"
-            >
-              <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
-                <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
-                <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
-                <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
-                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
-              </svg>
-            </button>
-
-            {/* QR Scan Status */}
-            <div
-              className="flex items-center gap-1.5 text-xs font-extrabold text-[#19C37D] select-none"
-              title={validation?.isValid ? 'Камера распознает QR-код (WCAG 2.1)' : 'Проверка считывания'}
-            >
-              <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              <span className="whitespace-nowrap">{validation?.isValid !== false ? '100% QR' : 'Проверка'}</span>
-            </div>
-
-            {/* Vertical Divider */}
-            <span className="h-5 w-[1px] bg-[#e5dfd2]"></span>
-
-            {/* Dark Squircle CTA Button with Arrow → */}
-            <button
-              onClick={handleOpenEmbedModal}
-              title="Получить код для Tilda T123"
-              className="w-9 h-9 rounded-2xl bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] flex items-center justify-center transition-all shadow-md active:scale-95"
-            >
-              <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-
-          {/* RIGHT: RESET 3D VIEW (Reference Dock) */}
-          <div className="flex items-center">
-            <button
-              onClick={handleResetView}
-              title="Сбросить ракурс 3D (фронтальный вид)"
-              aria-label="Сбросить ракурс 3D"
-              className="w-9 h-9 rounded-2xl bg-[#eee9de] hover:bg-[#e4ded2] text-[#132A22] flex items-center justify-center transition-colors shadow-sm active:scale-95"
-            >
-              <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                <path d="M3 3v5h5" />
-              </svg>
-            </button>
-          </div>
-
+          {/* Download PNG */}
+          <button
+            onClick={handleDownloadPng}
+            title="Скачать PNG снимок"
+            aria-label="Скачать PNG снимок"
+            className="w-9 h-9 rounded-2xl bg-[#eee9de] hover:bg-[#e4ded2] text-[#132A22] flex items-center justify-center transition-colors shadow-sm active:scale-95 cursor-pointer"
+          >
+            <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          </button>
         </div>
 
       </div>
