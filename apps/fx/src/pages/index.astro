@@ -9,84 +9,108 @@ import { QrConfigurator } from '../components/QrConfigurator';
   <Navbar />
 
   <main class="flex-1 pb-24 relative overflow-hidden">
-    {/* ORGANIC EMERALD LIQUID SPILL COMING FROM LEFT EDGE (Exact user drawing reference) */}
-    <div class="absolute top-0 left-0 w-[46vw] min-w-[360px] max-w-[620px] h-[820px] pointer-events-none z-0 select-none">
-      <svg class="w-full h-full" viewBox="0 0 650 820" fill="none" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="heroSpillGrad" x1="0%" y1="0%" x2="100%" y2="90%">
-            <stop offset="0%" stop-color="#064e3b" />
-            <stop offset="55%" stop-color="#047857" />
-            <stop offset="100%" stop-color="#022c22" />
-          </linearGradient>
-          <filter id="spillShadow" x="-10%" y="-10%" width="130%" height="130%">
-            <feDropShadow dx="16" dy="24" stdDeviation="30" flood-color="#064e3b" flood-opacity="0.22" />
-          </filter>
-        </defs>
-        {/* Smooth, uneven, flowing S-curve from top edge down to left edge */}
-        <path
-          d="M 0,0 L 460,0 C 500,120 530,250 510,380 C 490,500 400,610 250,700 C 130,770 40,800 0,820 Z"
-          fill="url(#heroSpillGrad)"
-          filter="url(#spillShadow)"
-        />
-      </svg>
-
-      {/* Depth of field floating blurred terracotta pill (Sofa cake reference) */}
-      <div class="absolute top-[280px] right-2 sm:right-6 w-12 h-6 rounded-full bg-gradient-to-r from-[#ea580c] to-[#f97316] blur-[3.5px] opacity-80 transform rotate-12 shadow-md"></div>
-      
-      {/* Decorative text badge inside the green spill */}
-      <div class="absolute top-28 left-8 sm:left-14 hidden sm:flex flex-col gap-1 text-white">
-        <div class="w-9 h-9 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-lg mb-1 shadow-sm">
-          ⚡
-        </div>
-        <span class="text-xl sm:text-2xl font-black tracking-tight leading-none">
-          Soft 3D
-        </span>
-        <span class="text-[11px] font-bold text-emerald-200/90">
-          WebGL Витрина
-        </span>
-      </div>
-    </div>
-
-    {/* HERO SECTION CONTENT */}
-    <section class="relative pt-10 pb-12 md:pt-14 md:pb-16 z-10">
+    {/* HERO SECTION: FAITHFUL SOFA CAKE REFERENCE LAYOUT */}
+    <section class="relative pt-8 pb-12 md:pt-12 md:pb-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Content aligned to right/center to gracefully breathe next to the left spill */}
-        <div class="flex flex-col items-center lg:items-start lg:ml-[42%] max-w-2xl text-center lg:text-left">
-          {/* Soft 3D Pill Badge */}
-          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full soft-3d-pill text-xs font-black text-[#1c1917] mb-5 transition-all hover:scale-105 shadow-sm">
-            <span class="flex h-2.5 w-2.5 rounded-full bg-[#064e3b] animate-ping"></span>
+        {/* Top Floating Pill */}
+        <div class="flex justify-center lg:justify-end mb-6 max-w-5xl mx-auto">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full soft-3d-pill text-xs font-black text-[#1c1917] shadow-sm">
+            <span class="flex h-2.5 w-2.5 rounded-full bg-[#1ea678] animate-ping"></span>
             <span>Soft 3D витрина • Первый эффект: QR-морфинг</span>
           </div>
+        </div>
 
-          {/* GIANT TYPE HEADLINE */}
-          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-[#1c1917] tracking-[-0.035em] leading-[1.06]">
-            Интерактивные 3D эффекты <br />
-            <span class="text-[#064e3b]">
-              для сайтов на Tilda
-            </span>
-          </h1>
+        {/* Hero Composition: Organic Jade Spill on Left + Content on Right (Sofa Cake Reference) */}
+        <div class="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-14 max-w-5xl mx-auto">
+          
+          {/* 1. ORGANIC JADE LIQUID SPILL (Uncut, complete rounded organic shape from reference) */}
+          <div class="relative w-[280px] h-[330px] sm:w-[320px] sm:h-[370px] shrink-0 select-none group">
+            {/* SVG Organic Shape with exact pleasant jade-mint color from reference */}
+            <svg class="w-full h-full filter drop-shadow-[0_20px_35px_rgba(30,166,120,0.28)]" viewBox="0 0 460 520" fill="none">
+              <defs>
+                <linearGradient id="sofaCakeJade" x1="10%" y1="0%" x2="90%" y2="100%">
+                  <stop offset="0%" stop-color="#24b282" />
+                  <stop offset="60%" stop-color="#1ea678" />
+                  <stop offset="100%" stop-color="#179469" />
+                </linearGradient>
+              </defs>
+              {/* Organic smooth rounded pebble/flag shape matching the Sofa Cake reference */}
+              <path
+                d="M 50,45 
+                   C 50,20 75,10 110,8 
+                   L 330,12 
+                   C 390,15 440,45 450,105 
+                   C 460,170 450,250 435,320 
+                   C 420,380 430,430 415,465 
+                   C 395,510 350,520 280,515 
+                   L 110,510 
+                   C 60,510 45,475 45,430 
+                   Z"
+                fill="url(#sofaCakeJade)"
+              />
+            </svg>
 
-          <p class="mt-4 text-base sm:text-lg text-[#57534e] font-semibold leading-relaxed">
-            Установка за 1 минуту без программирования. 
-            Настройте тактильный 3D-эффект в живом превью и вставьте код в блок T123.
-          </p>
+            {/* Depth of field floating blurred terracotta pill (exact element from reference!) */}
+            <div class="absolute -top-4 right-4 w-14 h-7 rounded-full bg-gradient-to-r from-[#ea580c] to-[#f97316] blur-[4px] opacity-85 pointer-events-none transform rotate-12 shadow-md"></div>
 
-          {/* Tactile Soft 3D Quick Tags */}
-          <div class="mt-6 flex flex-wrap items-center justify-center lg:justify-start gap-2 text-xs font-bold text-[#1c1917]">
-            <span class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full soft-3d-pill shadow-sm">
-              <span class="text-[#064e3b] font-black">✦</span> Блок T123 в Тильде
-            </span>
-            <span class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full soft-3d-pill shadow-sm">
-              <span class="text-[#064e3b] font-black">✓</span> 100% считываемый QR
-            </span>
-            <span class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full soft-3d-pill shadow-sm">
-              <span class="text-[#ea580c] font-black">⚡</span> 0% CPU вне экрана
-            </span>
-            <span class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full soft-3d-pill shadow-sm">
-              <span class="text-[#064e3b] font-black">★</span> Без регистрации
-            </span>
+            {/* Content inside the Jade Spill (Typography matching Sofa Cake) */}
+            <div class="absolute inset-0 p-8 sm:p-10 flex flex-col justify-between pointer-events-none text-white">
+              {/* Top minimal outline icon */}
+              <div class="w-7 h-7 rounded-lg border-2 border-white/60 flex items-center justify-center text-xs opacity-90">
+                <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                  <path d="M12 2L2 19h20L12 2z" />
+                </svg>
+              </div>
+
+              {/* Bold Stacked Title (like 'Sofa cake' on reference) */}
+              <div class="my-auto">
+                <div class="text-4xl sm:text-[46px] font-black tracking-[-0.03em] leading-[0.98]">
+                  Temka <br />
+                  FX
+                </div>
+                <div class="text-[11px] font-bold text-emerald-100/90 tracking-wide mt-2">
+                  WebGL 3D Studio
+                </div>
+              </div>
+
+              {/* White floating kidney bean/pebble (exact visual element from reference!) */}
+              <div class="w-12 h-6 rounded-full bg-white/90 shadow-md transform -rotate-12 mt-2"></div>
+            </div>
           </div>
+
+          {/* 2. RIGHT SIDE CONTENT (Like 'My storehouse' on reference) */}
+          <div class="flex flex-col items-center lg:items-start text-center lg:text-left flex-1 max-w-xl">
+            {/* GIANT TYPE HEADLINE */}
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-[#1c1917] tracking-[-0.035em] leading-[1.08]">
+              Интерактивные 3D эффекты <br />
+              <span class="text-[#1ea678]">
+                для сайтов на Tilda
+              </span>
+            </h1>
+
+            <p class="mt-4 text-sm sm:text-base text-[#57534e] font-semibold leading-relaxed">
+              Установка за 1 минуту без программирования. 
+              Настройте тактильный 3D-эффект в живом превью и вставьте код в блок T123.
+            </p>
+
+            {/* Tactile Soft 3D Quick Tags */}
+            <div class="mt-6 flex flex-wrap items-center justify-center lg:justify-start gap-2 text-xs font-bold text-[#1c1917]">
+              <span class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full soft-3d-pill shadow-sm">
+                <span class="text-[#1ea678] font-black">✦</span> Блок T123 в Тильде
+              </span>
+              <span class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full soft-3d-pill shadow-sm">
+                <span class="text-[#1ea678] font-black">✓</span> 100% считываемый QR
+              </span>
+              <span class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full soft-3d-pill shadow-sm">
+                <span class="text-[#ea580c] font-black">⚡</span> 0% CPU вне экрана
+              </span>
+              <span class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full soft-3d-pill shadow-sm">
+                <span class="text-[#1ea678] font-black">★</span> Без регистрации
+              </span>
+            </div>
+          </div>
+
         </div>
 
       </div>
@@ -96,14 +120,14 @@ import { QrConfigurator } from '../components/QrConfigurator';
     <section id="showcase" class="relative pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
       <div class="mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
-          <span class="text-[11px] font-black uppercase tracking-wider text-[#064e3b]">Живой конфигуратор</span>
+          <span class="text-[11px] font-black uppercase tracking-wider text-[#1ea678]">Живой конфигуратор</span>
           <h2 class="text-2xl sm:text-3xl font-black text-[#1c1917] tracking-tight mt-0.5">
             3D QR-морфинг в реальном времени
           </h2>
         </div>
 
-        <div class="flex items-center gap-2 text-xs font-bold text-[#064e3b] soft-3d-pill px-4 py-2 shadow-sm">
-          <span class="w-2.5 h-2.5 rounded-full bg-[#064e3b] animate-pulse"></span>
+        <div class="flex items-center gap-2 text-xs font-bold text-[#1ea678] soft-3d-pill px-4 py-2 shadow-sm">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#1ea678] animate-pulse"></span>
           <span>Поддерживает iPhone и Android</span>
         </div>
       </div>
@@ -115,7 +139,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
     {/* BENTO GRID: CAPABILITIES & METRICS IN SOFT 3D */}
     <section id="bento-features" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center max-w-2xl mx-auto mb-12">
-        <span class="text-[11px] font-black uppercase tracking-wider text-[#064e3b]">Преимущества</span>
+        <span class="text-[11px] font-black uppercase tracking-wider text-[#1ea678]">Преимущества</span>
         <h2 class="text-3xl sm:text-4xl font-black text-[#1c1917] tracking-tight mt-1">
           Создано для идеальных лендингов
         </h2>
@@ -167,7 +191,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
               Технология <code class="text-[#1c1917] font-mono font-bold bg-[#f6f4ee] px-2 py-0.5 rounded-lg border border-[#e5dfd2]">IntersectionObserver</code> автоматически замораживает WebGL цикл, когда блок уходит из экрана. Телефон не разряжается.
             </p>
           </div>
-          <div class="flex items-center gap-2 text-xs font-bold text-[#064e3b]">
+          <div class="flex items-center gap-2 text-xs font-bold text-[#1ea678]">
             <span class="font-black">✓</span> 60–120 FPS рендеринг в один Draw Call
           </div>
         </div>
@@ -188,7 +212,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
               QR-матрица и трехмерные координаты рассчитываются заранее. Сниппет вставляется в блок T123 и работает надежно всегда.
             </p>
           </div>
-          <div class="flex items-center gap-2 text-xs font-bold text-[#064e3b]">
+          <div class="flex items-center gap-2 text-xs font-bold text-[#1ea678]">
             <span class="font-black">✓</span> Резервное зеркало CDN встроено в код
           </div>
         </div>
@@ -209,7 +233,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
               Ставьте на сайты клиентов или в личные проекты со значком <i>«⚡ Сделано в Temka FX»</i>.
             </p>
           </div>
-          <div class="flex items-center gap-2 text-xs font-bold text-[#064e3b]">
+          <div class="flex items-center gap-2 text-xs font-bold text-[#1ea678]">
             <span>✓</span> Полная коммерческая свобода
           </div>
         </div>
@@ -219,7 +243,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
     {/* BENTO GRID: 3 STEPS ON TILDA */}
     <section id="how-it-works" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center max-w-2xl mx-auto mb-12">
-        <span class="text-[11px] font-black uppercase tracking-wider text-[#064e3b]">Простота</span>
+        <span class="text-[11px] font-black uppercase tracking-wider text-[#1ea678]">Простота</span>
         <h2 class="text-3xl sm:text-4xl font-black text-[#1c1917] tracking-tight mt-1">
           Установка в Тильду за 3 шага
         </h2>
@@ -232,7 +256,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
         {/* Step 01 */}
         <div class="soft-3d-card p-7 sm:p-8 flex flex-col justify-between hover:scale-[1.01] transition-all">
           <div>
-            <div class="w-12 h-12 rounded-2xl bg-[#064e3b] flex items-center justify-center text-white font-black text-lg mb-6 shadow-md shadow-emerald-950/20">
+            <div class="w-12 h-12 rounded-2xl bg-[#1ea678] flex items-center justify-center text-white font-black text-lg mb-6 shadow-md shadow-emerald-950/20">
               01
             </div>
             <h3 class="text-xl font-black text-[#1c1917]">Настройте в превью</h3>
@@ -240,7 +264,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
               Введите вашу ссылку, выберите фигуру (Смартфон, Мегаполис, Кристалл) и нажмите <b>«Код для Tilda»</b>.
             </p>
           </div>
-          <div class="mt-6 pt-4 border-t border-[#ede9df] text-xs font-bold text-[#064e3b]">
+          <div class="mt-6 pt-4 border-t border-[#ede9df] text-xs font-bold text-[#1ea678]">
             ⏱ 20 секунд
           </div>
         </div>
@@ -248,7 +272,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
         {/* Step 02 */}
         <div class="soft-3d-card p-7 sm:p-8 flex flex-col justify-between hover:scale-[1.01] transition-all">
           <div>
-            <div class="w-12 h-12 rounded-2xl bg-[#064e3b] flex items-center justify-center text-white font-black text-lg mb-6 shadow-md shadow-emerald-950/20">
+            <div class="w-12 h-12 rounded-2xl bg-[#1ea678] flex items-center justify-center text-white font-black text-lg mb-6 shadow-md shadow-emerald-950/20">
               02
             </div>
             <h3 class="text-xl font-black text-[#1c1917]">Добавьте блок T123</h3>
@@ -256,7 +280,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
               В редакторе страницы нажмите <b>«Все блоки» ➔ «Другое» ➔ «HTML-код» (блок T123)</b> и вставьте код.
             </p>
           </div>
-          <div class="mt-6 pt-4 border-t border-[#ede9df] text-xs font-bold text-[#064e3b]">
+          <div class="mt-6 pt-4 border-t border-[#ede9df] text-xs font-bold text-[#1ea678]">
             ⏱ 15 секунд
           </div>
         </div>
@@ -264,7 +288,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
         {/* Step 03 */}
         <div class="soft-3d-card p-7 sm:p-8 flex flex-col justify-between hover:scale-[1.01] transition-all">
           <div>
-            <div class="w-12 h-12 rounded-2xl bg-[#064e3b] flex items-center justify-center text-white font-black text-lg mb-6 shadow-md shadow-emerald-950/20">
+            <div class="w-12 h-12 rounded-2xl bg-[#1ea678] flex items-center justify-center text-white font-black text-lg mb-6 shadow-md shadow-emerald-950/20">
               03
             </div>
             <h3 class="text-xl font-black text-[#1c1917]">Опубликуйте страницу</h3>
@@ -272,7 +296,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
               Нажмите <b>«Опубликовать»</b>. Эффект сразу работает на любом домене, адаптируясь под мобильные экраны.
             </p>
           </div>
-          <div class="mt-6 pt-4 border-t border-[#ede9df] text-xs font-bold text-[#064e3b]">
+          <div class="mt-6 pt-4 border-t border-[#ede9df] text-xs font-bold text-[#1ea678]">
             ⏱ 10 секунд
           </div>
         </div>
@@ -282,7 +306,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
     {/* BENTO CATALOG TEASER: UPCOMING EFFECTS */}
     <section id="catalog" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center max-w-2xl mx-auto mb-12">
-        <span class="text-[11px] font-black uppercase tracking-wider text-[#064e3b]">Будущие эффекты</span>
+        <span class="text-[11px] font-black uppercase tracking-wider text-[#1ea678]">Будущие эффекты</span>
         <h2 class="text-3xl sm:text-4xl font-black text-[#1c1917] tracking-tight mt-1">
           Каталог в разработке
         </h2>
@@ -303,7 +327,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
               Заголовок сайта из сотен частиц, которые мягко разлетаются от курсора мыши и пальца на экране.
             </p>
           </div>
-          <div class="mt-6 pt-3 border-t border-[#ede9df] text-[11px] font-bold text-[#064e3b]">
+          <div class="mt-6 pt-3 border-t border-[#ede9df] text-[11px] font-bold text-[#1ea678]">
             Кандидат №2
           </div>
         </div>
@@ -319,7 +343,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
               Объемный 3D таймер обратного отсчета до старта события, вебинара или распродажи с парящими цифрами.
             </p>
           </div>
-          <div class="mt-6 pt-3 border-t border-[#ede9df] text-[11px] font-bold text-[#064e3b]">
+          <div class="mt-6 pt-3 border-t border-[#ede9df] text-[11px] font-bold text-[#1ea678]">
             Кандидат №3
           </div>
         </div>
@@ -335,7 +359,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
               Интерактивный подиум товара с динамическим бликом, вращением на 360° и взрыв-схемой компонентов.
             </p>
           </div>
-          <div class="mt-6 pt-3 border-t border-[#ede9df] text-[11px] font-bold text-[#064e3b]">
+          <div class="mt-6 pt-3 border-t border-[#ede9df] text-[11px] font-bold text-[#1ea678]">
             Кандидат №4
           </div>
         </div>
