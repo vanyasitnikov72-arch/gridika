@@ -85,6 +85,7 @@ export interface QrViewerOptions {
   season?: TreeSeason;
   timeOfDay?: TimeOfDay;
   islandMode?: IslandMode;
+  initialState?: 'qr' | 'morphed';
   onStateChange?: (state: 'qr' | 'morphed') => void;
   onReady?: () => void;
 }
@@ -176,6 +177,12 @@ export class QrMorphViewer {
     this.season = options.season ?? 'spring';
     this.timeOfDay = options.timeOfDay ?? 'day';
     this.islandMode = options.islandMode ?? 'summer';
+    const initSt = options.initialState ?? 'morphed';
+    this.state = initSt;
+    this.targetProgress = initSt === 'morphed' ? 1 : 0;
+    this.viewT = this.targetProgress;
+    this.treeView = this.targetProgress;
+    this.morphProgress = this.targetProgress;
     this.onStateChange = options.onStateChange;
     this.onReady = options.onReady;
 
@@ -195,13 +202,22 @@ export class QrMorphViewer {
     this.camera.lookAt(0, 3.5, 0);
     this.orthoCam = new THREE.OrthographicCamera(-20, 20, 20, -20, 0.1, 1000);
 
-    // 2. Renderer
-    this.renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      alpha: true,
-      powerPreference: 'high-performance',
-      preserveDrawingBuffer: true,
-    });
+    // 2. Resilient WebGL Renderer (fallback to standard if strict attributes fail)
+    try {
+      this.renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+      });
+    } catch {
+      try {
+        this.renderer = new THREE.WebGLRenderer({
+          alpha: true,
+        });
+      } catch (e) {
+        console.error('WebGLRenderer initialization failed:', e);
+        return;
+      }
+    }
     this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.shadowMap.enabled = true;

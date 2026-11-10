@@ -124,7 +124,7 @@ export function QrConfigurator() {
   const [season, setSeason] = useState<TreeSeason>('spring');
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('day');
   const [islandMode, setIslandMode] = useState<IslandMode>('summer');
-  const [currentState, setCurrentState] = useState<'qr' | 'morphed'>('qr');
+  const [currentState, setCurrentState] = useState<'qr' | 'morphed'>('morphed');
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [copied, setCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -184,21 +184,26 @@ export function QrConfigurator() {
   const initViewer = () => {
     if (!containerRef.current || viewerRef.current) return;
 
-    const viewer = new QrMorphViewer({
-      container: containerRef.current,
-      text,
-      shape,
-      themeId,
-      season,
-      timeOfDay,
-      islandMode,
-      onStateChange: (st) => setCurrentState(st),
-      onReady: () => {
-        runValidation(text, themeId);
-      },
-    });
+    try {
+      const viewer = new QrMorphViewer({
+        container: containerRef.current,
+        text,
+        shape,
+        themeId,
+        season,
+        timeOfDay,
+        islandMode,
+        initialState: 'morphed',
+        onStateChange: (st) => setCurrentState(st),
+        onReady: () => {
+          runValidation(text, themeId);
+        },
+      });
 
-    viewerRef.current = viewer;
+      viewerRef.current = viewer;
+    } catch (err) {
+      console.warn('Failed to initialize 3D viewer:', err);
+    }
   };
 
   // Initialize 3D Viewer once mounted
@@ -248,9 +253,14 @@ export function QrConfigurator() {
   }, [islandMode, shape]);
 
   const runValidation = (url: string, theme: string) => {
-    const matrix = generateQrMatrix(url);
-    const result = validateQrScan(matrix, theme);
-    setValidation(result);
+    try {
+      const { modules } = generateQrMatrix(url);
+      const th = THEMES[theme] || THEMES['velvet-emerald'];
+      const result = validateQrScan(modules, url, th.voxelColor, th.bgColor, th.finderColor);
+      setValidation(result);
+    } catch (e) {
+      console.warn('QR scan validation warning:', e);
+    }
   };
 
   const handleSetQrMode = () => {
