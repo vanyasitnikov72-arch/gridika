@@ -13,6 +13,7 @@ interface ShapeOption {
 }
 
 const SHAPE_OPTIONS: ShapeOption[] = [
+  { id: 'tree', label: 'Дерево', desc: 'Бонсай' },
   { id: 'phone', label: 'Смартфон', desc: '3D Монолит' },
   { id: 'crystal', label: 'Кристалл', desc: 'Октаэдр' },
   { id: 'city', label: 'Мегаполис', desc: 'Архитектура' },
@@ -26,7 +27,7 @@ export function QrConfigurator() {
   const viewerRef = useRef<QrMorphViewer | null>(null);
 
   const [text, setText] = useState('https://temka.io');
-  const [shape, setShape] = useState<TargetShapeType>('phone');
+  const [shape, setShape] = useState<TargetShapeType>('tree');
   const [themeId, setThemeId] = useState<string>('velvet-emerald');
   const [currentState, setCurrentState] = useState<'qr' | 'morphed'>('qr');
   const [validation, setValidation] = useState<ValidationResult | null>(null);
@@ -149,6 +150,13 @@ export function QrConfigurator() {
 
   const renderShapeIcon = (shapeId: TargetShapeType) => {
     switch (shapeId) {
+      case 'tree':
+        return (
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 19v3M8 22h8" />
+            <path d="M12 19c-4 0-7-2.5-7-6.5a6 6 0 0 1 1.5-4 5.5 5.5 0 0 1 10.5-2A6 6 0 0 1 19 12.5C19 16.5 16 19 12 19z" />
+          </svg>
+        );
       case 'phone':
         return (
           <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -347,7 +355,7 @@ export function QrConfigurator() {
                         setCurrentState('morphed');
                       }
                     }}
-                    className={`group w-full flex items-center justify-between py-2 px-3 rounded-2xl transition-all text-left ${
+                    className={`group w-full flex items-center justify-between py-1.5 px-3 rounded-2xl transition-all text-left ${
                       isSelected
                         ? 'bg-[#DFF8EB]/70 text-[#132A22] font-extrabold shadow-sm ring-1 ring-[#19C37D]/30'
                         : 'text-[#57534e] hover:text-[#132A22] hover:bg-[#faf8f4]'

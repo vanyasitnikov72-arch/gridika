@@ -1,4 +1,4 @@
-export type TargetShapeType = 'phone' | 'city' | 'crystal' | 'pyramid' | 'heart' | 'sphere';
+export type TargetShapeType = 'tree' | 'phone' | 'city' | 'crystal' | 'pyramid' | 'heart' | 'sphere';
 
 export interface VoxelTarget {
   x: number;
@@ -22,6 +22,106 @@ export function generateTargetShapePositions(
   const hoverGap = 1.0; // Air cushion gap above the ceramic podium
 
   switch (shape) {
+    case 'tree': {
+      // 3D Tree (Bonsai / Sakura): Trunk with roots, branching boughs, and lush organic foliage canopy
+      const treeH = qrSize * 0.70;
+      const trunkH = treeH * 0.36;
+      const canopyH = treeH - trunkH;
+      const yMin = 0.5;
+
+      // 1. Trunk & Root Flare (~16% of count)
+      const trunkCount = Math.max(12, Math.floor(count * 0.16));
+      for (let i = 0; i < trunkCount; i++) {
+        const t = i / (trunkCount - 1 || 1);
+        const y = yMin + t * trunkH;
+        // Natural organic trunk flare at the base
+        const flare = t < 0.28 ? 1.35 : Math.max(0.75, 1.05 - t * 0.3);
+        const angle = i * 2.39996; // Golden angle
+        const rad = (i % 3) * 0.35 * flare;
+        const x = Math.cos(angle) * rad;
+        const z = Math.sin(angle) * rad;
+
+        targets.push({
+          x,
+          y,
+          z,
+          scaleX: 0.92,
+          scaleY: 0.92,
+          scaleZ: 0.92,
+        });
+      }
+
+      // 2. Main Branch Boughs (~12% of count)
+      const branchCount = Math.max(10, Math.floor(count * 0.12));
+      const bAngles = [0.1, Math.PI * 0.65, Math.PI * 1.32, Math.PI * 0.32];
+      for (let i = 0; i < branchCount; i++) {
+        const bIdx = i % bAngles.length;
+        const bAng = bAngles[bIdx] + Math.floor(i / bAngles.length) * 0.12;
+        const t = Math.floor(i / bAngles.length) / Math.max(1, Math.floor(branchCount / bAngles.length));
+        const y = yMin + trunkH * 0.72 + t * (trunkH * 0.55);
+        const reach = (t * 0.75 + 0.25) * (qrSize * 0.23);
+        const x = Math.cos(bAng) * reach;
+        const z = Math.sin(bAng) * reach;
+
+        targets.push({
+          x,
+          y,
+          z,
+          scaleX: 0.9,
+          scaleY: 0.9,
+          scaleZ: 0.9,
+        });
+      }
+
+      // 3. Fallen Foliage / Ground Scatter (~8% of count)
+      const groundCount = Math.max(8, Math.floor(count * 0.08));
+      for (let i = 0; i < groundCount; i++) {
+        const ang = i * 1.37;
+        const rad = 1.4 + (i % 5) * 1.4;
+        targets.push({
+          x: Math.cos(ang) * rad,
+          y: yMin + (i % 2) * 0.2,
+          z: Math.sin(ang) * rad,
+          scaleX: 0.85,
+          scaleY: 0.6,
+          scaleZ: 0.85,
+        });
+      }
+
+      // 4. Lush Organic Foliage Canopy (remaining ~64% of count)
+      const canopyCount = count - targets.length;
+      // 4 organic spherical cloud lobes surrounding the branches
+      const clusters = [
+        { cx: 0, cy: yMin + trunkH + canopyH * 0.55, cz: 0, rx: qrSize * 0.35, ry: canopyH * 0.48, rz: qrSize * 0.35 },
+        { cx: 3.2, cy: yMin + trunkH + canopyH * 0.42, cz: 2.2, rx: qrSize * 0.25, ry: canopyH * 0.38, rz: qrSize * 0.25 },
+        { cx: -3.2, cy: yMin + trunkH + canopyH * 0.46, cz: 1.8, rx: qrSize * 0.26, ry: canopyH * 0.40, rz: qrSize * 0.26 },
+        { cx: 0.6, cy: yMin + trunkH + canopyH * 0.38, cz: -3.2, rx: qrSize * 0.27, ry: canopyH * 0.36, rz: qrSize * 0.27 },
+      ];
+
+      for (let i = 0; i < canopyCount; i++) {
+        const c = clusters[i % clusters.length];
+        const stepInCluster = Math.floor(i / clusters.length);
+        const totalInCluster = Math.max(1, Math.floor(canopyCount / clusters.length));
+        const phi = Math.acos(1 - 2 * (stepInCluster / totalInCluster));
+        const theta = i * 2.39996;
+        const rRand = 0.62 + 0.38 * (((i * 23) % 100) / 100.0);
+
+        const x = c.cx + Math.sin(phi) * Math.cos(theta) * c.rx * rRand;
+        const y = c.cy + Math.cos(phi) * c.ry * rRand;
+        const z = c.cz + Math.sin(phi) * Math.sin(theta) * c.rz * rRand;
+
+        targets.push({
+          x,
+          y,
+          z,
+          scaleX: 0.95,
+          scaleY: 0.95,
+          scaleZ: 0.95,
+        });
+      }
+      break;
+    }
+
     case 'phone': {
       // 3D Smartphone monolith: stands proudly upright above the podium
       const phoneH = qrSize * 0.72;
