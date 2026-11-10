@@ -6,13 +6,19 @@ import { validateQrScan, type ValidationResult } from '../engine/qrValidator';
 import { generateEmbedCode } from '../engine/standaloneGenerator';
 import confetti from 'canvas-confetti';
 
-const SHAPE_OPTIONS: { id: TargetShapeType; label: string }[] = [
-  { id: 'phone', label: 'Смартфон' },
-  { id: 'crystal', label: 'Кристалл' },
-  { id: 'city', label: 'Мегаполис' },
-  { id: 'pyramid', label: 'Пирамида' },
-  { id: 'heart', label: 'Сердце' },
-  { id: 'sphere', label: 'Сфера' },
+interface ShapeOption {
+  id: TargetShapeType;
+  label: string;
+  desc: string;
+}
+
+const SHAPE_OPTIONS: ShapeOption[] = [
+  { id: 'phone', label: 'Смартфон', desc: '3D Монолит' },
+  { id: 'crystal', label: 'Кристалл', desc: 'Октаэдр' },
+  { id: 'city', label: 'Мегаполис', desc: 'Архитектура' },
+  { id: 'pyramid', label: 'Пирамида', desc: 'Геометрия' },
+  { id: 'heart', label: 'Сердце', desc: '3D Форма' },
+  { id: 'sphere', label: 'Сфера', desc: 'Планета' },
 ];
 
 export function QrConfigurator() {
@@ -119,165 +125,228 @@ export function QrConfigurator() {
     }
   };
 
+  const renderShapeIcon = (shapeId: TargetShapeType) => {
+    switch (shapeId) {
+      case 'phone':
+        return (
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="5" y="2" width="14" height="20" rx="2" />
+            <line x1="12" y1="18" x2="12.01" y2="18" />
+          </svg>
+        );
+      case 'crystal':
+        return (
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M6 3h12l4 6-10 12L2 9z" />
+          </svg>
+        );
+      case 'city':
+        return (
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 21h18M5 21V7l8-4v18M19 21v-9l-6-2" />
+          </svg>
+        );
+      case 'pyramid':
+        return (
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 2L2 20h20L12 2z" />
+            <line x1="12" y1="2" x2="12" y2="20" />
+          </svg>
+        );
+      case 'heart':
+        return (
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+        );
+      case 'sphere':
+        return (
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+          </svg>
+        );
+    }
+  };
+
   return (
     <div className="w-full">
-      {/* UNIFIED HERO MASTER CARD (Direct 1:1 Mirror of Sofa Cake Reference) */}
-      <div className="relative w-full rounded-[2.5rem] p-6 sm:p-10 bg-white border border-[#e5dfd2] shadow-[0_25px_60px_-15px_rgba(85,70,50,0.08),0_0_0_1px_rgba(85,70,50,0.02)] overflow-hidden">
+      {/* MASTER CARD (1:1 SOFA CAKE REFERENCE) */}
+      <div className="relative w-full rounded-[2.5rem] bg-white border border-[#e8e2d5] shadow-[0_30px_70px_-15px_rgba(85,70,50,0.08),0_0_0_1px_rgba(85,70,50,0.02)] overflow-hidden p-6 sm:p-10">
         
-        {/* Floating blurred terracotta pill at top-right (Depth of field from reference) */}
-        <div className="absolute -top-6 right-20 sm:right-32 w-16 h-8 rounded-full bg-gradient-to-r from-[#ea580c] to-[#f97316] blur-[6px] opacity-75 pointer-events-none transform rotate-12 z-20"></div>
+        {/* 1. SEAMLESS ORGANIC JADE WAVE (Hugs left boundary like Sofa Cake reference) */}
+        <div className="absolute top-0 left-0 bottom-0 w-full sm:w-[50%] lg:w-[42%] pointer-events-none select-none z-0">
+          <svg className="w-full h-full filter drop-shadow-[0_16px_36px_rgba(30,166,120,0.22)]" viewBox="0 0 460 620" preserveAspectRatio="none" fill="none">
+            <defs>
+              <linearGradient id="sofaWaveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#24b282" />
+                <stop offset="55%" stopColor="#1ea678" />
+                <stop offset="100%" stopColor="#179469" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M 0,0 
+                 L 330,0 
+                 C 410,0 455,45 458,130 
+                 C 460,220 425,300 415,390 
+                 C 405,480 445,550 415,595 
+                 C 395,620 340,620 280,620 
+                 L 0,620 
+                 Z"
+              fill="url(#sofaWaveGrad)"
+            />
+          </svg>
+        </div>
+
+        {/* Floating blurred terracotta pill at top edge of wave (Depth of field from reference) */}
+        <div className="absolute top-4 left-[34%] sm:left-[36%] w-16 h-8 rounded-full bg-gradient-to-r from-[#ea580c] to-[#f97316] blur-[6px] opacity-80 pointer-events-none transform rotate-12 z-20"></div>
 
         {/* Top-right subtle mascot dot (Direct element from Sofa Cake reference) */}
-        <div className="absolute top-7 right-7 sm:top-9 sm:right-9 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#f97316] text-white flex items-center justify-center text-xs shadow-sm pointer-events-none z-20">
+        <div className="absolute top-7 right-7 sm:top-8 sm:right-8 w-8 h-8 rounded-full bg-[#f59e0b] text-white flex items-center justify-center shadow-sm pointer-events-none z-20">
           <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-3.5 8c.83 0 1.5.67 1.5 1.5S9.33 13 8.5 13 7 12.33 7 11.5 7.67 10 8.5 10zm7 0c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5zm-3.5 6.5c-2.33 0-4.31-1.46-5.11-3.5h10.22c-.8 2.04-2.78 3.5-5.11 3.5z" />
           </svg>
         </div>
 
-        {/* Master Card 3-Column Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+        {/* Master Card 3-Zone Content Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center relative z-10">
           
-          {/* 1. LEFT: Organic Jade Liquid Spill (Uncut, complete rounded organic shape from reference) */}
-          <div className="lg:col-span-4 relative flex flex-col justify-between select-none">
-            <div className="relative w-full aspect-[4/5] max-w-[340px] mx-auto lg:mx-0">
-              {/* Organic Jade SVG Background (Reference contours & jade gradient) */}
-              <svg className="w-full h-full filter drop-shadow-[0_16px_32px_rgba(30,166,120,0.22)]" viewBox="0 0 460 520" fill="none">
-                <defs>
-                  <linearGradient id="masterCardJade" x1="10%" y1="0%" x2="90%" y2="100%">
-                    <stop offset="0%" stop-color="#24b282" />
-                    <stop offset="60%" stop-color="#1ea678" />
-                    <stop offset="100%" stop-color="#179469" />
-                  </linearGradient>
-                </defs>
-                <path
-                  d="M 50,45 
-                     C 50,20 75,10 110,8 
-                     L 330,12 
-                     C 390,15 440,45 450,105 
-                     C 460,170 450,250 435,320 
-                     C 420,380 430,430 415,465 
-                     C 395,510 350,520 280,515 
-                     L 110,510 
-                     C 60,510 45,475 45,430 
-                     Z"
-                  fill="url(#masterCardJade)"
-                />
+          {/* 1. LEFT ZONE: Brand Typography on Green Wave */}
+          <div className="lg:col-span-4 relative flex flex-col justify-between h-full min-h-[300px] sm:min-h-[360px] p-2 sm:p-4 text-white pointer-events-none select-none">
+            {/* Minimal outline triangle icon */}
+            <div className="w-8 h-8 rounded-xl border border-white/50 flex items-center justify-center opacity-90 shadow-sm">
+              <svg className="w-4 h-4 fill-none stroke-white stroke-2" viewBox="0 0 24 24">
+                <path d="M12 2L2 19h20L12 2z" />
               </svg>
+            </div>
 
-              {/* Floating orange blurred pill at top-right of spill */}
-              <div className="absolute -top-3 right-2 w-14 h-7 rounded-full bg-gradient-to-r from-[#ea580c] to-[#f97316] blur-[5px] opacity-80 pointer-events-none transform rotate-12 shadow-md"></div>
-
-              {/* Typography inside the Jade Shape */}
-              <div className="absolute inset-0 p-8 flex flex-col justify-between text-white pointer-events-none">
-                {/* Minimal Outline Icon */}
-                <div className="w-7 h-7 rounded-lg border border-white/60 flex items-center justify-center opacity-90">
-                  <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                    <path d="M12 2L2 19h20L12 2z" />
-                  </svg>
-                </div>
-
-                {/* Bold Stacked Title (Mirroring 'Sofa cake' typography) */}
-                <div className="my-auto">
-                  <div className="text-4xl sm:text-[46px] font-black tracking-[-0.035em] leading-[0.96]">
-                    Temka <br />
-                    FX
-                  </div>
-                  <div className="text-xs font-bold text-emerald-100 tracking-wide mt-2.5">
-                    WebGL 3D Studio
-                  </div>
-                </div>
-
-                {/* White floating kidney bean / pebble (Direct Sofa cake reference element) */}
-                <div className="w-12 h-6 rounded-full bg-white/95 shadow-md transform -rotate-12 mt-2"></div>
+            {/* Giant Stacked Title (Mirroring 'Sofa cake') */}
+            <div className="my-auto py-6 sm:py-10">
+              <div className="text-5xl sm:text-[58px] font-black tracking-[-0.04em] leading-[0.92] drop-shadow-sm">
+                Temka <br />
+                FX
+              </div>
+              <div className="text-xs sm:text-sm font-bold text-emerald-100/90 tracking-wide mt-3">
+                WebGL 3D Studio
               </div>
             </div>
+
+            {/* Floating white pebble at bottom-left */}
+            <div className="w-14 h-7 rounded-full bg-white/95 shadow-md transform -rotate-12"></div>
           </div>
 
-          {/* 2. CENTER: Interactive 3D Stage (Overlaps smoothly onto both zones) */}
+          {/* 2. CENTER ZONE: Interactive 3D Stage (Overlaps across the wave seam) */}
           <div className="lg:col-span-4 flex flex-col items-center justify-center relative my-2 lg:my-0">
-            <div className="relative w-full aspect-square max-w-[360px] sm:max-w-[400px] flex items-center justify-center">
-              {/* 3D WebGL Canvas */}
+            <div className="relative w-full h-[380px] sm:h-[430px] flex items-center justify-center">
+              {/* Three.js Canvas with ample breathing room */}
               <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing z-10 relative select-none" />
 
-              {/* Depth of field accent in the foreground (like reference blurred element) */}
-              <div className="absolute -bottom-2 left-6 w-16 h-8 rounded-full bg-gradient-to-r from-[#f97316] via-[#ea580c] to-[#6366f1] blur-[8px] opacity-60 pointer-events-none transform -rotate-6 z-20"></div>
+              {/* Blurred depth-of-field stool / colorful accent in foreground */}
+              <div className="absolute bottom-4 left-6 w-16 h-8 rounded-full bg-gradient-to-r from-[#f97316] via-[#ea580c] to-[#6366f1] blur-[8px] opacity-60 pointer-events-none transform -rotate-6 z-20"></div>
 
-              {/* Status Pill above canvas */}
-              <div className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3.5 py-1 rounded-full soft-3d-pill text-[11px] font-bold text-[#1c1917] z-20 pointer-events-none shadow-sm backdrop-blur-sm bg-white/90">
+              {/* Floating Mode Status Pill */}
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3.5 py-1 rounded-full soft-3d-pill text-[11px] font-bold text-[#1c1917] z-20 pointer-events-none shadow-sm backdrop-blur-sm bg-white/95">
                 <span className={`w-2 h-2 rounded-full ${currentState === 'qr' ? 'bg-[#1ea678] animate-pulse' : 'bg-[#ea580c]'}`} />
                 <span>{currentState === 'qr' ? 'Режим: QR-код' : `3D: ${SHAPE_OPTIONS.find((s) => s.id === shape)?.label}`}</span>
               </div>
             </div>
           </div>
 
-          {/* 3. RIGHT: Minimalist Parameters & Controls (Mirror of 'My storehouse' from reference) */}
-          <div className="lg:col-span-4 flex flex-col justify-center gap-4 text-left">
+          {/* 3. RIGHT ZONE: High-End Product List (Direct Mirror of 'My storehouse' from reference) */}
+          <div className="lg:col-span-4 flex flex-col justify-center gap-3 text-left">
             <div>
               <span className="text-[10px] font-black uppercase tracking-wider text-[#1ea678]">
-                Конфигуратор 3D
+                Витрина
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-[#1c1917] tracking-tight">
-                Параметры
+              <h2 className="text-3xl sm:text-4xl font-black text-[#1c1917] tracking-tight leading-[1.05] mt-0.5">
+                3D Морфинг
               </h2>
             </div>
 
-            {/* Input URL field */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase tracking-wider text-[#78716c] flex items-center justify-between">
-                <span>Ссылка для QR</span>
-                <span className="text-[9px] text-[#a8a29e] font-mono">UTF-8 QR</span>
-              </label>
-              <div className="relative">
+            {/* Table Header: PRODUCT | NO (Reference Layout) */}
+            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-[#a8a29e] pt-2 pb-1 border-b border-[#f0ede6]">
+              <span>ФОРМА</span>
+              <span className="hidden sm:inline">СПЕЦИФИКАЦИЯ</span>
+              <span>ВЫБОР</span>
+            </div>
+
+            {/* Interactive Shape Rows */}
+            <div className="flex flex-col gap-1">
+              {SHAPE_OPTIONS.map((opt) => {
+                const isSelected = shape === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => setShape(opt.id)}
+                    className={`group w-full flex items-center justify-between py-2 px-3 rounded-2xl transition-all text-left ${
+                      isSelected
+                        ? 'bg-[#f6f4ee] text-[#1c1917] font-extrabold shadow-sm ring-1 ring-[#e5dfd2]'
+                        : 'text-[#57534e] hover:text-[#1c1917] hover:bg-[#faf8f4]'
+                    }`}
+                  >
+                    {/* Shape Name */}
+                    <span className="text-xs font-bold tracking-tight">{opt.label}</span>
+
+                    {/* Spec / Description */}
+                    <span className="text-[11px] font-mono text-[#a8a29e] hidden sm:inline">
+                      {opt.desc}
+                    </span>
+
+                    {/* Thumbnail Icon + Plus / Checkmark Indicator */}
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`w-6 h-6 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105 ${
+                          isSelected ? 'bg-[#1ea678] text-white shadow-sm' : 'bg-[#eee9de] text-[#78716c]'
+                        }`}
+                      >
+                        {renderShapeIcon(opt.id)}
+                      </div>
+
+                      <div className={`w-4 h-4 flex items-center justify-center text-xs font-bold ${
+                        isSelected ? 'text-[#1ea678]' : 'text-[#a8a29e] group-hover:text-[#1c1917]'
+                      }`}>
+                        {isSelected ? (
+                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        ) : (
+                          '+'
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Minimal URL Input & Palette Row */}
+            <div className="pt-2 flex items-center gap-2">
+              <div className="relative flex-1">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a8a29e]">
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                  </svg>
+                </div>
                 <input
                   type="text"
                   value={text}
                   onInput={(e) => setText((e.target as HTMLInputElement).value)}
-                  placeholder="https://vash-sait.ru"
-                  className="w-full pl-3 pr-8 py-2.5 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] focus:bg-white focus:border-[#1ea678] text-[#1c1917] text-xs font-mono font-bold outline-none transition-all shadow-inner"
+                  placeholder="https://temka.io"
+                  className="w-full pl-8 pr-7 py-2 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-[#1c1917] text-xs font-mono font-bold outline-none focus:bg-white focus:border-[#1ea678] transition-all shadow-inner"
                 />
                 {text && (
                   <button
                     onClick={() => setText('')}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#a8a29e] hover:text-[#1c1917] text-xs px-1"
-                    title="Очистить"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#a8a29e] hover:text-[#1c1917] text-xs"
                   >
                     ✕
                   </button>
                 )}
               </div>
-            </div>
 
-            {/* Shape selection pills (Clean text, no emojis) */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase tracking-wider text-[#78716c]">
-                3D Форма морфинга
-              </label>
-              <div className="grid grid-cols-3 gap-1.5">
-                {SHAPE_OPTIONS.map((opt) => {
-                  const isSelected = shape === opt.id;
-                  return (
-                    <button
-                      key={opt.id}
-                      onClick={() => setShape(opt.id)}
-                      className={`px-2.5 py-2 rounded-xl text-xs font-bold transition-all text-center ${
-                        isSelected
-                          ? 'bg-[#1ea678] text-white shadow-sm'
-                          : 'bg-[#fbf9f5] text-[#57534e] border border-[#e5dfd2] hover:border-[#1ea678]'
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Theme selection swatches */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase tracking-wider text-[#78716c]">
-                Палитра
-              </label>
-              <div className="flex items-center gap-2.5">
+              {/* Theme Swatches */}
+              <div className="flex items-center gap-1.5 shrink-0 pl-1">
                 {Object.values(THEMES).map((th: ThemeConfig) => {
                   const isSelected = themeId === th.id;
                   return (
@@ -285,8 +354,10 @@ export function QrConfigurator() {
                       key={th.id}
                       onClick={() => setThemeId(th.id)}
                       title={th.name}
-                      className={`w-7 h-7 rounded-full border transition-all flex items-center justify-center ${
-                        isSelected ? 'border-2 border-[#1ea678] scale-110 shadow-sm ring-2 ring-[#1ea678]/20' : 'border-[#e5dfd2] hover:scale-105'
+                      className={`w-6 h-6 rounded-full border transition-all flex items-center justify-center ${
+                        isSelected
+                          ? 'border-2 border-[#1ea678] scale-110 shadow-sm ring-2 ring-[#1ea678]/25'
+                          : 'border-[#e5dfd2] hover:scale-105'
                       }`}
                       style={{ backgroundColor: th.voxelColor }}
                     >
@@ -296,61 +367,117 @@ export function QrConfigurator() {
                 })}
               </div>
             </div>
-
-            {/* Verification Status Row (Clean SVG check, no emoji) */}
-            {validation && (
-              <div className="flex items-center gap-2 pt-2 border-t border-[#f0ede6] text-xs font-bold text-[#57534e]">
-                <svg className="w-4 h-4 text-[#1ea678] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                  <polyline points="22 4 12 14.01 9 11.01" />
-                </svg>
-                <span>Камера: 100% считываемость (WCAG 2.1)</span>
-              </div>
-            )}
           </div>
 
         </div>
 
-        {/* BOTTOM DOCK BAR (Direct Sofa Cake Reference Dock) */}
-        <div className="mt-8 pt-6 border-t border-[#f2ede4] flex flex-wrap items-center justify-between gap-4">
+        {/* BOTTOM DOCK BAR (Direct 1:1 Mirror of media_1794307275138_04aca089.png) */}
+        <div className="mt-8 pt-5 border-t border-[#f2ede4] flex flex-wrap items-center justify-between gap-4 relative z-10">
+          
+          {/* LEFT: SQUIRCLE BUTTONS CONNECTED BY DASHES (Reference Dock) */}
           <div className="flex items-center gap-2">
+            {/* Squircle 1: 3D/QR Toggle */}
             <button
               onClick={handleToggleMorph}
-              className="px-4 py-2 rounded-full soft-3d-pill hover:bg-[#f6f4ee] text-[#1c1917] text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
+              title={currentState === 'qr' ? 'Запустить 3D морфинг' : 'Вернуть QR-код'}
+              className="w-9 h-9 rounded-2xl bg-[#eee9de] hover:bg-[#e4ded2] text-[#1c1917] flex items-center justify-center transition-colors shadow-sm active:scale-95"
             >
-              <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M3 9h18M9 21V9" />
+              </svg>
+            </button>
+
+            {/* Subtle Dash */}
+            <span className="text-[#d8d2c4] select-none text-xs font-light">—</span>
+
+            {/* Squircle 2: Refresh / Cycle */}
+            <button
+              onClick={handleToggleMorph}
+              title="Переключить анимацию"
+              className="w-9 h-9 rounded-2xl bg-[#eee9de] hover:bg-[#e4ded2] text-[#1c1917] flex items-center justify-center transition-colors shadow-sm active:scale-95"
+            >
+              <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
                 <path d="M21 12a9 9 0 11-9-9c2.5 0 4.8 1 6.5 2.7L21 8M21 3v5h-5" />
               </svg>
-              <span>{currentState === 'qr' ? 'Запустить 3D' : 'В QR-код'}</span>
             </button>
+
+            {/* Subtle Dash */}
+            <span className="text-[#d8d2c4] select-none text-xs font-light">—</span>
+
+            {/* Squircle 3: PNG Snapshot */}
             <button
               onClick={handleDownloadPng}
-              className="px-4 py-2 rounded-full soft-3d-pill hover:bg-[#f6f4ee] text-[#1c1917] text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+              title="Скачать PNG снимок"
+              className="w-9 h-9 rounded-2xl bg-[#eee9de] hover:bg-[#e4ded2] text-[#1c1917] flex items-center justify-center transition-colors shadow-sm active:scale-95"
             >
-              <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
+              <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
               </svg>
-              <span>PNG Снимок</span>
             </button>
           </div>
 
-          {/* Primary CTA Dock Bar with Arrow (Direct Sofa Cake Reference Dock) */}
-          <div className="soft-3d-dock pl-4 pr-1.5 py-1.5 flex items-center gap-3">
-            <span className="text-xs font-extrabold text-[#1c1917]">
-              Код для Tilda (T123)
-            </span>
+          {/* CENTER: FLOATING WHITE PILL DOCK WITH ARROW (Direct Sofa Cake Reference Dock) */}
+          <div className="bg-white rounded-full pl-5 pr-2 py-1.5 shadow-[0_10px_28px_rgba(85,70,50,0.1)] border border-[#ede7db] flex items-center gap-3.5">
+            {/* Ruler / Dimension Icon */}
+            <div className="text-[#78716c] hover:text-[#1c1917] transition-colors" title="Стандарт матрицы">
+              <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                <path d="M2 12h20M7 12v-3M12 12v-3M17 12v-3" />
+              </svg>
+            </div>
+
+            {/* Palette Icon */}
+            <div className="text-[#78716c] hover:text-[#1c1917] transition-colors" title="Тема оформления">
+              <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
+                <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
+                <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
+                <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
+                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
+              </svg>
+            </div>
+
+            {/* QR Scan Status */}
+            <div
+              className="flex items-center gap-1.5 text-xs font-extrabold text-[#1ea678]"
+              title={validation?.isValid ? 'Камера распознает QR-код (WCAG 2.1)' : 'Проверка камеры'}
+            >
+              <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              <span>{validation?.isValid !== false ? '100% QR' : 'Скан...'}</span>
+            </div>
+
+            {/* Vertical Divider */}
+            <span className="h-5 w-[1px] bg-[#e5dfd2]"></span>
+
+            {/* Dark Squircle CTA Button with Arrow → */}
             <button
               onClick={handleOpenEmbedModal}
-              className="w-8 h-8 rounded-full bg-[#201e1c] hover:bg-[#1ea678] text-white flex items-center justify-center transition-colors shadow-sm active:scale-95"
-              title="Получить код"
+              title="Получить код для Tilda T123"
+              className="w-9 h-9 rounded-2xl bg-[#201e1c] hover:bg-[#1ea678] text-white flex items-center justify-center transition-all shadow-md active:scale-95"
             >
               <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </button>
           </div>
+
+          {/* RIGHT: SQUIRCLE EMBED / SPLIT BUTTON (Reference Dock) */}
+          <div className="flex items-center">
+            <button
+              onClick={handleOpenEmbedModal}
+              title="Открыть код для блока T123"
+              className="w-9 h-9 rounded-2xl bg-[#eee9de] hover:bg-[#e4ded2] text-[#1c1917] flex items-center justify-center transition-colors shadow-sm active:scale-95"
+            >
+              <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M12 3v18" />
+              </svg>
+            </button>
+          </div>
+
         </div>
 
       </div>

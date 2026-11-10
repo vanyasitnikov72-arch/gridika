@@ -18,11 +18,11 @@ export const THEMES: Record<string, ThemeConfig> = {
   'velvet-emerald': {
     id: 'velvet-emerald',
     name: 'Изумруд и Сливки',
-    subtitle: 'Бархатный изумруд на сливочном подиуме',
+    subtitle: 'Бархатный нефрит на молочном фоне',
     bgColor: '#f6f4ee',
-    groundColor: '#ffffff',
-    voxelColor: '#064e3b',
-    accentColor: '#059669',
+    groundColor: '#fbf9f5',
+    voxelColor: '#179469',
+    accentColor: '#24b282',
     finderColor: '#10b981',
     isDark: false,
   },
@@ -158,9 +158,9 @@ export class QrMorphViewer {
     this.scene = new THREE.Scene();
     this.scene.background = null;
 
-    this.camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
-    this.camera.position.set(0, 36, 42);
-    this.camera.lookAt(0, 0, 0);
+    this.camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 1000);
+    this.camera.position.set(0, 44, 52);
+    this.camera.lookAt(0, 2.5, 0);
 
     // 2. Renderer
     this.renderer = new THREE.WebGLRenderer({
@@ -179,14 +179,14 @@ export class QrMorphViewer {
 
     // 3. Lighting (balanced for tactile Soft 3D studio aesthetic)
     this.ambientLight = new THREE.AmbientLight(
-      this.theme.isDark ? 0xffffff : 0xf1f5f9,
-      this.theme.isDark ? 0.7 : 1.25
+      this.theme.isDark ? 0xffffff : 0xfcfbf9,
+      this.theme.isDark ? 0.7 : 1.35
     );
     this.scene.add(this.ambientLight);
 
     // Key light (soft warm top-right)
-    this.dirLight = new THREE.DirectionalLight(0xffffff, this.theme.isDark ? 1.5 : 1.5);
-    this.dirLight.position.set(22, 45, 26);
+    this.dirLight = new THREE.DirectionalLight(0xffffff, this.theme.isDark ? 1.5 : 1.6);
+    this.dirLight.position.set(22, 48, 28);
     this.dirLight.castShadow = true;
     this.dirLight.shadow.mapSize.width = 1024;
     this.dirLight.shadow.mapSize.height = 1024;
@@ -198,17 +198,28 @@ export class QrMorphViewer {
     this.pointLight.position.set(-18, 22, -18);
     this.scene.add(this.pointLight);
 
-    // 4. Ground pedestal (tactile ceramic cylinder)
-    const groundGeo = new THREE.CylinderGeometry(20, 20.8, 1.2, 64);
+    // 4. Ground pedestal (tactile ceramic cylinder with soft beveled edge)
+    const groundGeo = new THREE.CylinderGeometry(17.8, 18.4, 0.5, 64);
     const groundMat = new THREE.MeshStandardMaterial({
-      color: this.theme.groundColor,
-      roughness: this.theme.isDark ? 0.4 : 0.55,
-      metalness: this.theme.isDark ? 0.3 : 0.06,
+      color: this.theme.isDark ? 0x22201e : 0xfbf9f5,
+      roughness: this.theme.isDark ? 0.4 : 0.6,
+      metalness: this.theme.isDark ? 0.3 : 0.04,
     });
     this.groundMesh = new THREE.Mesh(groundGeo, groundMat);
-    this.groundMesh.position.y = -0.7;
+    this.groundMesh.position.y = -0.28;
     this.groundMesh.receiveShadow = true;
     this.scene.add(this.groundMesh);
+
+    // Soft shadow receiver plane underneath
+    const shadowGeo = new THREE.PlaneGeometry(60, 60);
+    const shadowMat = new THREE.ShadowMaterial({
+      opacity: this.theme.isDark ? 0.35 : 0.08,
+    });
+    const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
+    shadowMesh.rotation.x = -Math.PI / 2;
+    shadowMesh.position.y = -0.3;
+    shadowMesh.receiveShadow = true;
+    this.scene.add(shadowMesh);
 
     // 5. Build QR Voxels
     this.rebuildVoxels();
@@ -398,7 +409,7 @@ export class QrMorphViewer {
     if (newThemeId !== this.theme.id) {
       this.theme = THEMES[newThemeId] || THEMES['velvet-emerald'];
       const mat = this.groundMesh.material as THREE.MeshStandardMaterial;
-      mat.color.set(this.theme.groundColor);
+      mat.color.set(this.theme.isDark ? 0x22201e : 0xfbf9f5);
       mat.roughness = this.theme.isDark ? 0.4 : 0.6;
       mat.metalness = this.theme.isDark ? 0.3 : 0.05;
       this.pointLight.color.set(this.theme.accentColor);
