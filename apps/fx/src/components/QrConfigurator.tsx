@@ -487,7 +487,7 @@ export function QrConfigurator() {
   return (
     <div className="w-full">
       {/* STUDIO FX PRODUCT SWITCHER (Top of Master Studio) */}
-      <div className="flex items-center justify-center gap-1.5 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_4px_16px_rgba(85,70,50,0.06)] backdrop-blur-md mb-4 max-w-xl mx-auto overflow-x-auto no-scrollbar select-none transition-all">
+      <div className="flex items-center justify-center gap-1.5 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_4px_16px_rgba(85,70,50,0.06)] backdrop-blur-md mb-5 w-fit max-w-full mx-auto overflow-x-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden select-none transition-all">
         {STUDIO_PRODUCTS.map((prod) => (
           <button
             key={prod.id}
