@@ -121,46 +121,12 @@ export function QrConfigurator() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      {/* LEFT: Soft 3D Stage Card with ORGANIC GREEN LIQUID SPILL (Sofa Cake Reference) */}
+      {/* LEFT: Soft 3D Stage Card */}
       <div className="lg:col-span-7 flex flex-col gap-4">
         <div className="relative w-full aspect-square max-h-[580px] rounded-[2.5rem] overflow-hidden soft-3d-card flex flex-col items-center justify-center p-3 sm:p-4 transition-all bg-[#faf8f4]">
           
-          {/* 1. ORGANIC EMERALD LIQUID SPILL BLOB (Sofa Cake Reference) */}
-          <div className="absolute -top-16 -left-16 w-[68%] h-[125%] bg-gradient-to-br from-[#064e3b] via-[#047857] to-[#022c22] rounded-[42%_58%_70%_30%/45%_45%_55%_55%] pointer-events-none transition-all duration-700 ease-out shadow-2xl shadow-emerald-950/20 z-0">
-            {/* Organic grain & ambient highlight */}
-            <div className="absolute inset-0 bg-radial-gradient from-white/10 to-transparent opacity-40"></div>
-            
-            {/* Bold Typography inside Green Blob (like 'Sofa cake' on reference) */}
-            <div className="absolute top-24 left-20 flex flex-col gap-1 text-white select-none pointer-events-none">
-              <span className="text-3xl sm:text-4xl font-black tracking-tight leading-[1.05]">
-                3D Morph
-              </span>
-              <span className="text-xs font-bold text-emerald-200/90 tracking-wide">
-                Interactive Tilda FX
-              </span>
-
-              {/* Decorative mini pill badge inside green blob */}
-              <div className="mt-3 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-black text-emerald-100 border border-white/25 w-fit shadow-sm">
-                <span>✦</span>
-                <span>Soft 3D Monolith</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 2. FLOATING SOFT 3D OBJECTS WITH DEPTH OF FIELD BLUR (Sofa Cake Reference) */}
-          {/* Foreground blurred warm terracotta capsule */}
-          <div className="absolute top-8 right-24 w-12 h-6 rounded-full bg-gradient-to-r from-[#ea580c] to-[#f97316] blur-[4px] opacity-80 pointer-events-none z-20 transform -rotate-12 shadow-lg"></div>
-          
-          {/* Background blurred soft peach pill */}
-          <div className="absolute bottom-20 left-12 w-8 h-8 rounded-full bg-[#fb923c] blur-[6px] opacity-60 pointer-events-none z-0"></div>
-
-          {/* Cute mascot smile pill in top right corner (like the orange mascot in Sofa cake) */}
-          <div className="absolute top-7 right-7 w-9 h-9 rounded-full bg-[#f97316] text-white flex items-center justify-center text-sm shadow-md font-black pointer-events-none z-20">
-            <span>☻</span>
-          </div>
-
-          {/* 3. TRANSPARENT 3D WEBGL CANVAS (Crosses boundary between green spill and cream card!) */}
-          <div ref={containerRef} className="w-full h-full rounded-[2rem] overflow-hidden cursor-grab active:cursor-grabbing z-10 relative" />
+          {/* Transparent 3D WebGL Canvas inside clean vessel */}
+          <div ref={containerRef} className="w-full h-full rounded-[2rem] overflow-hidden cursor-grab active:cursor-grabbing z-10 relative bg-[#f6f4ee]" />
 
           {/* Top Floating Soft Pills */}
           <div className="absolute top-7 left-7 right-7 flex items-center justify-between pointer-events-none z-20">

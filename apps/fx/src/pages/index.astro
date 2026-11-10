@@ -9,43 +9,77 @@ import { QrConfigurator } from '../components/QrConfigurator';
   <Navbar />
 
   <main class="flex-1 pb-24">
-    {/* HERO SECTION: WARM CREAMY SOFT 3D & GIANT TYPE */}
-    <section class="relative pt-12 pb-12 md:pt-16 md:pb-16 overflow-hidden">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
-        {/* Soft 3D Pill Badge */}
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full soft-3d-pill text-xs font-black text-[#1c1917] mb-6 transition-all hover:scale-105">
-          <span class="flex h-2.5 w-2.5 rounded-full bg-[#064e3b] animate-ping"></span>
-          <span>Soft 3D витрина • Первый эффект: QR-морфинг</span>
+    {/* HERO SECTION: ORGANIC GREEN LIQUID SPILL TO THE LEFT OF GIANT TITLE */}
+    <section class="relative pt-10 pb-12 md:pt-16 md:pb-16 overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Composition: Organic Green Spill on the Left + Giant Title on the Right */}
+        <div class="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 my-2">
+          
+          {/* ORGANIC EMERALD LIQUID SPILL (Sofa Cake Reference) */}
+          <div class="relative w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 shrink-0 bg-gradient-to-br from-[#064e3b] via-[#047857] to-[#022c22] rounded-[42%_58%_70%_30%/45%_45%_55%_55%] shadow-2xl shadow-emerald-950/25 flex flex-col items-center justify-center p-6 text-white text-center transform -rotate-3 hover:rotate-0 transition-transform duration-500 group select-none">
+            {/* Organic internal glow */}
+            <div class="absolute inset-0 bg-radial-gradient from-white/15 to-transparent rounded-[inherit] opacity-40"></div>
+
+            {/* Depth of field floating blurred terracotta pill (Sofa cake reference) */}
+            <div class="absolute -top-3 -right-3 w-10 h-5 rounded-full bg-gradient-to-r from-[#ea580c] to-[#f97316] blur-[3px] opacity-80 pointer-events-none transform rotate-12 shadow-md"></div>
+            
+            {/* Soft 3D Icon & Bold Typography inside Green Spill */}
+            <div class="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl shadow-sm mb-2 group-hover:scale-105 transition-transform">
+              ⚡
+            </div>
+            <span class="text-2xl sm:text-3xl font-black tracking-tight leading-none">
+              Soft 3D
+            </span>
+            <span class="text-[11px] font-bold text-emerald-200/90 mt-1">
+              WebGL Витрина
+            </span>
+
+            {/* Mini pill inside blob */}
+            <div class="mt-3 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-black border border-white/25 shadow-sm">
+              ✦ Ready for Tilda
+            </div>
+          </div>
+
+          {/* Right Column: Badges, Giant Title, Subtitle */}
+          <div class="flex flex-col items-center lg:items-start text-center lg:text-left max-w-2xl">
+            {/* Soft 3D Pill Badge */}
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full soft-3d-pill text-xs font-black text-[#1c1917] mb-4 transition-all hover:scale-105">
+              <span class="flex h-2.5 w-2.5 rounded-full bg-[#064e3b] animate-ping"></span>
+              <span>Soft 3D витрина • Первый эффект: QR-морфинг</span>
+            </div>
+
+            {/* GIANT TYPE HEADLINE */}
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-[#1c1917] tracking-[-0.035em] leading-[1.06]">
+              Интерактивные 3D эффекты <br />
+              <span class="text-[#064e3b]">
+                для сайтов на Tilda
+              </span>
+            </h1>
+
+            <p class="mt-4 text-base sm:text-lg text-[#57534e] font-semibold leading-relaxed">
+              Установка за 1 минуту без программирования. 
+              Настройте тактильный 3D-эффект в живом превью и вставьте код в блок T123.
+            </p>
+
+            {/* Tactile Soft 3D Quick Tags */}
+            <div class="mt-6 flex flex-wrap items-center justify-center lg:justify-start gap-2 text-xs font-bold text-[#1c1917]">
+              <span class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full soft-3d-pill">
+                <span class="text-[#064e3b] font-black">✦</span> Блок T123
+              </span>
+              <span class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full soft-3d-pill">
+                <span class="text-[#064e3b] font-black">✓</span> 100% считываемый QR
+              </span>
+              <span class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full soft-3d-pill">
+                <span class="text-[#ea580c] font-black">⚡</span> 0% CPU вне экрана
+              </span>
+              <span class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full soft-3d-pill">
+                <span class="text-[#064e3b] font-black">★</span> Без регистрации
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* GIANT TYPE HEADLINE (Sofa Cake Reference) */}
-        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-[#1c1917] tracking-[-0.035em] max-w-4xl leading-[1.06]">
-          Интерактивные 3D эффекты <br />
-          <span class="text-[#064e3b]">
-            для сайтов на Tilda
-          </span>
-        </h1>
-
-        <p class="mt-5 text-base sm:text-lg text-[#57534e] max-w-2xl font-semibold leading-relaxed">
-          Установка за 1 минуту без программирования. 
-          Настройте тактильный 3D-эффект в живом превью и вставьте код в блок T123.
-        </p>
-
-        {/* Tactile Soft 3D Quick Tags */}
-        <div class="mt-8 flex flex-wrap items-center justify-center gap-2.5 text-xs sm:text-sm font-bold text-[#1c1917]">
-          <span class="flex items-center gap-1.5 px-4 py-2 rounded-full soft-3d-pill">
-            <span class="text-[#064e3b] font-black">✦</span> Блок T123 в Тильде
-          </span>
-          <span class="flex items-center gap-1.5 px-4 py-2 rounded-full soft-3d-pill">
-            <span class="text-[#064e3b] font-black">✓</span> 100% считываемый QR
-          </span>
-          <span class="flex items-center gap-1.5 px-4 py-2 rounded-full soft-3d-pill">
-            <span class="text-[#ea580c] font-black">⚡</span> 0% CPU вне экрана
-          </span>
-          <span class="flex items-center gap-1.5 px-4 py-2 rounded-full soft-3d-pill">
-            <span class="text-[#064e3b] font-black">★</span> Без регистрации
-          </span>
-        </div>
       </div>
     </section>
 
@@ -69,7 +103,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
       <QrConfigurator client:load />
     </section>
 
-    {/* BENTO GRID: CAPABILITIES & METRICS IN SOFT 3D (Sofa Cake Reference) */}
+    {/* BENTO GRID: CAPABILITIES & METRICS IN SOFT 3D */}
     <section id="bento-features" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center max-w-2xl mx-auto mb-12">
         <span class="text-[11px] font-black uppercase tracking-wider text-[#064e3b]">Преимущества</span>
@@ -83,7 +117,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
 
       {/* BENTO GRID 4-CARDS */}
       <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-        {/* Bento Card 1: Velvet Emerald Card (like the sofa in Sofa cake reference) */}
+        {/* Bento Card 1: Velvet Emerald Card */}
         <div class="md:col-span-5 soft-3d-card-emerald p-7 sm:p-9 flex flex-col justify-between group hover:scale-[1.01] transition-all">
           <div class="flex items-center justify-between">
             <span class="px-3.5 py-1 rounded-full text-xs font-black bg-white/20 text-white uppercase tracking-wider backdrop-blur-md">
@@ -194,7 +228,7 @@ import { QrConfigurator } from '../components/QrConfigurator';
             </div>
             <h3 class="text-xl font-black text-[#1c1917]">Настройте в превью</h3>
             <p class="text-xs sm:text-sm text-[#57534e] mt-2.5 leading-relaxed font-medium">
-              Введите вашу ссылку, выберите фигуру (Мегаполис, Кристалл или Сердце) и нажмите <b>«Код для Tilda»</b>.
+              Введите вашу ссылку, выберите фигуру (Смартфон, Мегаполис, Кристалл) и нажмите <b>«Код для Tilda»</b>.
             </p>
           </div>
           <div class="mt-6 pt-4 border-t border-[#ede9df] text-xs font-bold text-[#064e3b]">
