@@ -1,4 +1,5 @@
 import jsQR from 'jsqr';
+import { isFinderPattern } from './qrMatrix';
 
 export interface ValidationResult {
   isValid: boolean;
@@ -15,7 +16,8 @@ export function validateQrScan(
   modules: boolean[][],
   expectedText: string,
   colorDarkHex: string,
-  colorLightHex: string
+  colorLightHex: string,
+  finderColorHex?: string
 ): ValidationResult {
   const size = modules.length;
   // Render high-res offscreen canvas
@@ -51,10 +53,11 @@ export function validateQrScan(
   ctx.fillRect(0, 0, canvasSize, canvasSize);
 
   // Draw modules
-  ctx.fillStyle = colorDarkHex;
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
       if (modules[r][c]) {
+        const isFinder = isFinderPattern(r, c, size);
+        ctx.fillStyle = isFinder && finderColorHex ? finderColorHex : colorDarkHex;
         ctx.fillRect((c + margin) * scale, (r + margin) * scale, scale, scale);
       }
     }

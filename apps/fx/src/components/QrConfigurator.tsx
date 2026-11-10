@@ -69,17 +69,38 @@ export function QrConfigurator() {
     try {
       const { modules } = generateQrMatrix(newText);
       const th = THEMES[currentThemeId] || THEMES['velvet-emerald'];
-      const res = validateQrScan(modules, newText, th.voxelColor, th.bgColor);
+      const res = validateQrScan(modules, newText, th.voxelColor, th.bgColor, th.finderColor);
       setValidation(res);
     } catch (e) {
       console.error(e);
     }
   };
 
-  const handleToggleMorph = () => {
+  const handleSetQrMode = () => {
     if (viewerRef.current) {
-      viewerRef.current.toggleState();
+      viewerRef.current.setState('qr');
+      setCurrentState('qr');
     }
+  };
+
+  const handleSetShapeMode = () => {
+    if (viewerRef.current) {
+      viewerRef.current.setState('morphed');
+      setCurrentState('morphed');
+    }
+  };
+
+  const handleResetView = () => {
+    if (viewerRef.current) {
+      viewerRef.current.resetView();
+    }
+  };
+
+  const handleCycleTheme = () => {
+    const themeKeys = Object.keys(THEMES);
+    const currentIndex = themeKeys.indexOf(themeId);
+    const nextTheme = themeKeys[(currentIndex + 1) % themeKeys.length];
+    setThemeId(nextTheme);
   };
 
   const handleDownloadPng = () => {
@@ -277,7 +298,13 @@ export function QrConfigurator() {
                 return (
                   <button
                     key={opt.id}
-                    onClick={() => setShape(opt.id)}
+                    onClick={() => {
+                      setShape(opt.id);
+                      if (viewerRef.current) {
+                        viewerRef.current.setState('morphed');
+                        setCurrentState('morphed');
+                      }
+                    }}
                     className={`group w-full flex items-center justify-between py-2 px-3 rounded-2xl transition-all text-left ${
                       isSelected
                         ? 'bg-[#DFF8EB]/70 text-[#132A22] font-extrabold shadow-sm ring-1 ring-[#19C37D]/30'
@@ -376,44 +403,63 @@ export function QrConfigurator() {
           
           {/* LEFT: SQUIRCLE BUTTONS CONNECTED BY DASHES (Reference Dock) */}
           <div className="flex items-center gap-2">
-            {/* Squircle 1: 3D/QR Toggle */}
+            {/* Squircle 1: QR Mode */}
             <button
-              onClick={handleToggleMorph}
-              title={currentState === 'qr' ? 'Запустить 3D морфинг' : 'Вернуть QR-код'}
-              className="w-9 h-9 rounded-2xl bg-[#eee9de] hover:bg-[#e4ded2] text-[#1c1917] flex items-center justify-center transition-colors shadow-sm active:scale-95"
+              onClick={handleSetQrMode}
+              title="Режим QR-кода (сканируемый)"
+              aria-label="Режим QR-кода"
+              className={`w-9 h-9 rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-95 ${
+                currentState === 'qr'
+                  ? 'bg-[#19C37D] text-white shadow-emerald-700/20'
+                  : 'bg-[#eee9de] hover:bg-[#e4ded2] text-[#57534e]'
+              }`}
             >
+              {/* QR Code Icon */}
               <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <path d="M3 9h18M9 21V9" />
+                <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                <path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 20h3M20 14v3" />
               </svg>
             </button>
 
             {/* Subtle Dash */}
             <span className="text-[#d8d2c4] select-none text-xs font-light">—</span>
 
-            {/* Squircle 2: Refresh / Cycle */}
+            {/* Squircle 2: 3D Shape Mode (Morph) */}
             <button
-              onClick={handleToggleMorph}
-              title="Переключить анимацию"
-              className="w-9 h-9 rounded-2xl bg-[#eee9de] hover:bg-[#e4ded2] text-[#1c1917] flex items-center justify-center transition-colors shadow-sm active:scale-95"
+              onClick={handleSetShapeMode}
+              title={`Режим 3D-формы (${SHAPE_OPTIONS.find((s) => s.id === shape)?.label || 'Форма'})`}
+              aria-label="Режим 3D-формы"
+              className={`w-9 h-9 rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-95 ${
+                currentState === 'morphed'
+                  ? 'bg-[#19C37D] text-white shadow-emerald-700/20'
+                  : 'bg-[#eee9de] hover:bg-[#e4ded2] text-[#57534e]'
+              }`}
             >
+              {/* 3D Cube / Shape Icon */}
               <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                <path d="M21 12a9 9 0 11-9-9c2.5 0 4.8 1 6.5 2.7L21 8M21 3v5h-5" />
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                <line x1="12" y1="22.08" x2="12" y2="12" />
               </svg>
             </button>
 
             {/* Subtle Dash */}
             <span className="text-[#d8d2c4] select-none text-xs font-light">—</span>
 
-            {/* Squircle 3: PNG Snapshot */}
+            {/* Squircle 3: Download PNG */}
             <button
               onClick={handleDownloadPng}
               title="Скачать PNG снимок"
-              className="w-9 h-9 rounded-2xl bg-[#eee9de] hover:bg-[#e4ded2] text-[#1c1917] flex items-center justify-center transition-colors shadow-sm active:scale-95"
+              aria-label="Скачать PNG снимок"
+              className="w-9 h-9 rounded-2xl bg-[#eee9de] hover:bg-[#e4ded2] text-[#132A22] flex items-center justify-center transition-colors shadow-sm active:scale-95"
             >
+              {/* Download Icon */}
               <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                <circle cx="12" cy="13" r="4" />
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
               </svg>
             </button>
           </div>
@@ -421,14 +467,19 @@ export function QrConfigurator() {
           {/* CENTER: FLOATING WHITE PILL DOCK WITH ARROW (Direct Sofa Cake Reference Dock) */}
           <div className="bg-white rounded-full pl-5 pr-2 py-1.5 shadow-[0_10px_28px_rgba(85,70,50,0.1)] border border-[#ede7db] flex items-center gap-3.5">
             {/* Ruler / Dimension Icon */}
-            <div className="text-[#78716c] hover:text-[#1c1917] transition-colors" title="Стандарт матрицы">
+            <div className="text-[#78716c] hover:text-[#132A22] transition-colors" title="Разрешение матрицы: 25×25 вокселей">
               <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
                 <path d="M2 12h20M7 12v-3M12 12v-3M17 12v-3" />
               </svg>
             </div>
 
             {/* Palette Icon */}
-            <div className="text-[#78716c] hover:text-[#1c1917] transition-colors" title="Тема оформления">
+            <button
+              onClick={handleCycleTheme}
+              className="text-[#78716c] hover:text-[#19C37D] transition-colors hover:scale-110 active:scale-95"
+              title="Сменить цветовую тему"
+              aria-label="Сменить цветовую тему"
+            >
               <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
                 <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
                 <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
@@ -436,17 +487,17 @@ export function QrConfigurator() {
                 <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
                 <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
               </svg>
-            </div>
+            </button>
 
             {/* QR Scan Status */}
             <div
-              className="flex items-center gap-1.5 text-xs font-extrabold text-[#19C37D]"
-              title={validation?.isValid ? 'Камера распознает QR-код (WCAG 2.1)' : 'Проверка камеры'}
+              className="flex items-center gap-1.5 text-xs font-extrabold text-[#19C37D] select-none"
+              title={validation?.isValid ? 'Камера распознает QR-код (WCAG 2.1)' : 'Проверка считывания'}
             >
               <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
-              <span>{validation?.isValid !== false ? '100% QR' : 'Скан...'}</span>
+              <span className="whitespace-nowrap">{validation?.isValid !== false ? '100% QR' : 'Проверка'}</span>
             </div>
 
             {/* Vertical Divider */}
@@ -464,16 +515,17 @@ export function QrConfigurator() {
             </button>
           </div>
 
-          {/* RIGHT: SQUIRCLE EMBED / SPLIT BUTTON (Reference Dock) */}
+          {/* RIGHT: RESET 3D VIEW (Reference Dock) */}
           <div className="flex items-center">
             <button
-              onClick={handleOpenEmbedModal}
-              title="Открыть код для блока T123"
+              onClick={handleResetView}
+              title="Сбросить ракурс 3D (фронтальный вид)"
+              aria-label="Сбросить ракурс 3D"
               className="w-9 h-9 rounded-2xl bg-[#eee9de] hover:bg-[#e4ded2] text-[#132A22] flex items-center justify-center transition-colors shadow-sm active:scale-95"
             >
               <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <path d="M12 3v18" />
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
               </svg>
             </button>
           </div>

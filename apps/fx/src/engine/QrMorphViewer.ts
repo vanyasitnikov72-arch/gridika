@@ -385,6 +385,14 @@ export class QrMorphViewer {
     this.setState(this.state === 'qr' ? 'morphed' : 'qr');
   }
 
+  public resetView() {
+    const twoPi = Math.PI * 2;
+    this.rotY = ((this.rotY % twoPi) + twoPi) % twoPi;
+    if (this.rotY > Math.PI) this.rotY -= twoPi;
+    this.targetRotX = 0;
+    this.targetRotY = 0;
+  }
+
   public setState(nextState: 'qr' | 'morphed') {
     this.state = nextState;
     this.targetProgress = nextState === 'morphed' ? 1 : 0;
