@@ -1,45 +1,61 @@
 ---
 ---
 
-<div class="sticky top-3 z-50 w-full px-4 sm:px-6 lg:px-8 pointer-events-none">
-  <header class="max-w-5xl mx-auto soft-3d-dock px-5 sm:px-6 h-14 flex items-center justify-between pointer-events-auto transition-all">
-    {/* Logo */}
-    <a href="/" class="flex items-center gap-2.5 group">
-      <div class="w-8 h-8 rounded-full bg-[#19C37D] flex items-center justify-center text-[#132A22] shadow-md shadow-emerald-700/20 group-hover:scale-105 transition-transform">
-        <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+<div class="sticky top-3 sm:top-4 z-50 w-full px-3 sm:px-6 lg:px-8 pointer-events-none">
+  <header class="max-w-4xl mx-auto soft-3d-dock px-3.5 sm:px-5 h-13 sm:h-14 flex items-center justify-between pointer-events-auto transition-all bg-white/95 backdrop-blur-md">
+    
+    {/* Left: Brand Logo with Tactile Delta Symbol */}
+    <a href="/" class="flex items-center gap-2.5 group select-none">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-[#19C37D] to-[#15a86b] flex items-center justify-center text-[#132A22] shadow-[0_4px_12px_rgba(25,195,125,0.25)] group-hover:scale-105 transition-transform duration-200">
+        <svg class="w-4 h-4 fill-none stroke-[#132A22] stroke-[2.5]" viewBox="0 0 24 24">
           <path d="M12 2L2 19h20L12 2z" />
         </svg>
       </div>
       <div class="flex items-center gap-2">
-        <span class="font-extrabold text-[#132A22] tracking-tight text-sm sm:text-base">
-          Temka FX
+        <span class="font-black text-[#132A22] tracking-tight text-sm sm:text-base leading-none">
+          Temka<span class="text-[#19C37D] ml-0.5">FX</span>
         </span>
-        <span class="hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#DFF8EB] text-[#132A22]">
-          Soft 3D
+        <span class="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#DFF8EB] text-[#132A22] border border-[#19C37D]/20">
+          3D Studio
         </span>
       </div>
     </a>
 
-    {/* Navigation links */}
-    <nav class="hidden md:flex items-center gap-8 text-xs sm:text-sm font-bold text-[#57534e]">
-      <a href="#showcase" class="hover:text-[#132A22] transition-colors">Эффект</a>
-      <a href="#bento-features" class="hover:text-[#132A22] transition-colors">Возможности</a>
-      <a href="#how-it-works" class="hover:text-[#132A22] transition-colors">Установка в Tilda</a>
-      <a href="#catalog" class="hover:text-[#132A22] transition-colors flex items-center gap-1.5">
-        Каталог
-        <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#DFF8EB] text-[#132A22]">Скоро</span>
+    {/* Center: Streamlined Floating Nav Tabs */}
+    <nav class="hidden md:flex items-center gap-1 p-1 rounded-full bg-[#fbf9f5] border border-[#e5dfd2]/80 shadow-inner text-xs font-bold text-[#57534e] select-none">
+      <a
+        href="#showcase"
+        class="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-[#132A22] hover:shadow-xs transition-all duration-200"
+      >
+        Студия
+      </a>
+      <a
+        href="#catalog"
+        class="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-[#132A22] hover:shadow-xs transition-all duration-200 flex items-center gap-1.5"
+      >
+        <span>Каталог</span>
+        <span class="w-4 h-4 rounded-full bg-[#DFF8EB] text-[#132A22] text-[9px] font-mono font-black flex items-center justify-center">6</span>
+      </a>
+      <a
+        href="#how-it-works"
+        class="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-[#132A22] hover:shadow-xs transition-all duration-200"
+      >
+        Установка в Tilda
       </a>
     </nav>
 
-    {/* Right Action Button */}
-    <div class="flex items-center gap-3">
+    {/* Right: Quick CTA Button */}
+    <div class="flex items-center gap-2 select-none">
       <a
         href="#showcase"
-        class="px-4 py-1.5 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] font-bold text-xs shadow-md transition-all active:scale-95 flex items-center gap-1.5"
+        class="px-4 sm:px-4.5 py-1.5 sm:py-2 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] font-extrabold text-xs shadow-md transition-all duration-200 active:scale-95 flex items-center gap-1.5 cursor-pointer"
       >
-        <span>Создать</span>
-        <span class="text-xs">→</span>
+        <span>Создать 3D</span>
+        <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
       </a>
     </div>
+
   </header>
 </div>
