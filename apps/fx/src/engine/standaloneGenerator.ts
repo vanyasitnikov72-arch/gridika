@@ -58,7 +58,7 @@ export function generateEmbedCode(options: EmbedOptions): string {
   const instanceId = 'temka-qr-' + Math.random().toString(36).substring(2, 8);
 
   const badgeHtml = showBadge
-    ? `\n  <a href="https://temka.io/fx" target="_blank" rel="noopener" style="position:absolute; bottom:12px; right:12px; z-index:10; font-family:system-ui,-apple-system,sans-serif; font-size:11px; font-weight:500; color:${theme.isDark ? '#94a3b8' : '#64748b'}; text-decoration:none; background:${theme.isDark ? 'rgba(15,23,42,0.7)' : 'rgba(255,255,255,0.85)'}; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); padding:4px 9px; border-radius:6px; border:1px solid ${theme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'}; box-shadow:0 2px 6px rgba(0,0,0,0.1); transition:opacity 0.2s;">⚡ Сделано в Temka FX</a>`
+    ? `\n  <a href="https://temka.io/fx" target="_blank" rel="noopener" style="position:absolute; bottom:12px; right:12px; z-index:10; font-family:system-ui,-apple-system,sans-serif; font-size:11px; font-weight:600; color:${theme.isDark ? '#94a3b8' : '#64748b'}; text-decoration:none; background:${theme.isDark ? 'rgba(15,23,42,0.7)' : 'rgba(255,255,255,0.85)'}; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); padding:4px 9px; border-radius:6px; border:1px solid ${theme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'}; box-shadow:0 2px 6px rgba(0,0,0,0.1); transition:opacity 0.2s;">Temka FX</a>`
     : '';
 
   return `<!-- Temka FX: 3D Интерактивный QR-код -->
