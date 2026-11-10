@@ -176,12 +176,12 @@ export function QrConfigurator() {
         
         {/* 1. SEAMLESS ORGANIC JADE WAVE: CONCAVE CRADLE ENVELOPING THE PODIUM */}
         <div className="absolute top-0 left-0 bottom-0 w-full sm:w-[48%] lg:w-[38%] pointer-events-none select-none z-0">
-          <svg className="w-full h-full filter drop-shadow-[0_16px_36px_rgba(30,166,120,0.22)]" viewBox="0 0 460 620" preserveAspectRatio="none" fill="none">
+          <svg className="w-full h-full filter drop-shadow-[0_16px_36px_rgba(54,163,114,0.22)]" viewBox="0 0 460 620" preserveAspectRatio="none" fill="none">
             <defs>
               <linearGradient id="sofaWaveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#24b282" />
-                <stop offset="55%" stopColor="#1ea678" />
-                <stop offset="100%" stopColor="#179469" />
+                <stop offset="0%" stopColor="#40bc83" />
+                <stop offset="55%" stopColor="#36A372" />
+                <stop offset="100%" stopColor="#2c8a5f" />
               </linearGradient>
             </defs>
             {/* 
@@ -246,7 +246,7 @@ export function QrConfigurator() {
 
               {/* Floating Mode Status Pill */}
               <div className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3.5 py-1 rounded-full soft-3d-pill text-[11px] font-bold text-[#1c1917] z-20 pointer-events-none shadow-sm backdrop-blur-sm bg-white/95">
-                <span className={`w-2 h-2 rounded-full ${currentState === 'qr' ? 'bg-[#1ea678] animate-pulse' : 'bg-[#ea580c]'}`} />
+                <span className={`w-2 h-2 rounded-full ${currentState === 'qr' ? 'bg-[#36A372] animate-pulse' : 'bg-[#ea580c]'}`} />
                 <span>{currentState === 'qr' ? 'Режим: QR-код' : `3D: ${SHAPE_OPTIONS.find((s) => s.id === shape)?.label}`}</span>
               </div>
             </div>
@@ -255,7 +255,7 @@ export function QrConfigurator() {
           {/* 3. RIGHT ZONE: High-End Product Catalog (lg:col-span-4) */}
           <div className="lg:col-span-4 flex flex-col justify-center gap-3 text-left">
             <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#1ea678]">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#36A372]">
                 Витрина
               </span>
               <h2 className="text-3xl sm:text-4xl font-black text-[#1c1917] tracking-tight leading-[1.05] mt-0.5">
@@ -280,7 +280,7 @@ export function QrConfigurator() {
                     onClick={() => setShape(opt.id)}
                     className={`group w-full flex items-center justify-between py-2 px-3 rounded-2xl transition-all text-left ${
                       isSelected
-                        ? 'bg-[#f6f4ee] text-[#1c1917] font-extrabold shadow-sm ring-1 ring-[#e5dfd2]'
+                        ? 'bg-[#F0EBE9] text-[#1c1917] font-extrabold shadow-sm ring-1 ring-[#e5dfd2]'
                         : 'text-[#57534e] hover:text-[#1c1917] hover:bg-[#faf8f4]'
                     }`}
                   >
@@ -296,14 +296,14 @@ export function QrConfigurator() {
                     <div className="flex items-center gap-2">
                       <div
                         className={`w-6 h-6 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105 ${
-                          isSelected ? 'bg-[#1ea678] text-white shadow-sm' : 'bg-[#eee9de] text-[#78716c]'
+                          isSelected ? 'bg-[#36A372] text-white shadow-sm' : 'bg-[#eee9de] text-[#78716c]'
                         }`}
                       >
                         {renderShapeIcon(opt.id)}
                       </div>
 
                       <div className={`w-4 h-4 flex items-center justify-center text-xs font-bold ${
-                        isSelected ? 'text-[#1ea678]' : 'text-[#a8a29e] group-hover:text-[#1c1917]'
+                        isSelected ? 'text-[#36A372]' : 'text-[#a8a29e] group-hover:text-[#1c1917]'
                       }`}>
                         {isSelected ? (
                           <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -333,7 +333,7 @@ export function QrConfigurator() {
                   value={text}
                   onInput={(e) => setText((e.target as HTMLInputElement).value)}
                   placeholder="https://temka.io"
-                  className="w-full pl-8 pr-7 py-2 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-[#1c1917] text-xs font-mono font-bold outline-none focus:bg-white focus:border-[#1ea678] transition-all shadow-inner"
+                  className="w-full pl-8 pr-7 py-2 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-[#1c1917] text-xs font-mono font-bold outline-none focus:bg-white focus:border-[#36A372] transition-all shadow-inner"
                 />
                 {text && (
                   <button
@@ -356,7 +356,7 @@ export function QrConfigurator() {
                       title={th.name}
                       className={`w-6 h-6 rounded-full border transition-all flex items-center justify-center ${
                         isSelected
-                          ? 'border-2 border-[#1ea678] scale-110 shadow-sm ring-2 ring-[#1ea678]/25'
+                          ? 'border-2 border-[#36A372] scale-110 shadow-sm ring-2 ring-[#36A372]/25'
                           : 'border-[#e5dfd2] hover:scale-105'
                       }`}
                       style={{ backgroundColor: th.voxelColor }}
@@ -440,7 +440,7 @@ export function QrConfigurator() {
 
             {/* QR Scan Status */}
             <div
-              className="flex items-center gap-1.5 text-xs font-extrabold text-[#1ea678]"
+              className="flex items-center gap-1.5 text-xs font-extrabold text-[#36A372]"
               title={validation?.isValid ? 'Камера распознает QR-код (WCAG 2.1)' : 'Проверка камеры'}
             >
               <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -456,7 +456,7 @@ export function QrConfigurator() {
             <button
               onClick={handleOpenEmbedModal}
               title="Получить код для Tilda T123"
-              className="w-9 h-9 rounded-2xl bg-[#201e1c] hover:bg-[#1ea678] text-white flex items-center justify-center transition-all shadow-md active:scale-95"
+              className="w-9 h-9 rounded-2xl bg-[#201e1c] hover:bg-[#36A372] text-white flex items-center justify-center transition-all shadow-md active:scale-95"
             >
               <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
                 <path d="M5 12h14M12 5l7 7-7 7" />
@@ -495,7 +495,7 @@ export function QrConfigurator() {
               </div>
               <button
                 onClick={() => setShowModal(false)}
-                className="w-8 h-8 rounded-full bg-[#f6f4ee] hover:bg-[#eee9de] text-[#1c1917] font-bold flex items-center justify-center text-sm shadow-sm transition-colors"
+                className="w-8 h-8 rounded-full bg-[#F0EBE9] hover:bg-[#e6dfdc] text-[#1c1917] font-bold flex items-center justify-center text-sm shadow-sm transition-colors"
               >
                 ✕
               </button>
@@ -503,12 +503,12 @@ export function QrConfigurator() {
 
             {/* Code Snippet Box */}
             <div className="relative">
-              <pre className="w-full max-h-64 overflow-y-auto p-4 rounded-2xl bg-[#201e1c] text-[#24b282] font-mono text-xs leading-relaxed select-all shadow-inner">
+              <pre className="w-full max-h-64 overflow-y-auto p-4 rounded-2xl bg-[#201e1c] text-[#36A372] font-mono text-xs leading-relaxed select-all shadow-inner">
                 {embedCode}
               </pre>
               <button
                 onClick={handleCopyCode}
-                className="absolute top-3 right-3 px-3.5 py-1.5 rounded-full bg-[#1ea678] hover:bg-[#179469] text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow-md"
+                className="absolute top-3 right-3 px-3.5 py-1.5 rounded-full bg-[#36A372] hover:bg-[#2c8a5f] text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow-md"
               >
                 <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
@@ -519,24 +519,24 @@ export function QrConfigurator() {
             </div>
 
             <div className="p-4 rounded-2xl bg-[#fbf9f5] border border-[#e5dfd2] text-xs text-[#57534e] flex items-start gap-2.5 shadow-sm">
-              <div className="w-5 h-5 rounded-full bg-[#1ea678]/15 text-[#1ea678] flex items-center justify-center text-xs font-black shrink-0 mt-0.5">
+              <div className="w-5 h-5 rounded-full bg-[#36A372]/15 text-[#36A372] flex items-center justify-center text-xs font-black shrink-0 mt-0.5">
                 i
               </div>
               <div>
-                <b className="text-[#1c1917]">Подсказка:</b> Высоту виджета можно регулировать в первой строчке кода (<code className="text-[#1ea678] font-mono font-bold">height: 480px</code>). Код адаптируется под экраны любых смартфонов.
+                <b className="text-[#1c1917]">Подсказка:</b> Высоту виджета можно регулировать в первой строчке кода (<code className="text-[#36A372] font-mono font-bold">height: 480px</code>). Код адаптируется под экраны любых смартфонов.
               </div>
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-5 py-2.5 rounded-full bg-[#f6f4ee] hover:bg-[#eee9de] text-[#1c1917] text-xs sm:text-sm font-bold border border-[#e5dfd2] transition-colors"
+                className="px-5 py-2.5 rounded-full bg-[#F0EBE9] hover:bg-[#e6dfdc] text-[#1c1917] text-xs sm:text-sm font-bold border border-[#e5dfd2] transition-colors"
               >
                 Закрыть
               </button>
               <button
                 onClick={handleCopyCode}
-                className="px-6 py-2.5 rounded-full bg-[#201e1c] hover:bg-[#1ea678] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-2"
+                className="px-6 py-2.5 rounded-full bg-[#201e1c] hover:bg-[#36A372] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-2"
               >
                 <span>{copied ? 'Код скопирован' : 'Скопировать код'}</span>
               </button>
