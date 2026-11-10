@@ -186,15 +186,30 @@ export function QrConfigurator() {
 
   const handleResetView = () => {
     if (viewerRef.current) {
-      viewerRef.current.resetView();
+      viewerRef.current.setState('qr');
+      setCurrentState('qr');
     }
   };
 
   const handleCycleTheme = () => {
-    const themeKeys = Object.keys(THEMES);
-    const currentIndex = themeKeys.indexOf(themeId);
-    const nextTheme = themeKeys[(currentIndex + 1) % themeKeys.length];
-    setThemeId(nextTheme);
+    if (shape === 'tree') {
+      const seasonOrder: TreeSeason[] = ['spring', 'summer', 'autumn'];
+      const nextIdx = (seasonOrder.indexOf(season) + 1) % seasonOrder.length;
+      setSeason(seasonOrder[nextIdx]);
+    } else if (shape === 'city') {
+      const timeOrder: TimeOfDay[] = ['day', 'sunset', 'night'];
+      const nextIdx = (timeOrder.indexOf(timeOfDay) + 1) % timeOrder.length;
+      setTimeOfDay(timeOrder[nextIdx]);
+    } else if (shape === 'island') {
+      const islandOrder: IslandMode[] = ['summer', 'winter', 'volcano'];
+      const nextIdx = (islandOrder.indexOf(islandMode) + 1) % islandOrder.length;
+      setIslandMode(islandOrder[nextIdx]);
+    } else {
+      const themeKeys = Object.keys(THEMES);
+      const currentIndex = themeKeys.indexOf(themeId);
+      const nextTheme = themeKeys[(currentIndex + 1) % themeKeys.length];
+      setThemeId(nextTheme);
+    }
   };
 
   const handleDownloadPng = () => {
@@ -679,19 +694,12 @@ export function QrConfigurator() {
           </div>
 
           {/* CENTER: FLOATING WHITE PILL DOCK WITH ARROW (Direct Sofa Cake Reference Dock) */}
-          <div className="bg-white rounded-full pl-5 pr-2 py-1.5 shadow-[0_10px_28px_rgba(85,70,50,0.1)] border border-[#ede7db] flex items-center gap-3.5">
-            {/* Ruler / Dimension Icon */}
-            <div className="text-[#78716c] hover:text-[#132A22] transition-colors" title="Разрешение матрицы: 25×25 вокселей">
-              <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                <path d="M2 12h20M7 12v-3M12 12v-3M17 12v-3" />
-              </svg>
-            </div>
-
+          <div className="bg-white rounded-full pl-4 sm:pl-5 pr-2 py-1.5 shadow-[0_10px_28px_rgba(85,70,50,0.1)] border border-[#ede7db] flex items-center gap-3.5">
             {/* Palette Icon */}
             <button
               onClick={handleCycleTheme}
-              className="text-[#78716c] hover:text-[#19C37D] transition-colors hover:scale-110 active:scale-95"
-              title="Сменить цветовую тему"
+              className="text-[#78716c] hover:text-[#19C37D] transition-all hover:scale-110 active:scale-90 cursor-pointer"
+              title="Сменить цветовую тему / сезон"
               aria-label="Сменить цветовую тему"
             >
               <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
