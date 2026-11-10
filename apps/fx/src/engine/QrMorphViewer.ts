@@ -158,8 +158,8 @@ export class QrMorphViewer {
     this.scene = new THREE.Scene();
     this.scene.background = null;
 
-    this.camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 1000);
-    this.camera.position.set(0, 44, 52);
+    this.camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 1000);
+    this.camera.position.set(0, 48, 58);
     this.camera.lookAt(0, 2.5, 0);
 
     // 2. Renderer
@@ -199,14 +199,14 @@ export class QrMorphViewer {
     this.scene.add(this.pointLight);
 
     // 4. Ground pedestal (tactile ceramic cylinder with soft beveled edge)
-    const groundGeo = new THREE.CylinderGeometry(17.8, 18.4, 0.5, 64);
+    const groundGeo = new THREE.CylinderGeometry(15.6, 16.2, 0.45, 64);
     const groundMat = new THREE.MeshStandardMaterial({
       color: this.theme.isDark ? 0x22201e : 0xfbf9f5,
       roughness: this.theme.isDark ? 0.4 : 0.6,
       metalness: this.theme.isDark ? 0.3 : 0.04,
     });
     this.groundMesh = new THREE.Mesh(groundGeo, groundMat);
-    this.groundMesh.position.y = -0.28;
+    this.groundMesh.position.y = -0.25;
     this.groundMesh.receiveShadow = true;
     this.scene.add(this.groundMesh);
 
@@ -217,7 +217,7 @@ export class QrMorphViewer {
     });
     const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
     shadowMesh.rotation.x = -Math.PI / 2;
-    shadowMesh.position.y = -0.3;
+    shadowMesh.position.y = -0.27;
     shadowMesh.receiveShadow = true;
     this.scene.add(shadowMesh);
 

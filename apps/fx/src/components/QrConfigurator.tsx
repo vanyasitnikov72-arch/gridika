@@ -174,8 +174,8 @@ export function QrConfigurator() {
       {/* MASTER CARD (1:1 SOFA CAKE REFERENCE) */}
       <div className="relative w-full rounded-[2.5rem] bg-white border border-[#e8e2d5] shadow-[0_30px_70px_-15px_rgba(85,70,50,0.08),0_0_0_1px_rgba(85,70,50,0.02)] overflow-hidden p-6 sm:p-10">
         
-        {/* 1. SEAMLESS ORGANIC JADE WAVE (Hugs left boundary like Sofa Cake reference) */}
-        <div className="absolute top-0 left-0 bottom-0 w-full sm:w-[50%] lg:w-[42%] pointer-events-none select-none z-0">
+        {/* 1. SEAMLESS ORGANIC JADE WAVE: CONCAVE CRADLE ENVELOPING THE PODIUM */}
+        <div className="absolute top-0 left-0 bottom-0 w-full sm:w-[48%] lg:w-[38%] pointer-events-none select-none z-0">
           <svg className="w-full h-full filter drop-shadow-[0_16px_36px_rgba(30,166,120,0.22)]" viewBox="0 0 460 620" preserveAspectRatio="none" fill="none">
             <defs>
               <linearGradient id="sofaWaveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -184,13 +184,19 @@ export function QrConfigurator() {
                 <stop offset="100%" stopColor="#179469" />
               </linearGradient>
             </defs>
+            {/* 
+              Organic path that starts at top, bulges right (x=440), 
+              then smoothly curves INWARD to the left (x=310-330) to cradle and wrap around the circular 3D podium,
+              and then curves back OUTWARD to the right (x=420) beneath the podium before closing.
+            */}
             <path
               d="M 0,0 
-                 L 330,0 
-                 C 410,0 455,45 458,130 
-                 C 460,220 425,300 415,390 
-                 C 405,480 445,550 415,595 
-                 C 395,620 340,620 280,620 
+                 L 310,0 
+                 C 370,0 430,35 440,110 
+                 C 450,175 365,205 325,270 
+                 C 290,325 305,385 340,435 
+                 C 385,495 440,530 420,580 
+                 C 400,620 340,620 280,620 
                  L 0,620 
                  Z"
               fill="url(#sofaWaveGrad)"
@@ -198,21 +204,18 @@ export function QrConfigurator() {
           </svg>
         </div>
 
-        {/* Floating blurred terracotta pill at top edge of wave (Depth of field from reference) */}
-        <div className="absolute top-4 left-[34%] sm:left-[36%] w-16 h-8 rounded-full bg-gradient-to-r from-[#ea580c] to-[#f97316] blur-[6px] opacity-80 pointer-events-none transform rotate-12 z-20"></div>
-
-        {/* Top-right subtle mascot dot (Direct element from Sofa Cake reference) */}
+        {/* Top-right subtle mascot dot (Direct element from Sofa Cake reference, clean yellow, no glow) */}
         <div className="absolute top-7 right-7 sm:top-8 sm:right-8 w-8 h-8 rounded-full bg-[#f59e0b] text-white flex items-center justify-center shadow-sm pointer-events-none z-20">
           <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-3.5 8c.83 0 1.5.67 1.5 1.5S9.33 13 8.5 13 7 12.33 7 11.5 7.67 10 8.5 10zm7 0c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5zm-3.5 6.5c-2.33 0-4.31-1.46-5.11-3.5h10.22c-.8 2.04-2.78 3.5-5.11 3.5z" />
           </svg>
         </div>
 
-        {/* Master Card 3-Zone Content Layout */}
+        {/* Master Card 3-Zone Content Layout (3 cols left, 5 cols center, 4 cols right) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center relative z-10">
           
-          {/* 1. LEFT ZONE: Brand Typography on Green Wave */}
-          <div className="lg:col-span-4 relative flex flex-col justify-between h-full min-h-[300px] sm:min-h-[360px] p-2 sm:p-4 text-white pointer-events-none select-none">
+          {/* 1. LEFT ZONE: Brand Typography on Green Wave (lg:col-span-3) */}
+          <div className="lg:col-span-3 relative flex flex-col justify-between h-full min-h-[280px] sm:min-h-[340px] p-2 sm:p-3 text-white pointer-events-none select-none">
             {/* Minimal outline triangle icon */}
             <div className="w-8 h-8 rounded-xl border border-white/50 flex items-center justify-center opacity-90 shadow-sm">
               <svg className="w-4 h-4 fill-none stroke-white stroke-2" viewBox="0 0 24 24">
@@ -221,28 +224,25 @@ export function QrConfigurator() {
             </div>
 
             {/* Giant Stacked Title (Mirroring 'Sofa cake') */}
-            <div className="my-auto py-6 sm:py-10">
-              <div className="text-5xl sm:text-[58px] font-black tracking-[-0.04em] leading-[0.92] drop-shadow-sm">
+            <div className="my-auto py-6 sm:py-8">
+              <div className="text-4xl sm:text-5xl font-black tracking-[-0.04em] leading-[0.94] drop-shadow-sm">
                 Temka <br />
                 FX
               </div>
-              <div className="text-xs sm:text-sm font-bold text-emerald-100/90 tracking-wide mt-3">
+              <div className="text-xs font-bold text-emerald-100/90 tracking-wide mt-2.5">
                 WebGL 3D Studio
               </div>
             </div>
 
             {/* Floating white pebble at bottom-left */}
-            <div className="w-14 h-7 rounded-full bg-white/95 shadow-md transform -rotate-12"></div>
+            <div className="w-12 h-6 rounded-full bg-white/95 shadow-md transform -rotate-12"></div>
           </div>
 
-          {/* 2. CENTER ZONE: Interactive 3D Stage (Overlaps across the wave seam) */}
-          <div className="lg:col-span-4 flex flex-col items-center justify-center relative my-2 lg:my-0">
+          {/* 2. CENTER ZONE: Expansive 3D Stage (lg:col-span-5, fully cradled by the green curve) */}
+          <div className="lg:col-span-5 flex flex-col items-center justify-center relative my-2 lg:my-0">
             <div className="relative w-full h-[380px] sm:h-[430px] flex items-center justify-center">
-              {/* Three.js Canvas with ample breathing room */}
+              {/* Three.js Canvas with generous breathing room on all sides */}
               <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing z-10 relative select-none" />
-
-              {/* Blurred depth-of-field stool / colorful accent in foreground */}
-              <div className="absolute bottom-4 left-6 w-16 h-8 rounded-full bg-gradient-to-r from-[#f97316] via-[#ea580c] to-[#6366f1] blur-[8px] opacity-60 pointer-events-none transform -rotate-6 z-20"></div>
 
               {/* Floating Mode Status Pill */}
               <div className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3.5 py-1 rounded-full soft-3d-pill text-[11px] font-bold text-[#1c1917] z-20 pointer-events-none shadow-sm backdrop-blur-sm bg-white/95">
@@ -252,7 +252,7 @@ export function QrConfigurator() {
             </div>
           </div>
 
-          {/* 3. RIGHT ZONE: High-End Product List (Direct Mirror of 'My storehouse' from reference) */}
+          {/* 3. RIGHT ZONE: High-End Product Catalog (lg:col-span-4) */}
           <div className="lg:col-span-4 flex flex-col justify-center gap-3 text-left">
             <div>
               <span className="text-[10px] font-black uppercase tracking-wider text-[#1ea678]">
@@ -263,7 +263,7 @@ export function QrConfigurator() {
               </h2>
             </div>
 
-            {/* Table Header: PRODUCT | NO (Reference Layout) */}
+            {/* Table Header: ФОРМА | СПЕЦИФИКАЦИЯ | ВЫБОР (Reference Layout) */}
             <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-[#a8a29e] pt-2 pb-1 border-b border-[#f0ede6]">
               <span>ФОРМА</span>
               <span className="hidden sm:inline">СПЕЦИФИКАЦИЯ</span>
@@ -371,7 +371,7 @@ export function QrConfigurator() {
 
         </div>
 
-        {/* BOTTOM DOCK BAR (Direct 1:1 Mirror of media_1794307275138_04aca089.png) */}
+        {/* BOTTOM DOCK BAR (Direct 1:1 Mirror of Sofa Cake Dock) */}
         <div className="mt-8 pt-5 border-t border-[#f2ede4] flex flex-wrap items-center justify-between gap-4 relative z-10">
           
           {/* LEFT: SQUIRCLE BUTTONS CONNECTED BY DASHES (Reference Dock) */}
