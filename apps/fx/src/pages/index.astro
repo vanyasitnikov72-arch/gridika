@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import { QrConfigurator } from '../components/QrConfigurator';
+import { UpcomingCatalog } from '../components/UpcomingCatalog';
 ---
 
 <Layout title="Temka FX — Интерактивные 3D эффекты для сайтов на Tilda">
@@ -273,82 +274,9 @@ import { QrConfigurator } from '../components/QrConfigurator';
       </div>
     </section>
 
-    {/* BENTO CATALOG TEASER: UPCOMING EFFECTS */}
+    {/* BENTO CATALOG TEASER: UPCOMING EFFECTS (OPTION 1) */}
     <section id="catalog" class="py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-2xl mx-auto mb-12">
-        <span class="text-[11px] font-black uppercase tracking-wider text-[#19C37D]">Будущие эффекты</span>
-        <h2 class="text-3xl sm:text-4xl font-black text-[#132A22] tracking-tight mt-1">
-          Каталог в разработке
-        </h2>
-        <p class="text-[#78716c] text-sm mt-2 font-medium">
-          Скоро появятся новые интерактивные механики.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="soft-3d-card p-7 flex flex-col justify-between hover:scale-[1.01] transition-all">
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <div class="w-9 h-9 rounded-xl bg-[#DFF8EB]/60 border border-[#19C37D]/20 flex items-center justify-center text-[#19C37D]">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z" />
-                </svg>
-              </div>
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#ede9df] text-[#57534e] uppercase">Скоро</span>
-            </div>
-            <h4 class="font-black text-[#132A22] text-base">Заголовок из частиц</h4>
-            <p class="text-xs text-[#57534e] mt-2 leading-relaxed font-medium">
-              Заголовок сайта из сотен частиц, которые мягко разлетаются от курсора мыши и пальца на экране.
-            </p>
-          </div>
-          <div class="mt-6 pt-3 border-t border-[#ede9df] text-[11px] font-bold text-[#19C37D]">
-            Кандидат №2
-          </div>
-        </div>
-
-        <div class="soft-3d-card p-7 flex flex-col justify-between hover:scale-[1.01] transition-all">
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <div class="w-9 h-9 rounded-xl bg-[#DFF8EB]/60 border border-[#19C37D]/20 flex items-center justify-center text-[#19C37D]">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <polyline points="12 6 12 12 16 14" />
-                </svg>
-              </div>
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#ede9df] text-[#57534e] uppercase">Скоро</span>
-            </div>
-            <h4 class="font-black text-[#132A22] text-base">Голографический таймер</h4>
-            <p class="text-xs text-[#57534e] mt-2 leading-relaxed font-medium">
-              Объемный 3D таймер обратного отсчета до старта события, вебинара или распродажи с парящими цифрами.
-            </p>
-          </div>
-          <div class="mt-6 pt-3 border-t border-[#ede9df] text-[11px] font-bold text-[#19C37D]">
-            Кандидат №3
-          </div>
-        </div>
-
-        <div class="soft-3d-card p-7 flex flex-col justify-between hover:scale-[1.01] transition-all">
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <div class="w-9 h-9 rounded-xl bg-[#DFF8EB]/60 border border-[#19C37D]/20 flex items-center justify-center text-[#19C37D]">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                  <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                  <line x1="12" y1="22.08" x2="12" y2="12" />
-                </svg>
-              </div>
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#ede9df] text-[#57534e] uppercase">Скоро</span>
-            </div>
-            <h4 class="font-black text-[#132A22] text-base">3D Витрина товара</h4>
-            <p class="text-xs text-[#57534e] mt-2 leading-relaxed font-medium">
-              Интерактивный подиум товара с динамическим бликом, вращением на 360° и взрыв-схемой компонентов.
-            </p>
-          </div>
-          <div class="mt-6 pt-3 border-t border-[#ede9df] text-[11px] font-bold text-[#19C37D]">
-            Кандидат №4
-          </div>
-        </div>
-      </div>
+      <UpcomingCatalog client:visible />
     </section>
   </main>
 
