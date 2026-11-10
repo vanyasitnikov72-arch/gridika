@@ -236,27 +236,29 @@ export function QrConfigurator() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center relative z-10">
           
           {/* 1. LEFT ZONE: Brand Typography on Green Wave (lg:col-span-3) */}
-          <div className="lg:col-span-3 relative flex flex-col justify-between h-full min-h-[280px] sm:min-h-[340px] p-2 sm:p-3 text-white pointer-events-none select-none">
+          <div className="lg:col-span-3 relative flex flex-col justify-between h-full min-h-[280px] sm:min-h-[340px] p-2 sm:p-3 text-[#132A22] pointer-events-none select-none">
             {/* Minimal outline triangle icon */}
-            <div className="w-8 h-8 rounded-xl border border-white/50 flex items-center justify-center opacity-90 shadow-sm">
-              <svg className="w-4 h-4 fill-none stroke-white stroke-2" viewBox="0 0 24 24">
+            <div className="w-8 h-8 rounded-xl border border-[#132A22]/40 flex items-center justify-center opacity-90 shadow-sm">
+              <svg className="w-4 h-4 fill-none stroke-[#132A22] stroke-2" viewBox="0 0 24 24">
                 <path d="M12 2L2 19h20L12 2z" />
               </svg>
             </div>
 
             {/* Giant Stacked Title (Mirroring 'Sofa cake') */}
             <div className="my-auto py-6 sm:py-8">
-              <div className="text-4xl sm:text-5xl font-black tracking-[-0.04em] leading-[0.94] drop-shadow-sm">
+              <div className="text-4xl sm:text-5xl font-black tracking-[-0.04em] leading-[0.94] text-[#132A22]">
                 Temka <br />
                 FX
               </div>
-              <div className="text-xs font-bold text-[#DFF8EB] tracking-wide mt-2.5">
+              <div className="text-xs font-bold text-[#132A22]/80 tracking-wide mt-2.5">
                 WebGL 3D Studio
               </div>
             </div>
 
-            {/* Floating white pebble at bottom-left */}
-            <div className="w-12 h-6 rounded-full bg-white/95 shadow-md transform -rotate-12"></div>
+            {/* Outline pill at bottom-left mirroring '@by.illarion' in reference */}
+            <div className="inline-flex self-start px-3.5 py-1 rounded-full border border-[#132A22]/40 text-[#132A22] text-[11px] font-bold tracking-tight">
+              @temka.fx
+            </div>
           </div>
 
           {/* 2. CENTER ZONE: Expansive 3D Stage (lg:col-span-5, fully cradled by the green curve) */}
@@ -323,7 +325,7 @@ export function QrConfigurator() {
                     <div className="flex items-center gap-2">
                       <div
                         className={`w-6 h-6 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105 ${
-                          isSelected ? 'bg-[#19C37D] text-white shadow-sm' : 'bg-[#eee9de] text-[#78716c]'
+                          isSelected ? 'bg-[#19C37D] text-[#132A22] shadow-sm font-bold' : 'bg-[#eee9de] text-[#78716c]'
                         }`}
                       >
                         {renderShapeIcon(opt.id)}
@@ -410,7 +412,7 @@ export function QrConfigurator() {
               aria-label="Режим QR-кода"
               className={`w-9 h-9 rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-95 ${
                 currentState === 'qr'
-                  ? 'bg-[#19C37D] text-white shadow-emerald-700/20'
+                  ? 'bg-[#19C37D] text-[#132A22] shadow-emerald-700/20 font-bold'
                   : 'bg-[#eee9de] hover:bg-[#e4ded2] text-[#57534e]'
               }`}
             >
@@ -433,7 +435,7 @@ export function QrConfigurator() {
               aria-label="Режим 3D-формы"
               className={`w-9 h-9 rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-95 ${
                 currentState === 'morphed'
-                  ? 'bg-[#19C37D] text-white shadow-emerald-700/20'
+                  ? 'bg-[#19C37D] text-[#132A22] shadow-emerald-700/20 font-bold'
                   : 'bg-[#eee9de] hover:bg-[#e4ded2] text-[#57534e]'
               }`}
             >
@@ -507,7 +509,7 @@ export function QrConfigurator() {
             <button
               onClick={handleOpenEmbedModal}
               title="Получить код для Tilda T123"
-              className="w-9 h-9 rounded-2xl bg-[#132A22] hover:bg-[#19C37D] text-white flex items-center justify-center transition-all shadow-md active:scale-95"
+              className="w-9 h-9 rounded-2xl bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] flex items-center justify-center transition-all shadow-md active:scale-95"
             >
               <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
                 <path d="M5 12h14M12 5l7 7-7 7" />
@@ -560,7 +562,7 @@ export function QrConfigurator() {
               </pre>
               <button
                 onClick={handleCopyCode}
-                className="absolute top-3 right-3 px-3.5 py-1.5 rounded-full bg-[#19C37D] hover:bg-[#149e64] text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow-md"
+                className="absolute top-3 right-3 px-3.5 py-1.5 rounded-full bg-[#19C37D] hover:bg-[#149e64] text-[#132A22] font-bold text-xs transition-all flex items-center gap-1.5 shadow-md"
               >
                 <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
@@ -571,7 +573,7 @@ export function QrConfigurator() {
             </div>
 
             <div className="p-4 rounded-2xl bg-[#DFF8EB]/50 border border-[#19C37D]/20 text-xs text-[#132A22] flex items-start gap-2.5 shadow-sm">
-              <div className="w-5 h-5 rounded-full bg-[#19C37D] text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5 shadow-sm">
+              <div className="w-5 h-5 rounded-full bg-[#19C37D] text-[#132A22] flex items-center justify-center text-xs font-black shrink-0 mt-0.5 shadow-sm">
                 i
               </div>
               <div>
@@ -588,7 +590,7 @@ export function QrConfigurator() {
               </button>
               <button
                 onClick={handleCopyCode}
-                className="px-6 py-2.5 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-2"
+                className="px-6 py-2.5 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-2"
               >
                 <span>{copied ? 'Код скопирован' : 'Скопировать код'}</span>
               </button>
