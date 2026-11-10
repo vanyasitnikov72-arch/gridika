@@ -17,13 +17,13 @@ export interface ThemeConfig {
 export const THEMES: Record<string, ThemeConfig> = {
   'velvet-emerald': {
     id: 'velvet-emerald',
-    name: 'Изумруд и Сливки',
-    subtitle: 'Бархатный нефрит на молочном фоне',
+    name: 'Fresh Mint',
+    subtitle: 'Свежая мята и сосновый акцент',
     bgColor: '#F0EBE9',
-    groundColor: '#fbf9f5',
-    voxelColor: '#36A372',
-    accentColor: '#42b983',
-    finderColor: '#2c8a5f',
+    groundColor: '#fcfbf9',
+    voxelColor: '#19C37D',
+    accentColor: '#22d38e',
+    finderColor: '#132A22',
     isDark: false,
   },
   'terracotta-clay': {
