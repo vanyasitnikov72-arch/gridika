@@ -185,7 +185,7 @@ export function UpcomingCatalog() {
     }
     const el = document.getElementById('showcase');
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 
@@ -216,7 +216,7 @@ export function UpcomingCatalog() {
               key={tab.id}
               type="button"
               onClick={() => setFilter(tab.id)}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
+              className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 ease-out shrink-0 cursor-pointer ${
                 filter === tab.id
                   ? 'bg-[#132A22] text-[#F0EBE9] shadow-md scale-105'
                   : 'bg-white/80 border border-[#e5dfd2] text-[#57534e] hover:bg-white hover:text-[#132A22] shadow-sm'
@@ -229,11 +229,11 @@ export function UpcomingCatalog() {
       </div>
 
       {/* BENTO GRID OF 6 PRODUCTS */}
-      <div className="grid grid-cols-12 gap-5 sm:gap-6">
+      <div key={filter} className="grid grid-cols-12 gap-5 sm:gap-6 fx-fade-in">
         
         {/* PRODUCT 01: 3D QR-МОРФИНГ (FEATURED WIDE CARD: COL-SPAN-12 LG:COL-SPAN-8) */}
         {filteredProducts.some((p) => p.id === 'qr-morph') && (
-          <div className="col-span-12 lg:col-span-8 soft-3d-card p-6 sm:p-9 flex flex-col justify-between group hover:shadow-2xl transition-all relative overflow-hidden">
+          <div className="col-span-12 lg:col-span-8 soft-3d-card p-6 sm:p-9 flex flex-col justify-between group hover:shadow-2xl transition-all relative overflow-hidden fx-card-pop">
             {/* Top row */}
             <div className="flex flex-wrap items-center justify-between gap-3 relative z-10">
               <div className="flex items-center gap-2">
@@ -354,7 +354,7 @@ export function UpcomingCatalog() {
         {/* PRODUCT 02: 3D-ВИЗИТКА / LINK-IN-BIO (COL-SPAN-12 LG:COL-SPAN-4) */}
         {filteredProducts.some((p) => p.id === 'holo-card') && (
           <div
-            className="col-span-12 lg:col-span-4 soft-3d-card p-6 sm:p-7 flex flex-col justify-between group hover:shadow-2xl transition-all select-none"
+            className="col-span-12 lg:col-span-4 soft-3d-card p-6 sm:p-7 flex flex-col justify-between group hover:shadow-2xl transition-all select-none fx-card-pop"
             onMouseMove={handleMouseMoveTilt}
             onMouseLeave={handleMouseLeaveTilt}
           >
@@ -444,7 +444,7 @@ export function UpcomingCatalog() {
 
         {/* PRODUCT 03: ЖИВОЙ 3D-КАЛЬКУЛЯТОР (COL-SPAN-12 LG:COL-SPAN-4) */}
         {filteredProducts.some((p) => p.id === 'spatial-calc') && (
-          <div className="col-span-12 lg:col-span-4 soft-3d-card p-6 sm:p-7 flex flex-col justify-between group hover:shadow-2xl transition-all">
+          <div className="col-span-12 lg:col-span-4 soft-3d-card p-6 sm:p-7 flex flex-col justify-between group hover:shadow-2xl transition-all fx-card-pop">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -518,7 +518,7 @@ export function UpcomingCatalog() {
 
         {/* PRODUCT 04: 3D-АНБОКСИНГ ТОВАРА (COL-SPAN-12 LG:COL-SPAN-4) */}
         {filteredProducts.some((p) => p.id === 'unbox-3d') && (
-          <div className="col-span-12 lg:col-span-4 soft-3d-card p-6 sm:p-7 flex flex-col justify-between group hover:shadow-2xl transition-all">
+          <div className="col-span-12 lg:col-span-4 soft-3d-card p-6 sm:p-7 flex flex-col justify-between group hover:shadow-2xl transition-all fx-card-pop">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -589,7 +589,7 @@ export function UpcomingCatalog() {
         {filteredProducts.some((p) => p.id === 'jelly-btn') && (
           <div
             ref={magneticBoxRef}
-            className="col-span-12 lg:col-span-4 soft-3d-card p-6 sm:p-7 flex flex-col justify-between group hover:shadow-2xl transition-all"
+            className="col-span-12 lg:col-span-4 soft-3d-card p-6 sm:p-7 flex flex-col justify-between group hover:shadow-2xl transition-all fx-card-pop"
             onMouseMove={handleMouseMoveMagnetic}
             onMouseLeave={handleMouseLeaveMagnetic}
           >
@@ -648,7 +648,7 @@ export function UpcomingCatalog() {
 
         {/* PRODUCT 06: SPATIAL BEFORE / AFTER (COL-SPAN-12 LG:COL-SPAN-8) */}
         {filteredProducts.some((p) => p.id === 'spatial-prism') && (
-          <div className="col-span-12 lg:col-span-8 soft-3d-card p-6 sm:p-9 flex flex-col justify-between group hover:shadow-2xl transition-all">
+          <div className="col-span-12 lg:col-span-8 soft-3d-card p-6 sm:p-9 flex flex-col justify-between group hover:shadow-2xl transition-all fx-card-pop">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <span className="w-7 h-7 rounded-lg bg-[#eee9de] text-[#132A22] font-mono font-black text-xs flex items-center justify-center">

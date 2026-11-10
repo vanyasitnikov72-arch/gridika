@@ -463,7 +463,7 @@ export function QrConfigurator() {
   return (
     <div className="w-full">
       {/* STUDIO FX PRODUCT SWITCHER (Top of Master Studio) */}
-      <div className="flex items-center justify-center gap-1.5 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_4px_16px_rgba(85,70,50,0.06)] backdrop-blur-md mb-4 max-w-xl mx-auto overflow-x-auto no-scrollbar select-none">
+      <div className="flex items-center justify-center gap-1.5 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_4px_16px_rgba(85,70,50,0.06)] backdrop-blur-md mb-4 max-w-xl mx-auto overflow-x-auto no-scrollbar select-none transition-all">
         {STUDIO_PRODUCTS.map((prod) => (
           <button
             key={prod.id}
@@ -476,10 +476,10 @@ export function QrConfigurator() {
                 window.history.pushState({}, '', url.toString());
               } catch {}
             }}
-            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ease-out shrink-0 cursor-pointer ${
               activeProduct === prod.id
-                ? 'bg-[#132A22] text-[#F0EBE9] shadow-sm'
-                : 'text-[#57534e] hover:bg-[#f3efe7] hover:text-[#132A22]'
+                ? 'bg-[#132A22] text-[#F0EBE9] shadow-md scale-[1.03]'
+                : 'text-[#57534e] hover:bg-[#f3efe7] hover:text-[#132A22] active:scale-95'
             }`}
           >
             {prod.label}
@@ -545,7 +545,7 @@ export function QrConfigurator() {
 
             {/* 2. CENTER ZONE: Expansive Stage (Switches depending on activeProduct) */}
             <div className="lg:col-span-5 flex flex-col items-center justify-center relative my-1 lg:my-0">
-              <div className="relative w-full h-[360px] sm:h-[430px] flex flex-col items-center justify-center">
+              <div key={activeProduct} className="relative w-full h-[360px] sm:h-[430px] flex flex-col items-center justify-center fx-fade-in">
 
                 {/* MODE 01: QR MORPH STAGE */}
                 <div className={`w-full h-full flex flex-col items-center ${activeProduct === 'qr-morph' ? '' : 'hidden'}`}>
@@ -829,7 +829,7 @@ export function QrConfigurator() {
             </div>
 
             {/* 3. RIGHT ZONE: Dynamic Configuration Controls based on activeProduct */}
-            <div className="lg:col-span-4 flex flex-col justify-center gap-3 text-left">
+            <div key={activeProduct} className="lg:col-span-4 flex flex-col justify-center gap-3 text-left fx-fade-in">
               
               {/* CONTROLS: 01 3D QR */}
               {activeProduct === 'qr-morph' && (
