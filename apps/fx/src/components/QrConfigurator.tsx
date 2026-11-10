@@ -33,6 +33,7 @@ export function QrConfigurator() {
   const [copied, setCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [embedCode, setEmbedCode] = useState('');
+  const currentShapeLabel = SHAPE_OPTIONS.find((s) => s.id === shape)?.label || 'Форма';
 
   // Initialize 3D Viewer once mounted
   useEffect(() => {
@@ -267,10 +268,52 @@ export function QrConfigurator() {
               {/* Three.js Canvas with generous breathing room on all sides */}
               <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing z-10 relative select-none" />
 
-              {/* Floating Mode Status Pill */}
-              <div className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3.5 py-1 rounded-full soft-3d-pill text-[11px] font-bold text-[#132A22] z-20 pointer-events-none shadow-sm backdrop-blur-sm bg-white/95">
-                <span className={`w-2 h-2 rounded-full ${currentState === 'qr' ? 'bg-[#19C37D] animate-pulse' : 'bg-[#132A22]'}`} />
-                <span>{currentState === 'qr' ? 'Режим: QR-код' : `3D: ${SHAPE_OPTIONS.find((s) => s.id === shape)?.label}`}</span>
+              {/* Soft 3D Interactive Segmented Switcher */}
+              <div className="absolute top-2.5 left-1/2 -translate-x-1/2 z-20 flex items-center p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08),inset_0_1px_1px_rgba(255,255,255,1)] backdrop-blur-md select-none transition-all">
+                {/* Segment 1: QR Code Mode */}
+                <button
+                  type="button"
+                  onClick={handleSetQrMode}
+                  title="Включить сканируемый QR-код"
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 active:scale-95 ${
+                    currentState === 'qr'
+                      ? 'bg-[#19C37D] text-[#132A22] font-black shadow-[0_2px_8px_rgba(25,195,125,0.28)]'
+                      : 'text-[#57534e] hover:text-[#132A22] font-bold'
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                    <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                    <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                    <path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 20h3M20 14v3" />
+                  </svg>
+                  <span>QR-код</span>
+                  {currentState === 'qr' && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#132A22] animate-pulse" />
+                  )}
+                </button>
+
+                {/* Segment 2: 3D Shape Mode */}
+                <button
+                  type="button"
+                  onClick={handleSetShapeMode}
+                  title={`Включить 3D фигуру: ${currentShapeLabel}`}
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 active:scale-95 ${
+                    currentState === 'morphed'
+                      ? 'bg-[#19C37D] text-[#132A22] font-black shadow-[0_2px_8px_rgba(25,195,125,0.28)]'
+                      : 'text-[#57534e] hover:text-[#132A22] font-bold'
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                    <line x1="12" y1="22.08" x2="12" y2="12" />
+                  </svg>
+                  <span>3D: {currentShapeLabel}</span>
+                  {currentState === 'morphed' && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#132A22]" />
+                  )}
+                </button>
               </div>
             </div>
           </div>
