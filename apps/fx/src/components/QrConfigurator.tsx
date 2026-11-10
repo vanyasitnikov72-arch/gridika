@@ -600,29 +600,26 @@ export function QrConfigurator() {
 
         </div>
 
-        {/* BOTTOM DOCK BAR: Arrow CTA & Download PNG (Positioned at bottom-right) */}
-        <div className="mt-3 sm:mt-4 flex items-center justify-end gap-2 relative z-10">
+        {/* BOTTOM DOCK BAR: Arrow CTA & Download PNG (Horizontal oval pills at bottom-right) */}
+        <div className="mt-3 sm:mt-4 flex items-center justify-end gap-2.5 relative z-10">
           {/* Arrow CTA Button (Get code for Tilda T123) */}
           <button
             onClick={handleOpenEmbedModal}
             title="Получить код для Tilda T123"
             aria-label="Получить код для Tilda"
-            className="w-9 h-9 rounded-2xl bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer"
+            className="w-13 sm:w-14 h-9 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer"
           >
             <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </button>
 
-          {/* Subtle Dash */}
-          <span className="text-[#d8d2c4] select-none text-xs font-light">—</span>
-
           {/* Download PNG */}
           <button
             onClick={handleDownloadPng}
             title="Скачать PNG снимок"
             aria-label="Скачать PNG снимок"
-            className="w-9 h-9 rounded-2xl bg-[#eee9de] hover:bg-[#e4ded2] text-[#132A22] flex items-center justify-center transition-colors shadow-sm active:scale-95 cursor-pointer"
+            className="w-13 sm:w-14 h-9 rounded-full bg-[#eee9de] hover:bg-[#e4ded2] text-[#132A22] flex items-center justify-center transition-colors shadow-sm active:scale-95 cursor-pointer"
           >
             <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
