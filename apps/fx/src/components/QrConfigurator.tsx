@@ -1,6 +1,27 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
-import { QrMorphViewer, THEMES, type ThemeConfig } from '../engine/QrMorphViewer';
+import { QrMorphViewer, THEMES } from '../engine/QrMorphViewer';
 import { type TargetShapeType } from '../engine/shapes';
+import { type TreeSeason } from '../engine/treeScene';
+import { type TimeOfDay } from '../engine/cityScene';
+import { type IslandMode } from '../engine/islandScene';
+
+const ISLAND_OPTIONS: { id: IslandMode; label: string; dot: string }[] = [
+  { id: 'summer', label: 'Лето', dot: '#2f9fc7' },
+  { id: 'winter', label: 'Зима', dot: '#a9c9da' },
+  { id: 'volcano', label: 'Вулкан', dot: '#ff5a1f' },
+];
+
+const TIME_OPTIONS: { id: TimeOfDay; label: string; dot: string }[] = [
+  { id: 'day', label: 'День', dot: '#f2c14e' },
+  { id: 'sunset', label: 'Закат', dot: '#f08a4b' },
+  { id: 'night', label: 'Ночь', dot: '#3b4a8a' },
+];
+
+const SEASON_OPTIONS: { id: TreeSeason; label: string; dot: string }[] = [
+  { id: 'spring', label: 'Весна', dot: '#d0507f' },
+  { id: 'summer', label: 'Лето', dot: '#8a5ccc' },
+  { id: 'autumn', label: 'Осень', dot: '#c8661a' },
+];
 import { generateQrMatrix } from '../engine/qrMatrix';
 import { validateQrScan, type ValidationResult } from '../engine/qrValidator';
 import { generateEmbedCode } from '../engine/standaloneGenerator';
@@ -10,25 +31,81 @@ interface ShapeOption {
   id: TargetShapeType;
   label: string;
   desc: string;
+  /** Planned shape: shown in the showcase as «Скоро», cannot be selected yet. */
+  soon?: boolean;
 }
+
+/** Jade wave on the left of the card (viewBox 0 0 460 620, stretched). Also used to clip the 3D canvas. */
+const WAVE_PATH = 'M 0,0 L 310,0 C 370,0 430,35 440,110 C 450,175 365,205 325,270 C 290,325 305,385 340,435 C 385,495 440,530 420,580 C 400,620 340,620 280,620 L 0,620 Z';
+const WAVE_VIEWBOX = { w: 460, h: 620 };
 
 const SHAPE_OPTIONS: ShapeOption[] = [
   { id: 'tree', label: 'Дерево', desc: 'Бонсай' },
-  { id: 'phone', label: 'Смартфон', desc: '3D Монолит' },
-  { id: 'crystal', label: 'Кристалл', desc: 'Октаэдр' },
   { id: 'city', label: 'Мегаполис', desc: 'Архитектура' },
-  { id: 'pyramid', label: 'Пирамида', desc: 'Геометрия' },
-  { id: 'heart', label: 'Сердце', desc: '3D Форма' },
-  { id: 'sphere', label: 'Сфера', desc: 'Планета' },
+  { id: 'island', label: 'Остров', desc: 'Горы и море' },
+  { id: 'maze', label: 'Сад-лабиринт', desc: 'Изгороди', soon: true },
+  { id: 'equalizer', label: 'Эквалайзер', desc: 'Музыка', soon: true },
+  { id: 'castle', label: 'Замок', desc: 'Крепость', soon: true },
+  { id: 'cake', label: 'Торт', desc: 'Праздник', soon: true },
 ];
 
 export function QrConfigurator() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const waveRef = useRef<SVGSVGElement>(null);
+
+  // Clip the 3D canvas along the jade wave, so shadows (and anything else) stop at its edge
+  // instead of being drawn over the green shape. Desktop layout only: on narrow screens the
+  // wave sits behind the whole card.
+  useEffect(() => {
+    const el = containerRef.current;
+    const wave = waveRef.current;
+    if (!el || !wave) return;
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const update = () => {
+      if (!desktop.matches) {
+        el.style.maskImage = '';
+        el.style.webkitMaskImage = '';
+        return;
+      }
+      const wr = wave.getBoundingClientRect();
+      const cr = el.getBoundingClientRect();
+      if (!cr.width || !cr.height) return;
+      const sx = wr.width / WAVE_VIEWBOX.w;
+      const sy = wr.height / WAVE_VIEWBOX.h;
+      const ox = wr.left - cr.left;
+      const oy = wr.top - cr.top;
+      const svg =
+        `<svg xmlns='http://www.w3.org/2000/svg' width='${cr.width}' height='${cr.height}'>` +
+        `<defs><mask id='m' maskUnits='userSpaceOnUse' x='0' y='0' width='${cr.width}' height='${cr.height}'>` +
+        `<rect width='100%' height='100%' fill='white'/>` +
+        `<path d='${WAVE_PATH}' fill='black' transform='translate(${ox} ${oy}) scale(${sx} ${sy})'/>` +
+        `</mask></defs><rect width='100%' height='100%' fill='black' mask='url(#m)'/></svg>`;
+      const url = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+      el.style.maskImage = url;
+      el.style.webkitMaskImage = url;
+      el.style.maskSize = el.style.webkitMaskSize = '100% 100%';
+      el.style.maskRepeat = el.style.webkitMaskRepeat = 'no-repeat';
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    ro.observe(wave);
+    desktop.addEventListener('change', update);
+    window.addEventListener('resize', update);
+    return () => {
+      ro.disconnect();
+      desktop.removeEventListener('change', update);
+      window.removeEventListener('resize', update);
+    };
+  }, []);
   const viewerRef = useRef<QrMorphViewer | null>(null);
 
   const [text, setText] = useState('https://temka.io');
   const [shape, setShape] = useState<TargetShapeType>('tree');
   const [themeId, setThemeId] = useState<string>('velvet-emerald');
+  const [season, setSeason] = useState<TreeSeason>('spring');
+  const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('day');
+  const [islandMode, setIslandMode] = useState<IslandMode>('summer');
   const [currentState, setCurrentState] = useState<'qr' | 'morphed'>('qr');
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [copied, setCopied] = useState(false);
@@ -45,6 +122,9 @@ export function QrConfigurator() {
       text,
       shape,
       themeId,
+      season,
+      timeOfDay,
+      islandMode,
       onStateChange: (st) => setCurrentState(st),
       onReady: () => {
         runValidation(text, themeId);
@@ -66,6 +146,18 @@ export function QrConfigurator() {
       runValidation(text, themeId);
     }
   }, [text, shape, themeId]);
+
+  useEffect(() => {
+    viewerRef.current?.setSeason(season);
+  }, [season]);
+
+  useEffect(() => {
+    viewerRef.current?.setTimeOfDay(timeOfDay);
+  }, [timeOfDay]);
+
+  useEffect(() => {
+    viewerRef.current?.setIslandMode(islandMode);
+  }, [islandMode]);
 
   const runValidation = (newText: string, currentThemeId: string) => {
     try {
@@ -189,6 +281,40 @@ export function QrConfigurator() {
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
           </svg>
         );
+      case 'maze':
+        return (
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M7 3v8h6M17 7v10h-6M7 15v6" />
+          </svg>
+        );
+      case 'island':
+        return (
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 17l5-8 3 4 3-6 7 10z" />
+            <path d="M2 21c2-1.3 4-1.3 6 0s4 1.3 6 0 4-1.3 6 0" />
+          </svg>
+        );
+      case 'equalizer':
+        return (
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M4 20v-6M9 20V8M14 20v-9M19 20V4" />
+          </svg>
+        );
+      case 'castle':
+        return (
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
+            <path d="M3 21V8h3v2h3V8h6v2h3V8h3v13z" />
+            <path d="M10 21v-5h4v5" />
+          </svg>
+        );
+      case 'cake':
+        return (
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 21V13h16v8zM2 21h20M6 13v-3h12v3" />
+            <path d="M12 10V6M12 3.5v.01" />
+          </svg>
+        );
       case 'sphere':
         return (
           <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -206,7 +332,7 @@ export function QrConfigurator() {
         
         {/* 1. SEAMLESS ORGANIC JADE WAVE: CONCAVE CRADLE ENVELOPING THE PODIUM */}
         <div className="absolute top-0 left-0 bottom-0 w-full sm:w-[48%] lg:w-[38%] pointer-events-none select-none z-0">
-          <svg className="w-full h-full filter drop-shadow-[0_16px_36px_rgba(25,195,125,0.25)]" viewBox="0 0 460 620" preserveAspectRatio="none" fill="none">
+          <svg ref={waveRef} className="w-full h-full filter drop-shadow-[0_16px_36px_rgba(25,195,125,0.25)]" viewBox="0 0 460 620" preserveAspectRatio="none" fill="none">
             <defs>
               <linearGradient id="sofaWaveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#22d38e" />
@@ -219,18 +345,7 @@ export function QrConfigurator() {
               then smoothly curves INWARD to the left (x=310-330) to cradle and wrap around the circular 3D podium,
               and then curves back OUTWARD to the right (x=420) beneath the podium before closing.
             */}
-            <path
-              d="M 0,0 
-                 L 310,0 
-                 C 370,0 430,35 440,110 
-                 C 450,175 365,205 325,270 
-                 C 290,325 305,385 340,435 
-                 C 385,495 440,530 420,580 
-                 C 400,620 340,620 280,620 
-                 L 0,620 
-                 Z"
-              fill="url(#sofaWaveGrad)"
-            />
+            <path d={WAVE_PATH} fill="url(#sofaWaveGrad)" />
           </svg>
         </div>
 
@@ -272,12 +387,14 @@ export function QrConfigurator() {
 
           {/* 2. CENTER ZONE: Expansive 3D Stage (lg:col-span-5, fully cradled by the green curve) */}
           <div className="lg:col-span-5 flex flex-col items-center justify-center relative my-1 lg:my-0">
-            <div className="relative w-full h-[330px] sm:h-[390px] flex items-center justify-center">
-              {/* Three.js Canvas with generous breathing room on all sides */}
-              <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing z-10 relative select-none" />
+            <div className="relative w-full h-[360px] sm:h-[430px] flex flex-col items-center">
+              {/* Three.js Canvas: takes all space above the toolbar, nothing is drawn over it */}
+              <div ref={containerRef} className="w-full flex-1 min-h-0 cursor-grab active:cursor-grabbing z-10 relative select-none" />
 
+              {/* Toolbar under the stage: mode switcher + tree seasons */}
+              <div className="relative z-20 mt-2 flex flex-wrap items-center justify-center gap-2 shrink-0">
               {/* Soft 3D Minimal Seamless Icon Switcher */}
-              <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08),inset_0_1px_1px_rgba(255,255,255,1)] backdrop-blur-md select-none flex items-center gap-1">
+              <div className="relative p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08),inset_0_1px_1px_rgba(255,255,255,1)] backdrop-blur-md select-none flex items-center gap-1">
                 {/* Seamless Sliding Pill Indicator */}
                 <div
                   className={`absolute top-1 left-1 w-7 h-7 rounded-full bg-[#19C37D] shadow-[0_2px_8px_rgba(25,195,125,0.35)] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-none ${
@@ -320,6 +437,64 @@ export function QrConfigurator() {
                   </svg>
                 </button>
               </div>
+                {/* Tree seasons (only for the QR Tree shape) */}
+                {shape === 'tree' && (
+                  <div className="p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center gap-0.5">
+                    {SEASON_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.id}
+                        onClick={() => setSeason(opt.id)}
+                        aria-pressed={season === opt.id}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-colors ${
+                          season === opt.id ? 'bg-[#132A22] text-white' : 'text-[#57534e] hover:bg-[#f3efe7]'
+                        }`}
+                      >
+                        <span className="w-2 h-2 rounded-full" style={{ background: opt.dot }} />
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Island modes (only for the QR Island shape) */}
+                {shape === 'island' && (
+                  <div className="p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center gap-0.5">
+                    {ISLAND_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.id}
+                        onClick={() => setIslandMode(opt.id)}
+                        aria-pressed={islandMode === opt.id}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-colors ${
+                          islandMode === opt.id ? 'bg-[#132A22] text-white' : 'text-[#57534e] hover:bg-[#f3efe7]'
+                        }`}
+                      >
+                        <span className="w-2 h-2 rounded-full" style={{ background: opt.dot }} />
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* City time of day (only for the QR City shape) */}
+                {shape === 'city' && (
+                  <div className="p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center gap-0.5">
+                    {TIME_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.id}
+                        onClick={() => setTimeOfDay(opt.id)}
+                        aria-pressed={timeOfDay === opt.id}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-colors ${
+                          timeOfDay === opt.id ? 'bg-[#132A22] text-white' : 'text-[#57534e] hover:bg-[#f3efe7]'
+                        }`}
+                      >
+                        <span className="w-2 h-2 rounded-full" style={{ background: opt.dot }} />
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+              </div>
             </div>
           </div>
 
@@ -348,7 +523,10 @@ export function QrConfigurator() {
                 return (
                   <button
                     key={opt.id}
+                    disabled={opt.soon}
+                    title={opt.soon ? 'Скоро' : undefined}
                     onClick={() => {
+                      if (opt.soon) return;
                       setShape(opt.id);
                       if (viewerRef.current) {
                         viewerRef.current.setState('morphed');
@@ -356,9 +534,11 @@ export function QrConfigurator() {
                       }
                     }}
                     className={`group w-full flex items-center justify-between py-1.5 px-3 rounded-2xl transition-all text-left ${
-                      isSelected
-                        ? 'bg-[#DFF8EB]/70 text-[#132A22] font-extrabold shadow-sm ring-1 ring-[#19C37D]/30'
-                        : 'text-[#57534e] hover:text-[#132A22] hover:bg-[#faf8f4]'
+                      opt.soon
+                        ? 'text-[#a8a29e] cursor-default'
+                        : isSelected
+                          ? 'bg-[#DFF8EB]/70 text-[#132A22] font-extrabold shadow-sm ring-1 ring-[#19C37D]/30'
+                          : 'text-[#57534e] hover:text-[#132A22] hover:bg-[#faf8f4]'
                     }`}
                   >
                     {/* Shape Name */}
@@ -379,6 +559,11 @@ export function QrConfigurator() {
                         {renderShapeIcon(opt.id)}
                       </div>
 
+                      {opt.soon ? (
+                        <span className="px-1.5 py-0.5 rounded-full bg-[#f3efe7] text-[9px] font-black uppercase tracking-wide text-[#a8a29e]">
+                          Скоро
+                        </span>
+                      ) : (
                       <div className={`w-4 h-4 flex items-center justify-center text-xs font-bold ${
                         isSelected ? 'text-[#19C37D]' : 'text-[#a8a29e] group-hover:text-[#132A22]'
                       }`}>
@@ -390,15 +575,16 @@ export function QrConfigurator() {
                           '+'
                         )}
                       </div>
+                      )}
                     </div>
                   </button>
                 );
               })}
             </div>
 
-            {/* Minimal URL Input & Palette Row */}
-            <div className="pt-2 flex items-center gap-2">
-              <div className="relative flex-1">
+            {/* URL input, full width */}
+            <div className="pt-2">
+              <div className="relative w-full">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a8a29e]">
                   <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
@@ -421,35 +607,13 @@ export function QrConfigurator() {
                   </button>
                 )}
               </div>
-
-              {/* Theme Swatches */}
-              <div className="flex items-center gap-1.5 shrink-0 pl-1">
-                {Object.values(THEMES).map((th: ThemeConfig) => {
-                  const isSelected = themeId === th.id;
-                  return (
-                    <button
-                      key={th.id}
-                      onClick={() => setThemeId(th.id)}
-                      title={th.name}
-                      className={`w-6 h-6 rounded-full border transition-all flex items-center justify-center ${
-                        isSelected
-                          ? 'border-2 border-[#19C37D] scale-110 shadow-sm ring-2 ring-[#19C37D]/25'
-                          : 'border-[#e5dfd2] hover:scale-105'
-                      }`}
-                      style={{ backgroundColor: th.voxelColor }}
-                    >
-                      {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white"></span>}
-                    </button>
-                  );
-                })}
-              </div>
             </div>
           </div>
 
         </div>
 
         {/* BOTTOM DOCK BAR (Direct 1:1 Mirror of Sofa Cake Dock) */}
-        <div className="mt-5 pt-4 border-t border-[#f2ede4] flex flex-wrap items-center justify-between gap-4 relative z-10">
+        <div className="mt-5 pt-4 flex flex-wrap items-center justify-between gap-4 relative z-10">
           
           {/* LEFT: SQUIRCLE BUTTONS CONNECTED BY DASHES (Reference Dock) */}
           <div className="flex items-center gap-2">
