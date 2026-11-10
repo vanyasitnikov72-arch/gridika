@@ -529,17 +529,22 @@ export class QrMorphViewer {
 
     // 1. Progress interpolation
     const diff = this.targetProgress - this.morphProgress;
-    if (Math.abs(diff) > 0.001) {
-      this.morphProgress += diff * 0.08;
+    if (Math.abs(diff) > 0.0005) {
+      this.morphProgress += diff * 0.085;
       this.updateMeshTransforms();
-    } else {
+    } else if (this.morphProgress !== this.targetProgress) {
       this.morphProgress = this.targetProgress;
+      this.updateMeshTransforms();
     }
 
     // 2. Camera / Scene rotation
     if (this.state === 'morphed' && !this.isDragging) {
       // Idle slow ambient rotation
-      this.targetRotY += 0.005;
+      this.targetRotY += 0.004;
+    } else if (this.state === 'qr' && !this.isDragging) {
+      // Smoothly ease back to frontal view so QR code is perfectly flat and scannable
+      this.targetRotY += (0 - this.targetRotY) * 0.06;
+      this.targetRotX += (0 - this.targetRotX) * 0.06;
     }
 
     this.rotX += (this.targetRotX - this.rotX) * 0.1;

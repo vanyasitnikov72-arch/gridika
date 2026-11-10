@@ -268,17 +268,23 @@ export function QrConfigurator() {
               {/* Three.js Canvas with generous breathing room on all sides */}
               <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing z-10 relative select-none" />
 
-              {/* Soft 3D Interactive Segmented Switcher */}
-              <div className="absolute top-2.5 left-1/2 -translate-x-1/2 z-20 flex items-center p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08),inset_0_1px_1px_rgba(255,255,255,1)] backdrop-blur-md select-none transition-all">
-                {/* Segment 1: QR Code Mode */}
+              {/* Soft 3D Minimal Seamless Icon Switcher */}
+              <div className="absolute top-2.5 left-1/2 -translate-x-1/2 z-20 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08),inset_0_1px_1px_rgba(255,255,255,1)] backdrop-blur-md select-none flex items-center gap-1 relative">
+                {/* Seamless Sliding Pill Indicator */}
+                <div
+                  className={`absolute top-1 left-1 w-7 h-7 rounded-full bg-[#19C37D] shadow-[0_2px_8px_rgba(25,195,125,0.35)] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-none ${
+                    currentState === 'morphed' ? 'translate-x-[32px]' : 'translate-x-0'
+                  }`}
+                />
+
+                {/* Button 1: QR Mode */}
                 <button
                   type="button"
                   onClick={handleSetQrMode}
-                  title="Включить сканируемый QR-код"
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 active:scale-95 ${
-                    currentState === 'qr'
-                      ? 'bg-[#19C37D] text-[#132A22] font-black shadow-[0_2px_8px_rgba(25,195,125,0.28)]'
-                      : 'text-[#57534e] hover:text-[#132A22] font-bold'
+                  title="Режим сканируемого QR-кода"
+                  aria-label="Режим QR-кода"
+                  className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center transition-colors duration-200 active:scale-90 ${
+                    currentState === 'qr' ? 'text-[#132A22]' : 'text-[#78716c] hover:text-[#132A22]'
                   }`}
                 >
                   <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
@@ -287,21 +293,16 @@ export function QrConfigurator() {
                     <rect x="3" y="14" width="7" height="7" rx="1.5" />
                     <path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 20h3M20 14v3" />
                   </svg>
-                  <span>QR-код</span>
-                  {currentState === 'qr' && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#132A22] animate-pulse" />
-                  )}
                 </button>
 
-                {/* Segment 2: 3D Shape Mode */}
+                {/* Button 2: 3D Shape Mode */}
                 <button
                   type="button"
                   onClick={handleSetShapeMode}
-                  title={`Включить 3D фигуру: ${currentShapeLabel}`}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 active:scale-95 ${
-                    currentState === 'morphed'
-                      ? 'bg-[#19C37D] text-[#132A22] font-black shadow-[0_2px_8px_rgba(25,195,125,0.28)]'
-                      : 'text-[#57534e] hover:text-[#132A22] font-bold'
+                  title={`Режим 3D фигуры: ${currentShapeLabel}`}
+                  aria-label="Режим 3D фигуры"
+                  className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center transition-colors duration-200 active:scale-90 ${
+                    currentState === 'morphed' ? 'text-[#132A22]' : 'text-[#78716c] hover:text-[#132A22]'
                   }`}
                 >
                   <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
@@ -309,10 +310,6 @@ export function QrConfigurator() {
                     <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
                     <line x1="12" y1="22.08" x2="12" y2="12" />
                   </svg>
-                  <span>3D: {currentShapeLabel}</span>
-                  {currentState === 'morphed' && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#132A22]" />
-                  )}
                 </button>
               </div>
             </div>
