@@ -183,9 +183,8 @@ export function UpcomingCatalog() {
         window.history.pushState({}, '', url.toString());
       } catch {}
     }
-    const el = document.getElementById('showcase');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 

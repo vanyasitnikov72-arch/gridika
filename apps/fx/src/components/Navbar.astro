@@ -5,7 +5,7 @@
   <header class="max-w-4xl mx-auto soft-3d-dock px-3.5 sm:px-5 h-13 sm:h-14 flex items-center justify-between pointer-events-auto transition-all bg-white/95 backdrop-blur-md">
     
     {/* Left: Brand Logo with Tactile Delta Symbol */}
-    <a href="/" class="flex items-center gap-2.5 group select-none">
+    <a href="#studio" data-nav-link="studio" class="flex items-center gap-2.5 group select-none cursor-pointer">
       <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-[#19C37D] to-[#15a86b] flex items-center justify-center text-[#132A22] shadow-[0_4px_12px_rgba(25,195,125,0.25)] group-hover:scale-105 transition-transform duration-200">
         <svg class="w-4 h-4 fill-none stroke-[#132A22] stroke-[2.5]" viewBox="0 0 24 24">
           <path d="M12 2L2 19h20L12 2z" />
@@ -22,23 +22,26 @@
     </a>
 
     {/* Center: Streamlined Floating Nav Tabs */}
-    <nav class="hidden md:flex items-center gap-1 p-1 rounded-full bg-[#fbf9f5] border border-[#e5dfd2]/80 shadow-inner text-xs font-bold text-[#57534e] select-none">
+    <nav class="hidden sm:flex items-center gap-1 p-1 rounded-full bg-[#fbf9f5] border border-[#e5dfd2]/80 shadow-inner text-xs font-bold text-[#57534e] select-none">
       <a
-        href="#showcase"
-        class="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-[#132A22] hover:shadow-xs transition-all duration-200"
+        href="#studio"
+        data-nav-link="studio"
+        class="nav-item px-3.5 py-1.5 rounded-full transition-all duration-200 cursor-pointer"
       >
         Студия
       </a>
       <a
         href="#catalog"
-        class="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-[#132A22] hover:shadow-xs transition-all duration-200 flex items-center gap-1.5"
+        data-nav-link="catalog"
+        class="nav-item px-3.5 py-1.5 rounded-full transition-all duration-200 flex items-center gap-1.5 cursor-pointer"
       >
         <span>Каталог</span>
         <span class="w-4 h-4 rounded-full bg-[#DFF8EB] text-[#132A22] text-[9px] font-mono font-black flex items-center justify-center">6</span>
       </a>
       <a
         href="#how-it-works"
-        class="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-[#132A22] hover:shadow-xs transition-all duration-200"
+        data-nav-link="how-it-works"
+        class="nav-item px-3.5 py-1.5 rounded-full transition-all duration-200 cursor-pointer"
       >
         Установка в Tilda
       </a>
@@ -47,7 +50,8 @@
     {/* Right: Quick CTA Button */}
     <div class="flex items-center gap-2 select-none">
       <a
-        href="#showcase"
+        href="#studio"
+        data-nav-link="studio"
         class="px-4 sm:px-4.5 py-1.5 sm:py-2 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] font-extrabold text-xs shadow-md transition-all duration-200 active:scale-95 flex items-center gap-1.5 cursor-pointer"
       >
         <span>Создать 3D</span>
@@ -59,3 +63,106 @@
 
   </header>
 </div>
+
+<script>
+  function initNav() {
+    const navLinks = document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]');
+    
+    function getHeaderBottom(): number {
+      const header = document.querySelector('header');
+      if (!header) return 72;
+      const rect = header.getBoundingClientRect();
+      const top = rect.top > 0 ? rect.top : 16;
+      return rect.height + top;
+    }
+
+    function smoothScrollTo(targetId: string) {
+      if (targetId === 'studio' || targetId === 'showcase' || targetId === 'top') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        try {
+          history.pushState(null, '', window.location.pathname);
+        } catch {}
+        return;
+      }
+
+      const el = document.getElementById(targetId);
+      if (!el) return;
+
+      const badge = el.querySelector('span, [class*="badge"], h2') as HTMLElement | null;
+      const headerBottom = getHeaderBottom();
+      let targetY: number;
+
+      if (badge) {
+        const badgePageY = badge.getBoundingClientRect().top + window.scrollY;
+        // Position badge with comfortable 24px breathing space below floating header
+        targetY = badgePageY - headerBottom - 24;
+      } else {
+        const elPageY = el.getBoundingClientRect().top + window.scrollY;
+        targetY = elPageY - headerBottom - 24;
+      }
+
+      if (targetY < 0) targetY = 0;
+
+      window.scrollTo({ top: targetY, behavior: 'smooth' });
+      try {
+        history.pushState(null, '', '#' + targetId);
+      } catch {}
+    }
+
+    navLinks.forEach((link) => {
+      link.addEventListener('click', (e) => {
+        const target = link.getAttribute('data-nav-link');
+        if (target) {
+          e.preventDefault();
+          smoothScrollTo(target);
+        }
+      });
+    });
+
+    // Active tab tracking on scroll
+    const tabItems = document.querySelectorAll<HTMLElement>('.nav-item');
+    function updateActiveTab() {
+      const scrollY = window.scrollY;
+      const catalogEl = document.getElementById('catalog');
+      const howItWorksEl = document.getElementById('how-it-works');
+
+      const howItWorksTop = howItWorksEl ? (howItWorksEl.getBoundingClientRect().top + scrollY - 220) : 700;
+      const catalogTop = catalogEl ? (catalogEl.getBoundingClientRect().top + scrollY - 220) : 2100;
+
+      let currentTab = 'studio';
+      if (scrollY >= catalogTop) {
+        currentTab = 'catalog';
+      } else if (scrollY >= howItWorksTop) {
+        currentTab = 'how-it-works';
+      }
+
+      tabItems.forEach((tab) => {
+        const target = tab.getAttribute('data-nav-link');
+        if (target === currentTab) {
+          tab.classList.add('bg-white', 'text-[#132A22]', 'shadow-xs');
+          tab.classList.remove('text-[#57534e]', 'hover:bg-white/60');
+        } else {
+          tab.classList.remove('bg-white', 'text-[#132A22]', 'shadow-xs');
+          tab.classList.add('text-[#57534e]', 'hover:bg-white/60');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', updateActiveTab, { passive: true });
+    updateActiveTab();
+
+    // Check if initial hash is set
+    if (window.location.hash) {
+      const hash = window.location.hash.replace('#', '');
+      if (hash === 'catalog' || hash === 'how-it-works' || hash === 'studio') {
+        setTimeout(() => smoothScrollTo(hash), 150);
+      }
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNav);
+  } else {
+    initNav();
+  }
+</script>
