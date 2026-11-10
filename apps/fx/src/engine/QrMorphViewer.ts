@@ -15,59 +15,59 @@ export interface ThemeConfig {
 }
 
 export const THEMES: Record<string, ThemeConfig> = {
+  'velvet-emerald': {
+    id: 'velvet-emerald',
+    name: 'Изумруд и Сливки',
+    subtitle: 'Бархатный изумруд на сливочном подиуме',
+    bgColor: '#f6f4ee',
+    groundColor: '#ffffff',
+    voxelColor: '#064e3b',
+    accentColor: '#059669',
+    finderColor: '#10b981',
+    isDark: false,
+  },
+  'terracotta-clay': {
+    id: 'terracotta-clay',
+    name: 'Терракота и Крем',
+    subtitle: 'Теплый глиняный акцент и карамель',
+    bgColor: '#f6f3ee',
+    groundColor: '#ffffff',
+    voxelColor: '#3d2516',
+    accentColor: '#ea580c',
+    finderColor: '#f97316',
+    isDark: false,
+  },
+  'espresso-cream': {
+    id: 'espresso-cream',
+    name: 'Эспрессо и Фарфор',
+    subtitle: 'Глубокий темный кофе на молочном',
+    bgColor: '#f6f4ee',
+    groundColor: '#ffffff',
+    voxelColor: '#201e1c',
+    accentColor: '#57534e',
+    finderColor: '#292524',
+    isDark: false,
+  },
   'soft-indigo': {
     id: 'soft-indigo',
-    name: 'Soft Indigo & Velvet',
-    subtitle: 'Мягкий лавандовый подиум и глубокий индиго',
-    bgColor: '#eaedf8',
-    groundColor: '#f5f7fd',
-    voxelColor: '#1e1b4b',
-    accentColor: '#6366f1',
-    finderColor: '#4f46e5',
-    isDark: false,
-  },
-  'soft-clay': {
-    id: 'soft-clay',
-    name: 'Soft Clay & Terracotta',
-    subtitle: 'Теплый глиняный тон и шоколад',
-    bgColor: '#f4ede4',
-    groundColor: '#fbf7f2',
-    voxelColor: '#2d221a',
-    accentColor: '#ea580c',
-    finderColor: '#c2410c',
-    isDark: false,
-  },
-  'soft-sage': {
-    id: 'soft-sage',
-    name: 'Soft Sage & Emerald',
-    subtitle: 'Оливковый природный фарфор',
-    bgColor: '#edf3ec',
-    groundColor: '#f5f9f4',
-    voxelColor: '#16281e',
-    accentColor: '#16a34a',
-    finderColor: '#15803d',
-    isDark: false,
-  },
-  'studio-minimal': {
-    id: 'studio-minimal',
-    name: 'Чистый Графит',
-    subtitle: 'Студийный светлый монохром',
-    bgColor: '#f1f3f7',
+    name: 'Кобальт и Лаванда',
+    subtitle: 'Мягкий пастельный индиго',
+    bgColor: '#f4f4f8',
     groundColor: '#ffffff',
-    voxelColor: '#18181b',
-    accentColor: '#3b82f6',
-    finderColor: '#2563eb',
+    voxelColor: '#1e1b4b',
+    accentColor: '#4f46e5',
+    finderColor: '#6366f1',
     isDark: false,
   },
   'dark-obsidian': {
     id: 'dark-obsidian',
     name: 'Глубокий Обсидиан',
     subtitle: 'Контрастный темный графит',
-    bgColor: '#131424',
-    groundColor: '#1b1d33',
-    voxelColor: '#312e81',
-    accentColor: '#818cf8',
-    finderColor: '#6366f1',
+    bgColor: '#161514',
+    groundColor: '#23201d',
+    voxelColor: '#3f3a36',
+    accentColor: '#10b981',
+    finderColor: '#34d399',
     isDark: true,
   },
 };
@@ -143,7 +143,7 @@ export class QrMorphViewer {
     this.container = options.container;
     this.text = options.text;
     this.shape = options.shape;
-    this.theme = THEMES[options.themeId] || THEMES['soft-indigo'];
+    this.theme = THEMES[options.themeId] || THEMES['velvet-emerald'];
     this.onStateChange = options.onStateChange;
     this.onReady = options.onReady;
 
@@ -396,7 +396,7 @@ export class QrMorphViewer {
     }
 
     if (newThemeId !== this.theme.id) {
-      this.theme = THEMES[newThemeId] || THEMES['soft-indigo'];
+      this.theme = THEMES[newThemeId] || THEMES['velvet-emerald'];
       this.scene.background = new THREE.Color(this.theme.bgColor);
       const mat = this.groundMesh.material as THREE.MeshStandardMaterial;
       mat.color.set(this.theme.groundColor);
