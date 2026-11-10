@@ -600,8 +600,8 @@ export function QrConfigurator() {
 
         </div>
 
-        {/* BOTTOM DOCK BAR: Arrow CTA & Download PNG */}
-        <div className="mt-5 pt-4 flex items-center gap-2 relative z-10">
+        {/* BOTTOM DOCK BAR: Arrow CTA & Download PNG (Positioned at bottom-right) */}
+        <div className="mt-3 sm:mt-4 flex items-center justify-end gap-2 relative z-10">
           {/* Arrow CTA Button (Get code for Tilda T123) */}
           <button
             onClick={handleOpenEmbedModal}
