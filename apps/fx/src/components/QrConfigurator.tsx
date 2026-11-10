@@ -269,7 +269,7 @@ export function QrConfigurator() {
               <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing z-10 relative select-none" />
 
               {/* Soft 3D Minimal Seamless Icon Switcher */}
-              <div className="absolute top-2.5 left-1/2 -translate-x-1/2 z-20 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08),inset_0_1px_1px_rgba(255,255,255,1)] backdrop-blur-md select-none flex items-center gap-1">
+              <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08),inset_0_1px_1px_rgba(255,255,255,1)] backdrop-blur-md select-none flex items-center gap-1">
                 {/* Seamless Sliding Pill Indicator */}
                 <div
                   className={`absolute top-1 left-1 w-7 h-7 rounded-full bg-[#19C37D] shadow-[0_2px_8px_rgba(25,195,125,0.35)] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-none ${
