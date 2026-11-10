@@ -8,226 +8,228 @@ import { QrConfigurator } from '../components/QrConfigurator';
 <Layout title="Temka FX — Интерактивные 3D вау-эффекты для сайтов на Tilda">
   <Navbar />
 
-  <main class="flex-1 pb-20">
-    {/* HERO SECTION: GIANT TYPE & LIQUID GLASS */}
-    <section class="relative pt-12 pb-14 md:pt-16 md:pb-16 overflow-hidden">
+  <main class="flex-1 pb-24">
+    {/* HERO SECTION: GIANT TYPE & BENTO PILLS */}
+    <section class="relative pt-12 pb-12 md:pt-16 md:pb-16 overflow-hidden">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
-        {/* Liquid Glass Pill Badge */}
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full liquid-glass-pill text-xs font-semibold text-zinc-800 mb-8 transition-all hover:scale-105 shadow-sm">
-          <span class="flex h-2 w-2 rounded-full bg-zinc-950"></span>
-          <span>Первый флагман: 3D Интерактивный QR-морфинг</span>
+        {/* Bento Tag Pill */}
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/15 border border-indigo-400/25 text-xs font-bold text-indigo-300 mb-6 transition-all hover:scale-105 shadow-md">
+          <span class="flex h-2 w-2 rounded-full bg-indigo-400 animate-ping"></span>
+          <span>Bento 3D Showcase • Первый эффект: QR-морфинг</span>
         </div>
 
-        {/* GIANT TYPE HEADLINE (Reference: Slide 3 & 6) */}
-        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-zinc-950 tracking-[-0.035em] max-w-4xl leading-[1.08]">
+        {/* GIANT TYPE HEADLINE */}
+        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-[-0.035em] max-w-4xl leading-[1.06]">
           Интерактивные 3D эффекты <br />
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-zinc-900 via-zinc-600 to-zinc-400">
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-indigo-400">
             для сайтов на Tilda
           </span>
         </h1>
 
-        <p class="mt-6 text-base sm:text-lg text-zinc-600 max-w-2xl font-normal leading-relaxed">
-          Установка на сайт за 1 минуту без программирования. 
-          Настройте 3D-эффект под свой бренд прямо в браузере и вставьте в блок T123.
+        <p class="mt-5 text-base sm:text-lg text-slate-300 max-w-2xl font-medium leading-relaxed">
+          Установка за 1 минуту без программирования. 
+          Настройте 3D-эффект в живом превью и вставьте код в блок T123.
         </p>
 
-        {/* Liquid Glass Bento Metric Pills */}
-        <div class="mt-8 flex flex-wrap items-center justify-center gap-2.5 text-xs sm:text-sm font-semibold text-zinc-700">
-          <span class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl liquid-glass-pill">
-            <span class="text-zinc-950">✦</span> Блок T123 в Тильде
+        {/* Bento Quick Tags */}
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-2.5 text-xs sm:text-sm font-bold text-slate-200">
+          <span class="flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-[#1b1a33] border border-white/10 shadow-md">
+            <span class="text-indigo-400">✦</span> Блок T123 в Тильде
           </span>
-          <span class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl liquid-glass-pill">
-            <span class="text-emerald-600 font-bold">✓</span> 100% считываемый QR
+          <span class="flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-[#1b1a33] border border-white/10 shadow-md">
+            <span class="text-emerald-400 font-black">✓</span> 100% считываемый QR
           </span>
-          <span class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl liquid-glass-pill">
-            <span class="text-blue-600">⚡</span> 0% CPU вне экрана
+          <span class="flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-[#1b1a33] border border-white/10 shadow-md">
+            <span class="text-cyan-400">⚡</span> 0% CPU вне экрана
           </span>
-          <span class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl liquid-glass-pill">
-            <span class="text-zinc-950">★</span> Без регистрации
+          <span class="flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-[#1b1a33] border border-white/10 shadow-md">
+            <span class="text-indigo-400">★</span> Без регистрации
           </span>
         </div>
       </div>
     </section>
 
-    {/* SHOWCASE & CONFIGURATOR SECTION */}
+    {/* SHOWCASE SECTION */}
     <section id="showcase" class="relative pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+      <div class="mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
-          <span class="text-[11px] font-bold uppercase tracking-wider text-zinc-500">Живой конфигуратор</span>
-          <h2 class="text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight mt-0.5">
-            Интерактивный 3D QR-морфинг
+          <span class="text-[11px] font-black uppercase tracking-wider text-indigo-400">Живой конфигуратор</span>
+          <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight mt-0.5">
+            3D QR-морфинг в реальном времени
           </h2>
         </div>
 
-        <div class="flex items-center gap-2 text-xs font-semibold text-zinc-600 liquid-glass-pill px-3 py-1.5 rounded-xl">
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <div class="flex items-center gap-2 text-xs font-bold text-indigo-200 bg-[#1b1a33] border border-white/10 px-4 py-2 rounded-2xl shadow-md">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span>Поддерживает iPhone и Android</span>
         </div>
       </div>
 
-      {/* Preact Interactive Configurator Island */}
+      {/* Preact Interactive Island */}
       <QrConfigurator client:load />
     </section>
 
-    {/* BENTO GRID: CAPABILITIES & VALUE PROPOSITIONS (Reference: Slide 2 & 5) */}
+    {/* BENTO GRID: CAPABILITIES & METRICS (Reference: Nue Bento Grid slide) */}
     <section id="bento-features" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center max-w-2xl mx-auto mb-12">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-zinc-500">Технологии</span>
-        <h2 class="text-3xl font-extrabold text-zinc-950 tracking-tight mt-1">
-          Почему дизайнеры выбирают Temka FX
+        <span class="text-[11px] font-black uppercase tracking-wider text-indigo-400">Возможности</span>
+        <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight mt-1">
+          Bento-преимущества Temka FX
         </h2>
-        <p class="text-zinc-600 text-sm mt-2">
-          Сложный WebGL-код, упакованный в простой блок для любого сайта.
+        <p class="text-slate-300 text-sm mt-2 font-medium">
+          Почему дизайнеры выбирают наши эффекты для проектов.
         </p>
       </div>
 
-      {/* BENTO GRID 4-CARDS */}
+      {/* BENTO GRID 4-CARDS (Exact Nue style) */}
       <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
-        {/* Bento Card 1 (Large - 7 cols): Battery & Performance */}
-        <div class="md:col-span-7 liquid-glass rounded-[2rem] p-7 sm:p-8 flex flex-col justify-between group hover:border-zinc-300 transition-all">
+        {/* Bento Card 1: Electric Purple / Indigo Accent Card (like nue brand card) */}
+        <div class="md:col-span-5 bento-card-purple p-7 sm:p-8 flex flex-col justify-between group hover:scale-[1.01] transition-all">
           <div class="flex items-center justify-between">
-            <span class="liquid-glass-pill px-3 py-1 rounded-full text-xs font-bold text-zinc-800">
-              Производительность
-            </span>
-            <span class="text-3xl">🔋</span>
-          </div>
-          <div class="my-6">
-            <div class="text-4xl sm:text-5xl font-black text-zinc-950 tracking-tight flex items-baseline gap-2">
-              <span>0%</span>
-              <span class="text-lg font-bold text-zinc-500">нагрузки в фоне</span>
-            </div>
-            <p class="text-sm text-zinc-600 mt-3 leading-relaxed max-w-lg">
-              Встроенный <code class="text-zinc-900 font-mono font-semibold bg-white/80 px-1.5 py-0.5 rounded border border-zinc-200">IntersectionObserver</code> автоматически ставит WebGL-рендеринг на паузу, когда блок уходит из экрана пользователя. Никаких лагов и разряда батареи.
-            </p>
-          </div>
-          <div class="flex items-center gap-2 text-xs font-semibold text-zinc-700">
-            <span class="text-emerald-600 font-bold">✓</span> Проверено на мобильных устройствах
-          </div>
-        </div>
-
-        {/* Bento Card 2 (5 cols): QR Accuracy Scanner */}
-        <div class="md:col-span-5 liquid-glass rounded-[2rem] p-7 sm:p-8 flex flex-col justify-between group hover:border-zinc-300 transition-all">
-          <div class="flex items-center justify-between">
-            <span class="liquid-glass-pill px-3 py-1 rounded-full text-xs font-bold text-zinc-800">
-              Верификация
+            <span class="px-3.5 py-1 rounded-full text-xs font-black bg-white/20 text-white uppercase tracking-wider backdrop-blur-md">
+              Считываемость
             </span>
             <span class="text-3xl">🎯</span>
           </div>
           <div class="my-6">
-            <div class="text-4xl sm:text-5xl font-black text-zinc-950 tracking-tight flex items-baseline gap-2">
-              <span>100%</span>
-              <span class="text-lg font-bold text-emerald-600">сканируемость</span>
+            <div class="text-5xl sm:text-6xl font-black text-white tracking-tight">
+              100%
             </div>
-            <p class="text-sm text-zinc-600 mt-3 leading-relaxed">
-              Перед выдачей кода встроенный декодер проверяет контраст и читаемость камерами iPhone и Android по стандартам WCAG 2.1.
+            <div class="text-xl font-bold text-indigo-100 mt-1">
+              Гарантия сканирования
+            </div>
+            <p class="text-xs sm:text-sm text-indigo-100/90 mt-3 leading-relaxed">
+              Встроенный алгоритм декодирования в браузере тестирует считываемость кода камерами смартфонов перед копированием.
             </p>
           </div>
-          <div class="flex items-center gap-2 text-xs font-semibold text-zinc-700">
-            <span class="text-emerald-600 font-bold">✓</span> Автоматический тест контрастности
+          <div class="flex items-center gap-2 text-xs font-bold text-white bg-black/15 px-3 py-2 rounded-xl backdrop-blur-md">
+            <span>✓</span> Проверено по стандарту WCAG 2.1
           </div>
         </div>
 
-        {/* Bento Card 3 (5 cols): Standalone Embed */}
-        <div class="md:col-span-5 liquid-glass rounded-[2rem] p-7 sm:p-8 flex flex-col justify-between group hover:border-zinc-300 transition-all">
+        {/* Bento Card 2: Soft Pale Lilac Card (0% CPU / Battery) */}
+        <div class="md:col-span-7 bento-card-light p-7 sm:p-8 flex flex-col justify-between group hover:scale-[1.01] transition-all">
           <div class="flex items-center justify-between">
-            <span class="liquid-glass-pill px-3 py-1 rounded-full text-xs font-bold text-zinc-800">
+            <span class="px-3.5 py-1 rounded-full text-xs font-black bg-indigo-600 text-white uppercase tracking-wider">
+              Энергосбережение
+            </span>
+            <span class="text-3xl">🔋</span>
+          </div>
+          <div class="my-6">
+            <div class="text-5xl sm:text-6xl font-black text-zinc-950 tracking-tight flex items-baseline gap-2">
+              <span>0% CPU</span>
+              <span class="text-lg font-bold text-zinc-500">вне зоны экрана</span>
+            </div>
+            <p class="text-sm text-zinc-600 mt-3 leading-relaxed max-w-lg font-medium">
+              Технология <code class="text-zinc-900 font-mono font-bold bg-white px-2 py-0.5 rounded-lg border border-slate-300">IntersectionObserver</code> автоматически замораживает WebGL цикл, когда блок уходит из зоны видимости. Телефон клиента не греется.
+            </p>
+          </div>
+          <div class="flex items-center gap-2 text-xs font-bold text-zinc-700">
+            <span class="text-emerald-600 font-black">✓</span> 60-120 FPS рендеринг в один Draw Call
+          </div>
+        </div>
+
+        {/* Bento Card 3: Soft Pale Lilac Card (Autonomous snippet) */}
+        <div class="md:col-span-7 bento-card-light p-7 sm:p-8 flex flex-col justify-between group hover:scale-[1.01] transition-all">
+          <div class="flex items-center justify-between">
+            <span class="px-3.5 py-1 rounded-full text-xs font-black bg-indigo-600 text-white uppercase tracking-wider">
               Автономность
             </span>
             <span class="text-3xl">📦</span>
           </div>
           <div class="my-6">
-            <div class="text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight">
-              Без внешних зависимостей
+            <div class="text-3xl sm:text-4xl font-black text-zinc-950 tracking-tight">
+              Никаких сторонних серверов
             </div>
-            <p class="text-sm text-zinc-600 mt-2.5 leading-relaxed">
-              Матрица QR и трехмерные координаты рассчитываются заранее. Скрипт не сломается даже через годы и не зависит от сторонних серверов.
+            <p class="text-sm text-zinc-600 mt-2.5 leading-relaxed font-medium">
+              Матрица модулей QR и 3D координаты рассчитываются заранее при генерации кода. Сниппет вставляется в блок T123 и работает вечно без сбоев.
             </p>
           </div>
-          <div class="flex items-center gap-2 text-xs font-semibold text-zinc-700">
-            <span class="text-blue-600 font-bold">✓</span> Резервное зеркало CDN
+          <div class="flex items-center gap-2 text-xs font-bold text-zinc-700">
+            <span class="text-indigo-600 font-black">✓</span> Резервное зеркало CDN встроено в код
           </div>
         </div>
 
-        {/* Bento Card 4 (7 cols): Free Tier with Badge */}
-        <div class="md:col-span-7 liquid-glass rounded-[2rem] p-7 sm:p-8 flex flex-col justify-between group hover:border-zinc-300 transition-all">
+        {/* Bento Card 4: Dark Indigo Card (Commercial Free Tier) */}
+        <div class="md:col-span-5 bento-card-dark p-7 sm:p-8 flex flex-col justify-between group hover:scale-[1.01] transition-all border border-indigo-500/20">
           <div class="flex items-center justify-between">
-            <span class="liquid-glass-pill px-3 py-1 rounded-full text-xs font-bold text-zinc-800">
-              Тариф
+            <span class="px-3.5 py-1 rounded-full text-xs font-black bg-indigo-500/20 text-indigo-300 border border-indigo-400/25 uppercase tracking-wider">
+              Лицензия
             </span>
             <span class="text-3xl">💎</span>
           </div>
           <div class="my-6">
-            <div class="text-3xl sm:text-4xl font-extrabold text-zinc-950 tracking-tight">
-              Бесплатно для любых проектов
+            <div class="text-3xl sm:text-4xl font-black text-white tracking-tight">
+              Бесплатный флагман
             </div>
-            <p class="text-sm text-zinc-600 mt-2.5 leading-relaxed max-w-lg">
-              Используйте 3D QR-код на сайтах клиентов и личных страницах. Единственное условие — сохранение аккуратного значка <i>«⚡ Сделано в Temka FX»</i> в углу.
+            <p class="text-xs sm:text-sm text-slate-300 mt-2.5 leading-relaxed font-medium">
+              Ставьте на сайты клиентов или в личные проекты со значком <i>«⚡ Сделано в Temka FX»</i>.
             </p>
           </div>
-          <div class="flex items-center gap-2 text-xs font-semibold text-zinc-700">
-            <span class="text-emerald-600 font-bold">✓</span> Коммерческая лицензия включена
+          <div class="flex items-center gap-2 text-xs font-bold text-indigo-300">
+            <span class="text-emerald-400">✓</span> Полная коммерческая свобода
           </div>
         </div>
       </div>
     </section>
 
-    {/* BENTO GRID: HOW TO INSTALL ON TILDA (3 STEPS) */}
+    {/* BENTO GRID: 3 STEPS ON TILDA */}
     <section id="how-it-works" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center max-w-2xl mx-auto mb-12">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-zinc-500">Инструкция</span>
-        <h2 class="text-3xl font-extrabold text-zinc-950 tracking-tight mt-1">
-          Как вставить в Tilda за 1 минуту
+        <span class="text-[11px] font-black uppercase tracking-wider text-indigo-400">Простота</span>
+        <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight mt-1">
+          Установка в Тильду за 3 шага
         </h2>
-        <p class="text-zinc-600 text-sm mt-2">
-          Всего три простых действия без плагинов и программирования.
+        <p class="text-slate-300 text-sm mt-2 font-medium">
+          Понятно даже без опыта в программировании.
         </p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* Step 01 */}
-        <div class="liquid-glass rounded-[2rem] p-7 sm:p-8 flex flex-col justify-between hover:border-zinc-300 transition-all">
+        <div class="bento-card-light p-7 sm:p-8 flex flex-col justify-between hover:scale-[1.01] transition-all">
           <div>
-            <div class="w-12 h-12 rounded-2xl liquid-glass-pill flex items-center justify-center text-zinc-950 font-black text-lg mb-6 shadow-sm">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-black text-lg mb-6 shadow-md shadow-indigo-600/30">
               01
             </div>
-            <h3 class="text-lg font-bold text-zinc-950">Настройте и скопируйте</h3>
-            <p class="text-xs sm:text-sm text-zinc-600 mt-2.5 leading-relaxed">
-              В конфигураторе выше введите вашу ссылку, выберите фигуру и палитру. Нажмите <b>«Получить код для Tilda»</b>.
+            <h3 class="text-xl font-black text-zinc-950">Настройте в превью</h3>
+            <p class="text-xs sm:text-sm text-zinc-600 mt-2.5 leading-relaxed font-medium">
+              Введите вашу ссылку, выберите фигуру (Мегаполис, Кристалл или Сердце) и нажмите <b>«Код для Tilda»</b>.
             </p>
           </div>
-          <div class="mt-6 pt-4 border-t border-zinc-200/60 text-[11px] font-semibold text-zinc-500">
+          <div class="mt-6 pt-4 border-t border-slate-200 text-xs font-bold text-indigo-600">
             ⏱ 20 секунд
           </div>
         </div>
 
         {/* Step 02 */}
-        <div class="liquid-glass rounded-[2rem] p-7 sm:p-8 flex flex-col justify-between hover:border-zinc-300 transition-all">
+        <div class="bento-card-light p-7 sm:p-8 flex flex-col justify-between hover:scale-[1.01] transition-all">
           <div>
-            <div class="w-12 h-12 rounded-2xl liquid-glass-pill flex items-center justify-center text-zinc-950 font-black text-lg mb-6 shadow-sm">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-black text-lg mb-6 shadow-md shadow-indigo-600/30">
               02
             </div>
-            <h3 class="text-lg font-bold text-zinc-950">Добавьте блок T123</h3>
-            <p class="text-xs sm:text-sm text-zinc-600 mt-2.5 leading-relaxed">
-              В редакторе страницы Тильды нажмите <b>«Все блоки» ➔ «Другое» ➔ «HTML-код» (блок T123)</b> и вставьте код.
+            <h3 class="text-xl font-black text-zinc-950">Добавьте блок T123</h3>
+            <p class="text-xs sm:text-sm text-zinc-600 mt-2.5 leading-relaxed font-medium">
+              В редакторе страницы нажмите <b>«Все блоки» ➔ «Другое» ➔ «HTML-код» (блок T123)</b> и вставьте код.
             </p>
           </div>
-          <div class="mt-6 pt-4 border-t border-zinc-200/60 text-[11px] font-semibold text-zinc-500">
+          <div class="mt-6 pt-4 border-t border-slate-200 text-xs font-bold text-indigo-600">
             ⏱ 15 секунд
           </div>
         </div>
 
         {/* Step 03 */}
-        <div class="liquid-glass rounded-[2rem] p-7 sm:p-8 flex flex-col justify-between hover:border-zinc-300 transition-all">
+        <div class="bento-card-light p-7 sm:p-8 flex flex-col justify-between hover:scale-[1.01] transition-all">
           <div>
-            <div class="w-12 h-12 rounded-2xl liquid-glass-pill flex items-center justify-center text-zinc-950 font-black text-lg mb-6 shadow-sm">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-black text-lg mb-6 shadow-md shadow-indigo-600/30">
               03
             </div>
-            <h3 class="text-lg font-bold text-zinc-950">Опубликуйте страницу</h3>
-            <p class="text-xs sm:text-sm text-zinc-600 mt-2.5 leading-relaxed">
-              Нажмите <b>«Опубликовать»</b>. Эффект сразу активен: посетители смогут вращать модель, трансформировать QR и сканировать камерой.
+            <h3 class="text-xl font-black text-zinc-950">Опубликуйте страницу</h3>
+            <p class="text-xs sm:text-sm text-zinc-600 mt-2.5 leading-relaxed font-medium">
+              Нажмите <b>«Опубликовать»</b>. Эффект сразу работает на любом домене, адаптируясь под мобильные экраны.
             </p>
           </div>
-          <div class="mt-6 pt-4 border-t border-zinc-200/60 text-[11px] font-semibold text-zinc-500">
+          <div class="mt-6 pt-4 border-t border-slate-200 text-xs font-bold text-indigo-600">
             ⏱ 10 секунд
           </div>
         </div>
@@ -237,61 +239,61 @@ import { QrConfigurator } from '../components/QrConfigurator';
     {/* BENTO CATALOG TEASER: UPCOMING EFFECTS */}
     <section id="catalog" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center max-w-2xl mx-auto mb-12">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-zinc-500">В разработке</span>
-        <h2 class="text-3xl font-extrabold text-zinc-950 tracking-tight mt-1">
-          Следующие эффекты витрины
+        <span class="text-[11px] font-black uppercase tracking-wider text-indigo-400">Будущие эффекты</span>
+        <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight mt-1">
+          Каталог в разработке
         </h2>
-        <p class="text-zinc-600 text-sm mt-2">
-          Интерактивные механики для первых экранов сайтов.
+        <p class="text-slate-300 text-sm mt-2 font-medium">
+          Скоро появятся новые интерактивные механики.
         </p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div class="liquid-glass rounded-[2rem] p-7 flex flex-col justify-between hover:border-zinc-300 transition-all">
+        <div class="bento-card-dark p-7 flex flex-col justify-between hover:scale-[1.01] transition-all border border-indigo-500/20">
           <div>
             <div class="flex items-center justify-between mb-4">
               <span class="text-3xl">🌌</span>
-              <span class="liquid-glass-pill px-2.5 py-0.5 rounded-full text-[10px] font-bold text-zinc-700 uppercase">Скоро</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-indigo-500/20 text-indigo-300 uppercase">Скоро</span>
             </div>
-            <h4 class="font-extrabold text-zinc-950 text-base">Заголовок из частиц</h4>
-            <p class="text-xs text-zinc-600 mt-2 leading-relaxed">
-              Заголовок из сотен световых частиц, которые мягко разлетаются от курсора мыши и пальца на экране телефона.
+            <h4 class="font-black text-white text-base">Заголовок из частиц</h4>
+            <p class="text-xs text-slate-300 mt-2 leading-relaxed font-medium">
+              Заголовок сайта из сотен светящихся частиц, которые мягко разлетаются от курсора мыши и тача.
             </p>
           </div>
-          <div class="mt-6 pt-3 border-t border-zinc-200/60 text-[11px] font-medium text-zinc-500">
-            Кандидат №2 в витрину
+          <div class="mt-6 pt-3 border-t border-white/10 text-[11px] font-bold text-indigo-400">
+            Кандидат №2
           </div>
         </div>
 
-        <div class="liquid-glass rounded-[2rem] p-7 flex flex-col justify-between hover:border-zinc-300 transition-all">
+        <div class="bento-card-dark p-7 flex flex-col justify-between hover:scale-[1.01] transition-all border border-indigo-500/20">
           <div>
             <div class="flex items-center justify-between mb-4">
               <span class="text-3xl">⏳</span>
-              <span class="liquid-glass-pill px-2.5 py-0.5 rounded-full text-[10px] font-bold text-zinc-700 uppercase">Скоро</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-indigo-500/20 text-indigo-300 uppercase">Скоро</span>
             </div>
-            <h4 class="font-extrabold text-zinc-950 text-base">Голографический таймер</h4>
-            <p class="text-xs text-zinc-600 mt-2 leading-relaxed">
+            <h4 class="font-black text-white text-base">Голографический таймер</h4>
+            <p class="text-xs text-slate-300 mt-2 leading-relaxed font-medium">
               Объемный 3D таймер обратного отсчета до старта события, вебинара или распродажи с парящими цифрами.
             </p>
           </div>
-          <div class="mt-6 pt-3 border-t border-zinc-200/60 text-[11px] font-medium text-zinc-500">
-            Кандидат №3 в витрину
+          <div class="mt-6 pt-3 border-t border-white/10 text-[11px] font-bold text-indigo-400">
+            Кандидат №3
           </div>
         </div>
 
-        <div class="liquid-glass rounded-[2rem] p-7 flex flex-col justify-between hover:border-zinc-300 transition-all">
+        <div class="bento-card-dark p-7 flex flex-col justify-between hover:scale-[1.01] transition-all border border-indigo-500/20">
           <div>
             <div class="flex items-center justify-between mb-4">
               <span class="text-3xl">🛍️</span>
-              <span class="liquid-glass-pill px-2.5 py-0.5 rounded-full text-[10px] font-bold text-zinc-700 uppercase">Скоро</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-indigo-500/20 text-indigo-300 uppercase">Скоро</span>
             </div>
-            <h4 class="font-extrabold text-zinc-950 text-base">3D Витрина товара</h4>
-            <p class="text-xs text-zinc-600 mt-2 leading-relaxed">
-              Интерактивный подиум товара с динамическим бликом, вращением на 360° и взрыв-схемой компонентов по клику.
+            <h4 class="font-black text-white text-base">3D Витрина товара</h4>
+            <p class="text-xs text-slate-300 mt-2 leading-relaxed font-medium">
+              Интерактивный подиум товара с динамическим бликом, вращением на 360° и демонстрацией деталей.
             </p>
           </div>
-          <div class="mt-6 pt-3 border-t border-zinc-200/60 text-[11px] font-medium text-zinc-500">
-            Кандидат №4 в витрину
+          <div class="mt-6 pt-3 border-t border-white/10 text-[11px] font-bold text-indigo-400">
+            Кандидат №4
           </div>
         </div>
       </div>

@@ -15,59 +15,59 @@ export interface ThemeConfig {
 }
 
 export const THEMES: Record<string, ThemeConfig> = {
+  'soft-indigo': {
+    id: 'soft-indigo',
+    name: 'Soft Indigo & Velvet',
+    subtitle: 'Мягкий лавандовый подиум и глубокий индиго',
+    bgColor: '#eaedf8',
+    groundColor: '#f5f7fd',
+    voxelColor: '#1e1b4b',
+    accentColor: '#6366f1',
+    finderColor: '#4f46e5',
+    isDark: false,
+  },
+  'soft-clay': {
+    id: 'soft-clay',
+    name: 'Soft Clay & Terracotta',
+    subtitle: 'Теплый глиняный тон и шоколад',
+    bgColor: '#f4ede4',
+    groundColor: '#fbf7f2',
+    voxelColor: '#2d221a',
+    accentColor: '#ea580c',
+    finderColor: '#c2410c',
+    isDark: false,
+  },
+  'soft-sage': {
+    id: 'soft-sage',
+    name: 'Soft Sage & Emerald',
+    subtitle: 'Оливковый природный фарфор',
+    bgColor: '#edf3ec',
+    groundColor: '#f5f9f4',
+    voxelColor: '#16281e',
+    accentColor: '#16a34a',
+    finderColor: '#15803d',
+    isDark: false,
+  },
   'studio-minimal': {
     id: 'studio-minimal',
-    name: 'Фарфор и Графит',
-    subtitle: 'Чистый студийный минимализм',
-    bgColor: '#f9fafb',
+    name: 'Чистый Графит',
+    subtitle: 'Студийный светлый монохром',
+    bgColor: '#f1f3f7',
     groundColor: '#ffffff',
     voxelColor: '#18181b',
     accentColor: '#3b82f6',
     finderColor: '#2563eb',
     isDark: false,
   },
-  'warm-linen': {
-    id: 'warm-linen',
-    name: 'Теплый лен и Орех',
-    subtitle: 'Мягкий премиальный бежевый',
-    bgColor: '#faf8f5',
-    groundColor: '#f4efe8',
-    voxelColor: '#29221d',
-    accentColor: '#b45309',
-    finderColor: '#9a3412',
-    isDark: false,
-  },
-  'nordic-frost': {
-    id: 'nordic-frost',
-    name: 'Северный Лед',
-    subtitle: 'Светлый холодный хром',
-    bgColor: '#f4f8fa',
-    groundColor: '#e8f1f5',
-    voxelColor: '#0f172a',
-    accentColor: '#0284c7',
-    finderColor: '#0ea5e9',
-    isDark: false,
-  },
-  'sage-ceramic': {
-    id: 'sage-ceramic',
-    name: 'Шалфей и Керамика',
-    subtitle: 'Оливковый природный тон',
-    bgColor: '#f5f7f4',
-    groundColor: '#e9eee8',
-    voxelColor: '#19261f',
-    accentColor: '#16a34a',
-    finderColor: '#15803d',
-    isDark: false,
-  },
   'dark-obsidian': {
     id: 'dark-obsidian',
     name: 'Глубокий Обсидиан',
     subtitle: 'Контрастный темный графит',
-    bgColor: '#0f1117',
-    groundColor: '#181b24',
-    voxelColor: '#272a38',
-    accentColor: '#6366f1',
-    finderColor: '#818cf8',
+    bgColor: '#131424',
+    groundColor: '#1b1d33',
+    voxelColor: '#312e81',
+    accentColor: '#818cf8',
+    finderColor: '#6366f1',
     isDark: true,
   },
 };
@@ -143,7 +143,7 @@ export class QrMorphViewer {
     this.container = options.container;
     this.text = options.text;
     this.shape = options.shape;
-    this.theme = THEMES[options.themeId] || THEMES['studio-minimal'];
+    this.theme = THEMES[options.themeId] || THEMES['soft-indigo'];
     this.onStateChange = options.onStateChange;
     this.onReady = options.onReady;
 
@@ -396,7 +396,7 @@ export class QrMorphViewer {
     }
 
     if (newThemeId !== this.theme.id) {
-      this.theme = THEMES[newThemeId] || THEMES['studio-minimal'];
+      this.theme = THEMES[newThemeId] || THEMES['soft-indigo'];
       this.scene.background = new THREE.Color(this.theme.bgColor);
       const mat = this.groundMesh.material as THREE.MeshStandardMaterial;
       mat.color.set(this.theme.groundColor);

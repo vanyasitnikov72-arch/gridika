@@ -17,7 +17,7 @@ export interface EmbedOptions {
  */
 export function generateEmbedCode(options: EmbedOptions): string {
   const { text, shape, themeId, height = 480, showBadge = true } = options;
-  const theme = THEMES[themeId] || THEMES['studio-minimal'];
+  const theme = THEMES[themeId] || THEMES['soft-indigo'];
   const { modules, size } = generateQrMatrix(text);
 
   const darkCoords: { r: number; c: number; isFinder: boolean }[] = [];
