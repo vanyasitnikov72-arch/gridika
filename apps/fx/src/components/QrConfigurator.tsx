@@ -181,9 +181,8 @@ export function QrConfigurator() {
     };
   }, []);
 
-  // Initialize 3D Viewer once mounted
-  useEffect(() => {
-    if (!containerRef.current) return;
+  const initViewer = () => {
+    if (!containerRef.current || viewerRef.current) return;
 
     const viewer = new QrMorphViewer({
       container: containerRef.current,
@@ -200,12 +199,27 @@ export function QrConfigurator() {
     });
 
     viewerRef.current = viewer;
+  };
 
+  // Initialize 3D Viewer once mounted
+  useEffect(() => {
+    initViewer();
     return () => {
-      viewer.destroy();
+      viewerRef.current?.destroy();
       viewerRef.current = null;
     };
   }, []);
+
+  // When activeProduct switches to qr-morph, ensure viewer is active and sized properly
+  useEffect(() => {
+    if (activeProduct === 'qr-morph') {
+      if (!viewerRef.current) {
+        initViewer();
+      } else {
+        viewerRef.current.handleResize();
+      }
+    }
+  }, [activeProduct]);
 
   // Update viewer on configuration changes
   useEffect(() => {
@@ -240,16 +254,16 @@ export function QrConfigurator() {
   };
 
   const handleSetQrMode = () => {
+    setCurrentState('qr');
     if (viewerRef.current) {
       viewerRef.current.setState('qr');
-      setCurrentState('qr');
     }
   };
 
   const handleSetShapeMode = () => {
+    setCurrentState('morphed');
     if (viewerRef.current) {
       viewerRef.current.setState('morphed');
-      setCurrentState('morphed');
     }
   };
 
@@ -545,10 +559,16 @@ export function QrConfigurator() {
 
             {/* 2. CENTER ZONE: Expansive Stage (Switches depending on activeProduct) */}
             <div className="lg:col-span-5 flex flex-col items-center justify-center relative my-1 lg:my-0">
-              <div key={activeProduct} className="relative w-full h-[360px] sm:h-[430px] flex flex-col items-center justify-center fx-fade-in">
+              <div className="relative w-full h-[360px] sm:h-[430px] flex flex-col items-center justify-center">
 
-                {/* MODE 01: QR MORPH STAGE */}
-                <div className={`w-full h-full flex flex-col items-center ${activeProduct === 'qr-morph' ? '' : 'hidden'}`}>
+                {/* MODE 01: QR MORPH STAGE (Permanently mounted for persistent Three.js context) */}
+                <div
+                  className={`w-full h-full flex flex-col items-center transition-all duration-300 ${
+                    activeProduct === 'qr-morph'
+                      ? 'relative z-10 opacity-100 scale-100 pointer-events-auto'
+                      : 'absolute inset-0 opacity-0 scale-95 pointer-events-none -z-10'
+                  }`}
+                >
                   <div ref={containerRef} className="w-full flex-1 min-h-0 cursor-grab active:cursor-grabbing z-10 relative select-none" />
 
                   {/* Sub-toolbar under the QR stage */}
@@ -563,7 +583,7 @@ export function QrConfigurator() {
                         type="button"
                         onClick={handleSetQrMode}
                         title="Режим QR"
-                        className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center transition-colors active:scale-90 ${
+                        className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center transition-colors active:scale-90 cursor-pointer ${
                           currentState === 'qr' ? 'text-[#132A22]' : 'text-[#78716c] hover:text-[#132A22]'
                         }`}
                       >
@@ -577,7 +597,7 @@ export function QrConfigurator() {
                         type="button"
                         onClick={handleSetShapeMode}
                         title="Режим 3D фигуры"
-                        className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center transition-colors active:scale-90 ${
+                        className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center transition-colors active:scale-90 cursor-pointer ${
                           currentState === 'morphed' ? 'text-[#132A22]' : 'text-[#78716c] hover:text-[#132A22]'
                         }`}
                       >
@@ -829,11 +849,11 @@ export function QrConfigurator() {
             </div>
 
             {/* 3. RIGHT ZONE: Dynamic Configuration Controls based on activeProduct */}
-            <div key={activeProduct} className="lg:col-span-4 flex flex-col justify-center gap-3 text-left fx-fade-in">
+            <div className="lg:col-span-4 flex flex-col justify-center gap-3 text-left">
               
               {/* CONTROLS: 01 3D QR */}
               {activeProduct === 'qr-morph' && (
-                <>
+                <div className="flex flex-col gap-3 fx-fade-in">
                   <div>
                     <span className="text-[10px] font-black uppercase tracking-wider text-[#19C37D]">
                       Витрина
@@ -860,17 +880,17 @@ export function QrConfigurator() {
                           onClick={() => {
                             if (opt.soon) return;
                             setShape(opt.id);
+                            setCurrentState('morphed');
                             if (viewerRef.current) {
                               viewerRef.current.setState('morphed');
-                              setCurrentState('morphed');
                             }
                           }}
                           className={`group w-full flex items-center justify-between py-1.5 px-3 rounded-2xl transition-all text-left ${
                             opt.soon
                               ? 'text-[#a8a29e] cursor-default'
                               : isSelected
-                                ? 'bg-[#DFF8EB]/70 text-[#132A22] font-extrabold shadow-sm ring-1 ring-[#19C37D]/30'
-                                : 'text-[#57534e] hover:text-[#132A22] hover:bg-[#faf8f4]'
+                                ? 'bg-[#DFF8EB]/70 text-[#132A22] font-extrabold shadow-sm ring-1 ring-[#19C37D]/30 cursor-pointer'
+                                : 'text-[#57534e] hover:text-[#132A22] hover:bg-[#faf8f4] cursor-pointer'
                           }`}
                         >
                           <span className="text-xs font-bold tracking-tight">{opt.label}</span>
@@ -926,19 +946,19 @@ export function QrConfigurator() {
                       {text && (
                         <button
                           onClick={() => setText('')}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#a8a29e] hover:text-[#132A22] text-xs"
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#a8a29e] hover:text-[#132A22] text-xs cursor-pointer"
                         >
                           ✕
                         </button>
                       )}
                     </div>
                   </div>
-                </>
+                </div>
               )}
 
               {/* CONTROLS: 02 3D-ВИЗИТКА */}
               {activeProduct === 'holo-card' && (
-                <>
+                <div className="flex flex-col gap-3 fx-fade-in">
                   <div>
                     <span className="text-[10px] font-black uppercase tracking-wider text-[#19C37D]">
                       Витрина
@@ -983,12 +1003,12 @@ export function QrConfigurator() {
                       />
                     </div>
                   </div>
-                </>
+                </div>
               )}
 
               {/* CONTROLS: 03 3D-КАЛЬКУЛЯТОР */}
               {activeProduct === 'spatial-calc' && (
-                <>
+                <div className="flex flex-col gap-3 fx-fade-in">
                   <div>
                     <span className="text-[10px] font-black uppercase tracking-wider text-[#19C37D]">
                       Витрина
@@ -1025,12 +1045,12 @@ export function QrConfigurator() {
                       />
                     </div>
                   </div>
-                </>
+                </div>
               )}
 
               {/* CONTROLS: 04 3D-АНБОКСИНГ */}
               {activeProduct === 'unbox-3d' && (
-                <>
+                <div className="flex flex-col gap-3 fx-fade-in">
                   <div>
                     <span className="text-[10px] font-black uppercase tracking-wider text-[#19C37D]">
                       Витрина
@@ -1053,12 +1073,12 @@ export function QrConfigurator() {
                       />
                     </div>
                   </div>
-                </>
+                </div>
               )}
 
               {/* CONTROLS: 05 HERO-КНОПКА */}
               {activeProduct === 'jelly-btn' && (
-                <>
+                <div className="flex flex-col gap-3 fx-fade-in">
                   <div>
                     <span className="text-[10px] font-black uppercase tracking-wider text-[#19C37D]">
                       Витрина
@@ -1092,12 +1112,12 @@ export function QrConfigurator() {
                       />
                     </div>
                   </div>
-                </>
+                </div>
               )}
 
               {/* CONTROLS: 06 BEFORE/AFTER */}
               {activeProduct === 'spatial-prism' && (
-                <>
+                <div className="flex flex-col gap-3 fx-fade-in">
                   <div>
                     <span className="text-[10px] font-black uppercase tracking-wider text-[#19C37D]">
                       Витрина
@@ -1131,7 +1151,7 @@ export function QrConfigurator() {
                       />
                     </div>
                   </div>
-                </>
+                </div>
               )}
 
             </div>
