@@ -1,0 +1,226 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import { QrConfigurator } from '../components/QrConfigurator';
+---
+
+<Layout title="Temka FX — Интерактивные 3D вау-эффекты для сайтов на Tilda">
+  <Navbar />
+
+  <main class="flex-1">
+    {/* HERO SECTION */}
+    <section class="relative pt-12 pb-16 md:pt-20 md:pb-24 overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
+        {/* Pill banner */}
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-950/60 border border-indigo-700/50 text-xs font-medium text-indigo-300 mb-6 backdrop-blur-md shadow-lg shadow-indigo-950/40">
+          <span class="flex h-2 w-2 rounded-full bg-indigo-400 animate-ping"></span>
+          <span>Первый эффект: 3D Интерактивный QR-код с морфингом</span>
+        </div>
+
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight max-w-4xl leading-[1.12]">
+          Сложные 3D вау-эффекты для сайтов <br />
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-indigo-300 to-cyan-300">
+            без программирования и подписок
+          </span>
+        </h1>
+
+        <p class="mt-6 text-base sm:text-lg text-slate-300 max-w-2xl font-normal leading-relaxed">
+          Создавайте захватывающие интерактивные элементы для сайтов на <b>Tilda</b>. 
+          Настройте эффект в живом превью, скопируйте готовый блок кода и вставьте на сайт за 1 минуту.
+        </p>
+
+        {/* Benefits pills */}
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs sm:text-sm font-medium text-slate-400">
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800">
+            <span class="text-indigo-400 font-bold">✓</span> Вставка через блок T123 в Тильде
+          </span>
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800">
+            <span class="text-emerald-400 font-bold">✓</span> 100% сканируемый QR-код
+          </span>
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800">
+            <span class="text-cyan-400 font-bold">✓</span> Автопауза вне экрана (0% CPU)
+          </span>
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800">
+            <span class="text-amber-400 font-bold">✓</span> Без регистрации
+          </span>
+        </div>
+      </div>
+    </section>
+
+    {/* SHOWCASE & CONFIGURATOR SECTION */}
+    <section id="showcase" class="relative pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Живое превью</span>
+          <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight mt-1">
+            Интерактивный 3D QR-морфинг
+          </h2>
+          <p class="text-sm text-slate-400 mt-1 max-w-xl">
+            По нажатию рассыпается на объемные кубики и собирается в 3D фигуру. 
+            Попробуйте покликать и повращать модель прямо сейчас!
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 text-xs text-slate-400">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>Поддерживает любые смартфоны с iOS и Android</span>
+        </div>
+      </div>
+
+      {/* Preact interactive configurator island */}
+      <QrConfigurator client:load />
+    </section>
+
+    {/* HOW IT WORKS ON TILDA SECTION */}
+    <section id="how-it-works" class="py-20 border-t border-slate-800/80 bg-slate-950/40">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Установка</span>
+          <h2 class="text-3xl font-bold text-white tracking-tight mt-2">
+            Как установить на сайт в Тильде
+          </h2>
+          <p class="text-slate-400 text-sm mt-2">
+            Никаких плагинов или сложных манипуляций. Весь процесс занимает менее минуты.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Step 1 */}
+          <div class="relative p-6 rounded-3xl bg-slate-900/60 border border-slate-800/80 flex flex-col">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-950 border border-indigo-600/40 flex items-center justify-center text-indigo-400 font-bold text-lg mb-5 shadow-lg shadow-indigo-950/50">
+              1
+            </div>
+            <h3 class="text-lg font-bold text-white">Настройте и скопируйте код</h3>
+            <p class="text-sm text-slate-400 mt-2 leading-relaxed">
+              В конфигураторе выше введите вашу ссылку, выберите понравившуюся 3D фигуру и цветовую тему. Нажмите <b>«Получить код»</b>.
+            </p>
+          </div>
+
+          {/* Step 2 */}
+          <div class="relative p-6 rounded-3xl bg-slate-900/60 border border-slate-800/80 flex flex-col">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-950 border border-indigo-600/40 flex items-center justify-center text-indigo-400 font-bold text-lg mb-5 shadow-lg shadow-indigo-950/50">
+              2
+            </div>
+            <h3 class="text-lg font-bold text-white">Добавьте блок T123 в Тильде</h3>
+            <p class="text-sm text-slate-400 mt-2 leading-relaxed">
+              В редакторе страницы нажмите <b>«Все блоки» ➔ «Другое» ➔ «HTML-код» (блок T123)</b> и вставьте скопированный код внутрь.
+            </p>
+          </div>
+
+          {/* Step 3 */}
+          <div class="relative p-6 rounded-3xl bg-slate-900/60 border border-slate-800/80 flex flex-col">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-950 border border-indigo-600/40 flex items-center justify-center text-indigo-400 font-bold text-lg mb-5 shadow-lg shadow-indigo-950/50">
+              3
+            </div>
+            <h3 class="text-lg font-bold text-white">Опубликуйте страницу</h3>
+            <p class="text-sm text-slate-400 mt-2 leading-relaxed">
+              Нажмите <b>«Опубликовать»</b>. Эффект сразу работает: посетители смогут нажимать, крутить в 3D и сканировать код камерой.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* FEATURES / ADVANTAGES */}
+    <section id="features" class="py-20 border-t border-slate-800/80">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Преимущества</span>
+          <h2 class="text-3xl font-bold text-white tracking-tight mt-2">
+            Создано для сайтов с высокими требованиями
+          </h2>
+          <p class="text-slate-400 text-sm mt-2">
+            Технические решения, которые гарантируют стабильность и скорость работы.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="p-6 rounded-2xl bg-slate-900/40 border border-slate-800 flex flex-col gap-3">
+            <span class="text-3xl">🔋</span>
+            <h4 class="font-bold text-white text-base">Бережет батарею смартфона</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Встроенный <code class="text-indigo-300">IntersectionObserver</code> автоматически ставит рендеринг на паузу, когда блок уходит из экрана. 0% нагрузки в фоне.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-slate-900/40 border border-slate-800 flex flex-col gap-3">
+            <span class="text-3xl">🎯</span>
+            <h4 class="font-bold text-white text-base">Гарантированная считываемость</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Каждый сгенерированный вариант проверяется встроенным декодером <code class="text-indigo-300">jsQR</code> на контраст и читаемость камерами iPhone и Android.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-slate-900/40 border border-slate-800 flex flex-col gap-3">
+            <span class="text-3xl">📦</span>
+            <h4 class="font-bold text-white text-base">Автономный код</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              QR-матрица и целевые 3D координаты рассчитываются заранее. Сниппет компактный и не сломается со временем.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-slate-900/40 border border-slate-800 flex flex-col gap-3">
+            <span class="text-3xl">💎</span>
+            <h4 class="font-bold text-white text-base">Бесплатный пробный эффект</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Вы можете использовать этот интерактивный QR-код бесплатно на любых клиентских и личных сайтах со значком Temka FX.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* CATALOG TEASER */}
+    <section id="catalog" class="py-20 border-t border-slate-800/80 bg-gradient-to-b from-slate-950 to-[#07080d]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">В разработке</span>
+          <h2 class="text-3xl font-bold text-white tracking-tight mt-2">
+            Следующие эффекты витрины
+          </h2>
+          <p class="text-slate-400 text-sm mt-2">
+            Скоро в каталоге появятся новые интерактивные механики для главных экранов.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="p-6 rounded-2xl bg-slate-900/30 border border-slate-800/80 flex flex-col gap-3 opacity-80 hover:opacity-100 transition-opacity">
+            <div class="flex items-center justify-between">
+              <span class="text-3xl">🌌</span>
+              <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">Кандидат №2</span>
+            </div>
+            <h4 class="font-bold text-white text-base">Частицы заголовка</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Главный заголовок сайта, состоящий из сотен световых частиц, которые мягко разлетаются от курсора мыши и пальца.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-slate-900/30 border border-slate-800/80 flex flex-col gap-3 opacity-80 hover:opacity-100 transition-opacity">
+            <div class="flex items-center justify-between">
+              <span class="text-3xl">⏳</span>
+              <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">Кандидат №3</span>
+            </div>
+            <h4 class="font-bold text-white text-base">Голографический таймер</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Объемный 3D таймер обратного отсчета до старта события, вебинара или распродажи с парящими цифрами и физикой.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-slate-900/30 border border-slate-800/80 flex flex-col gap-3 opacity-80 hover:opacity-100 transition-opacity">
+            <div class="flex items-center justify-between">
+              <span class="text-3xl">🛍️</span>
+              <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">Кандидат №4</span>
+            </div>
+            <h4 class="font-bold text-white text-base">3D Витрина товара</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Интерактивный подиум товара с динамическим бликом, вращением на 360° и взрыв-схемой компонентов по клику.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>

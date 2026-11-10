@@ -4,14 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev:calc": "pnpm --filter @temka/calc dev",
-    "build:calc": "pnpm --filter @temka/calc build",
-    "test": "pnpm --filter @temka/core test",
+    "dev": "pnpm --filter @temka/fx dev",
+    "dev:fx": "pnpm --filter @temka/fx dev",
+    "build": "pnpm --filter @temka/fx build",
+    "build:fx": "pnpm --filter @temka/fx build",
     "typecheck": "pnpm -r typecheck"
   },
   "devDependencies": {
-    "typescript": "^5.8.0",
-    "vitest": "^3.0.0"
+    "typescript": "^5.8.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
