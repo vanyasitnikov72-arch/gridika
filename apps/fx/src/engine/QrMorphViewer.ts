@@ -154,9 +154,9 @@ export class QrMorphViewer {
     const width = this.container.clientWidth || 500;
     const height = this.container.clientHeight || 500;
 
-    // 1. Scene & Camera
+    // 1. Scene & Camera (transparent canvas for organic spill background)
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(this.theme.bgColor);
+    this.scene.background = null;
 
     this.camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
     this.camera.position.set(0, 36, 42);
@@ -397,7 +397,6 @@ export class QrMorphViewer {
 
     if (newThemeId !== this.theme.id) {
       this.theme = THEMES[newThemeId] || THEMES['velvet-emerald'];
-      this.scene.background = new THREE.Color(this.theme.bgColor);
       const mat = this.groundMesh.material as THREE.MeshStandardMaterial;
       mat.color.set(this.theme.groundColor);
       mat.roughness = this.theme.isDark ? 0.4 : 0.6;

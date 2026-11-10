@@ -7,6 +7,7 @@ import { generateEmbedCode } from '../engine/standaloneGenerator';
 import confetti from 'canvas-confetti';
 
 const SHAPE_OPTIONS: { id: TargetShapeType; label: string; icon: string; desc: string }[] = [
+  { id: 'phone', label: '3D Смартфон', icon: '📱', desc: 'Монолит гаджета с Dynamic Island' },
   { id: 'city', label: 'Мегаполис', icon: '🏙️', desc: 'Архитектурный 3D город' },
   { id: 'crystal', label: 'Кристалл', icon: '💎', desc: 'Алмазный октаэдр' },
   { id: 'pyramid', label: 'Пирамида', icon: '🏛️', desc: 'Ступенчатый монолит' },
@@ -19,7 +20,7 @@ export function QrConfigurator() {
   const viewerRef = useRef<QrMorphViewer | null>(null);
 
   const [text, setText] = useState('https://temka.io');
-  const [shape, setShape] = useState<TargetShapeType>('city');
+  const [shape, setShape] = useState<TargetShapeType>('phone');
   const [themeId, setThemeId] = useState<string>('velvet-emerald');
   const [currentState, setCurrentState] = useState<'qr' | 'morphed'>('qr');
   const [validation, setValidation] = useState<ValidationResult | null>(null);
@@ -120,16 +121,51 @@ export function QrConfigurator() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      {/* LEFT: Soft 3D Stage Card (Sofa Cake Reference) */}
+      {/* LEFT: Soft 3D Stage Card with ORGANIC GREEN LIQUID SPILL (Sofa Cake Reference) */}
       <div className="lg:col-span-7 flex flex-col gap-4">
-        <div className="relative w-full aspect-square max-h-[580px] rounded-[2.5rem] overflow-hidden soft-3d-card flex flex-col items-center justify-center p-3 sm:p-4 transition-all">
-          {/* 3D WebGL Canvas in rounded vessel */}
-          <div ref={containerRef} className="w-full h-full rounded-[2rem] overflow-hidden cursor-grab active:cursor-grabbing bg-[#f6f4ee]" />
+        <div className="relative w-full aspect-square max-h-[580px] rounded-[2.5rem] overflow-hidden soft-3d-card flex flex-col items-center justify-center p-3 sm:p-4 transition-all bg-[#faf8f4]">
+          
+          {/* 1. ORGANIC EMERALD LIQUID SPILL BLOB (Sofa Cake Reference) */}
+          <div className="absolute -top-16 -left-16 w-[68%] h-[125%] bg-gradient-to-br from-[#064e3b] via-[#047857] to-[#022c22] rounded-[42%_58%_70%_30%/45%_45%_55%_55%] pointer-events-none transition-all duration-700 ease-out shadow-2xl shadow-emerald-950/20 z-0">
+            {/* Organic grain & ambient highlight */}
+            <div className="absolute inset-0 bg-radial-gradient from-white/10 to-transparent opacity-40"></div>
+            
+            {/* Bold Typography inside Green Blob (like 'Sofa cake' on reference) */}
+            <div className="absolute top-24 left-20 flex flex-col gap-1 text-white select-none pointer-events-none">
+              <span className="text-3xl sm:text-4xl font-black tracking-tight leading-[1.05]">
+                3D Morph
+              </span>
+              <span className="text-xs font-bold text-emerald-200/90 tracking-wide">
+                Interactive Tilda FX
+              </span>
+
+              {/* Decorative mini pill badge inside green blob */}
+              <div className="mt-3 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-black text-emerald-100 border border-white/25 w-fit shadow-sm">
+                <span>✦</span>
+                <span>Soft 3D Monolith</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. FLOATING SOFT 3D OBJECTS WITH DEPTH OF FIELD BLUR (Sofa Cake Reference) */}
+          {/* Foreground blurred warm terracotta capsule */}
+          <div className="absolute top-8 right-24 w-12 h-6 rounded-full bg-gradient-to-r from-[#ea580c] to-[#f97316] blur-[4px] opacity-80 pointer-events-none z-20 transform -rotate-12 shadow-lg"></div>
+          
+          {/* Background blurred soft peach pill */}
+          <div className="absolute bottom-20 left-12 w-8 h-8 rounded-full bg-[#fb923c] blur-[6px] opacity-60 pointer-events-none z-0"></div>
+
+          {/* Cute mascot smile pill in top right corner (like the orange mascot in Sofa cake) */}
+          <div className="absolute top-7 right-7 w-9 h-9 rounded-full bg-[#f97316] text-white flex items-center justify-center text-sm shadow-md font-black pointer-events-none z-20">
+            <span>☻</span>
+          </div>
+
+          {/* 3. TRANSPARENT 3D WEBGL CANVAS (Crosses boundary between green spill and cream card!) */}
+          <div ref={containerRef} className="w-full h-full rounded-[2rem] overflow-hidden cursor-grab active:cursor-grabbing z-10 relative" />
 
           {/* Top Floating Soft Pills */}
-          <div className="absolute top-7 left-7 right-7 flex items-center justify-between pointer-events-none">
+          <div className="absolute top-7 left-7 right-7 flex items-center justify-between pointer-events-none z-20">
             {/* Mode badge */}
-            <div className="soft-3d-pill flex items-center gap-2 px-4 py-1.5 text-xs font-black text-[#1c1917] pointer-events-auto">
+            <div className="soft-3d-pill flex items-center gap-2 px-4 py-1.5 text-xs font-black text-[#1c1917] pointer-events-auto bg-white/95 backdrop-blur-md shadow-md">
               <span className={`w-2.5 h-2.5 rounded-full ${currentState === 'qr' ? 'bg-[#064e3b] animate-pulse' : 'bg-[#ea580c]'}`} />
               <span>{currentState === 'qr' ? 'QR-режим' : `3D: ${SHAPE_OPTIONS.find((s) => s.id === shape)?.label}`}</span>
             </div>
@@ -137,7 +173,7 @@ export function QrConfigurator() {
             {/* Scanner status badge */}
             {validation && (
               <div
-                className={`soft-3d-pill flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-extrabold pointer-events-auto ${
+                className={`soft-3d-pill flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-extrabold pointer-events-auto bg-white/95 backdrop-blur-md shadow-md ${
                   validation.isValid
                     ? 'text-[#064e3b]'
                     : 'text-[#c2410c]'
@@ -150,18 +186,18 @@ export function QrConfigurator() {
             )}
           </div>
 
-          {/* Bottom Floating Soft Dock (Exact Sofa Cake Reference with rounded dock bar) */}
-          <div className="absolute bottom-7 left-7 right-7 flex items-center justify-between pointer-events-none">
-            <span className="soft-3d-pill text-xs font-bold text-[#57534e] px-4 py-2">
-              {currentState === 'qr' ? '👆 Клик по QR для морфинга' : '🔄 Вращайте модель мышкой'}
+          {/* Bottom Floating Soft Dock (Sofa Cake Reference Dock Bar) */}
+          <div className="absolute bottom-7 left-7 right-7 flex items-center justify-between pointer-events-none z-20">
+            <span className="soft-3d-dock text-xs font-bold text-[#57534e] px-4 py-2 bg-white/95 backdrop-blur-md">
+              {currentState === 'qr' ? '👆 Клик по QR для 3D смартфона' : '🔄 Зажмите мышь для вращения'}
             </span>
 
             {/* Tactile morph pill button with round dark action circle */}
             <button
               onClick={handleToggleMorph}
-              className="pointer-events-auto soft-3d-dock pl-4 pr-1.5 py-1.5 text-[#1c1917] text-xs font-black transition-all active:scale-95 flex items-center gap-2.5 group"
+              className="pointer-events-auto soft-3d-dock pl-4 pr-1.5 py-1.5 text-[#1c1917] text-xs font-black transition-all active:scale-95 flex items-center gap-2.5 group bg-white/95 backdrop-blur-md"
             >
-              <span>{currentState === 'qr' ? '3D Морфинг' : 'Собрать QR'}</span>
+              <span>{currentState === 'qr' ? '3D Смартфон' : 'Собрать QR'}</span>
               <div className="w-7 h-7 rounded-full bg-[#201e1c] group-hover:bg-[#064e3b] flex items-center justify-center text-white text-xs font-black transition-colors shadow-sm">
                 {currentState === 'qr' ? '→' : '↺'}
               </div>
@@ -174,14 +210,14 @@ export function QrConfigurator() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleToggleMorph}
-              className="px-4 py-2.5 rounded-full soft-3d-pill hover:bg-[#f6f4ee] text-[#1c1917] text-xs sm:text-sm font-bold transition-all flex items-center gap-2"
+              className="px-4 py-2.5 rounded-full soft-3d-pill hover:bg-white text-[#1c1917] text-xs sm:text-sm font-bold transition-all flex items-center gap-2 shadow-sm"
             >
               <span>✨</span>
-              <span>{currentState === 'qr' ? 'Анимация' : 'В QR-код'}</span>
+              <span>{currentState === 'qr' ? 'Трансформация' : 'В QR-код'}</span>
             </button>
             <button
               onClick={handleDownloadPng}
-              className="px-4 py-2.5 rounded-full soft-3d-pill hover:bg-[#f6f4ee] text-[#1c1917] text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-full soft-3d-pill hover:bg-white text-[#1c1917] text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-sm"
             >
               <span>📸</span>
               <span>Скачать PNG</span>
@@ -204,7 +240,7 @@ export function QrConfigurator() {
           <div>
             <h2 className="text-xl font-black text-[#1c1917] tracking-tight">Параметры</h2>
             <p className="text-xs text-[#78716c] font-medium mt-0.5">
-              Моментальный Soft 3D рендеринг
+              Живое превью 3D смартфона
             </p>
           </div>
           <span className="px-3 py-1 rounded-full text-[10px] font-black bg-[#064e3b] text-white uppercase tracking-wider shadow-sm">

@@ -1,4 +1,4 @@
-export type TargetShapeType = 'city' | 'crystal' | 'pyramid' | 'heart' | 'sphere';
+export type TargetShapeType = 'phone' | 'city' | 'crystal' | 'pyramid' | 'heart' | 'sphere';
 
 export interface VoxelTarget {
   x: number;
@@ -21,6 +21,62 @@ export function generateTargetShapePositions(
   const radius = qrSize * 0.45;
 
   switch (shape) {
+    case 'phone': {
+      // 3D Smartphone monolith with rounded corners and dynamic island
+      const phoneW = qrSize * 0.58;
+      const phoneH = qrSize * 1.15;
+      const halfW = phoneW / 2;
+      const halfH = phoneH / 2;
+
+      const cols = Math.floor(phoneW / 0.88);
+      const rows = Math.floor(phoneH / 0.88);
+
+      let placed = 0;
+
+      // Distribute voxels in rounded squircle phone body
+      for (let r = 0; r < rows && placed < count; r++) {
+        for (let c = 0; c < cols && placed < count; c++) {
+          const nx = (c / (cols - 1) - 0.5) * 2; // -1 to 1
+          const ny = (r / (rows - 1) - 0.5) * 2; // -1 to 1
+
+          // Squircle rounded corners formula
+          const squircle = Math.pow(nx, 4) + Math.pow(ny, 4);
+          if (squircle <= 1.0) {
+            const x = nx * halfW;
+            const y = -ny * halfH + qrSize * 0.08;
+
+            // Dynamic Island bump
+            const isDynamicIsland = Math.abs(nx) < 0.3 && Math.abs(ny - 0.76) < 0.09;
+            const z = isDynamicIsland ? 0.9 : 0;
+
+            targets.push({
+              x,
+              y,
+              z,
+              scaleX: isDynamicIsland ? 1.05 : 0.92,
+              scaleY: isDynamicIsland ? 1.05 : 0.92,
+              scaleZ: isDynamicIsland ? 1.25 : 0.85,
+            });
+            placed++;
+          }
+        }
+      }
+
+      // Fill remaining voxels along chassis edge for 3D body thickness
+      while (targets.length < count) {
+        const t = (targets.length / count) * Math.PI * 2;
+        targets.push({
+          x: Math.cos(t) * halfW * 0.94,
+          y: Math.sin(t) * halfH * 0.94 + qrSize * 0.08,
+          z: -0.6,
+          scaleX: 0.9,
+          scaleY: 0.9,
+          scaleZ: 1.1,
+        });
+      }
+      break;
+    }
+
     case 'city': {
       // Skyscraper metropolis: distributed across a grid with varying skyscraper heights
       const gridSize = Math.ceil(Math.sqrt(count));
