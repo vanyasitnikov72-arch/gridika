@@ -173,14 +173,20 @@ export function UpcomingCatalog() {
   };
 
   const handleProductAction = (product: CatalogProduct) => {
-    if (product.isFlagship) {
-      const el = document.getElementById('showcase');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-      }
-      return;
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('fx:select-product', { detail: { productId: product.id } })
+      );
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('fx', product.id);
+        window.history.pushState({}, '', url.toString());
+      } catch {}
     }
-    setSelectedProduct(product);
+    const el = document.getElementById('showcase');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -427,9 +433,10 @@ export function UpcomingCatalog() {
               <button
                 type="button"
                 onClick={() => handleProductAction(TOP6_PRODUCTS[1])}
-                className="px-3.5 py-1.5 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] font-bold text-xs shadow-sm transition-all cursor-pointer"
+                className="px-3.5 py-1.5 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] font-bold text-xs shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
               >
-                Код для Tilda →
+                <span>Настроить в студии</span>
+                <span>↑</span>
               </button>
             </div>
           </div>
@@ -500,9 +507,10 @@ export function UpcomingCatalog() {
               <button
                 type="button"
                 onClick={() => handleProductAction(TOP6_PRODUCTS[2])}
-                className="px-3.5 py-1.5 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] font-bold text-xs shadow-sm transition-all cursor-pointer"
+                className="px-3.5 py-1.5 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] font-bold text-xs shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
               >
-                Код для Tilda →
+                <span>Настроить в студии</span>
+                <span>↑</span>
               </button>
             </div>
           </div>
@@ -568,9 +576,10 @@ export function UpcomingCatalog() {
               <button
                 type="button"
                 onClick={() => handleProductAction(TOP6_PRODUCTS[3])}
-                className="px-3.5 py-1.5 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] font-bold text-xs shadow-sm transition-all cursor-pointer"
+                className="px-3.5 py-1.5 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] font-bold text-xs shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
               >
-                Код для Tilda →
+                <span>Настроить в студии</span>
+                <span>↑</span>
               </button>
             </div>
           </div>
@@ -628,9 +637,10 @@ export function UpcomingCatalog() {
               <button
                 type="button"
                 onClick={() => handleProductAction(TOP6_PRODUCTS[4])}
-                className="px-3.5 py-1.5 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] font-bold text-xs shadow-sm transition-all cursor-pointer"
+                className="px-3.5 py-1.5 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] font-bold text-xs shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
               >
-                Код для Tilda →
+                <span>Настроить в студии</span>
+                <span>↑</span>
               </button>
             </div>
           </div>
@@ -728,9 +738,10 @@ export function UpcomingCatalog() {
               <button
                 type="button"
                 onClick={() => handleProductAction(TOP6_PRODUCTS[5])}
-                className="px-4 py-2 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] font-bold text-xs shadow-md transition-all cursor-pointer"
+                className="px-4 py-2 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] font-bold text-xs shadow-md transition-all cursor-pointer flex items-center gap-1.5"
               >
-                Код для Tilda →
+                <span>Настроить в студии</span>
+                <span>↑</span>
               </button>
             </div>
           </div>
