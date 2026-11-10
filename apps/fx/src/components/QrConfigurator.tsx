@@ -379,10 +379,10 @@ export function QrConfigurator() {
               {/* Three.js Canvas: takes all space above the toolbar, nothing is drawn over it */}
               <div ref={containerRef} className="w-full flex-1 min-h-0 cursor-grab active:cursor-grabbing z-10 relative select-none" />
 
-              {/* Toolbar under the stage: mode switcher + tree seasons */}
-              <div className="relative z-20 mt-2 flex flex-wrap items-center justify-center gap-2 shrink-0">
+              {/* Toolbar under the stage: mode switcher + tree seasons (Shifted right away from green wave) */}
+              <div className="relative z-20 mt-2 flex flex-nowrap items-center justify-center gap-2.5 shrink-0 translate-x-5 sm:translate-x-7">
               {/* Soft 3D Minimal Seamless Icon Switcher */}
-              <div className="relative p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08),inset_0_1px_1px_rgba(255,255,255,1)] backdrop-blur-md select-none flex items-center gap-1">
+              <div className="relative w-[68px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08),inset_0_1px_1px_rgba(255,255,255,1)] backdrop-blur-md select-none flex items-center gap-1 shrink-0">
                 {/* Seamless Sliding Pill Indicator */}
                 <div
                   className={`absolute top-1 left-1 w-7 h-7 rounded-full bg-[#19C37D] shadow-[0_2px_8px_rgba(25,195,125,0.35)] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-none ${
@@ -425,58 +425,61 @@ export function QrConfigurator() {
                   </svg>
                 </button>
               </div>
-                {/* Tree seasons (only for the QR Tree shape) */}
+                {/* Tree seasons (only for the QR Tree shape) - Fixed dimensions */}
                 {shape === 'tree' && (
-                  <div className="p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center gap-0.5">
+                  <div className="w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-1 shrink-0">
                     {SEASON_OPTIONS.map((opt) => (
                       <button
                         key={opt.id}
+                        type="button"
                         onClick={() => setSeason(opt.id)}
                         aria-pressed={season === opt.id}
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-colors ${
-                          season === opt.id ? 'bg-[#132A22] text-white' : 'text-[#57534e] hover:bg-[#f3efe7]'
+                        className={`w-[72px] h-7 flex items-center justify-center gap-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                          season === opt.id ? 'bg-[#132A22] text-white shadow-sm' : 'text-[#57534e] hover:bg-[#f3efe7]'
                         }`}
                       >
-                        <span className="w-2 h-2 rounded-full" style={{ background: opt.dot }} />
-                        {opt.label}
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ background: opt.dot }} />
+                        <span>{opt.label}</span>
                       </button>
                     ))}
                   </div>
                 )}
 
-                {/* Island modes (only for the QR Island shape) */}
+                {/* Island modes (only for the QR Island shape) - Fixed dimensions */}
                 {shape === 'island' && (
-                  <div className="p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center gap-0.5">
+                  <div className="w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-1 shrink-0">
                     {ISLAND_OPTIONS.map((opt) => (
                       <button
                         key={opt.id}
+                        type="button"
                         onClick={() => setIslandMode(opt.id)}
                         aria-pressed={islandMode === opt.id}
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-colors ${
-                          islandMode === opt.id ? 'bg-[#132A22] text-white' : 'text-[#57534e] hover:bg-[#f3efe7]'
+                        className={`w-[72px] h-7 flex items-center justify-center gap-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                          islandMode === opt.id ? 'bg-[#132A22] text-white shadow-sm' : 'text-[#57534e] hover:bg-[#f3efe7]'
                         }`}
                       >
-                        <span className="w-2 h-2 rounded-full" style={{ background: opt.dot }} />
-                        {opt.label}
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ background: opt.dot }} />
+                        <span>{opt.label}</span>
                       </button>
                     ))}
                   </div>
                 )}
 
-                {/* City time of day (only for the QR City shape) */}
+                {/* City time of day (only for the QR City shape) - Fixed dimensions */}
                 {shape === 'city' && (
-                  <div className="p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center gap-0.5">
+                  <div className="w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-1 shrink-0">
                     {TIME_OPTIONS.map((opt) => (
                       <button
                         key={opt.id}
+                        type="button"
                         onClick={() => setTimeOfDay(opt.id)}
                         aria-pressed={timeOfDay === opt.id}
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-colors ${
-                          timeOfDay === opt.id ? 'bg-[#132A22] text-white' : 'text-[#57534e] hover:bg-[#f3efe7]'
+                        className={`w-[72px] h-7 flex items-center justify-center gap-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                          timeOfDay === opt.id ? 'bg-[#132A22] text-white shadow-sm' : 'text-[#57534e] hover:bg-[#f3efe7]'
                         }`}
                       >
-                        <span className="w-2 h-2 rounded-full" style={{ background: opt.dot }} />
-                        {opt.label}
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ background: opt.dot }} />
+                        <span>{opt.label}</span>
                       </button>
                     ))}
                   </div>
