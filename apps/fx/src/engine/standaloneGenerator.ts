@@ -95,8 +95,8 @@ export function generateEmbedCode(options: EmbedOptions): string {
     scene.background = new T.Color(data.theme.bg);
 
     var camera = new T.PerspectiveCamera(40, w / h, 0.1, 1000);
-    camera.position.set(0, 36, 42);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(0, 38, 44);
+    camera.lookAt(0, 2.5, 0);
 
     var renderer = new T.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
     renderer.setSize(w, h);
@@ -111,6 +111,10 @@ export function generateEmbedCode(options: EmbedOptions): string {
     var dir = new T.DirectionalLight(0xffffff, data.theme.dark ? 1.5 : 1.2);
     dir.position.set(20, 45, 25);
     dir.castShadow = true;
+    dir.shadow.camera.left = -22;
+    dir.shadow.camera.right = 22;
+    dir.shadow.camera.top = 22;
+    dir.shadow.camera.bottom = -22;
     scene.add(dir);
 
     var pt = new T.PointLight(data.theme.accent, 2, 60);

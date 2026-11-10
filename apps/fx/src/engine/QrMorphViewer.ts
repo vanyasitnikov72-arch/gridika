@@ -159,8 +159,8 @@ export class QrMorphViewer {
     this.scene.background = null;
 
     this.camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 1000);
-    this.camera.position.set(0, 48, 58);
-    this.camera.lookAt(0, 2.5, 0);
+    this.camera.position.set(0, 46, 56);
+    this.camera.lookAt(0, 3.5, 0);
 
     // 2. Renderer
     this.renderer = new THREE.WebGLRenderer({
@@ -191,6 +191,12 @@ export class QrMorphViewer {
     this.dirLight.shadow.mapSize.width = 1024;
     this.dirLight.shadow.mapSize.height = 1024;
     this.dirLight.shadow.bias = -0.001;
+    this.dirLight.shadow.camera.left = -22;
+    this.dirLight.shadow.camera.right = 22;
+    this.dirLight.shadow.camera.top = 22;
+    this.dirLight.shadow.camera.bottom = -22;
+    this.dirLight.shadow.camera.near = 0.5;
+    this.dirLight.shadow.camera.far = 120;
     this.scene.add(this.dirLight);
 
     // Rim/Accent light for edge reflections
