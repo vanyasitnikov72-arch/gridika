@@ -193,7 +193,7 @@ export function QrConfigurator() {
   return (
     <div className="w-full">
       {/* MASTER CARD (1:1 SOFA CAKE REFERENCE) */}
-      <div className="relative w-full rounded-[2.5rem] bg-white border border-[#e8e2d5] shadow-[0_30px_70px_-15px_rgba(85,70,50,0.08),0_0_0_1px_rgba(85,70,50,0.02)] overflow-hidden p-6 sm:p-10">
+      <div className="relative w-full rounded-[2.5rem] bg-white border border-[#e8e2d5] shadow-[0_30px_70px_-15px_rgba(85,70,50,0.08),0_0_0_1px_rgba(85,70,50,0.02)] overflow-hidden p-5 sm:p-7 md:p-8">
         
         {/* 1. SEAMLESS ORGANIC JADE WAVE: CONCAVE CRADLE ENVELOPING THE PODIUM */}
         <div className="absolute top-0 left-0 bottom-0 w-full sm:w-[48%] lg:w-[38%] pointer-events-none select-none z-0">
@@ -262,14 +262,14 @@ export function QrConfigurator() {
           </div>
 
           {/* 2. CENTER ZONE: Expansive 3D Stage (lg:col-span-5, fully cradled by the green curve) */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-center relative my-2 lg:my-0">
-            <div className="relative w-full h-[380px] sm:h-[430px] flex items-center justify-center">
+          <div className="lg:col-span-5 flex flex-col items-center justify-center relative my-1 lg:my-0">
+            <div className="relative w-full h-[330px] sm:h-[390px] flex items-center justify-center">
               {/* Three.js Canvas with generous breathing room on all sides */}
               <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing z-10 relative select-none" />
 
               {/* Floating Mode Status Pill */}
               <div className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3.5 py-1 rounded-full soft-3d-pill text-[11px] font-bold text-[#132A22] z-20 pointer-events-none shadow-sm backdrop-blur-sm bg-white/95">
-                <span className={`w-2 h-2 rounded-full ${currentState === 'qr' ? 'bg-[#19C37D] animate-pulse' : 'bg-[#ea580c]'}`} />
+                <span className={`w-2 h-2 rounded-full ${currentState === 'qr' ? 'bg-[#19C37D] animate-pulse' : 'bg-[#132A22]'}`} />
                 <span>{currentState === 'qr' ? 'Режим: QR-код' : `3D: ${SHAPE_OPTIONS.find((s) => s.id === shape)?.label}`}</span>
               </div>
             </div>
@@ -401,7 +401,7 @@ export function QrConfigurator() {
         </div>
 
         {/* BOTTOM DOCK BAR (Direct 1:1 Mirror of Sofa Cake Dock) */}
-        <div className="mt-8 pt-5 border-t border-[#f2ede4] flex flex-wrap items-center justify-between gap-4 relative z-10">
+        <div className="mt-5 pt-4 border-t border-[#f2ede4] flex flex-wrap items-center justify-between gap-4 relative z-10">
           
           {/* LEFT: SQUIRCLE BUTTONS CONNECTED BY DASHES (Reference Dock) */}
           <div className="flex items-center gap-2">
