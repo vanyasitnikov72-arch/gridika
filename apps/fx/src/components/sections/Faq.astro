@@ -46,7 +46,7 @@ const faq = [
 
   <div class="flex flex-col gap-3">
     {faq.map((item) => (
-      <details class="vx-faq group soft-3d-card !rounded-[1.5rem] px-6 py-1 open:shadow-xl transition-shadow">
+      <details name="faq" class="vx-faq group soft-3d-card !rounded-[1.5rem] px-6 py-1 open:shadow-xl transition-shadow">
         <summary class="flex items-center justify-between gap-4 py-4 cursor-pointer list-none select-none">
           <span class="text-[15px] font-extrabold text-[#132A22]">{item.q}</span>
           <span class="w-7 h-7 shrink-0 rounded-full bg-[var(--vx-soft)] text-[#132A22] flex items-center justify-center text-lg font-black transition-transform duration-300 group-open:rotate-45">+</span>
@@ -60,3 +60,41 @@ const faq = [
     .vx-faq summary::-webkit-details-marker { display: none; }
   </style>
 </section>
+
+<script>
+  function initFaqAccordion() {
+    const faqItems = document.querySelectorAll<HTMLDetailsElement>('details.vx-faq');
+    if (!faqItems.length) return;
+
+    // When one FAQ item opens, close all others (accordion)
+    faqItems.forEach((item) => {
+      item.addEventListener('toggle', () => {
+        if (item.open) {
+          faqItems.forEach((other) => {
+            if (other !== item && other.open) {
+              other.open = false;
+            }
+          });
+        }
+      });
+    });
+
+    // When clicking anywhere outside open FAQ items, close them
+    document.addEventListener('click', (e) => {
+      const target = e.target as Node | null;
+      if (!target) return;
+
+      faqItems.forEach((item) => {
+        if (item.open && !item.contains(target)) {
+          item.open = false;
+        }
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFaqAccordion);
+  } else {
+    initFaqAccordion();
+  }
+</script>
