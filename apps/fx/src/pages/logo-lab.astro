@@ -1,0 +1,359 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Voxelka — Лаборатория логотипа">
+  {/* FLOATING HEADER UNDER TEST */}
+  <div class="fixed top-3 sm:top-5 z-50 w-full px-3 sm:px-6 lg:px-8 pointer-events-none">
+    <header
+      id="lab-header"
+      class="max-w-4xl mx-auto px-3 sm:px-4 h-14 flex items-center justify-between pointer-events-auto rounded-full border border-[#e9e3d7] bg-white/95 backdrop-blur-xl shadow-[0_12px_32px_-10px_rgba(19,42,34,0.18)] transition-all duration-300"
+    >
+      {/* BRAND LOGO ZONE */}
+      <a
+        href="#"
+        id="lab-brand-link"
+        class="group flex items-center select-none cursor-pointer overflow-hidden p-1 rounded-2xl hover:bg-black/[0.03] transition-colors"
+      >
+        {/* ICON CONTAINER */}
+        <div
+          id="lab-logo-box"
+          class="relative w-9 h-9 shrink-0 rounded-[12px] bg-[#132A22] shadow-[0_6px_14px_-3px_rgba(19,42,34,0.45)] flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:scale-105"
+        >
+          {/* ICON A: Isometric 3D Voxel Cube */}
+          <svg id="icon-cube" class="w-6 h-6 transition-all duration-300" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2.5 L21 7.5 L12 12.5 L3 7.5 Z" fill="#8BF0C2" />
+            <path d="M3 7.5 L12 12.5 V22 L3 17 Z" fill="#19C37D" />
+            <path d="M21 7.5 L12 12.5 V22 L21 17 Z" fill="#0F8F5B" />
+          </svg>
+
+          {/* ICON B: Matrix QR Voxel */}
+          <svg id="icon-qr" class="hidden w-[22px] h-[22px] transition-all duration-300" viewBox="0 0 22 22">
+            <g fill="none" stroke="#5BE3A6" stroke-width="1.8">
+              <rect x="1.4" y="1.4" width="6.2" height="6.2" rx="1.2" />
+              <rect x="14.4" y="1.4" width="6.2" height="6.2" rx="1.2" />
+              <rect x="1.4" y="14.4" width="6.2" height="6.2" rx="1.2" />
+            </g>
+            <g fill="#5BE3A6">
+              <rect x="3.6" y="3.6" width="1.8" height="1.8" rx="0.4" />
+              <rect x="16.6" y="3.6" width="1.8" height="1.8" rx="0.4" />
+              <rect x="3.6" y="16.6" width="1.8" height="1.8" rx="0.4" />
+              <rect x="10" y="10" width="2.6" height="2.6" rx="0.5" />
+              <rect x="14.4" y="14.4" width="2.6" height="2.6" rx="0.5" />
+              <rect x="18" y="18" width="2.6" height="2.6" rx="0.5" />
+              <rect x="10" y="2" width="2.6" height="2.6" rx="0.5" />
+              <rect x="2" y="10" width="2.6" height="2.6" rx="0.5" />
+            </g>
+          </svg>
+
+          {/* ICON C: Morphing (QR at top, rotates into Cube on scroll) */}
+          <div id="icon-morph" class="hidden relative w-full h-full flex items-center justify-center">
+            <svg class="morph-qr absolute w-[22px] h-[22px] transition-all duration-400" viewBox="0 0 22 22">
+              <g fill="none" stroke="#5BE3A6" stroke-width="1.8">
+                <rect x="1.4" y="1.4" width="6.2" height="6.2" rx="1.2" />
+                <rect x="14.4" y="1.4" width="6.2" height="6.2" rx="1.2" />
+                <rect x="1.4" y="14.4" width="6.2" height="6.2" rx="1.2" />
+              </g>
+              <g fill="#5BE3A6">
+                <rect x="3.6" y="3.6" width="1.8" height="1.8" rx="0.4" />
+                <rect x="16.6" y="3.6" width="1.8" height="1.8" rx="0.4" />
+                <rect x="3.6" y="16.6" width="1.8" height="1.8" rx="0.4" />
+                <rect x="10" y="10" width="2.6" height="2.6" rx="0.5" />
+                <rect x="14.4" y="14.4" width="2.6" height="2.6" rx="0.5" />
+              </g>
+            </svg>
+            <svg class="morph-cube absolute w-6 h-6 transition-all duration-400 opacity-0 scale-50 rotate-[-30deg]" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2.5 L21 7.5 L12 12.5 L3 7.5 Z" fill="#8BF0C2" />
+              <path d="M3 7.5 L12 12.5 V22 L3 17 Z" fill="#19C37D" />
+              <path d="M21 7.5 L12 12.5 V22 L21 17 Z" fill="#0F8F5B" />
+            </svg>
+          </div>
+        </div>
+
+        {/* COLLAPSIBLE BRAND TEXT */}
+        <div
+          id="lab-brand-text"
+          class="flex flex-col leading-none overflow-hidden transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] max-w-[130px] opacity-100 ml-2.5 translate-x-0"
+        >
+          <span class="font-black text-[#132A22] tracking-[-0.03em] text-[17px] whitespace-nowrap">
+            Voxel<span class="text-[#19C37D]">ka</span>
+          </span>
+          <span class="mt-1 text-[9.5px] font-bold tracking-[0.14em] uppercase text-[#a8a29e] whitespace-nowrap">
+            3D для сайтов
+          </span>
+        </div>
+      </a>
+
+      {/* CENTER NAV DUMMY TABS */}
+      <nav class="hidden sm:flex items-center gap-1 p-1 rounded-full bg-[#f6f3ee] border border-[#ebe5da] text-xs font-bold text-[#6b645c] select-none">
+        <a href="#test" class="px-3.5 py-1.5 rounded-full bg-white text-[#132A22] shadow-xs">Студия</a>
+        <a href="#test" class="px-3.5 py-1.5 rounded-full hover:text-[#132A22]">Примеры</a>
+        <a href="#test" class="px-3.5 py-1.5 rounded-full hover:text-[#132A22]">Цены</a>
+      </nav>
+
+      {/* RIGHT ACTION */}
+      <div class="flex items-center gap-2 select-none">
+        <a
+          href="/"
+          class="px-4 py-2 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] font-extrabold text-xs shadow-md transition-all duration-200 active:scale-95 flex items-center gap-1.5 cursor-pointer"
+        >
+          <span>На главную</span>
+          <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+    </header>
+  </div>
+
+  {/* MAIN TEST PANEL CONTENT */}
+  <main class="pt-28 pb-32 max-w-4xl mx-auto px-4 sm:px-6">
+    {/* HERO TITLE */}
+    <div class="text-center mb-10">
+      <span class="px-3.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-[#DFF8EB] text-[#132A22] border border-[#19C37D]/25 shadow-sm inline-block mb-3">
+        Лаборатория дизайна
+      </span>
+      <h1 class="text-3xl sm:text-4xl font-black text-[#132A22] tracking-tight">
+        Тестирование анимации логотипа
+      </h1>
+      <p class="text-sm text-[#78716c] mt-2 max-w-lg mx-auto">
+        Прокручивайте страницу вниз или переключайте тумблеры, чтобы увидеть, как название плавно сворачивается в иконку при скролле.
+      </p>
+    </div>
+
+    {/* INTERACTIVE CONTROLS CARD */}
+    <div class="soft-3d-card p-6 sm:p-8 mb-12">
+      <h2 class="text-lg font-black text-[#132A22] mb-5 flex items-center gap-2">
+        <span class="w-6 h-6 rounded-lg bg-[#19C37D] text-[#132A22] text-xs flex items-center justify-center font-bold">1</span>
+        <span>Выберите стиль значка</span>
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        {/* Style 1: Cube */}
+        <button
+          type="button"
+          id="btn-style-cube"
+          class="style-btn active p-4 rounded-2xl border-2 border-[#19C37D] bg-[#DFF8EB]/40 flex flex-col items-center gap-3 transition-all cursor-pointer text-center"
+        >
+          <div class="w-12 h-12 rounded-xl bg-[#132A22] flex items-center justify-center shadow-md">
+            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2.5 L21 7.5 L12 12.5 L3 7.5 Z" fill="#8BF0C2" />
+              <path d="M3 7.5 L12 12.5 V22 L3 17 Z" fill="#19C37D" />
+              <path d="M21 7.5 L12 12.5 V22 L21 17 Z" fill="#0F8F5B" />
+            </svg>
+          </div>
+          <div>
+            <div class="font-extrabold text-sm text-[#132A22]">3D Воксель-Куб</div>
+            <div class="text-[11px] text-[#78716c] mt-0.5">Изометрический трёхмерный кубик</div>
+          </div>
+        </button>
+
+        {/* Style 2: Matrix QR */}
+        <button
+          type="button"
+          id="btn-style-qr"
+          class="style-btn p-4 rounded-2xl border-2 border-transparent bg-white/70 hover:bg-white flex flex-col items-center gap-3 transition-all cursor-pointer text-center"
+        >
+          <div class="w-12 h-12 rounded-xl bg-[#132A22] flex items-center justify-center shadow-md">
+            <svg class="w-7 h-7" viewBox="0 0 22 22">
+              <g fill="none" stroke="#5BE3A6" stroke-width="1.8">
+                <rect x="1.4" y="1.4" width="6.2" height="6.2" rx="1.2" />
+                <rect x="14.4" y="1.4" width="6.2" height="6.2" rx="1.2" />
+                <rect x="1.4" y="14.4" width="6.2" height="6.2" rx="1.2" />
+              </g>
+              <g fill="#5BE3A6">
+                <rect x="3.6" y="3.6" width="1.8" height="1.8" rx="0.4" />
+                <rect x="16.6" y="3.6" width="1.8" height="1.8" rx="0.4" />
+                <rect x="3.6" y="16.6" width="1.8" height="1.8" rx="0.4" />
+                <rect x="10" y="10" width="2.6" height="2.6" rx="0.5" />
+                <rect x="14.4" y="14.4" width="2.6" height="2.6" rx="0.5" />
+              </g>
+            </svg>
+          </div>
+          <div>
+            <div class="font-extrabold text-sm text-[#132A22]">Воксельный QR</div>
+            <div class="text-[11px] text-[#78716c] mt-0.5">Стильная пиксельная матрица</div>
+          </div>
+        </button>
+
+        {/* Style 3: Dynamic Morph */}
+        <button
+          type="button"
+          id="btn-style-morph"
+          class="style-btn p-4 rounded-2xl border-2 border-transparent bg-white/70 hover:bg-white flex flex-col items-center gap-3 transition-all cursor-pointer text-center"
+        >
+          <div class="w-12 h-12 rounded-xl bg-[#132A22] flex items-center justify-center shadow-md text-[#19C37D] font-bold text-sm">
+            <span class="text-xs">QR ➔ 3D</span>
+          </div>
+          <div>
+            <div class="font-extrabold text-sm text-[#132A22]">Живой морфинг</div>
+            <div class="text-[11px] text-[#78716c] mt-0.5">Вверху QR, при скролле — 3D-куб</div>
+          </div>
+        </button>
+      </div>
+
+      {/* SIMULATE SCROLL TRIGGER BUTTONS */}
+      <h2 class="text-lg font-black text-[#132A22] mb-4 flex items-center gap-2">
+        <span class="w-6 h-6 rounded-lg bg-[#19C37D] text-[#132A22] text-xs flex items-center justify-center font-bold">2</span>
+        <span>Тест состояния шапки (без скролла)</span>
+      </h2>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          id="force-top-btn"
+          class="px-5 py-2.5 rounded-xl bg-[#132A22] text-white font-bold text-xs shadow transition-transform active:scale-95 cursor-pointer"
+        >
+          Состояние «В самом верху» (Логотип + Текст)
+        </button>
+
+        <button
+          type="button"
+          id="force-scroll-btn"
+          class="px-5 py-2.5 rounded-xl bg-white border border-[#e5dfd2] text-[#132A22] font-bold text-xs shadow-sm hover:bg-[#f6f3ee] transition-transform active:scale-95 cursor-pointer"
+        >
+          Состояние «При скролле» (Только иконка)
+        </button>
+      </div>
+    </div>
+
+    {/* DUMMY SCROLL CONTENT */}
+    <div class="space-y-6">
+      <div class="p-6 rounded-3xl bg-white/80 border border-[#e5dfd2] text-center text-sm font-semibold text-[#78716c]">
+        ↓ Листайте страницу вниз, чтобы проверить автоматическое сворачивание шапки по скроллу ↓
+      </div>
+
+      {[1, 2, 3, 4, 5, 6].map((i) => (
+        <div class="soft-3d-card p-8 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-mono font-bold text-[#19C37D]">БЛОК {i}</span>
+            <h3 class="text-xl font-black text-[#132A22] mt-1">Демонстрационная секция страницы</h3>
+            <p class="text-xs text-[#78716c] mt-1">При прокрутке шапка остаётся компактной, освобождая максимум места для контента.</p>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-[#DFF8EB] text-[#132A22] font-black flex items-center justify-center">
+            0{i}
+          </div>
+        </div>
+      ))}
+    </div>
+  </main>
+</Layout>
+
+<script>
+  function initLab() {
+    const brandText = document.getElementById('lab-brand-text');
+    const header = document.getElementById('lab-header');
+    const iconCube = document.getElementById('icon-cube');
+    const iconQr = document.getElementById('icon-qr');
+    const iconMorph = document.getElementById('icon-morph');
+
+    const btnCube = document.getElementById('btn-style-cube');
+    const btnQr = document.getElementById('btn-style-qr');
+    const btnMorph = document.getElementById('btn-style-morph');
+    const styleBtns = [btnCube, btnQr, btnMorph];
+
+    let currentStyle: 'cube' | 'qr' | 'morph' = 'cube';
+    let isCollapsed = false;
+
+    // Apply Style
+    function setStyle(style: 'cube' | 'qr' | 'morph') {
+      currentStyle = style;
+      iconCube?.classList.add('hidden');
+      iconQr?.classList.add('hidden');
+      iconMorph?.classList.add('hidden');
+
+      styleBtns.forEach((b) => {
+        b?.classList.remove('active', 'border-[#19C37D]', 'bg-[#DFF8EB]/40');
+        b?.classList.add('border-transparent', 'bg-white/70');
+      });
+
+      if (style === 'cube') {
+        iconCube?.classList.remove('hidden');
+        btnCube?.classList.add('active', 'border-[#19C37D]', 'bg-[#DFF8EB]/40');
+      } else if (style === 'qr') {
+        iconQr?.classList.remove('hidden');
+        btnQr?.classList.add('active', 'border-[#19C37D]', 'bg-[#DFF8EB]/40');
+      } else if (style === 'morph') {
+        iconMorph?.classList.remove('hidden');
+        btnMorph?.classList.add('active', 'border-[#19C37D]', 'bg-[#DFF8EB]/40');
+      }
+
+      updateMorphVisuals(isCollapsed);
+    }
+
+    btnCube?.addEventListener('click', () => setStyle('cube'));
+    btnQr?.addEventListener('click', () => setStyle('qr'));
+    btnMorph?.addEventListener('click', () => setStyle('morph'));
+
+    // Collapse / Expand Functions
+    function collapseLogo() {
+      isCollapsed = true;
+      if (!brandText) return;
+      // Smoothly collapse width, opacity, margin, and translate slightly into the icon
+      brandText.style.maxWidth = '0px';
+      brandText.style.opacity = '0';
+      brandText.style.marginLeft = '0px';
+      brandText.style.transform = 'translateX(-10px) scale(0.9)';
+      header?.classList.add('shadow-[0_16px_36px_-10px_rgba(19,42,34,0.22)]');
+
+      updateMorphVisuals(true);
+    }
+
+    function expandLogo() {
+      isCollapsed = false;
+      if (!brandText) return;
+      brandText.style.maxWidth = '130px';
+      brandText.style.opacity = '1';
+      brandText.style.marginLeft = '0.625rem'; // 10px
+      brandText.style.transform = 'translateX(0px) scale(1)';
+      header?.classList.remove('shadow-[0_16px_36px_-10px_rgba(19,42,34,0.22)]');
+
+      updateMorphVisuals(false);
+    }
+
+    function updateMorphVisuals(collapsed: boolean) {
+      if (currentStyle !== 'morph') return;
+      const morphQr = iconMorph?.querySelector('.morph-qr') as HTMLElement | null;
+      const morphCube = iconMorph?.querySelector('.morph-cube') as HTMLElement | null;
+
+      if (collapsed) {
+        if (morphQr) {
+          morphQr.style.opacity = '0';
+          morphQr.style.transform = 'scale(0.5) rotate(25deg)';
+        }
+        if (morphCube) {
+          morphCube.style.opacity = '1';
+          morphCube.style.transform = 'scale(1) rotate(0deg)';
+        }
+      } else {
+        if (morphQr) {
+          morphQr.style.opacity = '1';
+          morphQr.style.transform = 'scale(1) rotate(0deg)';
+        }
+        if (morphCube) {
+          morphCube.style.opacity = '0';
+          morphCube.style.transform = 'scale(0.5) rotate(-30deg)';
+        }
+      }
+    }
+
+    // Scroll listener: if scrollY > 50px, collapse; otherwise expand
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 40) {
+        if (!isCollapsed) collapseLogo();
+      } else {
+        if (isCollapsed) expandLogo();
+      }
+    }, { passive: true });
+
+    // Buttons for manual testing
+    document.getElementById('force-top-btn')?.addEventListener('click', expandLogo);
+    document.getElementById('force-scroll-btn')?.addEventListener('click', collapseLogo);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLab);
+  } else {
+    initLab();
+  }
+</script>
