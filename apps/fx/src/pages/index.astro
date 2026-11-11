@@ -4,21 +4,27 @@ import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import { QrConfigurator } from '../components/QrConfigurator';
 import { UpcomingCatalog } from '../components/UpcomingCatalog';
+import SiteExamples from '../components/sections/SiteExamples.astro';
+import InstallSteps from '../components/sections/InstallSteps.astro';
+import WhyVoxelka from '../components/sections/WhyVoxelka.astro';
+import Pricing from '../components/sections/Pricing.astro';
+import Faq from '../components/sections/Faq.astro';
+import FinalCta from '../components/sections/FinalCta.astro';
 ---
 
-<Layout title="Temka FX — Интерактивные 3D эффекты для сайтов на Tilda">
+<Layout title="Voxelka — интерактивные 3D-эффекты для любого сайта">
   <Navbar />
 
   <main class="flex-1 pb-24 relative overflow-hidden">
     {/* HERO SECTION (OPTION 1): CONCISE HEADLINE + MASTER CARD */}
-    <section id="studio" class="relative pt-2 pb-12 md:pt-4 md:pb-16 scroll-mt-24">
+    <section id="studio" class="relative pt-6 pb-12 sm:pt-8 md:pt-11 md:pb-16 scroll-mt-24">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Concise Elegant Intro */}
         <div class="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
           {/* Headline */}
-          <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-[#132A22] tracking-tight leading-[1.1]">
-            Интерактивные 3D эффекты <span class="text-[#19C37D]">для сайтов на Tilda</span>
+          <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-[#132A22] tracking-tight leading-[1.15]">
+            Интерактивные 3D эффекты <span class="text-[var(--vx-accent)]">для любого сайта</span>
           </h1>
         </div>
 
@@ -30,221 +36,17 @@ import { UpcomingCatalog } from '../components/UpcomingCatalog';
       </div>
     </section>
 
-    {/* BENTO GRID: 3 STEPS ON TILDA */}
-    <section id="how-it-works" class="py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-2xl mx-auto mb-12">
-        <span class="text-[11px] font-black uppercase tracking-wider text-[#19C37D]">Простота</span>
-        <h2 class="text-3xl sm:text-4xl font-black text-[#132A22] tracking-tight mt-1">
-          Установка в Тильду за 3 шага
-        </h2>
-        <p class="text-[#78716c] text-sm mt-2 font-medium">
-          Понятно даже без навыков программирования.
-        </p>
-      </div>
+    <SiteExamples />
+    <InstallSteps />
+    <WhyVoxelka />
+    <Pricing />
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Step 01 */}
-        <div class="soft-3d-card p-7 sm:p-8 flex flex-col justify-between hover:scale-[1.01] transition-all">
-          <div>
-            <div class="w-12 h-12 rounded-2xl bg-[#19C37D] flex items-center justify-center text-[#132A22] font-black text-lg mb-6 shadow-md shadow-emerald-950/20">
-              01
-            </div>
-            <h3 class="text-xl font-black text-[#132A22]">Настройте в превью</h3>
-            <p class="text-xs sm:text-sm text-[#57534e] mt-2.5 leading-relaxed font-medium">
-              Введите вашу ссылку, выберите фигуру (Смартфон, Мегаполис, Кристалл) и нажмите <b>«Код для Tilda»</b>.
-            </p>
-          </div>
-          <div class="mt-6 pt-4 border-t border-[#ede9df] text-xs font-bold text-[#19C37D] flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-            <span>20 секунд</span>
-          </div>
-        </div>
-
-        {/* Step 02 */}
-        <div class="soft-3d-card p-7 sm:p-8 flex flex-col justify-between hover:scale-[1.01] transition-all">
-          <div>
-            <div class="w-12 h-12 rounded-2xl bg-[#19C37D] flex items-center justify-center text-[#132A22] font-black text-lg mb-6 shadow-md shadow-emerald-950/20">
-              02
-            </div>
-            <h3 class="text-xl font-black text-[#132A22]">Добавьте блок T123</h3>
-            <p class="text-xs sm:text-sm text-[#57534e] mt-2.5 leading-relaxed font-medium">
-              В редакторе страницы нажмите <b>«Все блоки» → «Другое» → «HTML-код» (блок T123)</b> и вставьте код.
-            </p>
-          </div>
-          <div class="mt-6 pt-4 border-t border-[#ede9df] text-xs font-bold text-[#19C37D] flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-            <span>15 секунд</span>
-          </div>
-        </div>
-
-        {/* Step 03 */}
-        <div class="soft-3d-card p-7 sm:p-8 flex flex-col justify-between hover:scale-[1.01] transition-all">
-          <div>
-            <div class="w-12 h-12 rounded-2xl bg-[#19C37D] flex items-center justify-center text-[#132A22] font-black text-lg mb-6 shadow-md shadow-emerald-950/20">
-              03
-            </div>
-            <h3 class="text-xl font-black text-[#132A22]">Опубликуйте страницу</h3>
-            <p class="text-xs sm:text-sm text-[#57534e] mt-2.5 leading-relaxed font-medium">
-              Нажмите <b>«Опубликовать»</b>. Эффект сразу работает на любом домене, адаптируясь под мобильные экраны.
-            </p>
-          </div>
-          <div class="mt-6 pt-4 border-t border-[#ede9df] text-xs font-bold text-[#19C37D] flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-            <span>10 секунд</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    {/* BENTO GRID: CAPABILITIES & METRICS IN SOFT 3D */}
-    <section id="bento-features" class="py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-2xl mx-auto mb-12">
-        <span class="text-[11px] font-black uppercase tracking-wider text-[#19C37D]">Преимущества</span>
-        <h2 class="text-3xl sm:text-4xl font-black text-[#132A22] tracking-tight mt-1">
-          Создано для идеальных лендингов
-        </h2>
-        <p class="text-[#78716c] text-sm mt-2 font-medium">
-          Тактильный WebGL-код, упакованный в простой сниппет.
-        </p>
-      </div>
-
-      {/* BENTO GRID 4-CARDS */}
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-        {/* Bento Card 1: Pine Shadow Card (#132A22 bg, #F0EBE9 font matching reference) */}
-        <div class="md:col-span-5 soft-3d-card-pine p-7 sm:p-9 flex flex-col justify-between group hover:scale-[1.01] transition-all">
-          <div class="flex items-center justify-between">
-            <span class="px-3.5 py-1 rounded-full text-xs font-black bg-[#DFF8EB] text-[#132A22] uppercase tracking-wider shadow-sm">
-              Считываемость
-            </span>
-            <div class="w-9 h-9 rounded-xl bg-[#DFF8EB]/15 border border-[#DFF8EB]/20 flex items-center justify-center text-[#19C37D] backdrop-blur-sm">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10" />
-                <path d="m9 12 2 2 4-4" />
-              </svg>
-            </div>
-          </div>
-          <div class="my-6">
-            <div class="text-5xl sm:text-6xl font-black text-[#F0EBE9] tracking-tight">
-              100%
-            </div>
-            <div class="text-xl font-bold text-[#DFF8EB] mt-1">
-              Гарантия сканирования
-            </div>
-            <p class="text-xs sm:text-sm text-[#F0EBE9]/80 mt-3 leading-relaxed font-medium">
-              Встроенный декодер тестирует считываемость кода камерами смартфонов перед генерацией сниппета.
-            </p>
-          </div>
-          <div class="flex items-center gap-2 text-xs font-bold text-[#DFF8EB] bg-white/5 border border-white/10 px-3.5 py-2 rounded-2xl backdrop-blur-md">
-            <svg class="w-3.5 h-3.5 text-[#19C37D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-            <span>Проверено по стандарту WCAG 2.1</span>
-          </div>
-        </div>
-
-        {/* Bento Card 2: Soft White Card (0% CPU / Battery) */}
-        <div class="md:col-span-7 soft-3d-card p-7 sm:p-9 flex flex-col justify-between group hover:scale-[1.01] transition-all">
-          <div class="flex items-center justify-between">
-            <span class="px-3.5 py-1 rounded-full text-xs font-black bg-[#DFF8EB] text-[#132A22] border border-[#19C37D]/20 uppercase tracking-wider">
-              Энергосбережение
-            </span>
-            <div class="w-9 h-9 rounded-xl bg-[#DFF8EB]/60 border border-[#19C37D]/20 flex items-center justify-center text-[#19C37D]">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="7" width="16" height="10" rx="2" ry="2" />
-                <line x1="22" y1="11" x2="22" y2="13" />
-              </svg>
-            </div>
-          </div>
-          <div class="my-6">
-            <div class="text-5xl sm:text-6xl font-black text-[#132A22] tracking-tight flex items-baseline gap-2">
-              <span>0% CPU</span>
-              <span class="text-lg font-bold text-[#78716c]">вне зоны экрана</span>
-            </div>
-            <p class="text-sm text-[#57534e] mt-3 leading-relaxed max-w-lg font-medium">
-              Технология <code class="text-[#132A22] font-mono font-bold bg-[#DFF8EB] px-2 py-0.5 rounded-lg border border-[#19C37D]/20">IntersectionObserver</code> автоматически замораживает WebGL цикл, когда блок уходит из экрана. Телефон не разряжается.
-            </p>
-          </div>
-          <div class="flex items-center gap-2 text-xs font-bold text-[#19C37D]">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-            <span>60–120 FPS рендеринг в один Draw Call</span>
-          </div>
-        </div>
-
-        {/* Bento Card 3: Soft White Card (Autonomous snippet) */}
-        <div class="md:col-span-7 soft-3d-card p-7 sm:p-9 flex flex-col justify-between group hover:scale-[1.01] transition-all">
-          <div class="flex items-center justify-between">
-            <span class="px-3.5 py-1 rounded-full text-xs font-black bg-[#DFF8EB] text-[#132A22] border border-[#19C37D]/20 uppercase tracking-wider">
-              Автономность
-            </span>
-            <div class="w-9 h-9 rounded-xl bg-[#DFF8EB]/60 border border-[#19C37D]/20 flex items-center justify-center text-[#19C37D]">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                <line x1="12" y1="22.08" x2="12" y2="12" />
-              </svg>
-            </div>
-          </div>
-          <div class="my-6">
-            <div class="text-3xl sm:text-4xl font-black text-[#132A22] tracking-tight">
-              Без сторонних серверов
-            </div>
-            <p class="text-sm text-[#57534e] mt-2.5 leading-relaxed font-medium">
-              QR-матрица и трехмерные координаты рассчитываются заранее. Сниппет вставляется в блок T123 и работает надежно всегда.
-            </p>
-          </div>
-          <div class="flex items-center gap-2 text-xs font-bold text-[#19C37D]">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-            <span>Резервное зеркало CDN встроено в код</span>
-          </div>
-        </div>
-
-        {/* Bento Card 4: Soft Cream Card (Commercial Free Tier) */}
-        <div class="md:col-span-5 soft-3d-card-cream p-7 sm:p-9 flex flex-col justify-between group hover:scale-[1.01] transition-all">
-          <div class="flex items-center justify-between">
-            <span class="px-3.5 py-1 rounded-full text-xs font-black bg-white text-[#132A22] border border-[#e2dcd0] uppercase tracking-wider shadow-sm">
-              Лицензия
-            </span>
-            <div class="w-9 h-9 rounded-xl bg-white border border-[#e2dcd0] flex items-center justify-center text-[#19C37D] shadow-sm">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2l8 4.5v5.5c0 5-3.5 9.5-8 10-4.5-.5-8-5-8-10V6.5L12 2z" />
-              </svg>
-            </div>
-          </div>
-          <div class="my-6">
-            <div class="text-3xl sm:text-4xl font-black text-[#132A22] tracking-tight">
-              Бесплатный флагман
-            </div>
-            <p class="text-xs sm:text-sm text-[#57534e] mt-2.5 leading-relaxed font-medium">
-              Ставьте на сайты клиентов или в личные проекты со значком <i>«Сделано в Temka FX»</i>.
-            </p>
-          </div>
-          <div class="flex items-center gap-2 text-xs font-bold text-[#19C37D]">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-            <span>Полная коммерческая свобода</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    {/* BENTO CATALOG TEASER: UPCOMING EFFECTS (OPTION 1) */}
-    <section id="catalog" class="py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="lineup" class="py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
       <UpcomingCatalog client:visible />
     </section>
+
+    <Faq />
+    <FinalCta />
   </main>
 
   <Footer />
