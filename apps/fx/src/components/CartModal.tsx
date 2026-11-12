@@ -74,14 +74,47 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
     seen[it.productId] = (seen[it.productId] || 0) + 1;
     return totals[it.productId] > 1 ? `${it.title} · ${seen[it.productId]}` : it.title;
   });
-  // a sample order: the real codes appear only after payment (a signed order link)
-  const previewHash = items.length > 0 ? '#order=demo' : '';
-  const removeWithFade = (id: string) => {
-    setLeaving(id);
-    window.setTimeout(() => {
-      onRemoveItem(id);
-      setLeaving(null);
-    }, 200);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleCheckout = async () => {
+    if (!email || !email.includes('@') || !email.includes('.')) {
+      setErrorMsg('Укажите корректный email для отправки кода и чека');
+      return;
+    }
+    setErrorMsg('');
+    setLoading(true);
+
+    try {
+      const apiUrl = (typeof window !== 'undefined' && (window as any).GRIDIKA_API_URL) || '/api/create-payment';
+      const cleanItems = items.map((it) => it.config);
+
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim(),
+          items: cleanItems,
+          source: typeof window !== 'undefined' ? (new URLSearchParams(window.location.search).get('utm_source') || 'direct') : 'direct',
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error('API offline or error');
+      }
+
+      const data = await res.json();
+      if (data.confirmationUrl) {
+        window.location.href = data.confirmationUrl;
+        return;
+      }
+    } catch (err) {
+      // Local fallback / demo preview if serverless endpoint is not connected yet
+      console.warn('Payment API is offline; redirecting to demo thanks view:', err);
+      window.location.href = `/thanks#order=demo`;
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -268,17 +301,37 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
                     value={email}
                     maxLength={120}
                     autoComplete="email"
-                    onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
+                    onInput={(e) => {
+                      setEmail((e.target as HTMLInputElement).value);
+                      if (errorMsg) setErrorMsg('');
+                    }}
                     placeholder="ivan@yandex.ru"
-                    className="w-full h-12 px-4 rounded-2xl bg-[#faf7f2] border border-[#e5dfd2] text-[14px] font-semibold outline-none focus:border-[var(--vx-accent)] focus:bg-white transition-colors"
+                    className={`w-full h-12 px-4 rounded-2xl bg-[#faf7f2] border text-[14px] font-semibold outline-none transition-colors ${
+                      errorMsg ? 'border-red-400 bg-red-50/20' : 'border-[#e5dfd2] focus:border-[var(--vx-accent)] focus:bg-white'
+                    }`}
                   />
                 </label>
+
+                {errorMsg && (
+                  <p className="px-1 text-[12px] font-bold text-red-500 leading-snug">
+                    {errorMsg}
+                  </p>
+                )}
+
                 <button
                   type="button"
-                  disabled
-                  className="h-12 rounded-full bg-[#132A22] text-white/70 font-black text-[14px] flex items-center justify-center gap-2 cursor-not-allowed"
+                  onClick={handleCheckout}
+                  disabled={loading}
+                  className="h-12 rounded-full bg-[#132A22] hover:bg-[#1f4235] text-white font-black text-[14px] flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-wait"
                 >
-                  Оплатить {rub(total)} · скоро
+                  {loading ? (
+                    <span>Создаём заказ...</span>
+                  ) : (
+                    <>
+                      <span>Оплатить {rub(total)}</span>
+                      <span aria-hidden="true">→</span>
+                    </>
+                  )}
                 </button>
                 <p className="text-center text-[11.5px] font-semibold text-[#a8a29e] leading-snug">Разовая оплата, без подписки. Код сразу на экране и на почте.</p>
                 {previewHash && (

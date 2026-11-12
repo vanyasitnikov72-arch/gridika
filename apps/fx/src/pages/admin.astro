@@ -1,0 +1,10 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { AdminDashboard } from '../components/AdminDashboard';
+---
+
+<Layout title="Админка — Заказы Gridika" noindex={true}>
+  <main class="min-h-screen">
+    <AdminDashboard client:load />
+  </main>
+</Layout>

@@ -4,11 +4,13 @@ import CookieBanner from '../components/CookieBanner.astro';
 interface Props {
   title: string;
   description?: string;
+  noindex?: boolean;
 }
 
 const { 
   title, 
-  description = "Готовые интерактивные 3D-эффекты для Tilda, WordPress, Webflow, Wix и любого сайта. Установка за минуту, без программиста." 
+  description = "Готовые интерактивные 3D-эффекты для Tilda, WordPress, Webflow, Wix и любого сайта. Установка за минуту, без программиста.",
+  noindex = false
 } = Astro.props;
 ---
 
@@ -20,6 +22,7 @@ const {
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='%2319C37D'><rect width='32' height='32' rx='8' fill='%2319C37D'/><circle cx='16' cy='16' r='6' fill='white'/></svg>" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <meta name="theme-color" content="#F0EBE9" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
