@@ -203,6 +203,9 @@ const FIELDS: { key: keyof CardContact; label: string; placeholder: string; wide
   { key: 'whatsapp', label: 'WhatsApp', placeholder: '+7 900 …', type: 'tel' },
 ];
 
+/** the longest text that still reads well on the card (the card also shrinks or cuts what is longer) */
+const FIELD_MAX: Record<keyof CardContact, number> = { name: 36, role: 42, company: 34, phone: 20, email: 42, site: 40, telegram: 33, whatsapp: 20 };
+
 export function CardPanel({ state }: { state: CardState }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const set = (key: keyof CardContact, value: string) => {
@@ -253,6 +256,7 @@ export function CardPanel({ state }: { state: CardState }) {
               <input
                 type={f.type ?? 'text'}
                 value={state.contact[f.key]}
+                maxLength={FIELD_MAX[f.key] ?? 40}
                 placeholder={f.placeholder}
                 onInput={(e) => set(f.key, (e.target as HTMLInputElement).value)}
                 className={`w-full pl-3 ${f.key === 'name' ? 'pr-3' : 'pr-8'} py-1.5 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-xs font-bold outline-none focus:bg-white focus:border-[var(--vx-accent)] transition-colors ${

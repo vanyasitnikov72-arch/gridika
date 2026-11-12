@@ -295,7 +295,7 @@ export function createGiftViewer(THREE, container, init) {
   hint.style.cssText = 'padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.92);box-shadow:0 6px 18px -8px rgba(0,0,0,.35);font-weight:800;font-size:13px;color:#2b2622';
   hint.textContent = 'Нажмите на подарок 🎁';
   var caption = document.createElement('div');
-  caption.style.cssText = 'padding:6px 14px;border-radius:12px;background:rgba(255,255,255,.92);font-weight:800;font-size:13px;color:#2b2622;text-align:center;display:none';
+  caption.style.cssText = 'padding:6px 14px;border-radius:12px;background:rgba(255,255,255,.92);font-weight:800;font-size:13px;color:#2b2622;text-align:center;display:none;max-width:calc(100% - 24px);overflow-wrap:anywhere;box-sizing:border-box';
   var btn = document.createElement('button');
   btn.type = 'button';
   btn.style.cssText = 'pointer-events:auto;border:0;cursor:pointer;padding:10px 18px;border-radius:999px;font:800 13px Nunito,system-ui,sans-serif;box-shadow:0 10px 22px -10px rgba(0,0,0,.45);display:none';

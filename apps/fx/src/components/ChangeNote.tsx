@@ -1,10 +1,12 @@
 /**
- * "How to change the link or text later" — shown next to the bought code (studio and thanks page).
+ * "Want to change something?" — shown next to the bought code (studio and thanks page).
+ * Plain text in the code (titles, captions, button text and links) is edited right there;
+ * what is built from cubes (QR, promo code, logo, photos) is a new code from the studio.
  * Static markup: works as a Preact component in the studio and as plain HTML in Astro pages.
  */
 export const CHANGE_STEPS = [
-  { t: 'Откройте студию с ключом', d: 'gridika.ru → «Получить код» → вставьте ключ из письма. Или кнопка «Изменить в студии».' },
-  { t: 'Поменяйте и возьмите новый код', d: 'Ссылку, текст, логотип, цвет — что угодно. Код соберётся заново.' },
+  { t: 'Текст — прямо в коде', d: 'Заголовки, подписи, текст и ссылки кнопок лежат в коде обычным текстом в кавычках: найдите (Ctrl+F) и замените.' },
+  { t: 'QR, промокод, логотип — в студии', d: 'Они собраны из кубиков. «Изменить в студии» у кода — настройки откроются как были, поменяйте и оформите новый код.' },
   { t: 'Замените код на сайте', d: 'В том же HTML-блоке удалите старый код и вставьте новый, затем опубликуйте.' },
 ];
 
@@ -20,8 +22,8 @@ export function ChangeNote({ compact = false }: { compact?: boolean }) {
           </svg>
         </span>
         <div className="min-w-0">
-          <div className="text-[13px] font-black text-[#132A22] leading-tight">Хотите что-то поменять?</div>
-          <div className="text-[11.5px] font-semibold text-[#6b645c] leading-snug">Не правьте код вручную — картинка, надписи и QR в нём собраны из кубиков, правка их сломает.</div>
+          <div className="text-[13px] font-black text-[#132A22] leading-tight">Захотели что-то поменять?</div>
+          <div className="text-[11.5px] font-semibold text-[#6b645c] leading-snug">Текст можно поправить прямо в коде. Только то, что собрано из кубиков (QR, промокод, логотип), меняется в студии.</div>
         </div>
       </div>
       <ol className="mt-3 flex flex-col gap-2">
@@ -35,7 +37,7 @@ export function ChangeNote({ compact = false }: { compact?: boolean }) {
         ))}
       </ol>
       <div className="mt-3 rounded-xl bg-[#DFF8EB] px-3 py-2 text-[11.5px] font-bold text-[#14532d] leading-snug">
-        Ключ не сгорает: пересобирайте код сколько угодно раз для своего сайта — бесплатно.
+        Купленный код ваш навсегда: без подписки и привязки к сайту, а ссылка из письма не сгорает.
       </div>
     </div>
   );

@@ -195,9 +195,11 @@ export function generateEmbedCode(options: EmbedOptions): string {
         var y = 0.5 + (v.ty - 0.5) * ease + arc;
         var z = v.qz + (v.tz - v.qz) * ease;
         var sy = 1 + (v.sy - 1) * ease;
+        // flat QR: the 0.88 cubes widen to a hair over one module, so no light seams show between them
+        var sq = 1.142 + (1 - 1.142) * ease;
 
         dummy.position.set(x, y, z);
-        dummy.scale.set(1, sy, 1);
+        dummy.scale.set(sq, sy, sq);
         if (lt > 0 && lt < 1) {
           dummy.rotation.x = lt * Math.PI * 2;
           dummy.rotation.y = lt * Math.PI;

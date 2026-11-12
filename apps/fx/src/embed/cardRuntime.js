@@ -53,8 +53,17 @@ export function createCardViewer(THREE, container, init) {
   }
   function fit(ctx, text, weight, size, maxW) {
     var s = size;
-    do { ctx.font = weight + ' ' + s + 'px ' + FONT; if (ctx.measureText(text).width <= maxW) break; s -= 4; } while (s > 24);
+    var minS = Math.max(24, Math.round(size * 0.45)); // below this the line stops reading: cut it instead
+    do { ctx.font = weight + ' ' + s + 'px ' + FONT; if (ctx.measureText(text).width <= maxW) break; s -= 4; } while (s > minS);
     return s;
+  }
+  /** fit() and, if even the smallest size is too wide, cut the end off with an ellipsis */
+  function fitStr(ctx, text, weight, size, maxW) {
+    fit(ctx, text, weight, size, maxW);
+    if (ctx.measureText(text).width <= maxW) return text;
+    var t = text;
+    while (t.length > 1 && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1);
+    return t.replace(/\s+$/, '') + '…';
   }
   function hash(x, y) { var n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453; return n - Math.floor(n); }
   function mix(a, b, t) {
@@ -198,12 +207,12 @@ export function createCardViewer(THREE, container, init) {
       ctx.strokeStyle = p.accent; ctx.globalAlpha = 0.35; ctx.lineWidth = 4; rr(ctx, 50, 50, cw - 100, ch - 100, 46); ctx.stroke(); ctx.globalAlpha = 1;
       drawMonogram(ctx, cw / 2 - 70, 170, 140, p);
       ctx.textAlign = 'center'; ctx.fillStyle = p.text; y = 640;
-      for (i = 0; i < lines.length; i++) { fit(ctx, lines[i], 900, 120, maxW); ctx.fillText(lines[i], cw / 2, y); y += 126; }
+      for (i = 0; i < lines.length; i++) { ctx.fillText(fitStr(ctx, lines[i], 900, 120, maxW), cw / 2, y); y += 126; }
       ctx.fillStyle = p.accent; ctx.fillRect(cw / 2 - 50, y - 40, 100, 6); y += 50;
-      if (c.role.trim()) { ctx.fillStyle = p.accent; fit(ctx, c.role.trim(), 800, 52, maxW); ctx.fillText(c.role.trim(), cw / 2, y); y += 62; }
-      if (c.company.trim()) { ctx.fillStyle = p.sub; fit(ctx, c.company.trim(), 700, 44, maxW); ctx.fillText(c.company.trim(), cw / 2, y); }
+      if (c.role.trim()) { ctx.fillStyle = p.accent; ctx.fillText(fitStr(ctx, c.role.trim(), 800, 52, maxW), cw / 2, y); y += 62; }
+      if (c.company.trim()) { ctx.fillStyle = p.sub; ctx.fillText(fitStr(ctx, c.company.trim(), 700, 44, maxW), cw / 2, y); }
       y = 1200;
-      for (i = 0; i < rows.length; i++) { ctx.fillStyle = p.text; fit(ctx, rows[i][1], 700, 44, maxW); ctx.fillText(rows[i][1], cw / 2, y); y += 66; }
+      for (i = 0; i < rows.length; i++) { ctx.fillStyle = p.text; ctx.fillText(fitStr(ctx, rows[i][1], 700, 44, maxW), cw / 2, y); y += 66; }
       ctx.textAlign = 'left';
     } else {
       var top = 110;
@@ -267,15 +276,15 @@ export function createCardViewer(THREE, container, init) {
       }
       y = st === 'pixel' ? 820 : st === 'split' ? 500 : 720;
       ctx.fillStyle = st === 'split' ? p.bgB : p.text;
-      for (i = 0; i < lines.length; i++) { fit(ctx, lines[i], 900, 128, maxW); ctx.fillText(lines[i], 90, y); y += 132; }
+      for (i = 0; i < lines.length; i++) { ctx.fillText(fitStr(ctx, lines[i], 900, 128, maxW), 90, y); y += 132; }
       y += st === 'split' ? 170 : 10;
-      if (c.role.trim()) { ctx.fillStyle = p.accent; fit(ctx, c.role.trim(), 800, 56, maxW); ctx.fillText(c.role.trim(), 92, y); y += 64; }
-      if (c.company.trim()) { ctx.fillStyle = p.sub; fit(ctx, c.company.trim(), 700, 46, maxW); ctx.fillText(c.company.trim(), 92, y); }
+      if (c.role.trim()) { ctx.fillStyle = p.accent; ctx.fillText(fitStr(ctx, c.role.trim(), 800, 56, maxW), 92, y); y += 64; }
+      if (c.company.trim()) { ctx.fillStyle = p.sub; ctx.fillText(fitStr(ctx, c.company.trim(), 700, 46, maxW), 92, y); }
       var ry = st === 'pixel' ? 1290 : 1220;
       ctx.fillStyle = p.accent; ctx.fillRect(92, ry - 90, 90, 8);
       for (i = 0; i < rows.length; i++) {
         icon(ctx, rows[i][0], 112, ry - 16, 40, p.accent); ctx.fillStyle = p.text;
-        fit(ctx, rows[i][1], 700, 46, maxW - 80); ctx.fillText(rows[i][1], 160, ry); ry += 72;
+        ctx.fillText(fitStr(ctx, rows[i][1], 700, 46, maxW - 80), 160, ry); ry += 72;
       }
       void top;
     }
@@ -306,7 +315,7 @@ export function createCardViewer(THREE, container, init) {
     ctx.fillStyle = p.sub; ctx.font = '700 42px ' + FONT;
     ctx.fillText('Наведите камеру телефона', cw / 2, cw + 250); ctx.fillText('на QR-код', cw / 2, cw + 300);
     var n = state.data.contact.name.trim();
-    if (n) { ctx.fillStyle = p.accent; fit(ctx, n, 800, 52, cw - 200); ctx.fillText(n, cw / 2, ch - (state.style === 'pixel' ? 250 : 150)); }
+    if (n) { ctx.fillStyle = p.accent; ctx.fillText(fitStr(ctx, n, 800, 52, cw - 200), cw / 2, ch - (state.style === 'pixel' ? 250 : 150)); }
     ctx.textAlign = 'left';
     backTex.needsUpdate = true;
   }

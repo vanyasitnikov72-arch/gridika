@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import { ChangeNote } from '../components/ChangeNote';
 ---
 
-<Layout title="Спасибо за покупку — Gridika" description="Ваш ключ Gridika и как получить код для сайта.">
+<Layout title="Спасибо за покупку — Gridika" description="Готовый код эффектов Gridika из вашего заказа.">
   <main class="min-h-screen flex flex-col items-center px-4 py-10 sm:py-16">
     {/* the name made of cubes, the same as in the site header */}
     <a href="/" id="thx-brand" class="relative block w-[150px] h-12 select-none" aria-label="Gridika — на главную">
@@ -45,46 +45,29 @@ import { ChangeNote } from '../components/ChangeNote';
         </div>
 
         <h1 class="mt-6 text-[30px] sm:text-[34px] font-black text-[#132A22] tracking-tight leading-[1.08]">Оплата прошла</h1>
-        <p class="mt-2 text-[15px] font-semibold text-[#6b645c] leading-relaxed"><span id="thx-product"></span> <span id="thx-site"></span>. Навсегда, без подписки.</p>
+        <p class="mt-2 text-[15px] font-semibold text-[#6b645c] leading-relaxed"><span id="thx-lead">Код уже собран с вашими настройками.</span> Он ваш навсегда — без подписки и привязки к сайту.</p>
 
-        <div class="mt-6">
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] font-black uppercase tracking-[0.14em] text-[#a8a29e]">Ваш ключ · № <span id="thx-id" class="font-mono"></span></span>
-            <button id="thx-copy" type="button" class="text-[12px] font-extrabold text-[#132A22] hover:text-[#19C37D] transition-colors cursor-pointer">Скопировать</button>
-          </div>
-          <div id="thx-key" class="mt-2 rounded-2xl bg-[#f6f3ee] border border-dashed border-[#19C37D] px-4 py-3.5 font-mono text-[12px] leading-[1.55] text-[#132A22] break-all select-all"></div>
+        <div class="mt-6 flex items-center justify-between gap-3">
+          <span class="text-[11px] font-black uppercase tracking-[0.14em] text-[#a8a29e]">Заказ № <span id="thx-id" class="font-mono normal-case tracking-normal text-[#132A22]"></span></span>
+          <span id="thx-count" class="px-2.5 h-6 inline-flex items-center rounded-full bg-[#DFF8EB] text-[#0f5c3c] text-[11.5px] font-black"></span>
         </div>
+        {/* one card per effect: its own code, copy or download */}
+        <p id="thx-sample" class="mt-2.5 rounded-xl bg-[#FFF4DB] px-3.5 py-2.5 text-[12px] font-bold text-[#8a5a12] leading-snug" hidden>Это пример заказа: так выглядит страница после оплаты. В примере код показывает пометку Gridika — в купленном её нет.</p>
+        <ul id="thx-items" class="mt-2.5 flex flex-col gap-2.5"></ul>
+        <p id="thx-empty" class="mt-2.5 rounded-2xl bg-[#fff4ed] px-4 py-3 text-[13px] font-semibold text-[#9a3412]" hidden>Не получилось прочитать заказ из ссылки. Откройте ссылку из письма целиком или напишите нам — пришлём код заново.</p>
 
-        <div id="thx-ready" class="mt-7" hidden>
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] font-black uppercase tracking-[0.14em] text-[#a8a29e]">Ваш код · готов для <span id="thx-ready-site" class="normal-case tracking-normal font-mono text-[#132A22]"></span></span>
-            <span class="text-[11px] font-bold text-[#a8a29e]" id="thx-ready-size"></span>
-          </div>
-          <pre id="thx-code" class="mt-2 max-h-40 overflow-auto rounded-2xl bg-[#132A22] text-[#8BF0C2] px-4 py-3.5 font-mono text-[11px] leading-[1.5] whitespace-pre-wrap break-all"></pre>
-          <div class="mt-3 grid grid-cols-2 gap-2">
-            <button id="thx-copy-code" type="button" class="h-[52px] rounded-full bg-[#19C37D] hover:bg-[#17b373] text-[#132A22] font-extrabold text-[14px] sm:text-[15px] flex items-center justify-center gap-2 transition-colors cursor-pointer">Скопировать код</button>
-            <button id="thx-dl-code" type="button" class="h-[52px] rounded-full bg-white border border-[#e5dfd2] hover:bg-[#f6f3ee] text-[#132A22] font-extrabold text-[14px] sm:text-[15px] flex items-center justify-center gap-2 transition-colors cursor-pointer">Скачать файлом</button>
-          </div>
-          <p class="mt-2 text-center text-[12px] font-semibold text-[#a8a29e]">Как удобнее: в буфер обмена или текстовым файлом — код одинаковый</p>
-
-          {/* where to paste it */}
-          <div class="mt-5 rounded-2xl bg-[#f6f3ee] p-4">
-            <div id="thx-tabs" class="flex flex-wrap gap-1"></div>
-            <ol id="thx-tab-steps" class="mt-3 flex flex-col gap-1.5 text-[13px] font-semibold text-[#44403c] leading-snug list-decimal pl-5"></ol>
-          </div>
-          <div class="mt-3 text-left"><ChangeNote /></div>
+        {/* where to paste it */}
+        <div class="mt-6 rounded-2xl bg-[#f6f3ee] p-4">
+          <div class="text-[12px] font-black text-[#132A22]">Куда вставить<span id="thx-each" hidden> — каждый эффект в свой блок</span></div>
+          <div id="thx-tabs" class="mt-2 flex flex-wrap gap-1"></div>
+          <ol id="thx-tab-steps" class="mt-3 flex flex-col gap-1.5 text-[13px] font-semibold text-[#44403c] leading-snug list-decimal pl-5"></ol>
         </div>
-
-        <a id="thx-cta" href="/" class="mt-6 h-[52px] w-full rounded-full bg-[#132A22] hover:bg-[#1d3a2f] text-white font-extrabold text-[15px] flex items-center justify-center gap-2.5 transition-colors">
-          Получить код в студии
-          <span class="w-7 h-7 rounded-full bg-[#19C37D] text-[#132A22] flex items-center justify-center">→</span>
-        </a>
-        <p id="thx-cta-hint" class="mt-2.5 text-center text-[12px] font-semibold text-[#a8a29e]">Студия откроется с уже вставленным ключом</p>
+        <div class="mt-3 text-left"><ChangeNote /></div>
       </div>
 
-      {/* no key in the link: it comes by email */}
+      {/* no order in the link: the link comes by email */}
       <div id="thx-wait">
-        {/* status mark: a paper plane loops through a little sky ("ключ летит на почту") */}
+        {/* status mark: a paper plane loops through a little sky ("письмо летит на почту") */}
         <div class="thx-sky relative w-[132px] h-[92px] rounded-[24px] overflow-hidden border border-[#d5f2e3] shadow-[0_12px_28px_-16px_rgba(19,42,34,0.35)]" aria-hidden="true">
           <svg id="thx-sky-svg" viewBox="0 0 132 92" class="absolute inset-0 w-full h-full">
             <defs>
@@ -129,30 +112,30 @@ import { ChangeNote } from '../components/ChangeNote';
         </div>
 
         <h1 class="mt-6 text-[30px] sm:text-[34px] font-black text-[#132A22] tracking-tight leading-[1.08]">Спасибо за покупку</h1>
-        <p class="mt-2 text-[15px] font-semibold text-[#6b645c] leading-relaxed">Ключ уже летит на вашу почту вместе с чеком. Вставьте его сюда — и сразу получите код.</p>
-        <input id="thx-input" type="text" spellcheck="false" autocomplete="off" placeholder="GRD1-…" class="mt-6 w-full px-4 py-3.5 rounded-2xl bg-[#f6f3ee] border border-[#ebe5da] font-mono text-[13px] text-[#132A22] outline-none focus:bg-white focus:border-[#19C37D] transition-colors" />
-        <p id="thx-error" class="mt-2 text-[12.5px] font-semibold text-[#c2410c]" hidden></p>
-        <a href="#key=demo" id="thx-demo" class="mt-4 inline-block text-[12.5px] font-bold text-[#6b645c] underline decoration-[#d6cfc2] underline-offset-4 hover:text-[#132A22]">Посмотреть, как это выглядит</a>
+        <p class="mt-2 text-[15px] font-semibold text-[#6b645c] leading-relaxed">Письмо со ссылкой на готовый код уже летит на вашу почту вместе с чеком. Откройте ссылку — и код каждого эффекта будет перед вами.</p>
+        <p id="thx-bad" class="mt-4 rounded-2xl bg-[#fff4ed] px-4 py-3 text-[13px] font-semibold text-[#9a3412] leading-relaxed" hidden>Эта ссылка на заказ неполная или изменена, поэтому код по ней не открывается. Откройте ссылку из письма целиком — а если не выходит, напишите нам, пришлём заново.</p>
+        <p class="mt-3 text-[13px] font-semibold text-[#a8a29e] leading-relaxed">Письма нет через 5 минут? Загляните в «Спам» или напишите нам — пришлём ещё раз.</p>
+        <a href="#order=demo" id="thx-demo" class="mt-4 inline-block text-[12.5px] font-bold text-[#6b645c] underline decoration-[#d6cfc2] underline-offset-4 hover:text-[#132A22]">Посмотреть, как это выглядит</a>
       </div>
 
       {/* what's next — same for both */}
       <ol class="mt-8 pt-6 border-t border-[#ece6da] flex flex-col gap-4">
         <li class="flex gap-3.5">
           <span class="w-6 h-6 shrink-0 rounded-full bg-[#19C37D] text-[#132A22] text-[12px] font-black flex items-center justify-center">1</span>
-          <span class="text-[14px] font-semibold text-[#6b645c] leading-snug"><b class="text-[#132A22]">Откройте студию</b> — кнопкой «Получить код в студии» или на gridika.ru: «Получить код» → вставить ключ.</span>
+          <span class="text-[14px] font-semibold text-[#6b645c] leading-snug"><b class="text-[#132A22]">Заберите код</b> — у каждого эффекта свой: скопируйте или скачайте файлом.</span>
         </li>
         <li class="flex gap-3.5">
           <span class="w-6 h-6 shrink-0 rounded-full bg-[#19C37D] text-[#132A22] text-[12px] font-black flex items-center justify-center">2</span>
-          <span class="text-[14px] font-semibold text-[#6b645c] leading-snug"><b class="text-[#132A22]">Скопируйте код</b> — настройте эффект, код соберётся под ваш сайт.</span>
+          <span class="text-[14px] font-semibold text-[#6b645c] leading-snug"><b class="text-[#132A22]">Вставьте на сайт</b> — Tilda (блок T123), WordPress, Webflow, Wix или обычный HTML.</span>
         </li>
         <li class="flex gap-3.5">
           <span class="w-6 h-6 shrink-0 rounded-full bg-[#19C37D] text-[#132A22] text-[12px] font-black flex items-center justify-center">3</span>
-          <span class="text-[14px] font-semibold text-[#6b645c] leading-snug"><b class="text-[#132A22]">Вставьте на сайт</b> — Tilda (блок T123), WordPress, Webflow, Wix или обычный HTML.</span>
+          <span class="text-[14px] font-semibold text-[#6b645c] leading-snug"><b class="text-[#132A22]">Опубликуйте</b> — эффект заработает сразу, на компьютере и на телефоне.</span>
         </li>
       </ol>
 
       <div class="mt-6 rounded-2xl bg-[#f6f3ee] px-4 py-3.5 text-[13px] font-semibold text-[#6b645c] leading-relaxed">
-        <b class="text-[#132A22]">Ключ — ваш навсегда.</b> Письмо с ним и чеком уже на почте: сохраните его. Ключ можно вставлять снова, если поменяется ссылка или настройки.
+        <b class="text-[#132A22]">Сохраните письмо.</b> Ссылка в нём не сгорает: по ней код можно скопировать снова в любой момент.
       </div>
     </section>
 
@@ -184,6 +167,10 @@ import { ChangeNote } from '../components/ChangeNote';
     }
     @keyframes thxFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 
+    /* ---- the bought effects slide in one after another ---- */
+    :global(.thx-item) { opacity: 0; transform: translateY(8px); animation: thxIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes thxIn { to { opacity: 1; transform: none; } }
+
     /* ---- waiting: paper plane ---- */
     .thx-plane { animation: thxBob 0.9s ease-in-out infinite alternate; }
     @keyframes thxBob { from { transform: translateY(-0.6px) rotate(-3deg); } to { transform: translateY(0.6px) rotate(3deg); } }
@@ -199,25 +186,27 @@ import { ChangeNote } from '../components/ChangeNote';
       .thx-disc { animation: none; transform: scale(1); }
       .thx-bit, .thx-halo { display: none; }
       .thx-check-svg, .thx-plane, .thx-cloud { animation: none; }
+      :global(.thx-item) { animation: none; opacity: 1; transform: none; }
     }
   </style>
 </Layout>
 
 <script>
-  import { verifyLicense, cardNameOk, LICENSE_ERRORS } from '../engine/license';
-  import { contentMatches } from '../engine/fingerprint.js';
   import { PRODUCTS } from '../data/products';
-  import { DEMO_KEY } from '../emails/keyEmail';
   import { createMorphLogo } from '../brand/morphLogo';
+  import { readOrderHash, encodeConfig, type OrderItem } from '../engine/purchase';
+  import { buildPurchaseCode } from '../engine/purchaseCode';
+  import { codeFileName, downloadCode } from '../engine/codeNotice';
+  import { describeOrderItem } from '../engine/cartStore';
+  import { DEMO_ORDER, DEMO_ORDER_ID } from '../engine/demoOrder';
+  import { verifyOrder } from '../engine/license';
+  import { effectsWord } from '../emails/orderEmail';
+
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const sky = document.getElementById('thx-sky-svg') as unknown as SVGSVGElement | null;
     sky?.pauseAnimations();
     sky?.setCurrentTime(2.2);
   }
-  import { readHash, buildHash } from '../engine/purchase';
-  import { buildPurchaseCode } from '../engine/purchaseCode';
-  import { codeFileName, downloadCode } from '../engine/codeNotice';
-  import { DEMO_KEYS } from '../emails/keyEmail';
 
   // cube name at the top (static: progress 0 = the word)
   const brandHost = document.getElementById('thx-brand'), brandName = document.getElementById('thx-brand-name');
@@ -227,89 +216,108 @@ import { ChangeNote } from '../components/ChangeNote';
   }
 
   const $ = (id: string) => document.getElementById(id)!;
+  const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const toggle = (id: string, on: boolean) => {
+    $(id).hidden = !on;
+    $(id).classList.toggle('hidden', !on);
+  };
+  const flash = (b: HTMLElement, text: string, back: string) => {
+    b.textContent = text;
+    setTimeout(() => (b.textContent = back), 1900);
+  };
 
-  let cfg: ReturnType<typeof readHash>['cfg'] = null;
-  async function show(raw: string) {
-    const key = raw === 'demo' ? (cfg ? DEMO_KEYS[cfg.p] ?? DEMO_KEY : DEMO_KEY) : raw.trim();
-    const res = await verifyLicense(key);
-    if (!res.ok) {
-      $('thx-ok').hidden = true;
-      $('thx-ok').classList.add('hidden');
-      $('thx-wait').hidden = false;
-      $('thx-wait').classList.remove('hidden');
-      const err = $('thx-error');
-      err.textContent = LICENSE_ERRORS[res.reason];
-      err.hidden = false;
+  /** one bought effect: its own code, copy / download, peek, and the way back into the studio */
+  /** domain: '*' for a paid order (clean everywhere), 'example.com' for the sample (keeps the mark) */
+  function itemCard(c: OrderItem, orderId: string, idx: number, domain: string): HTMLLIElement {
+    const d = describeOrderItem(c);
+    let code: string | null = null;
+    try {
+      code = buildPurchaseCode({ ...c, site: c.site || '' }, { id: orderId, domain });
+    } catch {
+      code = null;
+    }
+    const prod = PRODUCTS.find((p) => p.id === c.p);
+    const studio = `/?fx=${encodeURIComponent(c.p)}#cfg=${encodeConfig({ ...c, site: '' })}`;
+    const li = document.createElement('li');
+    li.className = 'thx-item rounded-2xl border border-[#ece6da] bg-[#fbf9f5] p-3.5';
+    li.style.animationDelay = `${0.25 + idx * 0.09}s`;
+    li.innerHTML = `
+      <div class="flex items-center gap-3">
+        <span class="w-10 h-10 rounded-[13px] shrink-0 flex items-center justify-center text-[13px] font-black text-white shadow-[0_6px_14px_-8px_rgba(0,0,0,0.5)]" style="background:linear-gradient(135deg,${d.theme.accent},${d.theme.deep})">${idx + 1}</span>
+        <div class="min-w-0 flex-1">
+          <div class="text-[14px] font-black text-[#132A22] truncate leading-tight">${esc(d.title)}</div>
+          <div class="text-[12px] font-semibold text-[#78716c] truncate mt-0.5">${esc(d.subtitle)}</div>
+        </div>
+        ${code ? `<span class="text-[11px] font-bold text-[#a8a29e] shrink-0">${Math.max(1, Math.round(code.length / 1024))} КБ</span>` : ''}
+      </div>
+      ${
+        code
+          ? `<div class="mt-3 grid grid-cols-[1fr_auto] gap-2">
+              <button type="button" data-act="copy" class="h-11 rounded-full bg-[#19C37D] hover:bg-[#17b373] text-[#132A22] font-extrabold text-[14px] transition-colors cursor-pointer">Скопировать код</button>
+              <button type="button" data-act="dl" class="h-11 px-4 rounded-full bg-white border border-[#e5dfd2] hover:bg-[#f6f3ee] text-[#132A22] font-extrabold text-[13px] transition-colors cursor-pointer">Скачать</button>
+            </div>
+            <div class="mt-2 flex items-center justify-between gap-2 px-1">
+              <button type="button" data-act="peek" aria-expanded="false" class="text-[12px] font-bold text-[#78716c] hover:text-[#132A22] cursor-pointer">Показать код</button>
+              <a href="${studio}" class="text-[12px] font-bold text-[#78716c] hover:text-[#132A22]">Изменить в студии →</a>
+            </div>
+            <pre data-code hidden class="mt-2 max-h-36 overflow-auto rounded-xl bg-[#132A22] text-[#8BF0C2] px-3.5 py-3 font-mono text-[10.5px] leading-[1.5] whitespace-pre-wrap break-all"></pre>`
+          : `<p class="mt-2.5 text-[12.5px] font-semibold text-[#9a3412]">Этот код не собрался из ссылки — напишите нам, пришлём его отдельно.</p>`
+      }`;
+    if (code) {
+      const text = code;
+      const pre = li.querySelector('[data-code]') as HTMLPreElement;
+      pre.textContent = text;
+      const copy = li.querySelector('[data-act="copy"]') as HTMLButtonElement;
+      copy.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(text); } catch {}
+        flash(copy, 'Код скопирован ✓', 'Скопировать код');
+      });
+      const dl = li.querySelector('[data-act="dl"]') as HTMLButtonElement;
+      dl.addEventListener('click', () => {
+        downloadCode(text, codeFileName(prod?.id || c.p, orderId));
+        flash(dl, 'Сохранён ✓', 'Скачать');
+      });
+      const peek = li.querySelector('[data-act="peek"]') as HTMLButtonElement;
+      peek.addEventListener('click', () => {
+        pre.hidden = !pre.hidden;
+        peek.textContent = pre.hidden ? 'Показать код' : 'Скрыть код';
+        peek.setAttribute('aria-expanded', String(!pre.hidden));
+      });
+    }
+    return li;
+  }
+
+  let shown = 0;
+  async function fromHash() {
+    const run = ++shown;
+    const raw = readOrderHash(location.hash);
+    const sample = raw?.id === 'demo';
+    // a real order opens only with a valid signature: no code for a made-up or edited link
+    const valid = !!raw && !sample && raw.items.length > 0 && (await verifyOrder(raw.id, raw.itemsB64, raw.sig));
+    if (run !== shown) return;
+    $('thx-bad').hidden = !raw || sample || valid;
+    const order = sample ? { id: DEMO_ORDER_ID, items: DEMO_ORDER } : valid ? raw : null;
+    if (!order) {
+      $('thx-items').innerHTML = '';
+      toggle('thx-ok', false);
+      toggle('thx-wait', true);
       return;
     }
-    const l = res.license;
-    const all = l.p === 'all' || l.p === 'pro';
-    const prod = PRODUCTS.find((p) => p.id === l.p);
-    $('thx-product').textContent = all ? 'Все эффекты Gridika' : prod?.title ?? 'Эффект Gridika';
-    $('thx-site').innerHTML = l.d === '*' ? 'для одного сайта на ваш выбор' : `для сайта <b class="text-[#132A22]">${l.d.replace(/</g, '&lt;')}</b>`;
-    $('thx-id').textContent = l.id;
-    $('thx-key').textContent = key;
-    const fx = all ? 'qr-morph' : l.p;
-    ($('thx-cta') as HTMLAnchorElement).href = `/?fx=${encodeURIComponent(fx)}#${buildHash(key, cfg)}`;
-
-    // the settings came with the link: the code is ready right here
-    const site = l.d !== '*' ? l.d : cfg?.site || '';
-    // a card key is for one person: the saved card must carry that name
-    const covers =
-      cfg &&
-      (all || l.p === cfg.p) &&
-      (raw === 'demo' || cfg.p !== 'qr-card' || cardNameOk(l, cfg.card?.contact.name || '')) &&
-      (raw === 'demo' || contentMatches(l.f, cfg.p, cfg.p === 'voxel-logo' ? cfg.logo?.data : cfg.p === 'voxel-morph' ? cfg.morph?.data : null));
-    const code = covers && site ? buildPurchaseCode({ ...cfg!, site }, { id: l.id, domain: site }) : null;
-    if (code) {
-      $('thx-ready-site').textContent = site;
-      $('thx-ready-size').textContent = `${Math.round(code.length / 1024)} КБ`;
-      $('thx-code').textContent = code;
-      $('thx-ready').hidden = false;
-      // the studio button becomes the secondary action
-      const cta = $('thx-cta');
-      cta.className = 'mt-4 h-11 w-full rounded-full border border-[#e5dfd2] bg-white hover:bg-[#f6f3ee] text-[#132A22] font-extrabold text-[14px] flex items-center justify-center gap-2 transition-colors';
-      cta.innerHTML = 'Изменить в студии <span class="text-[#19C37D]">→</span>';
-      $('thx-cta-hint').hidden = true;
-      renderTabs();
-    }
-    $('thx-wait').hidden = true;
-    $('thx-wait').classList.add('hidden');
-    $('thx-ok').hidden = false;
-    $('thx-ok').classList.remove('hidden');
+    $('thx-sample').hidden = !sample;
+    const n = order.items.length;
+    $('thx-id').textContent = order.id;
+    $('thx-count').textContent = effectsWord(n);
+    $('thx-count').hidden = n === 0;
+    $('thx-lead').textContent = n > 1 ? `Код всех ${n} эффектов уже собран с вашими настройками.` : 'Код уже собран с вашими настройками.';
+    $('thx-each').hidden = n < 2;
+    const list = $('thx-items');
+    list.innerHTML = '';
+    order.items.forEach((c, i) => list.appendChild(itemCard(c, order.id, i, sample ? 'example.com' : '*')));
+    $('thx-empty').hidden = n > 0;
+    renderTabs();
+    toggle('thx-wait', false);
+    toggle('thx-ok', true);
   }
-
-  function fromHash() {
-    const h = readHash(location.hash);
-    cfg = h.cfg;
-    if (h.key) show(h.key);
-    else {
-      $('thx-ok').hidden = true;
-      $('thx-ok').classList.add('hidden');
-      $('thx-wait').hidden = false;
-      $('thx-wait').classList.remove('hidden');
-    }
-  }
-
-  $('thx-copy').addEventListener('click', async () => {
-    const b = $('thx-copy');
-    try { await navigator.clipboard.writeText($('thx-key').textContent || ''); } catch {}
-    b.textContent = 'Скопировано ✓';
-    setTimeout(() => (b.textContent = 'Скопировать'), 1800);
-  });
-  $('thx-dl-code').addEventListener('click', () => {
-    const b = $('thx-dl-code');
-    downloadCode($('thx-code').textContent || '', codeFileName(cfg?.p || 'code', $('thx-ready-site').textContent || ''));
-    b.textContent = 'Файл сохранён ✓';
-    setTimeout(() => (b.textContent = 'Скачать файлом'), 2000);
-  });
-
-  $('thx-copy-code').addEventListener('click', async () => {
-    const b = $('thx-copy-code');
-    try { await navigator.clipboard.writeText($('thx-code').textContent || ''); } catch {}
-    b.textContent = 'Код скопирован ✓';
-    setTimeout(() => (b.textContent = 'Скопировать код'), 2000);
-  });
 
   const GUIDES: Record<string, string[]> = {
     Tilda: ['«Все блоки» → «Другое» → «HTML-код» (T123)', 'Вставьте код, сохраните и опубликуйте'],
@@ -334,11 +342,6 @@ import { ChangeNote } from '../components/ChangeNote';
     GUIDES[active].forEach((t) => { const li = document.createElement('li'); li.textContent = t; ol.appendChild(li); });
   }
 
-  $('thx-input').addEventListener('input', (e) => {
-    const v = (e.target as HTMLInputElement).value.trim();
-    $('thx-error').hidden = true;
-    if (v.startsWith('GRD1-') && v.includes('.')) show(v);
-  });
   window.addEventListener('hashchange', fromHash);
   fromHash();
 </script>

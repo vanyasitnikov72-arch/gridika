@@ -205,7 +205,7 @@ export function TimerPanel({ state }: { state: TimerState }) {
 
       <label className="flex flex-col gap-0.5">
         <span className={label}>Заголовок над таймером</span>
-        <input className={input} value={s.title} maxLength={60} placeholder="До конца распродажи" onInput={(e) => set({ title: (e.target as HTMLInputElement).value })} />
+        <input className={input} value={s.title} maxLength={48} placeholder="До конца распродажи" onInput={(e) => set({ title: (e.target as HTMLInputElement).value })} />
       </label>
 
       <div className="flex flex-col gap-1">
@@ -219,8 +219,8 @@ export function TimerPanel({ state }: { state: TimerState }) {
       <div className="flex flex-col gap-0.5">
         <span className={label}>Кнопка под таймером (необязательно)</span>
         <div className="grid grid-cols-2 gap-1.5">
-          <input className={input} value={s.buttonText} maxLength={32} placeholder="Текст кнопки" onInput={(e) => set({ buttonText: (e.target as HTMLInputElement).value })} />
-          <input className={`${input} font-mono`} value={s.buttonUrl} placeholder="https://…" onInput={(e) => set({ buttonUrl: (e.target as HTMLInputElement).value })} />
+          <input className={input} value={s.buttonText} maxLength={28} placeholder="Текст кнопки" onInput={(e) => set({ buttonText: (e.target as HTMLInputElement).value })} />
+          <input className={`${input} font-mono`} value={s.buttonUrl} maxLength={300} placeholder="https://…" onInput={(e) => set({ buttonUrl: (e.target as HTMLInputElement).value })} />
         </div>
       </div>
 
@@ -237,9 +237,9 @@ export function TimerPanel({ state }: { state: TimerState }) {
         </span>
         <Segmented items={END_ACTIONS} value={s.endAction} onChange={(endAction) => set({ endAction })} />
         {s.endAction === 'link' ? (
-          <input className={`${input} font-mono`} value={s.endUrl} placeholder="https://… — куда перевести посетителя" onInput={(e) => set({ endUrl: (e.target as HTMLInputElement).value })} />
+          <input className={`${input} font-mono`} value={s.endUrl} maxLength={300} placeholder="https://… — куда перевести посетителя" onInput={(e) => set({ endUrl: (e.target as HTMLInputElement).value })} />
         ) : s.endAction === 'text' ? (
-          <input className={input} value={s.endText} maxLength={40} placeholder="Акция началась!" onInput={(e) => set({ endText: (e.target as HTMLInputElement).value })} />
+          <input className={input} value={s.endText} maxLength={36} placeholder="Акция началась!" onInput={(e) => set({ endText: (e.target as HTMLInputElement).value })} />
         ) : (
           <span className="text-[10.5px] font-semibold text-[#a8a29e] pl-1">После конца отсчёта блок исчезнет со страницы</span>
         )}

@@ -237,7 +237,7 @@ export function GiftPanel({ state }: { state: GiftState }) {
       {s.kind === 'qr' && (
         <label className="flex flex-col gap-0.5">
           <span className={label}>Ссылка на акцию</span>
-          <input className={`${input} font-mono`} value={s.url} placeholder="https://shop.ru/sale" onInput={(e) => set({ url: (e.target as HTMLInputElement).value })} />
+          <input className={`${input} font-mono`} value={s.url} maxLength={300} placeholder="https://shop.ru/sale" onInput={(e) => set({ url: (e.target as HTMLInputElement).value })} />
         </label>
       )}
 

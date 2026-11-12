@@ -1,33 +1,34 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { renderKeyEmail, DEMO_KEY } from '../emails/keyEmail';
-import { buildHash } from '../engine/purchase';
-import { DEMO_CONTACT } from '../components/CardStudio';
+import { renderOrderEmail } from '../emails/orderEmail';
+import { describeOrderItem } from '../engine/cartStore';
+import { calculateCartTotal } from '../components/CartModal';
+import { DEMO_ORDER, DEMO_ORDER_ID } from '../engine/demoOrder';
 
-// preview of the email with the demo key; the real one is filled per purchase (see PRODUCTS.md)
-const hash = buildHash(DEMO_KEY, { p: 'qr-card', site: 'example.com', card: { contact: DEMO_CONTACT, hidden: [], mode: 'graphite', style: 'classic' } });
-const html = renderKeyEmail({
-  productTitle: 'Визитка с QR',
-  key: DEMO_KEY,
-  keyId: 'DW9Q6D',
-  holder: DEMO_CONTACT.name,
-  domain: 'example.com',
-  studioUrl: `https://gridika.ru/?fx=qr-card#${hash}`,
-  readyUrl: `https://gridika.ru/thanks#${hash}`,
+// preview of the order email; the real one is filled per purchase (see PRODUCTS.md)
+const html = renderOrderEmail({
+  orderId: DEMO_ORDER_ID,
+  items: DEMO_ORDER.map((c) => {
+    const d = describeOrderItem(c);
+    return { title: d.title, subtitle: d.subtitle, accent: d.theme.accent };
+  }),
+  total: calculateCartTotal(DEMO_ORDER.length).total,
+  // the real link is signed per order (scripts/order.mjs); the preview points at the sample order
+  orderUrl: 'https://gridika.ru/thanks#order=demo',
 });
 ---
 
-<Layout title="Письмо с ключом — Gridika">
+<Layout title="Письмо с заказом — Gridika">
   <main class="max-w-3xl mx-auto px-4 py-10">
     <div class="flex flex-wrap items-end justify-between gap-3">
       <div>
         <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-[#DFF8EB] text-[#132A22] inline-block">Предпросмотр</span>
-        <h1 class="mt-2 text-2xl sm:text-3xl font-black text-[#132A22] tracking-tight">Письмо с ключом</h1>
-        <p class="mt-1 text-sm font-semibold text-[#6b645c]">Так покупатель увидит письмо после оплаты (демо-ключ для example.com).</p>
+        <h1 class="mt-2 text-2xl sm:text-3xl font-black text-[#132A22] tracking-tight">Письмо с заказом</h1>
+        <p class="mt-1 text-sm font-semibold text-[#6b645c]">Так покупатель увидит письмо после оплаты (демо-заказ из трёх эффектов).</p>
       </div>
       <button id="copy-html" type="button" class="h-10 px-4 rounded-full bg-[#132A22] text-white text-[13px] font-extrabold cursor-pointer">Скопировать HTML письма</button>
     </div>
-    <iframe id="mail" title="Письмо с ключом" class="mt-6 w-full h-[1000px] rounded-3xl border border-[#ebe5da] bg-white" srcdoc={html}></iframe>
+    <iframe id="mail" title="Письмо с заказом" class="mt-6 w-full h-[1100px] rounded-3xl border border-[#ebe5da] bg-white" srcdoc={html}></iframe>
     <textarea id="mail-src" class="hidden">{html}</textarea>
   </main>
 </Layout>

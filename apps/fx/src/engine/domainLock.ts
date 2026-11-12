@@ -11,6 +11,8 @@ export function domainLockJs(badgeId: string, domain: string): string {
   return `
 (function () {
   var d = ${JSON.stringify(domain)};
+  // a bought code ("*") is clean on any site
+  if (d === "*") { var b0 = document.getElementById(${JSON.stringify(badgeId)}); if (b0 && b0.parentNode) b0.parentNode.removeChild(b0); return; }
   var clean = function (h) { h = String(h || "").toLowerCase(); return h.indexOf("www.") === 0 ? h.slice(4) : h; };
   var on = function (h, x) { h = clean(h); return h === x || h.slice(-(x.length + 1)) === "." + x; };
   var hosts = [location.hostname];

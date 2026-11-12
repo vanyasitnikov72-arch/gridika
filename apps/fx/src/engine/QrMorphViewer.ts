@@ -459,10 +459,10 @@ export class QrMorphViewer {
         qrX,
         qrY,
         qrZ,
-        // 0.88 cube × 1.13 ≈ one full module: no light seams, so the flat QR scans cleanly
-        qrScaleX: 1.13,
+        // 0.88 cube × 1.142 ≈ 1.005 module: a hair of overlap, so anti-aliasing never shows a light seam between cubes
+        qrScaleX: 1.142,
         qrScaleY: 1,
-        qrScaleZ: 1.13,
+        qrScaleZ: 1.142,
         targetX: target.x,
         targetY: target.y,
         targetZ: target.z,

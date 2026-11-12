@@ -31,6 +31,9 @@ import { generateTimerEmbedCode, timerEmbedHeight } from '../engine/timerEmbedGe
 import { generateMorphEmbedCode, morphEmbedHeight } from '../engine/morphEmbedGenerator';
 import { generateLogoEmbedCode, LOGO_EMBED_HEIGHT } from '../engine/logoEmbedGenerator';
 import { generateCardEmbedCode, logoToDataUrl } from '../engine/cardEmbedGenerator';
+import { getCart, addToCart, updateCartItem, removeFromCart, subscribeCart, type CartItem } from '../engine/cartStore';
+import { CartModal } from './CartModal';
+import { CartFloatingPill } from './CartFloatingPill';
 import confetti from 'canvas-confetti';
 
 export type ActiveProductType = ProductId;
@@ -194,6 +197,7 @@ export function QrConfigurator() {
   const [embedCode, setEmbedCode] = useState('');
   const [selectedPlan, setSelectedPlan] = useState<'single' | 'bundle' | 'studio'>('single');
   const [studioSites, setStudioSites] = useState<2 | 3 | 4 | 5>(2);
+  const [studioExtraSites, setStudioExtraSites] = useState<string[]>(['', '', '', '']);
 
   // Every product is sold: the studio is free to try, the code for a site needs a key for that product.
   // No accounts: the key lives in the buyer's email and, for convenience, on this device.
@@ -238,7 +242,11 @@ export function QrConfigurator() {
     if (activeProduct === 'sale-timer') return { p: activeProduct, timer: { settings: timer.settings, mode: timer.mode } };
     return { p: 'qr-morph', qr: { text, shape, themeId, modes: { season, timeOfDay, islandMode, gardenMode, eqMode, cakeFlavor, castleMode } } };
   };
-  function applyConfig(c: PurchaseConfig) {
+  /** shows saved settings in the studio; with an order item id the studio edits that item live */
+  function applyConfig(c: PurchaseConfig, itemId?: string) {
+    seenInStudio.current.add(c.p);
+    if (itemId) editingItem.current.set(c.p, itemId);
+    else editingItem.current.delete(c.p);
     savedSite.current = c.site || '';
     setActiveProduct(c.p as ActiveProductType);
     if (c.qr) {
@@ -281,12 +289,7 @@ export function QrConfigurator() {
 
   const proDomain = license ? (license.d !== '*' ? license.d : normalizeDomain(siteDomain)) : '';
   const covers = licenseCovers(license, activeProduct);
-  // a card key belongs to one person: another name on the card needs another key
-  const cardNameBlocked = activeProduct === 'qr-card' && covers && !cardNameOk(license, card.contact.name);
-  // a logo key / a before-after key is for one logo / one photo pair (fingerprint in the key)
-  const itemData = activeProduct === 'voxel-logo' ? logo.data : activeProduct === 'voxel-morph' ? morph.data : null;
-  const itemBlocked = (activeProduct === 'voxel-logo' || activeProduct === 'voxel-morph') && covers && !!license?.f && !contentMatches(license.f, activeProduct, itemData);
-  const proActive = covers && isValidDomain(proDomain) && !cardNameBlocked && !itemBlocked;
+  const proActive = covers && isValidDomain(proDomain);
   const keyProductLabel = !license
     ? ''
     : license.p === 'all' || license.p === 'pro'
@@ -338,11 +341,15 @@ export function QrConfigurator() {
     };
     window.addEventListener('fx:select-product', handleSelectProduct);
 
-    const handleOpenBuyModal = (e: Event) => {
-      const custom = e as CustomEvent<{ plan?: 'single' | 'bundle' | 'studio'; sites?: 2 | 3 | 4 | 5 }>;
-      if (custom.detail?.plan) setSelectedPlan(custom.detail.plan);
-      if (custom.detail?.sites) setStudioSites(custom.detail.sites);
-      setShowModal(true);
+    const handleOpenBuyModal = () => {
+      const cfg = currentConfig();
+      const linked = editingItem.current.get(cfg.p);
+      if (!linked || !getCart().some((it) => it.id === linked)) {
+        const item = addToCart({ ...cfg, site: buySite });
+        editingItem.current.set(cfg.p, item.id);
+        seenInStudio.current.add(cfg.p);
+      }
+      setShowCartModal(true);
     };
     window.addEventListener('fx:open-buy-modal', handleOpenBuyModal);
 
@@ -351,6 +358,117 @@ export function QrConfigurator() {
       window.removeEventListener('fx:open-buy-modal', handleOpenBuyModal);
     };
   }, []);
+
+  // Cart state & reactivity
+  const [cartItems, setCartItems] = useState<CartItem[]>(getCart);
+  const [showCartModal, setShowCartModal] = useState(false);
+  const cartBtnRef = useRef<HTMLButtonElement>(null);
+  /** product → the order item the studio is editing right now */
+  const editingItem = useRef<Map<string, string>>(new Map());
+  /** products whose settings the studio has already shown (from the order, a link or by hand) */
+  const seenInStudio = useRef<Set<string>>(new Set());
+  const orderBadgeRef = useRef<HTMLSpanElement>(null);
+  const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /** the counter on "Получить код" gives a little hop */
+  const bumpBadge = () => {
+    if (reducedMotion()) return;
+    orderBadgeRef.current?.animate(
+      [{ transform: 'scale(1)' }, { transform: 'scale(1.35)', offset: 0.35 }, { transform: 'scale(0.92)', offset: 0.7 }, { transform: 'scale(1)' }],
+      { duration: 480, easing: 'ease-out' },
+    );
+  };
+  /** a small cube flies from "В заказ" into the order button: that is the whole confirmation */
+  const flyToOrder = () => {
+    const from = cartBtnRef.current?.getBoundingClientRect();
+    const to = (orderBadgeRef.current ?? document.getElementById('studio-get-code-btn'))?.getBoundingClientRect();
+    if (!from || !to || reducedMotion()) return bumpBadge();
+    const cube = document.createElement('span');
+    cube.setAttribute('aria-hidden', 'true');
+    cube.style.cssText =
+      'position:fixed;z-index:60;width:12px;height:12px;border-radius:3px;pointer-events:none;background:var(--vx-accent);box-shadow:0 4px 10px -2px rgba(0,0,0,.35)';
+    document.body.appendChild(cube);
+    const x0 = from.left + 22, y0 = from.top + from.height / 2 - 6;
+    const x1 = to.left + to.width / 2 - 6, y1 = to.top + to.height / 2 - 6;
+    const lift = Math.min(70, 30 + Math.abs(x1 - x0) * 0.25);
+    const anim = cube.animate(
+      [
+        { transform: `translate(${x0}px,${y0}px) scale(.6) rotate(0deg)`, opacity: 0 },
+        { transform: `translate(${(x0 + x1) / 2}px,${Math.min(y0, y1) - lift}px) scale(1.15) rotate(180deg)`, opacity: 1, offset: 0.5 },
+        { transform: `translate(${x1}px,${y1}px) scale(.5) rotate(360deg)`, opacity: 0.9 },
+      ],
+      { duration: 620, easing: 'cubic-bezier(.45,0,.25,1)' },
+    );
+    anim.onfinish = () => {
+      cube.remove();
+      bumpBadge();
+    };
+  };
+
+  useEffect(() => {
+    return subscribeCart((items) => setCartItems(items));
+  }, []);
+
+  const currentCartItem = cartItems.find((it) => it.id === editingItem.current.get(activeProduct));
+  const isCurrentInCart = Boolean(currentCartItem);
+
+  /** adds what the studio shows as a new code of the order and keeps editing it */
+  const addCurrentAsNew = () => {
+    const item = addToCart({ ...currentConfig(), site: buySite });
+    editingItem.current.set(activeProduct, item.id);
+    seenInStudio.current.add(activeProduct);
+    return item;
+  };
+
+  const handleToggleCart = () => {
+    if (isCurrentInCart && currentCartItem) {
+      removeFromCart(currentCartItem.id);
+      editingItem.current.delete(activeProduct);
+      requestAnimationFrame(bumpBadge);
+    } else {
+      addCurrentAsNew();
+      requestAnimationFrame(flyToOrder);
+    }
+  };
+
+  // ---- the order mirrors the studio ----
+  // The studio edits one order item per product (added here, or opened with «Изменить» / «Ещё такой»):
+  // every edit goes straight into that item. After a reload the studio first shows the latest item
+  // of the product, so its demo settings never overwrite what the person configured.
+  const liveConfig = currentConfig();
+  const liveKey = JSON.stringify(liveConfig);
+  const liveReady =
+    (activeProduct !== 'voxel-logo' || !!logo.data) && (activeProduct !== 'voxel-morph' || !!morph.data) && (activeProduct !== 'sale-timer' || !!timer.data);
+  useEffect(() => {
+    if (!seenInStudio.current.has(activeProduct)) {
+      const mine = cartItems.filter((it) => it.productId === activeProduct);
+      if (mine.length) {
+        const last = mine[mine.length - 1];
+        applyConfig(last.config, last.id);
+        return;
+      }
+    }
+    const item = currentCartItem;
+    if (!item || !liveReady) return;
+    const t = window.setTimeout(() => {
+      const { site, ...saved } = item.config;
+      if (JSON.stringify(saved) !== liveKey) updateCartItem(item.id, { ...liveConfig, site: site || buySite } as PurchaseConfig);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [liveKey, activeProduct, cartItems, liveReady]);
+
+  /** another code of the same effect: a copy of this item, opened in the studio to be changed */
+  const handleDuplicateCartItem = (item: CartItem) => {
+    const copy = addToCart(item.config);
+    handleEditCartItem(copy);
+  };
+
+  const handleEditCartItem = (item: CartItem) => {
+    applyConfig(item.config, item.id);
+    setShowCartModal(false);
+    // bring the studio into view: the edits go straight into the order
+    requestAnimationFrame(() => document.getElementById('studio')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  };
 
   const initViewer = () => {
     if (!containerRef.current || viewerRef.current) return;
@@ -1015,6 +1133,7 @@ export function QrConfigurator() {
                       <input
                         type="text"
                         value={text}
+                        maxLength={300}
                         onInput={(e) => setText((e.target as HTMLInputElement).value)}
                         placeholder="https://gridika.ru"
                         className="w-full pl-8 pr-7 py-2 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-[#132A22] text-xs font-mono font-bold outline-none focus:bg-white focus:border-[#19C37D] transition-all shadow-inner"
@@ -1077,25 +1196,88 @@ export function QrConfigurator() {
 
           </div>
 
-          {/* BOTTOM DOCK: the one action of the studio. Everything that depends on the key lives in the window. */}
-          <div className={`mt-3 sm:mt-4 flex items-center justify-end gap-3 relative z-10 transition-opacity ${BUILT.includes(activeProduct) ? '' : 'opacity-0 pointer-events-none'}`}>
-            {proActive && (
-              <span className="flex items-center gap-1 text-[11.5px] font-extrabold text-[var(--vx-deep)]" title={`Ключ ${license!.id} для ${proDomain}`}>
-                <span className="w-4 h-4 rounded-full bg-[var(--vx-accent)] text-[var(--vx-on)] text-[9px] flex items-center justify-center">✓</span>
-                ключ
+          {/* BOTTOM DOCK: Action controls (Add to cart & Checkout) */}
+          <div className={`mt-3 sm:mt-4 flex items-center justify-end gap-2.5 sm:gap-3 relative z-10 transition-opacity ${BUILT.includes(activeProduct) ? '' : 'opacity-0 pointer-events-none'}`}>
+            
+            <style>{`
+              .gx-cart { transition: background-color .35s ease, border-color .35s ease, color .35s ease, box-shadow .35s ease, transform .15s ease; }
+              .gx-cart .gx-ico, .gx-cart .gx-lbl { transition: opacity .32s cubic-bezier(.16,1,.3,1), transform .42s cubic-bezier(.34,1.56,.64,1); }
+              /* icons: plus → check (in the order) → cross (hover: remove) */
+              .gx-cart .gx-plus { opacity: 1; transform: rotate(0) scale(1); }
+              .gx-cart .gx-check, .gx-cart .gx-x { opacity: 0; transform: rotate(-90deg) scale(.4); }
+              .gx-cart[data-on='1'] .gx-plus { opacity: 0; transform: rotate(90deg) scale(.4); }
+              .gx-cart[data-on='1'] .gx-check { opacity: 1; transform: rotate(0) scale(1); }
+              /* labels slide like a drum */
+              .gx-cart .gx-l-add { opacity: 1; transform: translateY(0); }
+              .gx-cart .gx-l-in, .gx-cart .gx-l-rm { opacity: 0; transform: translateY(110%); }
+              .gx-cart[data-on='1'] .gx-l-add { opacity: 0; transform: translateY(-110%); }
+              .gx-cart[data-on='1'] .gx-l-in { opacity: 1; transform: translateY(0); }
+              @media (hover: hover) {
+                .gx-cart[data-on='1']:hover .gx-check { opacity: 0; transform: rotate(90deg) scale(.4); }
+                .gx-cart[data-on='1']:hover .gx-x { opacity: 1; transform: rotate(0) scale(1); }
+                .gx-cart[data-on='1']:hover .gx-l-in { opacity: 0; transform: translateY(-110%); }
+                .gx-cart[data-on='1']:hover .gx-l-rm { opacity: 1; transform: translateY(0); }
+              }
+              .gx-cart .gx-dot { transition: background-color .35s ease; }
+              @media (prefers-reduced-motion: reduce) { .gx-cart, .gx-cart .gx-ico, .gx-cart .gx-lbl { transition: none; } }
+            `}</style>
+
+            {/* add to the order / in the order / remove — one button, no pop-ups */}
+            <button
+              ref={cartBtnRef}
+              type="button"
+              onClick={handleToggleCart}
+              data-on={isCurrentInCart ? '1' : '0'}
+              aria-pressed={isCurrentInCart}
+              aria-label={isCurrentInCart ? 'В заказе — убрать из заказа' : 'Добавить в заказ'}
+              className={`gx-cart group relative h-10 w-[128px] pl-1.5 pr-3 rounded-full inline-flex items-center gap-2 text-[13px] font-black cursor-pointer select-none shrink-0 active:scale-[0.96] border ${
+                isCurrentInCart
+                  ? 'bg-[var(--vx-soft)] border-[color-mix(in_srgb,var(--vx-accent)_55%,transparent)] text-[#132A22] [@media(hover:hover)]:hover:bg-[#fdf1f3] [@media(hover:hover)]:hover:border-[#f3c4cd] [@media(hover:hover)]:hover:text-[#a3263f]'
+                  : 'bg-white border-[#e5dfd2] text-[#132A22] hover:border-[color-mix(in_srgb,var(--vx-accent)_55%,#e5dfd2)] hover:shadow-[0_6px_16px_-10px_rgba(19,42,34,0.45)]'
+              }`}
+            >
+              <span
+                className={`gx-dot relative w-7 h-7 rounded-full shrink-0 flex items-center justify-center ${
+                  isCurrentInCart ? 'bg-[var(--vx-accent)] text-[var(--vx-on)] [@media(hover:hover)]:group-hover:bg-[#e9677f] [@media(hover:hover)]:group-hover:text-white' : 'bg-[var(--vx-soft)] text-[var(--vx-deep)]'
+                }`}
+                aria-hidden="true"
+              >
+                <svg className="gx-ico gx-plus absolute w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M7 2.5v9M2.5 7h9" /></svg>
+                <svg className="gx-ico gx-check absolute w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 7.4 5.7 10.2 11.2 4" /></svg>
+                <svg className="gx-ico gx-x absolute w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6" /></svg>
               </span>
-            )}
+              <span className="relative flex-1 h-5 overflow-hidden text-left" aria-hidden="true">
+                <span className="gx-lbl gx-l-add absolute inset-0 whitespace-nowrap leading-5">В заказ</span>
+                <span className="gx-lbl gx-l-in absolute inset-0 whitespace-nowrap leading-5">В заказе</span>
+                <span className="gx-lbl gx-l-rm absolute inset-0 whitespace-nowrap leading-5">Убрать</span>
+              </span>
+            </button>
+
+            {/* Main action: Получить код (the counter shows how many effects are in the order) */}
             <button
               type="button"
-              onClick={handleOpenEmbedModal}
-              className="h-10 pl-5 pr-1.5 rounded-full bg-[#132A22] hover:bg-[#1d3a2f] text-[#F0EBE9] text-[13.5px] font-extrabold flex items-center gap-3 transition-colors shadow-md active:scale-[0.97] cursor-pointer"
+              id="studio-get-code-btn"
+              onClick={() => {
+                if (!isCurrentInCart) addCurrentAsNew();
+                setShowCartModal(true);
+              }}
+              className="relative h-10 pl-4 sm:pl-5 pr-1.5 rounded-full bg-[#132A22] hover:bg-[#1d3a2f] text-[#F0EBE9] text-[13px] sm:text-[13.5px] font-extrabold inline-flex items-center gap-2.5 sm:gap-3 whitespace-nowrap transition-colors shadow-md active:scale-[0.97] cursor-pointer shrink-0"
             >
-              {proActive ? 'Код для сайта' : 'Получить код'}
-              <span className="w-7 h-7 rounded-full bg-[var(--vx-accent)] text-[var(--vx-on)] flex items-center justify-center" aria-hidden="true">
+              <span className="whitespace-nowrap">Получить код</span>
+              <span className="relative w-7 h-7 rounded-full bg-[var(--vx-accent)] text-[var(--vx-on)] flex items-center justify-center shadow-sm shrink-0" aria-hidden="true">
                 <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-[2.5]" viewBox="0 0 24 24">
                   <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
+                <span
+                  ref={orderBadgeRef}
+                  className={`absolute -top-2 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-white text-[#132A22] text-[10.5px] font-black leading-[18px] text-center shadow-[0_2px_6px_rgba(0,0,0,0.25)] transition-[opacity,transform] duration-300 ${
+                    cartItems.length ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+                  }`}
+                >
+                  {cartItems.length || ''}
+                </span>
               </span>
+              <span className="sr-only">{cartItems.length ? `, в заказе ${cartItems.length}` : ''}</span>
             </button>
           </div>
 
@@ -1124,7 +1306,13 @@ export function QrConfigurator() {
               <div className="rounded-2xl border border-[#e5dfd2] bg-[#fbf9f5] p-4 flex flex-col gap-2.5">
                 <div className="flex items-center justify-between gap-3">
                   <div className="text-[13px] font-black text-[#132A22]">
-                    {proActive ? `Ключ ${license!.id} · ${keyProductLabel}` : 'Получение кода для сайта'}
+                    {proActive
+                      ? `Ключ ${license!.id} · ${keyProductLabel}`
+                      : selectedPlan === 'single'
+                        ? `Тариф «${productById(activeProduct).title}»`
+                        : selectedPlan === 'bundle'
+                          ? 'Тариф «Все 8 эффектов»'
+                          : `Тариф «Studio Master» (${studioSites} ${studioSites === 5 ? 'сайтов' : 'сайта'})`}
                   </div>
                   {license ? (
                     <button
@@ -1160,10 +1348,14 @@ export function QrConfigurator() {
                             }`}
                           >
                             <div>
-                              <div className="text-[11.5px] font-black text-[#132A22]">Этот эффект</div>
-                              <div className="text-[10px] text-[#78716c] font-semibold mt-0.5">1 сайт · навсегда</div>
+                              <div className="text-[11.5px] font-black text-[#132A22] leading-tight truncate">
+                                {productById(activeProduct).title}
+                              </div>
+                              <div className="text-[10px] text-[#78716c] font-semibold mt-0.5">
+                                Этот эффект · 1 сайт
+                              </div>
                             </div>
-                            <div className="mt-2 text-[15px] font-black text-[#132A22]">990 ₽</div>
+                            <div className="mt-2 text-[15px] font-black text-[#132A22]">1 490 ₽</div>
                           </button>
 
                           {/* Option 2: Bundle */}
@@ -1183,7 +1375,7 @@ export function QrConfigurator() {
                               <div className="text-[11.5px] font-black text-[#132A22]">Все 8 эффектов</div>
                               <div className="text-[10px] text-[#78716c] font-semibold mt-0.5">1 сайт · навсегда</div>
                             </div>
-                            <div className="mt-2 text-[15px] font-black text-[#132A22]">2 990 ₽</div>
+                            <div className="mt-2 text-[15px] font-black text-[#132A22]">3 990 ₽</div>
                           </button>
 
                           {/* Option 3: Studio */}
@@ -1206,7 +1398,7 @@ export function QrConfigurator() {
                               </div>
                             </div>
                             <div className={`mt-2 text-[15px] font-black ${selectedPlan === 'studio' ? 'text-[var(--vx-accent)]' : 'text-[#132A22]'}`}>
-                              от 4 990 ₽
+                              от 6 990 ₽
                             </div>
                           </button>
 
@@ -1219,10 +1411,10 @@ export function QrConfigurator() {
                           <div className="flex items-center justify-between text-[11px] font-bold text-[#57534e]">
                             <span>Количество сайтов в ключе:</span>
                             <span className="font-mono font-black text-[#132A22]">
-                              {studioSites === 2 && '4 990 ₽ (~2 495 ₽/сайт)'}
-                              {studioSites === 3 && '6 990 ₽ (~2 330 ₽/сайт)'}
-                              {studioSites === 4 && '8 490 ₽ (~2 120 ₽/сайт)'}
-                              {studioSites === 5 && '9 990 ₽ (~1 998 ₽/сайт)'}
+                              {studioSites === 2 && '6 990 ₽ (~3 495 ₽/сайт)'}
+                              {studioSites === 3 && '8 990 ₽ (~2 996 ₽/сайт)'}
+                              {studioSites === 4 && '10 990 ₽ (~2 748 ₽/сайт)'}
+                              {studioSites === 5 && '12 990 ₽ (~2 598 ₽/сайт)'}
                             </span>
                           </div>
                           <div className="grid grid-cols-4 gap-1.5">
@@ -1244,56 +1436,62 @@ export function QrConfigurator() {
                         </div>
                       )}
 
-                      {/* Item-specific info (card person / logo) only for single effect */}
-                      {selectedPlan === 'single' && activeProduct === 'qr-card' && (
-                        <div className="flex items-center justify-between gap-3 pb-2 mb-0.5 border-b border-[#f0ebe2]">
-                          <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#a8a29e]">Визитка для</span>
-                          <span className="text-[13px] font-extrabold text-[#132A22] truncate">{card.contact.name || '— впишите имя в студии —'}</span>
-                        </div>
-                      )}
-                      {selectedPlan === 'single' && (activeProduct === 'voxel-logo' || activeProduct === 'voxel-morph') && (
-                        <div className="flex items-center justify-between gap-3 pb-2 mb-0.5 border-b border-[#f0ebe2]">
-                          <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#a8a29e] shrink-0">{activeProduct === 'voxel-logo' ? 'Ключ на логотип' : 'Ключ на пару фото'}</span>
-                          <span className="flex items-center gap-1.5 min-w-0">
-                            {activeProduct === 'voxel-logo'
-                              ? logo.src && <img src={logo.src} alt="" className="w-7 h-7 object-contain rounded-md bg-[#f6f3ee] p-0.5" />
-                              : [morph.srcA, morph.srcB].map((src, i) => src && <img key={i} src={src} alt="" className="w-9 h-7 object-cover rounded-md" />)}
-                            <span className="text-[12px] font-extrabold text-[#132A22] truncate">{activeProduct === 'voxel-logo' ? logo.fileName : 'до → после'}</span>
-                          </span>
-                        </div>
-                      )}
-
                       <label className="text-[10px] font-black uppercase tracking-[0.14em] text-[#a8a29e]" htmlFor="buy-site">
-                        {selectedPlan === 'studio' ? 'Первый сайт (домены можно указывать по очереди)' : 'Сайт, где будет стоять блок'}
+                        {selectedPlan === 'studio'
+                          ? `Сайт первого проекта (из ${studioSites})`
+                          : 'Сайт, где будет стоять блок'}
                       </label>
                       <input
                         id="buy-site"
                         type="text"
+                        maxLength={80}
                         value={buySite}
                         onInput={(e) => setBuySite((e.target as HTMLInputElement).value)}
-                        placeholder="ваш-сайт.ru"
+                        placeholder={selectedPlan === 'studio' ? 'первый-проект.ru' : 'ваш-сайт.ru'}
                         spellcheck={false}
                         autoComplete="off"
                         className="w-full px-3.5 py-2.5 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-sm font-mono font-bold text-[#132A22] outline-none focus:bg-white focus:border-[var(--vx-accent)]"
                       />
 
+                      {/* If Studio Master: optional fields for remaining sites */}
+                      {selectedPlan === 'studio' && (
+                        <div className="flex flex-col gap-1.5 pt-0.5">
+                          <div className="flex items-center justify-between text-[11px] font-bold text-[#78716c]">
+                            <span>Остальные сайты ({studioSites - 1}):</span>
+                            <span className="text-[10px] text-[#a8a29e] font-semibold">можно указать сейчас или позже</span>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                            {Array.from({ length: studioSites - 1 }).map((_, idx) => (
+                              <input
+                                key={idx}
+                                type="text"
+                                maxLength={80}
+                                value={studioExtraSites[idx] || ''}
+                                onInput={(e) => {
+                                  const val = (e.target as HTMLInputElement).value;
+                                  setStudioExtraSites((prev) => {
+                                    const next = [...prev];
+                                    next[idx] = val;
+                                    return next;
+                                  });
+                                }}
+                                placeholder={`проект-${idx + 2}.ru (или позже)`}
+                                spellcheck={false}
+                                autoComplete="off"
+                                className="w-full px-3 py-2 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-xs font-mono text-[#132A22] outline-none focus:bg-white focus:border-[var(--vx-accent)]"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       <p className="text-[11.5px] font-semibold text-[#6b645c] leading-relaxed">
                         {selectedPlan === 'single' ? (
-                          activeProduct === 'qr-card'
-                            ? 'Ключ выпустим под этот сайт и этого человека, настройки сохранятся. Телефон, ссылки, цвет и стиль потом меняются бесплатно; визитка для другого человека — отдельный ключ.'
-                            : activeProduct === 'voxel-logo'
-                              ? 'Ключ выпустим под этот сайт и этот логотип, настройки сохранятся. Цвета, толщина, детализация и эффекты потом меняются бесплатно; другой логотип — отдельный ключ.'
-                              : activeProduct === 'voxel-morph'
-                                ? 'Ключ выпустим под этот сайт и эту пару фото, настройки сохранятся. Режим, сетка и подписи меняются бесплатно; другая пара — отдельный ключ.'
-                                : activeProduct === 'gift-box'
-                                  ? 'Ключ выпустим под этот сайт, настройки сохранятся. Промокоды и акции потом меняйте сколько угодно — бесплатно.'
-                                  : activeProduct === 'sale-timer'
-                                    ? 'Ключ выпустим под этот сайт, настройки сохранятся. Новые даты, тексты и режимы для следующих акций — бесплатно.'
-                                    : 'Ключ выпустим под этот сайт, а ваши настройки сохранятся — после оплаты сразу получите готовый код. Разово, навсегда, без регистрации.'
+                          'Ключ выпустим под этот сайт, а ваши настройки сохранятся — после оплаты сразу получите готовый код. Разово, навсегда для этого сайта.'
                         ) : selectedPlan === 'bundle' ? (
                           'Один ключ разблокирует все 8 эффектов линейки Gridika для этого сайта. Настраивайте любые эффекты по очереди в студии и забирайте готовый код для каждого из них без ограничений.'
                         ) : (
-                          `Мастер-ключ для ${studioSites} сайтов: открывает все 8 текущих эффектов + ВСЕ БУДУЩИЕ новинки каталога навсегда. Домены проектов можно активировать по очереди.`
+                          `Мастер-ключ для ${studioSites} сайтов: открывает все 8 текущих эффектов + ВСЕ БУДУЩИЕ новинки каталога навсегда. Домены остальных проектов не обязательно знать прямо сейчас — один мастер-ключ активирует их по очереди в студии в любое удобное время.`
                         )}
                       </p>
 
@@ -1303,10 +1501,10 @@ export function QrConfigurator() {
                         className="h-11 rounded-full bg-[#132A22] text-white/70 font-extrabold text-sm cursor-not-allowed flex items-center justify-center gap-2"
                       >
                         <span>
-                          {selectedPlan === 'single' && 'Купить ключ · 990 ₽ (оплата скоро)'}
-                          {selectedPlan === 'bundle' && 'Купить «Все эффекты» · 2 990 ₽ (оплата скоро)'}
+                          {selectedPlan === 'single' && `Купить ключ «${productById(activeProduct).title}» · 1 490 ₽ (оплата скоро)`}
+                          {selectedPlan === 'bundle' && 'Купить «Все эффекты» · 3 990 ₽ (оплата скоро)'}
                           {selectedPlan === 'studio' && `Купить Studio Master (${studioSites} ${studioSites === 5 ? 'сайтов' : 'сайта'}) · ${
-                            studioSites === 2 ? '4 990 ₽' : studioSites === 3 ? '6 990 ₽' : studioSites === 4 ? '8 490 ₽' : '9 990 ₽'
+                            studioSites === 2 ? '6 990 ₽' : studioSites === 3 ? '8 990 ₽' : studioSites === 4 ? '10 990 ₽' : '12 990 ₽'
                           } (оплата скоро)`}
                         </span>
                       </button>
@@ -1321,6 +1519,7 @@ export function QrConfigurator() {
                     <input
                       type="text"
                       value={licenseKey}
+                      maxLength={800}
                       onInput={(e) => setLicenseKey((e.target as HTMLInputElement).value)}
                       placeholder="GRD1-…"
                       spellcheck={false}
@@ -1342,42 +1541,16 @@ export function QrConfigurator() {
                     <div className="text-[11.5px] font-semibold text-[#57534e]">
                       Ключ <b className="font-mono text-[#132A22]">{license.id}</b> подтверждён.{' '}
                       {license.d !== '*' ? (
-                        <>Он выпущен для сайта <b className="text-[#132A22]">{license.d}</b>{activeProduct === 'qr-card' && license.n ? <> и визитки <b className="text-[#132A22]">{license.n}</b></> : null}{license.f && activeProduct === 'voxel-logo' ? ' и одного логотипа' : license.f && activeProduct === 'voxel-morph' ? ' и одной пары фото' : null}.</>
+                        <>Он выпущен для сайта <b className="text-[#132A22]">{license.d}</b>.</>
                       ) : (
                         <>Укажите сайт, где будет стоять код:</>
                       )}
                     </div>
-                    {cardNameBlocked && (
-                      <div className="rounded-xl bg-[#FFF4DB] border border-[#F5D58A] px-3.5 py-3 flex flex-col gap-2">
-                        <div className="text-[12px] font-semibold text-[#7c4a03] leading-snug">
-                          Этот ключ — для визитки <b>{license.n}</b>, а сейчас на карточке «{card.contact.name || 'без имени'}». Один ключ — одна визитка: телефон, ссылки, цвет и стиль можно менять, а для другого человека нужен свой ключ.
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => card.setContact({ ...card.contact, name: license.n! })}
-                          className="self-start h-8 px-3.5 rounded-full bg-[#132A22] text-white text-[12px] font-extrabold cursor-pointer"
-                        >
-                          Вернуть имя «{license.n}»
-                        </button>
-                      </div>
-                    )}
-                    {itemBlocked && (
-                      <div className="rounded-xl bg-[#FFF4DB] border border-[#F5D58A] px-3.5 py-3 text-[12px] font-semibold text-[#7c4a03] leading-snug">
-                        {activeProduct === 'voxel-logo' ? (
-                          <>
-                            Этот ключ — для другого логотипа. <b>Один ключ — один логотип</b>: цвета, толщина, детализация и эффекты меняются свободно, а для другого знака нужен свой ключ. Чтобы вернуть свой логотип, откройте ссылку «Изменить в студии» из письма.
-                          </>
-                        ) : (
-                          <>
-                            Этот ключ — для другой пары фото. <b>Один ключ — одна пара</b>: режим, сетка и подписи меняются свободно, а для других фото нужен свой ключ. Чтобы вернуть свою пару, откройте ссылку «Изменить в студии» из письма.
-                          </>
-                        )}
-                      </div>
-                    )}
                     {license.d === '*' && (
                       <input
                         type="text"
                         value={siteDomain}
+                        maxLength={80}
                         onInput={(e) => setSiteDomain((e.target as HTMLInputElement).value)}
                         placeholder="ваш-сайт.ru"
                         spellcheck={false}
@@ -1440,6 +1613,23 @@ export function QrConfigurator() {
             </div>
           </div>
         )}
+
+        {/* Floating Cart Dock Pill & Order Modal */}
+        <CartFloatingPill items={cartItems} onOpenCart={() => setShowCartModal(true)} />
+        <CartModal
+          isOpen={showCartModal}
+          onClose={() => setShowCartModal(false)}
+          items={cartItems}
+          onRemoveItem={(id) => removeFromCart(id)}
+          onEditItem={handleEditCartItem}
+          onDuplicateItem={handleDuplicateCartItem}
+          editingId={currentCartItem?.id}
+          onAddCurrentToCart={() => {
+            addCurrentAsNew();
+          }}
+          currentProductTitle={productById(activeProduct).title}
+          isCurrentInCart={isCurrentInCart}
+        />
       </div>
     </div>
   );

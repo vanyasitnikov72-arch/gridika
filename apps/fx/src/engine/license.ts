@@ -171,3 +171,27 @@ export function saveKey(key: string) {
     else localStorage.removeItem(STORAGE);
   } catch {}
 }
+
+/**
+ * Order links are signed with the same key ring as licenses: /thanks#order=ID&items=B64&sig=SIG.
+ * The signature covers "gridika-order:" + ID + "." + B64 exactly as written in the link, so neither
+ * the order number nor any effect's settings can be changed (or made up) without breaking it.
+ * Links are signed where the private key lives (scripts/order.mjs now, the payment function later).
+ */
+export function orderSignedText(id: string, itemsB64: string): string {
+  return `gridika-order:${id}.${itemsB64}`;
+}
+
+export async function verifyOrder(id: string, itemsB64: string, sig: string): Promise<boolean> {
+  if (!id || !itemsB64 || !sig || typeof crypto === 'undefined' || !crypto.subtle) return false;
+  try {
+    const bytes = new TextEncoder().encode(orderSignedText(id, itemsB64));
+    const s = b64urlToBytes(sig);
+    for (const pk of await publicKeys()) {
+      if (await crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, pk, s, bytes)) return true;
+    }
+  } catch {
+    /* broken link */
+  }
+  return false;
+}

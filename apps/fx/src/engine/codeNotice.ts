@@ -1,23 +1,22 @@
 /**
  * What every bought snippet says about itself, and how the buyer takes it home (copy or file).
- * The link, text and QR are baked into the code as voxels, so hand edits break the picture —
- * changes go through the studio with the same key.
+ * Titles, captions and button links are plain text the buyer may edit; the QR, promo code, logo
+ * and photos are baked into the code as voxels, so those change through the studio.
  */
 
-/** Header comment of a licensed snippet: what it is, for which site, and how to change it. */
+/** Header comment of a bought snippet: what it is, which order, and what not to do with it. */
 export function codeHeader(title: string, license: { id: string; domain: string }): string {
+  const where = license.domain && license.domain !== '*' ? ` · сайт ${license.domain}` : '';
   return `<!--
   Gridika · ${title}
-  Ключ ${license.id} · сайт ${license.domain}
+  Заказ № ${license.id}${where} · код ваш навсегда, без подписки
 
-  Не меняйте этот код вручную: картинка, текст и QR в нём уже собраны
-  из кубиков — ручная правка их сломает.
+  Вставьте код целиком в HTML-блок сайта (Tilda — блок T123).
 
-  Как поменять ссылку, текст, логотип или цвет:
-    1. gridika.ru → «Получить код» → вставьте ключ из письма
-    2. Измените что нужно и скопируйте новый код
-    3. На сайте удалите этот код и вставьте новый на его место
-  Ключ можно использовать сколько угодно раз для этого сайта.
+  Заголовки, подписи, текст и ссылки кнопок можно менять прямо здесь —
+  это обычный текст в кавычках (найдите его через Ctrl+F).
+  QR, промокод, логотип и фото собраны из кубиков: их меняйте
+  на gridika.ru и вставьте новый код вместо этого.
 -->`;
 }
 

@@ -2,13 +2,17 @@
 import SectionHead from './SectionHead.astro';
 import { PRODUCTS } from '../../data/products';
 import { ProductPreview } from '../ProductPreview';
+import { orderTotal, PRICE_ONE, BUNDLE_PRICE, BUNDLE_MAX, EXTRA_CODE_PRICE, rub } from '../../engine/pricing';
 
 const ready = PRODUCTS.filter((p) => p.ready);
-const included = ['Код для блока T123', 'Навсегда для одного сайта', 'Обновления эффекта', 'Ключ на почту вместе с чеком'];
+const allSeparately = ready.length * PRICE_ONE;
+const bundleSaving = Math.round((1 - BUNDLE_PRICE / allSeparately) * 100);
+/** the studio pack: how many codes, the price and the price per code */
+const PACKS = [8, 10, 15, 20].map((n) => ({ n, total: rub(orderTotal(n)), per: `~${rub(Math.round(orderTotal(n) / n))} / код` }));
 ---
 
 <section id="pricing" class="py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
-  <div class="flex flex-col items-center text-center mb-10">
+  <div class="flex flex-col items-center text-center mb-12">
     <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#DFF8EB] text-[#132A22] text-xs font-black tracking-wide border border-[#19C37D]/30 mb-4 shadow-sm">
       <span class="w-2 h-2 rounded-full bg-[#19C37D] animate-pulse"></span>
       <span>Цены раннего доступа · Разовая оплата</span>
@@ -17,242 +21,462 @@ const included = ['Код для блока T123', 'Навсегда для од
       label="Цены"
       title="Попробуйте в студии,"
       accent="платите один раз"
-      lead="Собрать и посмотреть эффект можно бесплатно. Код для сайта — после покупки ключа: разовая оплата, без подписки и регистрации."
+      lead="Собрать и посмотреть эффект можно бесплатно. Готовый код — сразу после оплаты: разово, без подписки и регистрации. Несколько эффектов в одном заказе — дешевле."
     />
   </div>
 
-  {/* 6 Individual Product Cards */}
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
-    {ready.map((p) => (
-      <article class="soft-3d-card p-6 flex flex-col justify-between">
-        <div>
-          <div class="flex items-center gap-3">
-            <span class="w-14 h-14 rounded-[46%_54%_52%_48%/55%_48%_52%_45%] flex items-center justify-center shadow-[0_10px_20px_-10px_rgba(0,0,0,0.45)] shrink-0" style={`background:linear-gradient(140deg,${p.theme.accent},${p.theme.deep})`}>
-              <ProductPreview id={p.id} className="w-9 h-9" float={false} />
-            </span>
-            <div>
-              <h3 class="text-lg font-black text-[#132A22] leading-tight">{p.title}</h3>
-              <p class="text-[12px] font-semibold text-[#78716c]">{p.modes.join(' · ')}</p>
-            </div>
-          </div>
-          <div class="mt-5 flex items-baseline gap-2">
-            <span class="text-3xl font-black tracking-tight text-[#132A22]">990 ₽</span>
-            <span class="text-xs font-bold text-[#a8a29e]">разово, за сайт</span>
-          </div>
-          <span class="mt-2 self-start inline-block px-2.5 py-1 rounded-full text-[11.5px] font-extrabold" style={`background:${p.theme.soft};color:${p.theme.deep}`}>{p.unit}</span>
-          <ul class="mt-4 flex flex-col gap-2">
-            {included.map((f) => (
-              <li class="flex items-start gap-2.5 text-[13px] font-semibold text-[#44403c]">
-                <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full text-[9px] font-black flex items-center justify-center" style={`background:${p.theme.accent};color:${p.theme.on}`}>✓</span>
-                {f}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <a
-          href={`?fx=${p.id}#studio`}
-          data-nav-link="studio"
-          data-product={p.id}
-          class="vx-try mt-6 h-11 rounded-full bg-[#132A22] text-[#F0EBE9] font-extrabold text-sm flex items-center justify-center gap-2 transition-opacity hover:opacity-90"
-        >
-          Попробовать в студии <span>↑</span>
-        </a>
-      </article>
-    ))}
-  </div>
-
-  {/* Bundles & Studio Master */}
-  <div class="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+  {/* 3 Unified Pricing Cards */}
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
     
-    {/* Card 1: Все эффекты (1 сайт) */}
-    <article class="lg:col-span-5 soft-3d-card p-7 sm:p-8 flex flex-col justify-between relative overflow-hidden">
-      <span class="absolute top-5 right-6 px-3.5 py-1 rounded-full bg-[#DFF8EB] text-[#132A22] text-[11px] font-black uppercase tracking-wider border border-[#19C37D]/30">
-        Для 1 сайта
-      </span>
-      <div>
-        <div class="pr-24 sm:pr-28">
-          <h3 class="text-2xl font-black text-[#132A22]">Все эффекты</h3>
-          <p class="mt-1.5 text-[13px] font-semibold text-[#57534e] leading-snug">
-            Все 8 эффектов текущей линейки Gridika для одного сайта. Без ограничений по формам, цветам и генерациям.
-          </p>
-        </div>
-        <div class="mt-6 flex items-baseline gap-2.5">
-          <span class="text-4xl font-black tracking-tight text-[#132A22]">2 990 ₽</span>
-          <span class="text-xs font-bold text-[#a8a29e]">разово, за сайт</span>
-        </div>
-        <div class="mt-2 text-xs font-extrabold text-[#19C37D]">
-          Окупается уже на 3-м эффекте
+    {/* CARD 1: Interactive Single Effect Card (with sleek side capsule arrows and zero overlap) */}
+    <article
+      id="card-single-effect"
+      class="soft-3d-card p-6 sm:p-7 flex flex-col justify-between relative bg-white overflow-hidden"
+    >
+      
+      {/* SLIM CAPSULE SIDE ARROWS (fits strictly inside card edge gutter, zero overlap with bullets) */}
+      <button
+        type="button"
+        id="effect-prev-btn"
+        aria-label="Предыдущий эффект"
+        class="absolute left-1.5 sm:left-2 top-[46%] -translate-y-1/2 z-20 w-6 sm:w-6.5 h-11 sm:h-12 rounded-full bg-white/95 text-[#132A22] border border-[#e5dfd2] shadow-sm flex items-center justify-center transition-all duration-200 opacity-0 pointer-events-none scale-75 cursor-default select-none backdrop-blur-sm"
+      >
+        <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.5]" viewBox="0 0 24 24">
+          <path d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        id="effect-next-btn"
+        aria-label="Следующий эффект"
+        class="absolute right-1.5 sm:right-2 top-[46%] -translate-y-1/2 z-20 w-6 sm:w-6.5 h-11 sm:h-12 rounded-full bg-white/95 hover:bg-[#132A22] text-[#132A22] hover:text-[#19C37D] border border-[#e5dfd2] shadow-md flex items-center justify-center transition-all duration-200 cursor-pointer select-none backdrop-blur-sm active:scale-90"
+      >
+        <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.5]" viewBox="0 0 24 24">
+          <path d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
+      {/* Inner Content with safety gutter for arrows */}
+      <div class="px-2.5 sm:px-3">
+        {/* Top Header: Badge + Counter */}
+        <div class="flex items-center justify-between pb-3.5 border-b border-[#f0ebe2]">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-full bg-[#f3efe7] text-[#132A22] text-[11px] font-black uppercase tracking-wider">
+              1 эффект
+            </span>
+            <span id="single-effect-counter" class="text-xs font-mono font-bold text-[#a8a29e] transition-all">
+              01 / {String(ready.length).padStart(2, '0')}
+            </span>
+          </div>
+
+          <span class="text-[11px] font-bold text-[#a8a29e]">
+            листайте эффекты
+          </span>
         </div>
 
+        {/* Dynamic Stacked Effect Slides (fixed height = zero layout shift on price and bullets) */}
+        <div class="mt-4 relative w-full h-[126px] sm:h-[128px]" id="effect-slides-container">
+          {ready.map((p, idx) => (
+            <div
+              class={`single-effect-slide absolute inset-0 transition-all duration-300 ease-out ${
+                idx === 0
+                  ? 'opacity-100 translate-x-0 z-10 pointer-events-auto'
+                  : 'opacity-0 pointer-events-none translate-x-3 -z-10'
+              }`}
+              data-index={idx}
+              data-product-id={p.id}
+              data-product-title={p.title}
+            >
+              <div class="flex items-start gap-3">
+                <span
+                  class="w-12 h-12 sm:w-13 sm:h-13 rounded-2xl flex items-center justify-center shadow-md shrink-0 transition-transform duration-300"
+                  style={`background:linear-gradient(140deg,${p.theme.accent},${p.theme.deep})`}
+                >
+                  <ProductPreview id={p.id} className="w-7 h-7 sm:w-8 sm:h-8" float={false} />
+                </span>
+                <div class="min-w-0 flex-1">
+                  <h3 class="text-lg sm:text-xl font-black text-[#132A22] leading-tight">{p.title}</h3>
+                  <p class="text-[12px] font-semibold text-[#78716c] leading-tight mt-0.5">{p.modes.join(' · ')}</p>
+                </div>
+              </div>
+
+              <div class="mt-2">
+                <span
+                  class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-extrabold leading-normal"
+                  style={`background:${p.theme.soft};color:${p.theme.deep}`}
+                >
+                  {p.unit}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Price */}
+        <div class="mt-5 flex items-baseline gap-2.5">
+          <span class="text-4xl font-black tracking-tight text-[#132A22]">1 490 ₽</span>
+          <span class="text-xs font-bold text-[#a8a29e]">разово</span>
+        </div>
+        <div class="mt-2 text-xs font-semibold text-[#78716c]">
+          Один эффект с вашими настройками — навсегда
+        </div>
+
+        {/* Bullets */}
         <ul class="mt-6 flex flex-col gap-2.5">
           {[
-            'Все 8 эффектов каталога без ограничений',
-            'Визитки, логотипы, пары фото, таймеры, QR',
-            'Все новые темы, цвета и режимы для этих эффектов',
-            'Код для блока T123 и любых HTML-платформ',
-            'Обновления и чек на почту сразу после оплаты',
+            'Код для блока T123 и любых HTML-сайтов',
+            'Навсегда — без подписки и привязки к сайту',
+            'Любые цвета, стили и настройки без доплат',
+            'Готовый код сразу и ссылка на почту с чеком',
+          ].map((f) => (
+            <li class="flex items-start gap-2.5 text-[13px] font-semibold text-[#44403c]">
+              <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-[#f3efe7] text-[#132A22] text-[10px] font-black flex items-center justify-center">✓</span>
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+
+        {/* Dot Indicators */}
+        <div class="mt-6 flex items-center justify-center gap-1.5" id="effect-dots">
+          {ready.map((_, idx) => (
+            <button
+              type="button"
+              data-dot-index={idx}
+              class={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                idx === 0 ? 'w-6 bg-[#132A22]' : 'w-1.5 bg-[#e5dfd2] hover:bg-[#a8a29e]'
+              }`}
+              aria-label={`Перейти к эффекту ${idx + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Buttons */}
+      <div class="mt-6 flex flex-col gap-2 px-2.5 sm:px-3">
+        <a
+          href="#studio"
+          data-plan="single"
+          data-product={ready[0]?.id || 'qr-morph'}
+          id="single-effect-cta"
+          class="vx-buy-plan h-12 rounded-full bg-[#132A22] hover:bg-[#1f4235] text-[#F0EBE9] font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-md cursor-pointer active:scale-95 px-3 sm:px-4 text-center"
+        >
+          <span id="single-effect-btn-text" class="whitespace-nowrap">Выбрать этот эффект</span> <span aria-hidden="true">→</span>
+        </a>
+        <a
+          href={`?fx=${ready[0]?.id || 'qr-morph'}#studio`}
+          data-product={ready[0]?.id || 'qr-morph'}
+          id="single-effect-try"
+          class="vx-try text-center text-xs font-bold text-[#78716c] hover:text-[#132A22] py-1 transition-colors"
+        >
+          Попробовать в студии ↑
+        </a>
+      </div>
+    </article>
+
+    {/* CARD 2: Комплект — up to 6 codes, any effects - ХИТ */}
+    <article class="soft-3d-card p-7 sm:p-8 flex flex-col justify-between relative overflow-hidden bg-white border-2 border-[#19C37D] shadow-[0_20px_50px_-15px_rgba(25,195,125,0.22)]">
+      <div class="absolute top-5 right-6 flex items-center gap-1.5">
+        <span class="px-2.5 py-0.5 rounded-full bg-[#19C37D] text-[#132A22] text-[10px] font-black uppercase tracking-wider">
+          ХИТ
+        </span>
+      </div>
+
+      <div>
+        <div class="pr-16">
+          <h3 class="text-2xl font-black text-[#132A22]">Комплект</h3>
+          <p class="mt-1.5 text-[13px] font-semibold text-[#57534e] leading-snug">
+            Все {ready.length} эффектов линейки или любые несколько: каждый следующий код в заказе дешевле.
+          </p>
+        </div>
+
+        <div class="mt-6 flex items-baseline gap-2.5">
+          <span class="text-4xl font-black tracking-tight text-[#132A22]">{rub(BUNDLE_PRICE)}</span>
+          <span class="text-xs font-bold text-[#a8a29e]">разово, за {BUNDLE_MAX} кодов</span>
+        </div>
+        <div class="mt-2 text-xs font-extrabold text-[#19C37D]">
+          Все {ready.length} эффектов по отдельности — {rub(allSeparately)}
+        </div>
+
+        {/* the ladder: what the order costs as it grows */}
+        <div class="mt-5 grid grid-cols-4 gap-1.5" aria-label="Цена заказа по количеству кодов">
+          {[1, 2, 3, BUNDLE_MAX].map((n) => (
+            <div class={`rounded-xl px-1.5 py-2 text-center ${n === BUNDLE_MAX ? 'bg-[#19C37D] text-[#132A22]' : 'bg-[#f6f3ee] text-[#44403c]'}`}>
+              <div class="text-[10.5px] font-black uppercase tracking-wide opacity-70">{n} {n === 1 ? 'код' : n >= 5 ? 'кодов' : 'кода'}</div>
+              <div class="mt-0.5 text-[13px] font-black tabular-nums">{rub(orderTotal(n))}</div>
+            </div>
+          ))}
+        </div>
+
+        <ul class="mt-5 flex flex-col gap-2.5">
+          {[
+            'Любые эффекты и их копии в одном заказе',
+            'Второй код — 1 200 ₽, каждый следующий на 100 ₽ дешевле',
+            'Код каждого эффекта — ваш навсегда, без подписки',
+            'Готовый код сразу и ссылка на почту с чеком',
           ].map((f) => (
             <li class="flex items-start gap-2.5 text-[13px] font-semibold text-[#44403c]">
               <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-[#DFF8EB] text-[#132A22] text-[10px] font-black flex items-center justify-center">✓</span>
-              {f}
+              <span>{f}</span>
             </li>
           ))}
         </ul>
       </div>
 
-      <a
-        href="#studio"
-        data-nav-link="studio"
-        data-plan="bundle"
-        class="vx-buy-plan mt-8 h-12 rounded-full bg-[#132A22] hover:bg-[#1f4235] text-[#F0EBE9] font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
-      >
-        Выбрать для 1 сайта <span>→</span>
-      </a>
+      <div class="mt-8 flex flex-col gap-2">
+        <a
+          href="#studio"
+          data-plan="bundle"
+          class="vx-buy-plan h-12 rounded-full bg-[#19C37D] hover:bg-[#15b271] text-[#132A22] font-black text-sm flex items-center justify-center gap-2 transition-all shadow-[0_4px_16px_rgba(25,195,125,0.25)] hover:scale-[1.01] active:scale-95 cursor-pointer"
+        >
+          <span>Собрать комплект</span> <span aria-hidden="true">→</span>
+        </a>
+        <span class="text-center text-[11.5px] font-bold text-[#78716c] py-1">
+          Экономия до {bundleSaving}% на всех {ready.length} эффектах
+        </span>
+      </div>
     </article>
 
-    {/* Card 2: Studio Master (интерактивный свитчер) */}
+    {/* CARD 3: Пакет для студий — many codes, the same effect for different clients */}
     <article
-      class="lg:col-span-7 relative rounded-[2.5rem] p-7 sm:p-8 flex flex-col justify-between text-[#F4F1EC] shadow-[0_30px_60px_-20px_rgba(19,42,34,0.6)] overflow-hidden"
+      class="relative rounded-[2.5rem] p-7 sm:p-8 flex flex-col justify-between text-[#F4F1EC] shadow-[0_30px_60px_-20px_rgba(19,42,34,0.6)] overflow-hidden"
       style="background:linear-gradient(150deg,#0f241d,color-mix(in srgb,var(--vx-accent) 40%,#0f241d))"
     >
-      <span class="absolute top-5 right-6 px-3.5 py-1 rounded-full bg-[var(--vx-accent)] text-[#132A22] text-[11px] font-black uppercase tracking-wider shadow-sm">
-        Выгоднее для студий
-      </span>
-
       <div>
-        <div class="pr-36 sm:pr-40">
-          <h3 class="text-2xl sm:text-3xl font-black text-white">Studio Master</h3>
+        {/* the badge sits in the flow above the title, so it never covers it on narrow cards */}
+        <span class="inline-flex px-3 py-1 rounded-full bg-[var(--vx-accent)] text-[#132A22] text-[10.5px] font-black uppercase tracking-wider shadow-sm">
+          Выгоднее для студий
+        </span>
+        <div class="mt-3">
+          <h3 class="text-2xl font-black text-white">Пакет для студий</h3>
           <p class="mt-1 text-[13px] font-semibold text-white/80">
-            Один мастер-ключ со свободной привязкой доменов под проекты клиентов.
+            Много эффектов под разных клиентов: QR, визитки, таймеры — каждый со своей ссылкой.
           </p>
         </div>
 
-        {/* Interactive Site Switcher */}
+        {/* how many codes */}
         <div class="mt-6 p-1.5 rounded-2xl bg-black/25 backdrop-blur-sm border border-white/10 flex flex-col sm:flex-row gap-1.5 sm:items-center">
-          <span class="px-3 text-[11.5px] font-extrabold text-white/60 uppercase tracking-wider">Сайты:</span>
-          <div class="grid grid-cols-4 gap-1.5 flex-1" id="studio-switcher" role="radiogroup" aria-label="Количество сайтов">
-            {[
-              { count: 2, label: '2 сайта' },
-              { count: 3, label: '3 сайта' },
-              { count: 4, label: '4 сайта' },
-              { count: 5, label: '5 сайтов' },
-            ].map((s, idx) => (
+          <span class="px-2.5 text-[11px] font-extrabold text-white/60 uppercase tracking-wider">Кодов:</span>
+          <div class="grid grid-cols-4 gap-1.5 flex-1" id="studio-switcher" role="radiogroup" aria-label="Количество кодов">
+            {PACKS.map((pk, idx) => (
               <button
                 type="button"
-                data-sites={s.count}
-                class={`studio-tab-btn py-2 px-2 rounded-xl text-xs font-black transition-all cursor-pointer text-center select-none ${
-                  idx === 0
-                    ? 'bg-[var(--vx-accent)] text-[#132A22] shadow-md scale-[1.02]'
-                    : 'bg-white/5 hover:bg-white/15 text-white/80'
+                role="radio"
+                aria-checked={idx === 0 ? 'true' : 'false'}
+                data-codes={pk.n}
+                data-total={pk.total}
+                data-per={pk.per}
+                class={`studio-tab-btn py-2 px-1 rounded-xl text-xs font-black transition-all cursor-pointer text-center select-none ${
+                  idx === 0 ? 'bg-[var(--vx-accent)] text-[#132A22] shadow-md scale-[1.02]' : 'bg-white/5 hover:bg-white/15 text-white/80'
                 }`}
               >
-                {s.label}
+                {pk.n}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Dynamic Price Display */}
-        <div class="mt-6 flex flex-wrap items-baseline gap-3">
-          <span id="studio-price" class="text-4xl sm:text-5xl font-black tracking-tight text-white transition-all">4 990 ₽</span>
-          <span class="text-xs font-bold text-white/70">разово, мастер-ключ</span>
-          <span id="studio-persite" class="px-2.5 py-1 rounded-full bg-white/15 text-[var(--vx-accent)] text-xs font-black">
-            ~2 495 ₽ / сайт
-          </span>
+        <div class="mt-6 flex flex-wrap items-baseline gap-2.5">
+          <span id="studio-price" class="text-4xl font-black tracking-tight text-white transition-all">{PACKS[0].total}</span>
+          <span class="text-xs font-bold text-white/70">разово</span>
+          <span id="studio-percode" class="px-2.5 py-1 rounded-full bg-white/15 text-[var(--vx-accent)] text-xs font-black">{PACKS[0].per}</span>
         </div>
 
-        {/* Bullets */}
         <ul class="mt-6 flex flex-col gap-2.5">
           <li class="flex items-start gap-2.5 text-[13px] font-semibold text-white/95">
             <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-[var(--vx-accent)] text-[#132A22] text-[10px] font-black flex items-center justify-center">✓</span>
-            <span>Мастер-ключ для <b id="studio-bullet-sites" class="text-[var(--vx-accent)] font-extrabold">2 сайтов</b> (свободная привязка по очереди)</span>
+            <span><b id="studio-bullet-codes" class="text-[var(--vx-accent)] font-extrabold">{PACKS[0].n} кодов</b> любых эффектов в одном заказе</span>
           </li>
           <li class="flex items-start gap-2.5 text-[13px] font-semibold text-white/95">
             <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-[var(--vx-accent)] text-[#132A22] text-[10px] font-black flex items-center justify-center">✓</span>
-            <span class="text-[var(--vx-accent)] font-extrabold">Все будущие эффекты линейки Gridika включены навсегда</span>
+            <span class="text-[var(--vx-accent)] font-extrabold">Каждый код сверх {BUNDLE_MAX} — всего {rub(EXTRA_CODE_PRICE)}</span>
           </li>
           <li class="flex items-start gap-2.5 text-[13px] font-semibold text-white/95">
             <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-[var(--vx-accent)] text-[#132A22] text-[10px] font-black flex items-center justify-center">✓</span>
-            <span>Все 8 эффектов текущей линейки без ограничений</span>
+            <span>Копии одного эффекта с разными ссылками — в один клик в заказе</span>
           </li>
           <li class="flex items-start gap-2.5 text-[13px] font-semibold text-white/95">
             <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-[var(--vx-accent)] text-[#132A22] text-[10px] font-black flex items-center justify-center">✓</span>
-            <span>Все новые стили, пресеты и режимы для всех эффектов</span>
-          </li>
-          <li class="flex items-start gap-2.5 text-[13px] font-semibold text-white/95">
-            <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-[var(--vx-accent)] text-[#132A22] text-[10px] font-black flex items-center justify-center">✓</span>
-            <span>Приоритетная поддержка разработчика</span>
+            <span>Без подписки, привязки к сайту и пометки Gridika</span>
           </li>
         </ul>
       </div>
 
-      <a
-        href="#studio"
-        data-nav-link="studio"
-        data-plan="studio"
-        data-sites="2"
-        id="studio-cta"
-        class="vx-buy-plan mt-8 h-12 rounded-full bg-[var(--vx-accent)] hover:brightness-110 text-[#132A22] font-black text-sm flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01] active:scale-95 cursor-pointer"
-      >
-        <span id="studio-cta-text">Выбрать Studio Master (2 сайта)</span> <span>→</span>
-      </a>
+      <div class="mt-8 flex flex-col gap-2">
+        <a
+          href="#studio"
+          data-plan="studio"
+          id="studio-cta"
+          class="vx-buy-plan h-12 rounded-full bg-[var(--vx-accent)] hover:brightness-110 text-[#132A22] font-black text-sm flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01] active:scale-95 cursor-pointer"
+        >
+          <span>Собрать пакет</span> <span aria-hidden="true">→</span>
+        </a>
+        <span class="text-center text-[11.5px] font-bold text-white/70 py-1">
+          Скидка считается в заказе сама — по числу кодов
+        </span>
+      </div>
     </article>
 
   </div>
 
   <script>
-    // "Попробовать в студии" opens that product in the studio
-    document.querySelectorAll<HTMLAnchorElement>('.vx-try').forEach((a) => {
-      a.addEventListener('click', () => {
-        const id = a.dataset.product;
-        if (id) window.dispatchEvent(new CustomEvent('fx:select-product', { detail: { productId: id } }));
+    // 1. Single Effect Carousel (Stacked isolated slides + sleek side capsule arrows)
+    let effectIndex = 0;
+    const slidesContainer = document.getElementById('effect-slides-container');
+    const cardSingle = document.getElementById('card-single-effect');
+    const slides = document.querySelectorAll<HTMLElement>('.single-effect-slide');
+    const prevBtn = document.getElementById('effect-prev-btn');
+    const nextBtn = document.getElementById('effect-next-btn');
+    const counterEl = document.getElementById('single-effect-counter');
+    const ctaBtn = document.getElementById('single-effect-cta');
+    const tryLink = document.getElementById('single-effect-try') as HTMLAnchorElement | null;
+    const dots = document.querySelectorAll<HTMLButtonElement>('[data-dot-index]');
+
+    function updateEffectCard(idx: number) {
+      if (!slides.length) return;
+      effectIndex = Math.max(0, Math.min(idx, slides.length - 1));
+
+      // Stacked isolated crossfade transition (zero horizontal bleed, fixed height = zero text shift)
+      slides.forEach((slide, i) => {
+        if (i === effectIndex) {
+          slide.className = 'single-effect-slide absolute inset-0 opacity-100 translate-x-0 z-10 pointer-events-auto transition-all duration-300 ease-out';
+        } else {
+          const offset = i < effectIndex ? '-translate-x-3' : 'translate-x-3';
+          slide.className = `single-effect-slide absolute inset-0 opacity-0 pointer-events-none ${offset} -z-10 transition-all duration-300 ease-out`;
+        }
+      });
+
+      // Arrow visibility with smooth fade & scale
+      if (prevBtn) {
+        if (effectIndex === 0) {
+          prevBtn.className = 'absolute left-1.5 sm:left-2 top-[46%] -translate-y-1/2 z-20 w-6 sm:w-6.5 h-11 sm:h-12 rounded-full bg-white/95 text-[#132A22] border border-[#e5dfd2] shadow-sm flex items-center justify-center transition-all duration-200 opacity-0 pointer-events-none scale-75 cursor-default select-none backdrop-blur-sm';
+        } else {
+          prevBtn.className = 'absolute left-1.5 sm:left-2 top-[46%] -translate-y-1/2 z-20 w-6 sm:w-6.5 h-11 sm:h-12 rounded-full bg-white/95 hover:bg-[#132A22] text-[#132A22] hover:text-[#19C37D] border border-[#e5dfd2] shadow-md flex items-center justify-center transition-all duration-200 cursor-pointer opacity-100 pointer-events-auto scale-100 select-none backdrop-blur-sm active:scale-90';
+        }
+      }
+
+      if (nextBtn) {
+        if (effectIndex === slides.length - 1) {
+          nextBtn.className = 'absolute right-1.5 sm:right-2 top-[46%] -translate-y-1/2 z-20 w-6 sm:w-6.5 h-11 sm:h-12 rounded-full bg-white/95 text-[#132A22] border border-[#e5dfd2] shadow-sm flex items-center justify-center transition-all duration-200 opacity-0 pointer-events-none scale-75 cursor-default select-none backdrop-blur-sm';
+        } else {
+          nextBtn.className = 'absolute right-1.5 sm:right-2 top-[46%] -translate-y-1/2 z-20 w-6 sm:w-6.5 h-11 sm:h-12 rounded-full bg-white/95 hover:bg-[#132A22] text-[#132A22] hover:text-[#19C37D] border border-[#e5dfd2] shadow-md flex items-center justify-center transition-all duration-200 cursor-pointer opacity-100 pointer-events-auto scale-100 select-none backdrop-blur-sm active:scale-90';
+        }
+      }
+
+      if (counterEl) {
+        counterEl.textContent = `0${effectIndex + 1} / 0${slides.length}`;
+      }
+
+      dots.forEach((dot, i) => {
+        if (i === effectIndex) {
+          dot.className = 'h-1.5 rounded-full transition-all duration-300 cursor-pointer w-6 bg-[#132A22]';
+        } else {
+          dot.className = 'h-1.5 rounded-full transition-all duration-300 cursor-pointer w-1.5 bg-[#e5dfd2] hover:bg-[#a8a29e]';
+        }
+      });
+
+      const curSlide = slides[effectIndex];
+      if (curSlide) {
+        const prodId = curSlide.dataset.productId;
+        const prodTitle = curSlide.dataset.productTitle;
+        // the label stays the same (the effect's name is right above it); only the target changes
+        if (ctaBtn && prodTitle) ctaBtn.setAttribute('aria-label', `Выбрать «${prodTitle}»`);
+        if (ctaBtn && prodId) {
+          ctaBtn.dataset.product = prodId;
+        }
+        if (tryLink && prodId) {
+          tryLink.href = `?fx=${prodId}#studio`;
+          tryLink.dataset.product = prodId;
+        }
+      }
+    }
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => updateEffectCard(effectIndex - 1));
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => updateEffectCard(effectIndex + 1));
+    }
+    dots.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        const idx = Number(dot.dataset.dotIndex);
+        updateEffectCard(idx);
       });
     });
 
-    // Studio Master interactive switcher
-    const STUDIO_DATA: Record<number, { price: string; perSite: string; sitesWord: string; btnText: string }> = {
-      2: { price: '4 990 ₽', perSite: '~2 495 ₽ / сайт', sitesWord: '2 сайтов', btnText: 'Выбрать Studio Master (2 сайта)' },
-      3: { price: '6 990 ₽', perSite: '~2 330 ₽ / сайт', sitesWord: '3 сайтов', btnText: 'Выбрать Studio Master (3 сайта)' },
-      4: { price: '8 490 ₽', perSite: '~2 120 ₽ / сайт', sitesWord: '4 сайтов', btnText: 'Выбрать Studio Master (4 сайта)' },
-      5: { price: '9 990 ₽', perSite: '~1 998 ₽ / сайт', sitesWord: '5 сайтов', btnText: 'Выбрать Studio Master (5 сайтов)' },
-    };
+    // Touch swipe support on Card 1
+    let touchStartX = 0;
+    let touchEndX = 0;
+    (cardSingle || slidesContainer)?.addEventListener('touchstart', (e: TouchEvent) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    (cardSingle || slidesContainer)?.addEventListener('touchend', (e: TouchEvent) => {
+      touchEndX = e.changedTouches[0].screenX;
+      if (touchEndX < touchStartX - 40) {
+        updateEffectCard(effectIndex + 1);
+      } else if (touchEndX > touchStartX + 40) {
+        updateEffectCard(effectIndex - 1);
+      }
+    }, { passive: true });
 
+    // 2. Studio pack: how many codes (prices come from engine/pricing.ts, rendered into data-*)
     const switcher = document.getElementById('studio-switcher');
     const priceEl = document.getElementById('studio-price');
-    const perSiteEl = document.getElementById('studio-persite');
-    const bulletSitesEl = document.getElementById('studio-bullet-sites');
-    const ctaTextEl = document.getElementById('studio-cta-text');
-    const studioCta = document.getElementById('studio-cta');
-
-    if (switcher && priceEl && perSiteEl && bulletSitesEl && ctaTextEl) {
-      switcher.querySelectorAll<HTMLButtonElement>('.studio-tab-btn').forEach((btn) => {
+    const perCodeEl = document.getElementById('studio-percode');
+    const bulletCodesEl = document.getElementById('studio-bullet-codes');
+    if (switcher && priceEl && perCodeEl && bulletCodesEl) {
+      const tabs = switcher.querySelectorAll<HTMLButtonElement>('.studio-tab-btn');
+      tabs.forEach((btn) => {
         btn.addEventListener('click', () => {
-          const sites = Number(btn.dataset.sites);
-          const d = STUDIO_DATA[sites];
-          if (!d) return;
-
-          // update active styles
-          switcher.querySelectorAll<HTMLButtonElement>('.studio-tab-btn').forEach((b) => {
-            b.className = 'studio-tab-btn py-2 px-2 rounded-xl text-xs font-black transition-all cursor-pointer text-center select-none bg-white/5 hover:bg-white/15 text-white/80';
+          tabs.forEach((b) => {
+            b.className = 'studio-tab-btn py-2 px-1 rounded-xl text-xs font-black transition-all cursor-pointer text-center select-none bg-white/5 hover:bg-white/15 text-white/80';
+            b.setAttribute('aria-checked', 'false');
           });
-          btn.className = 'studio-tab-btn py-2 px-2 rounded-xl text-xs font-black transition-all cursor-pointer text-center select-none bg-[var(--vx-accent)] text-[#132A22] shadow-md scale-[1.02]';
-
-          // update dynamic content
-          priceEl.textContent = d.price;
-          perSiteEl.textContent = d.perSite;
-          bulletSitesEl.textContent = d.sitesWord;
-          ctaTextEl.textContent = d.btnText;
-          if (studioCta) studioCta.dataset.sites = String(sites);
+          btn.className = 'studio-tab-btn py-2 px-1 rounded-xl text-xs font-black transition-all cursor-pointer text-center select-none bg-[var(--vx-accent)] text-[#132A22] shadow-md scale-[1.02]';
+          btn.setAttribute('aria-checked', 'true');
+          priceEl.textContent = btn.dataset.total || '';
+          perCodeEl.textContent = btn.dataset.per || '';
+          bulletCodesEl.textContent = `${btn.dataset.codes} кодов`;
         });
       });
     }
 
-    // Open modal directly when choosing bundle or Studio Master from pricing
+    // 3. Smooth scroll to studio on pricing CTA click
     document.querySelectorAll<HTMLAnchorElement>('.vx-buy-plan').forEach((a) => {
-      a.addEventListener('click', () => {
-        const plan = a.dataset.plan as 'bundle' | 'studio';
-        const sites = a.dataset.sites ? (Number(a.dataset.sites) as 2 | 3 | 4 | 5) : 2;
-        window.dispatchEvent(new CustomEvent('fx:open-buy-modal', { detail: { plan, sites } }));
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const plan = a.dataset.plan;
+        const prod = a.dataset.product;
+
+        // If choosing a specific single effect, switch the studio view to it
+        if (plan === 'single' && prod) {
+          window.dispatchEvent(new CustomEvent('fx:select-product', { detail: { productId: prod } }));
+        }
+
+        // Smoothly scroll up to the Studio section
+        const studioSection = document.getElementById('studio');
+        if (studioSection) {
+          studioSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
+    });
+
+    // 4. "Попробовать в студии" smoothly opens that product in the studio
+    document.querySelectorAll<HTMLAnchorElement>('.vx-try').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const id = a.dataset.product;
+        if (id) {
+          window.dispatchEvent(new CustomEvent('fx:select-product', { detail: { productId: id } }));
+        }
+        const studioSection = document.getElementById('studio');
+        if (studioSection) {
+          studioSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       });
     });
   </script>

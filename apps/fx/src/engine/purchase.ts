@@ -76,3 +76,45 @@ export function guessSite(c: Omit<PurchaseConfig, 'site'>): string {
     return '';
   }
 }
+
+// ---- orders: several effects bought at once, no keys ----
+// The order link carries every effect's settings after "#" (never sent to a server), signed:
+// /thanks#order=<number>&items=<b64url JSON array>&sig=<signature> (see verifyOrder in license.ts).
+// "#order=demo" is the sample order for previews.
+
+/** the settings of one bought effect (the site is not needed any more) */
+export type OrderItem = Omit<PurchaseConfig, 'site'> & { site?: string };
+
+export function encodeOrder(items: OrderItem[]): string {
+  return toB64url(JSON.stringify(items.map(({ site: _site, ...c }) => c)));
+}
+
+export interface OrderLink {
+  id: string;
+  items: OrderItem[];
+  /** the items exactly as written in the link (what the signature covers) */
+  itemsB64: string;
+  sig: string;
+}
+
+/** the order in a "#order=…&items=…&sig=…" hash; null when the hash has no order */
+export function readOrderHash(hash: string): OrderLink | null {
+  const h = hash.replace(/^#/, '');
+  const get = (name: string) => {
+    const m = h.match(new RegExp(`(?:^|&)${name}=([^&]+)`));
+    return m ? decodeURIComponent(m[1]) : null;
+  };
+  const id = get('order');
+  if (!id) return null;
+  const itemsB64 = get('items') || '';
+  let items: OrderItem[] = [];
+  if (itemsB64) {
+    try {
+      const arr = JSON.parse(fromB64url(itemsB64));
+      if (Array.isArray(arr)) items = arr.filter((c) => c && typeof c.p === 'string') as OrderItem[];
+    } catch {
+      /* broken link */
+    }
+  }
+  return { id, items, itemsB64, sig: get('sig') || '' };
+}

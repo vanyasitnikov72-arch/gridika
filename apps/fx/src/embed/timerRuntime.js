@@ -67,14 +67,14 @@ export function createTimerViewer(THREE, container, init) {
   // ---------- DOM: title / stage (canvas + labels + final text) / button ----------
   var css = [
     '.gtm{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;text-align:center}',
-    '.gtm-title{font-weight:800;font-size:clamp(16px,2.6vw,24px);line-height:1.2;margin:0 0 6px;letter-spacing:-.01em}',
+    '.gtm-title{font-weight:800;font-size:clamp(16px,2.6vw,24px);line-height:1.2;margin:0 0 6px;letter-spacing:-.01em;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;padding:0 8px}',
     '.gtm-stage{position:relative;width:100%}',
     '.gtm-stage canvas{display:block;width:100%;height:100%}',
     '.gtm-labels{position:absolute;inset:0;pointer-events:none}',
     '.gtm-labels span{position:absolute;transform:translateX(-50%);font-size:clamp(10px,1.5vw,13px);font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.55;transition:opacity .4s}',
-    '.gtm-end{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:0 16px;font-weight:900;font-size:clamp(22px,5vw,46px);letter-spacing:-.02em;line-height:1.1;opacity:0;transform:scale(.9);transition:opacity .6s,transform .7s cubic-bezier(.34,1.56,.64,1);pointer-events:none}',
+    '.gtm-end{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:0 16px;overflow-wrap:anywhere;text-align:center;font-weight:900;font-size:clamp(22px,5vw,46px);letter-spacing:-.02em;line-height:1.1;opacity:0;transform:scale(.9);transition:opacity .6s,transform .7s cubic-bezier(.34,1.56,.64,1);pointer-events:none}',
     '.gtm-flash{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(255,255,255,.95),rgba(255,255,255,0) 70%);opacity:0;pointer-events:none}',
-    '.gtm-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:13px 24px;border-radius:999px;font-weight:800;font-size:15px;text-decoration:none;box-shadow:0 10px 24px -10px rgba(0,0,0,.45);transition:transform .2s,filter .2s}',
+    '.gtm-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:13px 24px;max-width:calc(100% - 16px);overflow-wrap:anywhere;text-align:center;border-radius:999px;font-weight:800;font-size:15px;text-decoration:none;box-shadow:0 10px 24px -10px rgba(0,0,0,.45);transition:transform .2s,filter .2s}',
     '.gtm-btn:hover{transform:translateY(-1px);filter:brightness(1.06)}',
   ].join('');
   if (getComputedStyle(container).position === 'static') container.style.position = 'relative';

@@ -9,7 +9,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "typecheck": "astro check",
-    "check:release": "node scripts/check-release.mjs"
+    "check:release": "node scripts/check-release.mjs",
+    "order": "node scripts/order.mjs"
   },
   "dependencies": {
     "@astrojs/preact": "^4.0.0",

@@ -24,15 +24,15 @@ import { ProductPreview } from '../ProductPreview';
           <div class="flex flex-col gap-1.5 w-28">
             <span class="h-2 rounded-full bg-[#e5dfd2]"></span>
             <span class="h-2 w-2/3 rounded-full bg-[#e5dfd2]"></span>
-            <span class="mt-2 h-7 rounded-full bg-[#132A22] text-[#F0EBE9] text-[10px] font-extrabold flex items-center justify-center gap-1">Купить ключ <span class="text-[var(--vx-accent)]">→</span></span>
-            <span class="text-[9px] font-bold text-[#a8a29e] text-center">ключ придёт на почту</span>
+            <span class="mt-2 h-7 rounded-full bg-[#132A22] text-[#F0EBE9] text-[10px] font-extrabold flex items-center justify-center gap-1">В заказ <span class="text-[var(--vx-accent)]">→</span></span>
+            <span class="text-[9px] font-bold text-[#a8a29e] text-center">можно несколько эффектов</span>
           </div>
         </div>
         <div class="mt-5 flex items-center gap-3">
           <span class="w-9 h-9 rounded-2xl bg-[var(--vx-accent)] text-[var(--vx-on)] font-black text-sm flex items-center justify-center shadow-sm">1</span>
           <h3 class="text-lg font-black text-[#132A22]">Настройте и купите</h3>
         </div>
-        <p class="mt-2 text-[13px] text-[#6b645c] font-semibold leading-relaxed">В студии впишите свою ссылку или контакты и выберите вид — это бесплатно. Понравилось — купите ключ для своего сайта: разово, без регистрации.</p>
+        <p class="mt-2 text-[13px] text-[#6b645c] font-semibold leading-relaxed">В студии впишите свою ссылку или контакты и выберите вид — это бесплатно. Понравилось — добавьте в заказ. Можно сразу несколько эффектов: оплата разовая, без регистрации.</p>
       </li>
 
       {/* 02 — the code: copy or download */}
@@ -53,7 +53,7 @@ import { ProductPreview } from '../ProductPreview';
           <span class="w-9 h-9 rounded-2xl bg-[var(--vx-accent)] text-[var(--vx-on)] font-black text-sm flex items-center justify-center shadow-sm">2</span>
           <h3 class="text-lg font-black text-[#132A22]">Заберите готовый код</h3>
         </div>
-        <p class="mt-2 text-[13px] text-[#6b645c] font-semibold leading-relaxed">Сразу после оплаты код уже собран с вашими настройками. Скопируйте его или скачайте файлом — как удобнее. Ссылка на код есть и в письме.</p>
+        <p class="mt-2 text-[13px] text-[#6b645c] font-semibold leading-relaxed">Сразу после оплаты код каждого эффекта уже собран с вашими настройками. Скопируйте или скачайте файлом — как удобнее. Ссылка на заказ придёт и на почту.</p>
       </li>
 
       {/* 03 — paste and publish */}
@@ -90,29 +90,29 @@ import { ProductPreview } from '../ProductPreview';
       <div>
         <h3 class="text-lg font-black text-[#132A22] leading-tight">Захотели что-то поменять?</h3>
         <p class="mt-1.5 text-[13px] text-[#6b645c] font-semibold leading-relaxed">
-          Не правьте код вручную: ссылка, текст и QR в нём уже собраны из кубиков — правка сломает картинку или QR перестанет совпадать с текстом.
+          Текст можно поправить прямо в коде — заголовки, подписи и ссылки кнопок лежат там обычным текстом. А то, что собрано из кубиков (QR, промокод, логотип), меняется в студии.
         </p>
       </div>
     </div>
     <ol class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
       <li class="rounded-2xl bg-[#f6f3ee] p-3.5">
         <span class="text-[11px] font-black text-[var(--vx-deep)]">01</span>
-        <div class="mt-1 text-[13px] font-extrabold text-[#132A22] leading-snug">Откройте студию</div>
-        <div class="mt-0.5 text-[12px] font-semibold text-[#6b645c] leading-snug">«Получить код» → вставьте ключ из письма</div>
+        <div class="mt-1 text-[13px] font-extrabold text-[#132A22] leading-snug">Текст — прямо в коде</div>
+        <div class="mt-0.5 text-[12px] font-semibold text-[#6b645c] leading-snug">Найдите его (Ctrl+F) и замените — он в кавычках</div>
       </li>
       <li class="rounded-2xl bg-[#f6f3ee] p-3.5">
         <span class="text-[11px] font-black text-[var(--vx-deep)]">02</span>
-        <div class="mt-1 text-[13px] font-extrabold text-[#132A22] leading-snug">Поменяйте</div>
-        <div class="mt-0.5 text-[12px] font-semibold text-[#6b645c] leading-snug">Ссылку, текст, цвет — и возьмите новый код</div>
+        <div class="mt-1 text-[13px] font-extrabold text-[#132A22] leading-snug">QR и картинка — в студии</div>
+        <div class="mt-0.5 text-[12px] font-semibold text-[#6b645c] leading-snug">«Изменить в студии» по ссылке из письма → новый код</div>
       </li>
       <li class="rounded-2xl bg-[#f6f3ee] p-3.5">
         <span class="text-[11px] font-black text-[var(--vx-deep)]">03</span>
-        <div class="mt-1 text-[13px] font-extrabold text-[#132A22] leading-snug">Замените на сайте</div>
-        <div class="mt-0.5 text-[12px] font-semibold text-[#6b645c] leading-snug">Старый код удалите, новый вставьте на его место</div>
+        <div class="mt-1 text-[13px] font-extrabold text-[#132A22] leading-snug">Сохраните на сайте</div>
+        <div class="mt-0.5 text-[12px] font-semibold text-[#6b645c] leading-snug">Обновите HTML-блок и опубликуйте страницу</div>
       </li>
     </ol>
     <div class="md:col-span-2 -mt-1 rounded-xl bg-[var(--vx-soft)] px-4 py-2.5 text-[12.5px] font-bold text-[#132A22] leading-snug">
-      Ключ не сгорает: пересобирайте код для своего сайта сколько угодно раз — бесплатно.
+      Купленный код ваш навсегда: без подписки и привязки к сайту, а ссылка из письма не сгорает.
     </div>
   </div>
 </section>
