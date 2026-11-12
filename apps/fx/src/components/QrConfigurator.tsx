@@ -192,6 +192,8 @@ export function QrConfigurator() {
   const [copied, setCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [embedCode, setEmbedCode] = useState('');
+  const [selectedPlan, setSelectedPlan] = useState<'single' | 'bundle' | 'studio'>('single');
+  const [studioSites, setStudioSites] = useState<2 | 3 | 4 | 5>(2);
 
   // Every product is sold: the studio is free to try, the code for a site needs a key for that product.
   // No accounts: the key lives in the buyer's email and, for convenience, on this device.
@@ -335,8 +337,18 @@ export function QrConfigurator() {
       }
     };
     window.addEventListener('fx:select-product', handleSelectProduct);
+
+    const handleOpenBuyModal = (e: Event) => {
+      const custom = e as CustomEvent<{ plan?: 'single' | 'bundle' | 'studio'; sites?: 2 | 3 | 4 | 5 }>;
+      if (custom.detail?.plan) setSelectedPlan(custom.detail.plan);
+      if (custom.detail?.sites) setStudioSites(custom.detail.sites);
+      setShowModal(true);
+    };
+    window.addEventListener('fx:open-buy-modal', handleOpenBuyModal);
+
     return () => {
       window.removeEventListener('fx:select-product', handleSelectProduct);
+      window.removeEventListener('fx:open-buy-modal', handleOpenBuyModal);
     };
   }, []);
 
@@ -1112,7 +1124,7 @@ export function QrConfigurator() {
               <div className="rounded-2xl border border-[#e5dfd2] bg-[#fbf9f5] p-4 flex flex-col gap-2.5">
                 <div className="flex items-center justify-between gap-3">
                   <div className="text-[13px] font-black text-[#132A22]">
-                    {proActive ? `Ключ ${license!.id} · ${keyProductLabel}` : `${productById(activeProduct).title}: код после покупки`}
+                    {proActive ? `Ключ ${license!.id} · ${keyProductLabel}` : 'Получение кода для сайта'}
                   </div>
                   {license ? (
                     <button
@@ -1131,14 +1143,115 @@ export function QrConfigurator() {
 
                 {!license && (
                   <>
-                    <div className="rounded-xl bg-white border border-[#ebe5da] p-3.5 flex flex-col gap-2">
-                      {activeProduct === 'qr-card' && (
+                    <div className="rounded-2xl bg-white border border-[#ebe5da] p-4 flex flex-col gap-3 shadow-sm">
+                      {/* Plan Selection Tabs */}
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#a8a29e]">Тариф лицензии</span>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                          
+                          {/* Option 1: Single */}
+                          <button
+                            type="button"
+                            onClick={() => setSelectedPlan('single')}
+                            className={`p-3 rounded-2xl text-left border transition-all cursor-pointer flex flex-col justify-between ${
+                              selectedPlan === 'single'
+                                ? 'border-[#19C37D] bg-[#DFF8EB]/40 shadow-sm ring-1 ring-[#19C37D]'
+                                : 'border-[#ebe5da] bg-[#faf8f5] hover:bg-white text-[#57534e]'
+                            }`}
+                          >
+                            <div>
+                              <div className="text-[11.5px] font-black text-[#132A22]">Этот эффект</div>
+                              <div className="text-[10px] text-[#78716c] font-semibold mt-0.5">1 сайт · навсегда</div>
+                            </div>
+                            <div className="mt-2 text-[15px] font-black text-[#132A22]">990 ₽</div>
+                          </button>
+
+                          {/* Option 2: Bundle */}
+                          <button
+                            type="button"
+                            onClick={() => setSelectedPlan('bundle')}
+                            className={`p-3 rounded-2xl text-left border transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden ${
+                              selectedPlan === 'bundle'
+                                ? 'border-[#19C37D] bg-[#DFF8EB]/40 shadow-sm ring-1 ring-[#19C37D]'
+                                : 'border-[#ebe5da] bg-[#faf8f5] hover:bg-white text-[#57534e]'
+                            }`}
+                          >
+                            <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-[#19C37D] text-[#132A22] text-[9px] font-black uppercase">
+                              ХИТ
+                            </span>
+                            <div>
+                              <div className="text-[11.5px] font-black text-[#132A22]">Все 8 эффектов</div>
+                              <div className="text-[10px] text-[#78716c] font-semibold mt-0.5">1 сайт · навсегда</div>
+                            </div>
+                            <div className="mt-2 text-[15px] font-black text-[#132A22]">2 990 ₽</div>
+                          </button>
+
+                          {/* Option 3: Studio */}
+                          <button
+                            type="button"
+                            onClick={() => setSelectedPlan('studio')}
+                            className={`p-3 rounded-2xl text-left border transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden ${
+                              selectedPlan === 'studio'
+                                ? 'border-[#132A22] bg-[#132A22] text-white shadow-sm ring-1 ring-[#132A22]'
+                                : 'border-[#ebe5da] bg-[#faf8f5] hover:bg-white text-[#57534e]'
+                            }`}
+                          >
+                            <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-[var(--vx-accent)] text-[#132A22] text-[9px] font-black uppercase">
+                              СТУДИЯ
+                            </span>
+                            <div>
+                              <div className={`text-[11.5px] font-black ${selectedPlan === 'studio' ? 'text-white' : 'text-[#132A22]'}`}>Studio Master</div>
+                              <div className={`text-[10px] font-semibold mt-0.5 ${selectedPlan === 'studio' ? 'text-white/70' : 'text-[#78716c]'}`}>
+                                2–5 сайтов + будущее
+                              </div>
+                            </div>
+                            <div className={`mt-2 text-[15px] font-black ${selectedPlan === 'studio' ? 'text-[var(--vx-accent)]' : 'text-[#132A22]'}`}>
+                              от 4 990 ₽
+                            </div>
+                          </button>
+
+                        </div>
+                      </div>
+
+                      {/* Studio Sites Sub-switcher */}
+                      {selectedPlan === 'studio' && (
+                        <div className="rounded-xl bg-[#f5f2eb] p-2.5 flex flex-col gap-1.5 border border-[#ebe5da]">
+                          <div className="flex items-center justify-between text-[11px] font-bold text-[#57534e]">
+                            <span>Количество сайтов в ключе:</span>
+                            <span className="font-mono font-black text-[#132A22]">
+                              {studioSites === 2 && '4 990 ₽ (~2 495 ₽/сайт)'}
+                              {studioSites === 3 && '6 990 ₽ (~2 330 ₽/сайт)'}
+                              {studioSites === 4 && '8 490 ₽ (~2 120 ₽/сайт)'}
+                              {studioSites === 5 && '9 990 ₽ (~1 998 ₽/сайт)'}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-4 gap-1.5">
+                            {[2, 3, 4, 5].map((cnt) => (
+                              <button
+                                key={cnt}
+                                type="button"
+                                onClick={() => setStudioSites(cnt as 2 | 3 | 4 | 5)}
+                                className={`py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer text-center ${
+                                  studioSites === cnt
+                                    ? 'bg-[#132A22] text-[var(--vx-accent)] shadow-sm'
+                                    : 'bg-white hover:bg-[#eae4d8] text-[#57534e]'
+                                }`}
+                              >
+                                {cnt} {cnt === 5 ? 'сайтов' : 'сайта'}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Item-specific info (card person / logo) only for single effect */}
+                      {selectedPlan === 'single' && activeProduct === 'qr-card' && (
                         <div className="flex items-center justify-between gap-3 pb-2 mb-0.5 border-b border-[#f0ebe2]">
                           <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#a8a29e]">Визитка для</span>
                           <span className="text-[13px] font-extrabold text-[#132A22] truncate">{card.contact.name || '— впишите имя в студии —'}</span>
                         </div>
                       )}
-                      {(activeProduct === 'voxel-logo' || activeProduct === 'voxel-morph') && (
+                      {selectedPlan === 'single' && (activeProduct === 'voxel-logo' || activeProduct === 'voxel-morph') && (
                         <div className="flex items-center justify-between gap-3 pb-2 mb-0.5 border-b border-[#f0ebe2]">
                           <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#a8a29e] shrink-0">{activeProduct === 'voxel-logo' ? 'Ключ на логотип' : 'Ключ на пару фото'}</span>
                           <span className="flex items-center gap-1.5 min-w-0">
@@ -1149,7 +1262,10 @@ export function QrConfigurator() {
                           </span>
                         </div>
                       )}
-                      <label className="text-[10px] font-black uppercase tracking-[0.14em] text-[#a8a29e]" htmlFor="buy-site">Сайт, где будет стоять блок</label>
+
+                      <label className="text-[10px] font-black uppercase tracking-[0.14em] text-[#a8a29e]" htmlFor="buy-site">
+                        {selectedPlan === 'studio' ? 'Первый сайт (домены можно указывать по очереди)' : 'Сайт, где будет стоять блок'}
+                      </label>
                       <input
                         id="buy-site"
                         type="text"
@@ -1160,22 +1276,41 @@ export function QrConfigurator() {
                         autoComplete="off"
                         className="w-full px-3.5 py-2.5 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-sm font-mono font-bold text-[#132A22] outline-none focus:bg-white focus:border-[var(--vx-accent)]"
                       />
+
                       <p className="text-[11.5px] font-semibold text-[#6b645c] leading-relaxed">
-                        {activeProduct === 'qr-card'
-                          ? 'Ключ выпустим под этот сайт и этого человека, настройки сохранятся. Телефон, ссылки, цвет и стиль потом меняются бесплатно; визитка для другого человека — отдельный ключ.'
-                          : activeProduct === 'voxel-logo'
-                            ? 'Ключ выпустим под этот сайт и этот логотип, настройки сохранятся. Цвета, толщина, детализация и эффекты потом меняются бесплатно; другой логотип — отдельный ключ.'
-                            : activeProduct === 'voxel-morph'
-                              ? 'Ключ выпустим под этот сайт и эту пару фото, настройки сохранятся. Режим, сетка и подписи меняются бесплатно; другая пара — отдельный ключ (пакеты на 5 и 15 пар — дешевле).'
-                              : activeProduct === 'gift-box'
-                                ? 'Ключ выпустим под этот сайт, настройки сохранятся. Промокоды и акции потом меняйте сколько угодно — бесплатно.'
-                                : activeProduct === 'sale-timer'
-                                  ? 'Ключ выпустим под этот сайт, настройки сохранятся. Новые даты, тексты и режимы для следующих акций — бесплатно.'
-                                  : 'Ключ выпустим под этот сайт, а ваши настройки сохранятся — после оплаты сразу получите готовый код. Разово, навсегда, без регистрации.'}
+                        {selectedPlan === 'single' ? (
+                          activeProduct === 'qr-card'
+                            ? 'Ключ выпустим под этот сайт и этого человека, настройки сохранятся. Телефон, ссылки, цвет и стиль потом меняются бесплатно; визитка для другого человека — отдельный ключ.'
+                            : activeProduct === 'voxel-logo'
+                              ? 'Ключ выпустим под этот сайт и этот логотип, настройки сохранятся. Цвета, толщина, детализация и эффекты потом меняются бесплатно; другой логотип — отдельный ключ.'
+                              : activeProduct === 'voxel-morph'
+                                ? 'Ключ выпустим под этот сайт и эту пару фото, настройки сохранятся. Режим, сетка и подписи меняются бесплатно; другая пара — отдельный ключ.'
+                                : activeProduct === 'gift-box'
+                                  ? 'Ключ выпустим под этот сайт, настройки сохранятся. Промокоды и акции потом меняйте сколько угодно — бесплатно.'
+                                  : activeProduct === 'sale-timer'
+                                    ? 'Ключ выпустим под этот сайт, настройки сохранятся. Новые даты, тексты и режимы для следующих акций — бесплатно.'
+                                    : 'Ключ выпустим под этот сайт, а ваши настройки сохранятся — после оплаты сразу получите готовый код. Разово, навсегда, без регистрации.'
+                        ) : selectedPlan === 'bundle' ? (
+                          'Один ключ разблокирует все 8 эффектов линейки Gridika для этого сайта. Настраивайте любые эффекты по очереди в студии и забирайте готовый код для каждого из них без ограничений.'
+                        ) : (
+                          `Мастер-ключ для ${studioSites} сайтов: открывает все 8 текущих эффектов + ВСЕ БУДУЩИЕ новинки каталога навсегда. Домены проектов можно активировать по очереди.`
+                        )}
                       </p>
-                      <button type="button" disabled className="h-11 rounded-full bg-[#132A22] text-white/70 font-extrabold text-sm cursor-not-allowed">
-                        Купить ключ · оплата появится скоро
+
+                      <button
+                        type="button"
+                        disabled
+                        className="h-11 rounded-full bg-[#132A22] text-white/70 font-extrabold text-sm cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        <span>
+                          {selectedPlan === 'single' && 'Купить ключ · 990 ₽ (оплата скоро)'}
+                          {selectedPlan === 'bundle' && 'Купить «Все эффекты» · 2 990 ₽ (оплата скоро)'}
+                          {selectedPlan === 'studio' && `Купить Studio Master (${studioSites} ${studioSites === 5 ? 'сайтов' : 'сайта'}) · ${
+                            studioSites === 2 ? '4 990 ₽' : studioSites === 3 ? '6 990 ₽' : studioSites === 4 ? '8 490 ₽' : '9 990 ₽'
+                          } (оплата скоро)`}
+                        </span>
                       </button>
+
                       {previewHref && isValidDomain(buyDomain) && (
                         <a href={previewHref} target="_blank" rel="noopener" className="text-center text-[11.5px] font-bold text-[#6b645c] underline decoration-[#d6cfc2] underline-offset-4 hover:text-[#132A22]">
                           Как это будет после оплаты (пример) →

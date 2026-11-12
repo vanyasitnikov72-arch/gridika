@@ -103,7 +103,8 @@ const included = ['Код для блока T123', 'Навсегда для од
       <a
         href="#studio"
         data-nav-link="studio"
-        class="mt-8 h-12 rounded-full bg-[#132A22] hover:bg-[#1f4235] text-[#F0EBE9] font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md"
+        data-plan="bundle"
+        class="vx-buy-plan mt-8 h-12 rounded-full bg-[#132A22] hover:bg-[#1f4235] text-[#F0EBE9] font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
       >
         Выбрать для 1 сайта <span>→</span>
       </a>
@@ -188,8 +189,10 @@ const included = ['Код для блока T123', 'Навсегда для од
       <a
         href="#studio"
         data-nav-link="studio"
+        data-plan="studio"
+        data-sites="2"
         id="studio-cta"
-        class="mt-8 h-12 rounded-full bg-[var(--vx-accent)] hover:brightness-110 text-[#132A22] font-black text-sm flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01] active:scale-95"
+        class="vx-buy-plan mt-8 h-12 rounded-full bg-[var(--vx-accent)] hover:brightness-110 text-[#132A22] font-black text-sm flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01] active:scale-95 cursor-pointer"
       >
         <span id="studio-cta-text">Выбрать Studio Master (2 сайта)</span> <span>→</span>
       </a>
@@ -219,6 +222,7 @@ const included = ['Код для блока T123', 'Навсегда для од
     const perSiteEl = document.getElementById('studio-persite');
     const bulletSitesEl = document.getElementById('studio-bullet-sites');
     const ctaTextEl = document.getElementById('studio-cta-text');
+    const studioCta = document.getElementById('studio-cta');
 
     if (switcher && priceEl && perSiteEl && bulletSitesEl && ctaTextEl) {
       switcher.querySelectorAll<HTMLButtonElement>('.studio-tab-btn').forEach((btn) => {
@@ -238,8 +242,18 @@ const included = ['Код для блока T123', 'Навсегда для од
           perSiteEl.textContent = d.perSite;
           bulletSitesEl.textContent = d.sitesWord;
           ctaTextEl.textContent = d.btnText;
+          if (studioCta) studioCta.dataset.sites = String(sites);
         });
       });
     }
+
+    // Open modal directly when choosing bundle or Studio Master from pricing
+    document.querySelectorAll<HTMLAnchorElement>('.vx-buy-plan').forEach((a) => {
+      a.addEventListener('click', () => {
+        const plan = a.dataset.plan as 'bundle' | 'studio';
+        const sites = a.dataset.sites ? (Number(a.dataset.sites) as 2 | 3 | 4 | 5) : 2;
+        window.dispatchEvent(new CustomEvent('fx:open-buy-modal', { detail: { plan, sites } }));
+      });
+    });
   </script>
 </section>
