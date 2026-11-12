@@ -110,7 +110,7 @@ export function renderKeyEmail(e: KeyEmail): string {
     </td></tr>
 
     <tr><td style="padding:18px 8px 0 8px;font:600 12px/18px ${font};color:#a8a29e">
-      Вопросы — просто ответьте на это письмо. <a href="https://gridika.ru" style="color:${muted}">gridika.ru</a>
+      Есть вопросы? Напишите нам: <a href="mailto:support@gridika.ru" style="color:${ink};font-weight:700;text-decoration:underline">support@gridika.ru</a> &bull; <a href="https://gridika.ru" style="color:${muted};text-decoration:none">gridika.ru</a>
     </td></tr>
   </table>
 </td></tr></table>
