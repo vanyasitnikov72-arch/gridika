@@ -242,9 +242,9 @@ export function AdminDashboard() {
 
   // Helper product badge styling
   const getProductBadge = (pId: string) => {
-    const prod = productById(pId);
+    const prod = productById(pId as ProductId);
     return {
-      title: prod.title,
+      title: prod?.title || pId,
       color: pId === 'qr-morph' ? 'bg-[#DFF8EB] text-[#0f5c3c]' : pId === 'qr-card' ? 'bg-[#ede9fe] text-[#5b21b6]' : pId === 'gift-box' ? 'bg-[#fef3c7] text-[#92400e]' : 'bg-[#e0f2fe] text-[#0369a1]',
     };
   };

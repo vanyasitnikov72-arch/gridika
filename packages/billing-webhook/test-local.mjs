@@ -105,6 +105,28 @@ async function run() {
     process.exit(1);
   }
 
+  // Test 3.5: Server-side code generation
+  console.log('\n3.5. Testing POST /get-order-codes (server-side compilation)...');
+  const codesRes = await handler({
+    httpMethod: 'POST',
+    path: '/get-order-codes',
+    body: JSON.stringify({
+      orderId,
+      itemsB64: urlItemsB64,
+      sig,
+    }),
+  });
+  const codesData = JSON.parse(codesRes.body);
+  if (codesData.ok && Array.isArray(codesData.codes) && codesData.codes.length === 3) {
+    console.log(`✓ Server compiled ${codesData.codes.length} clean embed code(s)`);
+    console.log(`  Effect 1 code size: ${codesData.codes[0].length} chars`);
+    console.log(`  Effect 2 code size: ${codesData.codes[1].length} chars`);
+    console.log(`  Effect 3 code size: ${codesData.codes[2].length} chars`);
+  } else {
+    console.error('✕ Failed to retrieve server compiled codes:', codesData);
+    process.exit(1);
+  }
+
   // Test 4: Admin API
   console.log('\n4. Testing GET /admin/orders...');
   const adminRes = await handler({

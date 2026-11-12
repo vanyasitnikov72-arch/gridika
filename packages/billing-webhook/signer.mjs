@@ -47,3 +47,29 @@ export async function signOrderLink(privateKeyJwk, { orderId, items, baseUrl = '
     orderUrl,
   };
 }
+
+/**
+ * Verifies that an order link signature is valid.
+ */
+export async function verifyOrderLink(privateKeyJwk, orderId, itemsB64, sig) {
+  if (!privateKeyJwk || !orderId || !itemsB64 || !sig) return false;
+  try {
+    const pubJwk = {
+      kty: 'EC',
+      crv: 'P-256',
+      x: privateKeyJwk.x,
+      y: privateKeyJwk.y,
+    };
+    const publicKey = await crypto.subtle.importKey('jwk', pubJwk, ALGO, false, ['verify']);
+    const message = `gridika-order:${orderId}.${itemsB64}`;
+    return await crypto.subtle.verify(
+      SIGN,
+      publicKey,
+      Buffer.from(sig, 'base64url'),
+      new TextEncoder().encode(message)
+    );
+  } catch (err) {
+    console.error('Signature verification error:', err);
+    return false;
+  }
+}

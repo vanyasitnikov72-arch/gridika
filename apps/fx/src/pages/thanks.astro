@@ -195,7 +195,6 @@ import { ChangeNote } from '../components/ChangeNote';
   import { PRODUCTS } from '../data/products';
   import { createMorphLogo } from '../brand/morphLogo';
   import { readOrderHash, encodeConfig, type OrderItem } from '../engine/purchase';
-  import { buildPurchaseCode } from '../engine/purchaseCode';
   import { codeFileName, downloadCode } from '../engine/codeNotice';
   import { describeOrderItem } from '../engine/cartStore';
   import { DEMO_ORDER, DEMO_ORDER_ID } from '../engine/demoOrder';
@@ -227,15 +226,8 @@ import { ChangeNote } from '../components/ChangeNote';
   };
 
   /** one bought effect: its own code, copy / download, peek, and the way back into the studio */
-  /** domain: '*' for a paid order (clean everywhere), 'example.com' for the sample (keeps the mark) */
-  function itemCard(c: OrderItem, orderId: string, idx: number, domain: string): HTMLLIElement {
+  function createItemCard(c: OrderItem, orderId: string, idx: number): { el: HTMLLIElement; setCode: (code: string | null) => void } {
     const d = describeOrderItem(c);
-    let code: string | null = null;
-    try {
-      code = buildPurchaseCode({ ...c, site: c.site || '' }, { id: orderId, domain });
-    } catch {
-      code = null;
-    }
     const prod = PRODUCTS.find((p) => p.id === c.p);
     const studio = `/?fx=${encodeURIComponent(c.p)}#cfg=${encodeConfig({ ...c, site: '' })}`;
     const li = document.createElement('li');
@@ -248,43 +240,63 @@ import { ChangeNote } from '../components/ChangeNote';
           <div class="text-[14px] font-black text-[#132A22] truncate leading-tight">${esc(d.title)}</div>
           <div class="text-[12px] font-semibold text-[#78716c] truncate mt-0.5">${esc(d.subtitle)}</div>
         </div>
-        ${code ? `<span class="text-[11px] font-bold text-[#a8a29e] shrink-0">${Math.max(1, Math.round(code.length / 1024))} КБ</span>` : ''}
+        <span data-size class="text-[11px] font-bold text-[#a8a29e] shrink-0"></span>
       </div>
-      ${
-        code
-          ? `<div class="mt-3 grid grid-cols-[1fr_auto] gap-2">
-              <button type="button" data-act="copy" class="h-11 rounded-full bg-[#19C37D] hover:bg-[#17b373] text-[#132A22] font-extrabold text-[14px] transition-colors cursor-pointer">Скопировать код</button>
-              <button type="button" data-act="dl" class="h-11 px-4 rounded-full bg-white border border-[#e5dfd2] hover:bg-[#f6f3ee] text-[#132A22] font-extrabold text-[13px] transition-colors cursor-pointer">Скачать</button>
-            </div>
-            <div class="mt-2 flex items-center justify-between gap-2 px-1">
-              <button type="button" data-act="peek" aria-expanded="false" class="text-[12px] font-bold text-[#78716c] hover:text-[#132A22] cursor-pointer">Показать код</button>
-              <a href="${studio}" class="text-[12px] font-bold text-[#78716c] hover:text-[#132A22]">Изменить в студии →</a>
-            </div>
-            <pre data-code hidden class="mt-2 max-h-36 overflow-auto rounded-xl bg-[#132A22] text-[#8BF0C2] px-3.5 py-3 font-mono text-[10.5px] leading-[1.5] whitespace-pre-wrap break-all"></pre>`
-          : `<p class="mt-2.5 text-[12.5px] font-semibold text-[#9a3412]">Этот код не собрался из ссылки — напишите нам, пришлём его отдельно.</p>`
-      }`;
-    if (code) {
+      <div data-body class="mt-3">
+        <div class="flex items-center justify-center py-2.5 text-[12.5px] font-semibold text-[#78716c] gap-2">
+          <span class="w-3.5 h-3.5 border-2 border-[#19C37D] border-t-transparent rounded-full animate-spin"></span>
+          Загрузка кода с сервера...
+        </div>
+      </div>`;
+
+    function setCode(code: string | null) {
+      const sizeSpan = li.querySelector('[data-size]') as HTMLElement;
+      const body = li.querySelector('[data-body]') as HTMLElement;
+      if (!body) return;
+
+      if (!code) {
+        if (sizeSpan) sizeSpan.textContent = '';
+        body.innerHTML = `<p class="text-[12.5px] font-semibold text-[#9a3412]">Не удалось загрузить код этого эффекта с сервера. Напишите нам — пришлём его отдельно.</p>`;
+        return;
+      }
+
+      if (sizeSpan) {
+        sizeSpan.textContent = `${Math.max(1, Math.round(code.length / 1024))} КБ`;
+      }
+
+      body.innerHTML = `
+        <div class="grid grid-cols-[1fr_auto] gap-2">
+          <button type="button" data-act="copy" class="h-11 rounded-full bg-[#19C37D] hover:bg-[#17b373] text-[#132A22] font-extrabold text-[14px] transition-colors cursor-pointer">Скопировать код</button>
+          <button type="button" data-act="dl" class="h-11 px-4 rounded-full bg-white border border-[#e5dfd2] hover:bg-[#f6f3ee] text-[#132A22] font-extrabold text-[13px] transition-colors cursor-pointer">Скачать</button>
+        </div>
+        <div class="mt-2 flex items-center justify-between gap-2 px-1">
+          <button type="button" data-act="peek" aria-expanded="false" class="text-[12px] font-bold text-[#78716c] hover:text-[#132A22] cursor-pointer">Показать код</button>
+          <a href="${studio}" class="text-[12px] font-bold text-[#78716c] hover:text-[#132A22]">Изменить в студии →</a>
+        </div>
+        <pre data-code hidden class="mt-2 max-h-36 overflow-auto rounded-xl bg-[#132A22] text-[#8BF0C2] px-3.5 py-3 font-mono text-[10.5px] leading-[1.5] whitespace-pre-wrap break-all"></pre>`;
+
       const text = code;
-      const pre = li.querySelector('[data-code]') as HTMLPreElement;
+      const pre = body.querySelector('[data-code]') as HTMLPreElement;
       pre.textContent = text;
-      const copy = li.querySelector('[data-act="copy"]') as HTMLButtonElement;
+      const copy = body.querySelector('[data-act="copy"]') as HTMLButtonElement;
       copy.addEventListener('click', async () => {
         try { await navigator.clipboard.writeText(text); } catch {}
         flash(copy, 'Код скопирован ✓', 'Скопировать код');
       });
-      const dl = li.querySelector('[data-act="dl"]') as HTMLButtonElement;
+      const dl = body.querySelector('[data-act="dl"]') as HTMLButtonElement;
       dl.addEventListener('click', () => {
         downloadCode(text, codeFileName(prod?.id || c.p, orderId));
         flash(dl, 'Сохранён ✓', 'Скачать');
       });
-      const peek = li.querySelector('[data-act="peek"]') as HTMLButtonElement;
+      const peek = body.querySelector('[data-act="peek"]') as HTMLButtonElement;
       peek.addEventListener('click', () => {
         pre.hidden = !pre.hidden;
         peek.textContent = pre.hidden ? 'Показать код' : 'Скрыть код';
         peek.setAttribute('aria-expanded', String(!pre.hidden));
       });
     }
-    return li;
+
+    return { el: li, setCode };
   }
 
   let shown = 0;
@@ -310,13 +322,64 @@ import { ChangeNote } from '../components/ChangeNote';
     $('thx-count').hidden = n === 0;
     $('thx-lead').textContent = n > 1 ? `Код всех ${n} эффектов уже собран с вашими настройками.` : 'Код уже собран с вашими настройками.';
     $('thx-each').hidden = n < 2;
+
     const list = $('thx-items');
     list.innerHTML = '';
-    order.items.forEach((c, i) => list.appendChild(itemCard(c, order.id, i, sample ? 'example.com' : '*')));
+    const cards = order.items.map((c, i) => {
+      const card = createItemCard(c, order.id, i);
+      list.appendChild(card.el);
+      return card;
+    });
+
     $('thx-empty').hidden = n > 0;
     renderTabs();
     toggle('thx-wait', false);
     toggle('thx-ok', true);
+
+    if (sample) {
+      // Demo order: display sample preview embed codes without commercial license
+      cards.forEach((card, idx) => {
+        const item = order.items[idx];
+        const demoSnippet = `<!-- Gridika Demo Effect: ${item.p} (Показана демо-версия с водяным знаком) -->\n<div id="gridika-${item.p}-demo" style="width:100%;max-width:560px;height:480px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:#f6f3ee;border-radius:24px;border:1px dashed #d5cfc4;font-family:Nunito,system-ui,sans-serif;color:#132A22;font-weight:800;">\n  Gridika 3D Preview (${item.p})\n</div>\n<script type="module">\n  console.log("Gridika demo embed loaded: ${item.p}");\n<\/script>`;
+        card.setCode(demoSnippet);
+      });
+      return;
+    }
+
+    // Real paid order: fetch clean, compiled commercial code directly from the server!
+    try {
+      const apiEndpoint = (window as any).GRIDIKA_API_URL
+        ? `${(window as any).GRIDIKA_API_URL.replace(/\/create-payment\/?$/, '')}/get-order-codes`
+        : '/api/get-order-codes';
+
+      const res = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: order.id,
+          itemsB64: (order as any).itemsB64,
+          sig: (order as any).sig,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      if (run !== shown) return;
+
+      const codes: string[] = data.codes || [];
+      cards.forEach((card, idx) => {
+        card.setCode(codes[idx] || null);
+      });
+    } catch (err) {
+      console.error('Failed to fetch order codes from server:', err);
+      if (run !== shown) return;
+      cards.forEach((card) => {
+        card.setCode(null);
+      });
+    }
   }
 
   const GUIDES: Record<string, string[]> = {

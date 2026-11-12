@@ -74,6 +74,15 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
     seen[it.productId] = (seen[it.productId] || 0) + 1;
     return totals[it.productId] > 1 ? `${it.title} · ${seen[it.productId]}` : it.title;
   });
+  // a sample order: the real codes appear only after payment (a signed order link)
+  const previewHash = items.length > 0 ? '#order=demo' : '';
+  const removeWithFade = (id: string) => {
+    setLeaving(id);
+    window.setTimeout(() => {
+      onRemoveItem(id);
+      setLeaving(null);
+    }, 200);
+  };
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 

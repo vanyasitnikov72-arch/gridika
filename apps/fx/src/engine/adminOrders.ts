@@ -1,6 +1,4 @@
 import type { OrderItem } from './purchase';
-import { encodeOrder } from './purchase';
-import { orderTotal } from './pricing';
 
 export interface OrderEvent {
   id: string;
@@ -13,7 +11,7 @@ export interface AdminOrder {
   id: string;
   createdAt: string; // ISO
   email: string;
-  items: OrderItem[];
+  items: (OrderItem | any)[];
   codesCount: number;
   total: number;
   discount: number;

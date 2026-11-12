@@ -25,6 +25,7 @@
    - `package.json`
    - `index.mjs`
    - `signer.mjs`
+   - `codeCompiler.mjs` *(серверный компилятор чистого кода без водяных знаков)*
    - `emailTemplate.mjs`
    - `pricing.mjs`
    - `db.mjs`

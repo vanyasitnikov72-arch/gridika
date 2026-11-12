@@ -42,8 +42,86 @@ export interface GiftData {
   qrText: string;
 }
 
+const FONT_5X7: Record<string, number[]> = {
+  '0': [14, 17, 19, 21, 25, 17, 14],
+  '1': [4, 12, 4, 4, 4, 4, 14],
+  '2': [14, 17, 1, 2, 4, 8, 31],
+  '3': [31, 2, 4, 2, 1, 17, 14],
+  '4': [2, 6, 10, 18, 31, 2, 2],
+  '5': [31, 16, 30, 1, 1, 17, 14],
+  '6': [6, 8, 16, 30, 17, 17, 14],
+  '7': [31, 1, 2, 4, 8, 8, 8],
+  '8': [14, 17, 17, 14, 17, 17, 14],
+  '9': [14, 17, 17, 15, 1, 2, 12],
+  '-': [0, 0, 0, 31, 0, 0, 0],
+  '+': [0, 4, 4, 31, 4, 4, 0],
+  '%': [27, 27, 2, 4, 8, 27, 27],
+  ' ': [0, 0, 0, 0, 0, 0, 0],
+  'A': [14, 17, 17, 31, 17, 17, 17],
+  'B': [30, 17, 17, 30, 17, 17, 30],
+  'C': [14, 17, 16, 16, 16, 17, 14],
+  'D': [28, 18, 17, 17, 17, 18, 28],
+  'E': [31, 16, 16, 30, 16, 16, 31],
+  'F': [31, 16, 16, 30, 16, 16, 16],
+  'G': [14, 17, 16, 23, 17, 17, 14],
+  'H': [17, 17, 17, 31, 17, 17, 17],
+  'I': [14, 4, 4, 4, 4, 4, 14],
+  'J': [7, 2, 2, 2, 2, 18, 12],
+  'K': [17, 18, 20, 24, 20, 18, 17],
+  'L': [16, 16, 16, 16, 16, 16, 31],
+  'M': [17, 27, 21, 21, 17, 17, 17],
+  'N': [17, 17, 25, 21, 19, 17, 17],
+  'O': [14, 17, 17, 17, 17, 17, 14],
+  'P': [30, 17, 17, 30, 16, 16, 16],
+  'Q': [14, 17, 17, 17, 21, 18, 13],
+  'R': [30, 17, 17, 30, 20, 18, 17],
+  'S': [14, 17, 16, 14, 1, 17, 14],
+  'T': [31, 4, 4, 4, 4, 4, 4],
+  'U': [17, 17, 17, 17, 17, 17, 14],
+  'V': [17, 17, 17, 17, 17, 10, 4],
+  'W': [17, 17, 17, 21, 21, 27, 17],
+  'X': [17, 17, 10, 4, 10, 17, 17],
+  'Y': [17, 17, 10, 4, 4, 4, 4],
+  'Z': [31, 1, 2, 4, 8, 16, 31],
+  '!': [4, 4, 4, 4, 4, 0, 4],
+  '?': [14, 17, 1, 2, 4, 0, 4],
+  '.': [0, 0, 0, 0, 0, 0, 4],
+  ':': [0, 4, 0, 0, 0, 4, 0],
+  '_': [0, 0, 0, 0, 0, 0, 31],
+};
+
+const CYR_MAP: Record<string, string> = {
+  'А': 'A', 'В': 'B', 'Е': 'E', 'К': 'K', 'М': 'M', 'Н': 'H',
+  'О': 'O', 'Р': 'P', 'С': 'C', 'Т': 'T', 'Х': 'X'
+};
+
+function rasterizeTextHeadless(text: string): { w: number; h: number; cells: [number, number][] } {
+  const upper = text.toUpperCase();
+  const cells: [number, number][] = [];
+  let curX = 0;
+  for (let i = 0; i < upper.length; i++) {
+    const rawChar = upper[i];
+    const ch = CYR_MAP[rawChar] || rawChar;
+    const rows = FONT_5X7[ch] || FONT_5X7['?'] || [14, 17, 1, 2, 4, 0, 4];
+    for (let y = 0; y < 7; y++) {
+      const rowBits = rows[y] || 0;
+      for (let bit = 0; bit < 5; bit++) {
+        if ((rowBits >> (4 - bit)) & 1) {
+          cells.push([curX + bit, y]);
+        }
+      }
+    }
+    curX += 6;
+  }
+  const w = Math.max(1, curX - 1);
+  return { w, h: 7, cells };
+}
+
 /** Draw text with the site font and turn its pixels into cells (works for any language). */
 function rasterizeText(text: string): { w: number; h: number; cells: [number, number][] } {
+  if (typeof document === 'undefined') {
+    return rasterizeTextHeadless(text);
+  }
   const H = 13; // font size in cells: blocky but readable
   const c = document.createElement('canvas');
   const ctx = c.getContext('2d', { willReadFrequently: true })!;
@@ -72,16 +150,26 @@ function rasterizeText(text: string): { w: number; h: number; cells: [number, nu
 }
 
 export function buildGiftData(s: GiftSettings): GiftData {
-  if (s.kind === 'qr') {
-    const url = s.url.trim() || 'https://gridika.ru';
+  const safeSettings: GiftSettings = {
+    caption: s?.caption || '',
+    code: s?.code || 'GRID20',
+    percent: s?.percent || '10',
+    url: s?.url || 'https://gridika.ru',
+    trigger: s?.trigger || 'click',
+    shape: s?.shape || 'cube',
+    pattern: s?.pattern || 'dots',
+    kind: s?.kind || 'code',
+  };
+  if (safeSettings.kind === 'qr') {
+    const url = (safeSettings.url || '').trim() || 'https://gridika.ru';
     const qr = generateQrMatrix(url, 'M');
     const cells: [number, number][] = [];
     for (let r = 0; r < qr.size; r++) for (let c = 0; c < qr.size; c++) if (qr.modules[r][c]) cells.push([c, r]);
-    return { reward: { kind: 'qr', w: qr.size, h: qr.size, cells }, code: '', url, caption: s.caption, trigger: s.trigger, shape: s.shape, pattern: s.pattern, qrText: url };
+    return { reward: { kind: 'qr', w: qr.size, h: qr.size, cells }, code: '', url, caption: safeSettings.caption, trigger: safeSettings.trigger, shape: safeSettings.shape, pattern: safeSettings.pattern, qrText: url };
   }
-  const text = s.kind === 'percent' ? `-${(s.percent.replace(/[^\d]/g, '') || '10').slice(0, 3)}%` : (s.code.trim() || 'GRID20').slice(0, 14);
+  const text = safeSettings.kind === 'percent' ? `-${((safeSettings.percent || '').replace(/[^\d]/g, '') || '10').slice(0, 3)}%` : ((safeSettings.code || '').trim() || 'GRID20').slice(0, 14);
   const r = rasterizeText(text);
-  return { reward: { kind: s.kind, ...r }, code: s.kind === 'code' ? text : '', url: '', caption: s.caption, trigger: s.trigger, shape: s.shape, pattern: s.pattern, qrText: '' };
+  return { reward: { kind: safeSettings.kind, ...r }, code: safeSettings.kind === 'code' ? text : '', url: '', caption: safeSettings.caption, trigger: safeSettings.trigger, shape: safeSettings.shape, pattern: safeSettings.pattern, qrText: '' };
 }
 
 interface RuntimeApi {

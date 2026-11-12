@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { signOrderLink, newOrderId } from './signer.mjs';
+import { signOrderLink, newOrderId, verifyOrderLink } from './signer.mjs';
 import { renderOrderEmail } from './emailTemplate.mjs';
 import { orderPrice, BUNDLE_MAX } from './pricing.mjs';
 import {
@@ -187,6 +187,57 @@ export async function handler(event, context) {
       console.error('Payment creation error:', err);
       return jsonResponse(500, { error: 'Internal server error while creating payment' });
     }
+  }
+
+  // 3. GET ORDER CODES: Server-side code generation for /thanks page (isolated from client JS)
+  if (method === 'POST' && path.includes('get-order-codes')) {
+    const { orderId, itemsB64, sig } = body;
+    if (!orderId || !itemsB64 || !sig) {
+      return jsonResponse(400, { error: 'Missing orderId, itemsB64 or sig' });
+    }
+
+    const privateKeyRaw = process.env.PRIVATE_KEY_JWK;
+    if (!privateKeyRaw) {
+      return jsonResponse(500, { error: 'Server signing key is not configured' });
+    }
+
+    let privateKeyJwk;
+    try {
+      privateKeyJwk = JSON.parse(privateKeyRaw);
+    } catch {
+      return jsonResponse(500, { error: 'Invalid server signing key' });
+    }
+
+    // Verify cryptographic signature
+    const isValid = await verifyOrderLink(privateKeyJwk, orderId, itemsB64, sig);
+    if (!isValid) {
+      return jsonResponse(403, { error: 'Invalid or forged order signature' });
+    }
+
+    // Decode items
+    let items = [];
+    try {
+      items = JSON.parse(Buffer.from(itemsB64, 'base64url').toString('utf8'));
+    } catch {
+      return jsonResponse(400, { error: 'Corrupted items payload' });
+    }
+
+    // Compile commercial, clean, watermark-free HTML/JS code for each effect on the server
+    const { buildPurchaseCode } = await import('./codeCompiler.mjs');
+    const codes = items.map((item) => {
+      try {
+        return buildPurchaseCode(item, { id: orderId, domain: '*' }) || '';
+      } catch (err) {
+        console.error('Failed to compile code for item:', item, err);
+        return '';
+      }
+    });
+
+    return jsonResponse(200, {
+      ok: true,
+      orderId,
+      codes,
+    });
   }
 
   // 3. WEBHOOK: YooKassa payment.succeeded
