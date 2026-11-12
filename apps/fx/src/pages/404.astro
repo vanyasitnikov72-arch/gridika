@@ -35,8 +35,8 @@ const VOXEL_GREEN_PATH =
         <div class="relative my-1 flex justify-center items-center">
           <canvas
             id="illusion-404-canvas"
-            class="w-full max-w-[340px] h-[200px] sm:h-[210px] select-none cursor-grab active:cursor-grabbing touch-pan-y"
-            aria-label="404 из кубиков: потяните, чтобы повернуть"
+            class="w-full max-w-[340px] h-[200px] sm:h-[210px] select-none pointer-events-none"
+            aria-label="404 из кубиков"
           ></canvas>
         </div>
 
@@ -195,35 +195,14 @@ const VOXEL_GREEN_PATH =
       return 1 - ease((u - HOLD * 2 - TURN) / TURN);
     }
 
-    // drag to turn; on release it settles on the nearest "404"
-    let dragging = false, dragX = 0, dragFrom = 0, manual = -1, settleFrom = 0, settleTo = 0, settleT = -10, clock0 = performance.now();
-    let k = 0; // 0 = front "404", 1 = side "404"
+    const clock0 = performance.now();
     const now = () => (performance.now() - clock0) / 1000;
-    canvas.addEventListener('pointerdown', (e) => {
-      dragging = true; dragX = e.clientX; dragFrom = k; manual = k;
-      canvas.setPointerCapture(e.pointerId);
-    });
-    canvas.addEventListener('pointermove', (e) => {
-      if (!dragging) return;
-      manual = Math.min(1, Math.max(0, dragFrom - (e.clientX - dragX) / (canvas.clientWidth * 0.6)));
-    });
-    const release = () => {
-      if (!dragging) return;
-      dragging = false;
-      settleFrom = manual; settleTo = manual > 0.5 ? 1 : 0; settleT = now();
-      // the automatic turning continues from the "404" it settled on
-      clock0 = performance.now() - (settleTo ? HOLD + TURN + 0.6 : 0.6) * 1000 - 600;
-    };
-    canvas.addEventListener('pointerup', release);
-    canvas.addEventListener('pointercancel', release);
 
     let raf = 0;
     function loop() {
       raf = requestAnimationFrame(loop);
       const t = now();
-      if (dragging) k = manual;
-      else if (t - settleT < 0.6) k = settleFrom + (settleTo - settleFrom) * ease((t - settleT) / 0.6);
-      else k = reduced ? 0 : autoAngle(t);
+      const k = reduced ? 0 : autoAngle(t);
       // a quarter turn; the tilt peaks halfway and is exactly zero at both "404"s
       const mid = Math.sin(Math.PI * k);
       group.rotation.set(0.38 * mid, -(Math.PI / 2) * k, 0, 'XYZ');
@@ -232,7 +211,6 @@ const VOXEL_GREEN_PATH =
       renderer.render(scene, camera);
     }
     loop();
-    (window as any).__g404 = { set: (v: number) => { dragging = true; manual = v; }, free: () => { dragging = false; }, count: cells.length };
 
     return () => {
       cancelAnimationFrame(raf);
