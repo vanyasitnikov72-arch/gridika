@@ -3,7 +3,6 @@ import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import { QrConfigurator } from '../components/QrConfigurator';
-import { UpcomingCatalog } from '../components/UpcomingCatalog';
 import SiteExamples from '../components/sections/SiteExamples.astro';
 import InstallSteps from '../components/sections/InstallSteps.astro';
 import WhyGridika from '../components/sections/WhyGridika.astro';
@@ -40,10 +39,6 @@ import FinalCta from '../components/sections/FinalCta.astro';
     <InstallSteps />
     <WhyGridika />
     <Pricing />
-
-    <section id="lineup" class="py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
-      <UpcomingCatalog client:visible />
-    </section>
 
     <Faq />
     <FinalCta />
