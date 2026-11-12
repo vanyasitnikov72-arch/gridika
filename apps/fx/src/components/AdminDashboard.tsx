@@ -30,6 +30,7 @@ export function AdminDashboard() {
   const [actionSuccess, setActionSuccess] = useState('');
   const [editingNote, setEditingNote] = useState('');
   const [revenuePeriod, setRevenuePeriod] = useState<'today' | '7d' | '30d' | 'total'>('7d');
+  const [activeTab, setActiveTab] = useState<'orders' | 'customers'>('orders');
 
   // Load state on mount
   useEffect(() => {
@@ -38,6 +39,41 @@ export function AdminDashboard() {
   }, []);
 
   const summary = useMemo(() => computeOrdersSummary(orders), [orders]);
+
+  // Section 3.5: Customers / Buyers aggregation (LTV, order counts, agency detection)
+  const customers = useMemo(() => {
+    const map = new Map<string, { email: string; ordersCount: number; codesCount: number; totalSpend: number; lastOrderDate: string; effects: Set<string>; isStudio: boolean }>();
+
+    orders.forEach((o) => {
+      if (o.status !== 'paid') return;
+      const prev = map.get(o.email) || {
+        email: o.email,
+        ordersCount: 0,
+        codesCount: 0,
+        totalSpend: 0,
+        lastOrderDate: o.createdAt,
+        effects: new Set<string>(),
+        isStudio: false,
+      };
+      prev.ordersCount += 1;
+      prev.codesCount += o.codesCount;
+      prev.totalSpend += o.total;
+      if (o.codesCount >= 7) prev.isStudio = true;
+      if (new Date(o.createdAt).getTime() > new Date(prev.lastOrderDate).getTime()) {
+        prev.lastOrderDate = o.createdAt;
+      }
+      o.items.forEach((it) => prev.effects.add(it.p));
+      map.set(o.email, prev);
+    });
+
+    const list = Array.from(map.values()).map((c) => ({
+      ...c,
+      effectsList: Array.from(c.effects),
+    }));
+
+    list.sort((a, b) => b.totalSpend - a.totalSpend);
+    return list;
+  }, [orders]);
 
   // Handle Login
   const handleLogin = (e: Event) => {
@@ -436,8 +472,117 @@ export function AdminDashboard() {
         </div>
       </section>
 
-      {/* SEARCH AND FILTERS TOOLBAR (Section 3.3) */}
-      <section className="mt-8 flex flex-col gap-3">
+      {/* TABS: Orders vs Customers (Section 3.5) */}
+      <div className="mt-8 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setActiveTab('orders')}
+          className={`h-10 px-5 rounded-full text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+            activeTab === 'orders'
+              ? 'bg-[#132A22] text-white shadow-md'
+              : 'bg-white hover:bg-[#f6f3ee] text-[#78716c] border border-[#e5dfd2]'
+          }`}
+        >
+          <span>📦 Заказы</span>
+          <span className={`px-2 py-0.5 rounded-full text-[10.5px] font-bold ${activeTab === 'orders' ? 'bg-[#19C37D] text-[#132A22]' : 'bg-[#f6f3ee] text-[#78716c]'}`}>
+            {orders.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('customers')}
+          className={`h-10 px-5 rounded-full text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+            activeTab === 'customers'
+              ? 'bg-[#132A22] text-white shadow-md'
+              : 'bg-white hover:bg-[#f6f3ee] text-[#78716c] border border-[#e5dfd2]'
+          }`}
+        >
+          <span>👥 Покупатели</span>
+          <span className={`px-2 py-0.5 rounded-full text-[10.5px] font-bold ${activeTab === 'customers' ? 'bg-[#19C37D] text-[#132A22]' : 'bg-[#f6f3ee] text-[#78716c]'}`}>
+            {customers.length}
+          </span>
+        </button>
+      </div>
+
+      {activeTab === 'customers' ? (
+        /* CUSTOMERS TABLE (Section 3.5) */
+        <section className="mt-4 bg-white border border-[#ebe5da] rounded-3xl overflow-hidden shadow-[0_12px_30px_-15px_rgba(19,42,34,0.1)]">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-[#fbf9f5] border-b border-[#ede7db] text-[10.5px] font-black uppercase tracking-wider text-[#a8a29e]">
+                  <th className="py-3.5 pl-6 pr-3">Покупатель (Email)</th>
+                  <th className="py-3.5 px-3">Статус / Сегмент</th>
+                  <th className="py-3.5 px-3 text-center">Заказов</th>
+                  <th className="py-3.5 px-3 text-center">Всего кодов</th>
+                  <th className="py-3.5 px-3 text-right">Общая сумма (LTV)</th>
+                  <th className="py-3.5 px-3">Купленные эффекты</th>
+                  <th className="py-3.5 pl-3 pr-6 text-right">Последний заказ</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#f3efe7] text-xs font-semibold text-[#44403c]">
+                {customers.map((c) => {
+                  const lastDate = new Date(c.lastOrderDate).toLocaleString('ru-RU', {
+                    day: 'numeric',
+                    month: 'short',
+                  });
+
+                  return (
+                    <tr
+                      key={c.email}
+                      onClick={() => {
+                        setSearch(c.email);
+                        setActiveTab('orders');
+                      }}
+                      className="hover:bg-[#faf7f2] transition-colors cursor-pointer group"
+                      title="Нажмите, чтобы показать все заказы этого покупателя"
+                    >
+                      <td className="py-4 pl-6 pr-3 font-bold text-[#132A22]">
+                        <span className="group-hover:text-[#19C37D] transition-colors">{c.email}</span>
+                      </td>
+                      <td className="py-4 px-3 whitespace-nowrap">
+                        {c.isStudio ? (
+                          <span className="px-2.5 py-1 rounded-full bg-[#ede9fe] text-[#5b21b6] text-[10.5px] font-black">
+                            Студия (пакет)
+                          </span>
+                        ) : c.ordersCount > 1 ? (
+                          <span className="px-2.5 py-1 rounded-full bg-[#DFF8EB] text-[#0f5c3c] text-[10.5px] font-black">
+                            Постоянный клиент
+                          </span>
+                        ) : (
+                          <span className="px-2.5 py-1 rounded-full bg-[#f6f3ee] text-[#57534e] text-[10.5px] font-bold">
+                            Клиент
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-4 px-3 text-center font-bold text-[#132A22]">{c.ordersCount}</td>
+                      <td className="py-4 px-3 text-center font-black text-[#132A22]">{c.codesCount}</td>
+                      <td className="py-4 px-3 text-right font-black text-[#19C37D]">{rub(c.totalSpend)}</td>
+                      <td className="py-4 px-3">
+                        <div className="flex flex-wrap gap-1 max-w-xs">
+                          {c.effectsList.map((pId) => {
+                            const b = getProductBadge(pId);
+                            return (
+                              <span key={pId} className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${b.color}`}>
+                                {b.title}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </td>
+                      <td className="py-4 pl-3 pr-6 text-right text-[#78716c] whitespace-nowrap">{lastDate}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : (
+        <>
+          {/* SEARCH AND FILTERS TOOLBAR (Section 3.3) */}
+          <section className="mt-4 flex flex-col gap-3">
         <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
           {/* Search box */}
           <div className="relative flex-1">
@@ -651,6 +796,8 @@ export function AdminDashboard() {
           </table>
         </div>
       </section>
+      </>
+      )}
 
       {/* ORDER DETAILS DRAWER / MODAL (Section 3.4) */}
       {selectedOrder && (
