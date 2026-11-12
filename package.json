@@ -8,7 +8,8 @@
     "dev:fx": "pnpm --filter @temka/fx dev",
     "build": "pnpm --filter @temka/fx build",
     "build:fx": "pnpm --filter @temka/fx build",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "check:release": "pnpm --filter @temka/fx check:release"
   },
   "devDependencies": {
     "typescript": "^5.8.0"

@@ -33,3 +33,10 @@ pnpm-debug.log*
 Thumbs.db
 [Dd]esktop.ini
 .DS_Store
+
+# Gridika license signing key (secret) — never commit
+.license/
+
+# Local scratch and tool settings
+scratch_*.txt
+.claude/

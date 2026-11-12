@@ -1,0 +1,249 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Exact voxel grid paths for Gridika logo (11 rows × 51 cols)
+const VOXEL_DARK_PATH =
+  'M4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM7 0h1v1h-1zM8 0h1v1h-1zM19 0h1v1h-1zM20 0h1v1h-1zM21 0h1v1h-1zM28 0h1v1h-1zM29 0h1v1h-1zM2 1h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM6 1h1v1h-1zM7 1h1v1h-1zM8 1h1v1h-1zM9 1h1v1h-1zM19 1h1v1h-1zM20 1h1v1h-1zM21 1h1v1h-1zM28 1h1v1h-1zM29 1h1v1h-1zM30 1h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM8 2h1v1h-1zM9 2h1v1h-1zM28 2h1v1h-1zM29 2h1v1h-1zM30 2h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM12 3h1v1h-1zM13 3h1v1h-1zM16 3h1v1h-1zM20 3h1v1h-1zM25 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM29 3h1v1h-1zM30 3h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM12 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM19 4h1v1h-1zM20 4h1v1h-1zM21 4h1v1h-1zM23 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM26 4h1v1h-1zM27 4h1v1h-1zM28 4h1v1h-1zM29 4h1v1h-1zM30 4h1v1h-1zM1 5h1v1h-1zM2 5h1v1h-1zM3 5h1v1h-1zM6 5h1v1h-1zM7 5h1v1h-1zM8 5h1v1h-1zM9 5h1v1h-1zM10 5h1v1h-1zM12 5h1v1h-1zM13 5h1v1h-1zM14 5h1v1h-1zM15 5h1v1h-1zM16 5h1v1h-1zM19 5h1v1h-1zM20 5h1v1h-1zM21 5h1v1h-1zM23 5h1v1h-1zM24 5h1v1h-1zM25 5h1v1h-1zM28 5h1v1h-1zM29 5h1v1h-1zM30 5h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM7 6h1v1h-1zM8 6h1v1h-1zM9 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM13 6h1v1h-1zM14 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM28 6h1v1h-1zM29 6h1v1h-1zM30 6h1v1h-1zM1 7h1v1h-1zM2 7h1v1h-1zM3 7h1v1h-1zM8 7h1v1h-1zM9 7h1v1h-1zM10 7h1v1h-1zM12 7h1v1h-1zM13 7h1v1h-1zM14 7h1v1h-1zM19 7h1v1h-1zM20 7h1v1h-1zM21 7h1v1h-1zM23 7h1v1h-1zM24 7h1v1h-1zM28 7h1v1h-1zM29 7h1v1h-1zM30 7h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM8 8h1v1h-1zM9 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM13 8h1v1h-1zM14 8h1v1h-1zM19 8h1v1h-1zM20 8h1v1h-1zM21 8h1v1h-1zM23 8h1v1h-1zM24 8h1v1h-1zM25 8h1v1h-1zM28 8h1v1h-1zM29 8h1v1h-1zM30 8h1v1h-1zM3 9h1v1h-1zM4 9h1v1h-1zM5 9h1v1h-1zM6 9h1v1h-1zM7 9h1v1h-1zM8 9h1v1h-1zM9 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM13 9h1v1h-1zM14 9h1v1h-1zM19 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM23 9h1v1h-1zM24 9h1v1h-1zM25 9h1v1h-1zM26 9h1v1h-1zM27 9h1v1h-1zM28 9h1v1h-1zM29 9h1v1h-1zM30 9h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM19 10h1v1h-1zM20 10h1v1h-1zM24 10h1v1h-1zM25 10h1v1h-1zM26 10h1v1h-1zM28 10h1v1h-1zM29 10h1v1h-1z';
+
+const VOXEL_GREEN_PATH =
+  'M32 0h1v1h-1zM33 0h1v1h-1zM34 0h1v1h-1zM36 0h1v1h-1zM37 0h1v1h-1zM32 1h1v1h-1zM33 1h1v1h-1zM34 1h1v1h-1zM36 1h1v1h-1zM37 1h1v1h-1zM38 1h1v1h-1zM36 2h1v1h-1zM37 2h1v1h-1zM38 2h1v1h-1zM33 3h1v1h-1zM36 3h1v1h-1zM37 3h1v1h-1zM38 3h1v1h-1zM41 3h1v1h-1zM42 3h1v1h-1zM45 3h1v1h-1zM46 3h1v1h-1zM47 3h1v1h-1zM48 3h1v1h-1zM32 4h1v1h-1zM33 4h1v1h-1zM34 4h1v1h-1zM36 4h1v1h-1zM37 4h1v1h-1zM38 4h1v1h-1zM40 4h1v1h-1zM41 4h1v1h-1zM42 4h1v1h-1zM44 4h1v1h-1zM45 4h1v1h-1zM46 4h1v1h-1zM47 4h1v1h-1zM48 4h1v1h-1zM49 4h1v1h-1zM50 4h1v1h-1zM32 5h1v1h-1zM33 5h1v1h-1zM34 5h1v1h-1zM36 5h1v1h-1zM37 5h1v1h-1zM38 5h1v1h-1zM39 5h1v1h-1zM40 5h1v1h-1zM41 5h1v1h-1zM42 5h1v1h-1zM48 5h1v1h-1zM49 5h1v1h-1zM50 5h1v1h-1zM32 6h1v1h-1zM33 6h1v1h-1zM34 6h1v1h-1zM36 6h1v1h-1zM37 6h1v1h-1zM38 6h1v1h-1zM39 6h1v1h-1zM40 6h1v1h-1zM41 6h1v1h-1zM46 6h1v1h-1zM47 6h1v1h-1zM48 6h1v1h-1zM49 6h1v1h-1zM50 6h1v1h-1zM32 7h1v1h-1zM33 7h1v1h-1zM34 7h1v1h-1zM36 7h1v1h-1zM37 7h1v1h-1zM38 7h1v1h-1zM39 7h1v1h-1zM40 7h1v1h-1zM41 7h1v1h-1zM44 7h1v1h-1zM45 7h1v1h-1zM46 7h1v1h-1zM47 7h1v1h-1zM48 7h1v1h-1zM49 7h1v1h-1zM50 7h1v1h-1zM32 8h1v1h-1zM33 8h1v1h-1zM34 8h1v1h-1zM36 8h1v1h-1zM37 8h1v1h-1zM38 8h1v1h-1zM39 8h1v1h-1zM40 8h1v1h-1zM41 8h1v1h-1zM42 8h1v1h-1zM44 8h1v1h-1zM45 8h1v1h-1zM48 8h1v1h-1zM49 8h1v1h-1zM50 8h1v1h-1zM32 9h1v1h-1zM33 9h1v1h-1zM34 9h1v1h-1zM36 9h1v1h-1zM37 9h1v1h-1zM38 9h1v1h-1zM40 9h1v1h-1zM41 9h1v1h-1zM42 9h1v1h-1zM44 9h1v1h-1zM45 9h1v1h-1zM46 9h1v1h-1zM47 9h1v1h-1zM48 9h1v1h-1zM49 9h1v1h-1zM50 9h1v1h-1zM32 10h1v1h-1zM33 10h1v1h-1zM36 10h1v1h-1zM37 10h1v1h-1zM41 10h1v1h-1zM42 10h1v1h-1zM45 10h1v1h-1zM46 10h1v1h-1zM47 10h1v1h-1zM49 10h1v1h-1zM50 10h1v1h-1z';
+---
+
+<Layout
+  title="404 — Страница не найдена · Gridika"
+  description="Запрашиваемая страница не найдена."
+>
+  <main class="min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:py-8 select-none">
+    <div class="w-full max-w-[420px] mx-auto flex flex-col items-center">
+      
+      {/* Voxel Gridika Logo Header */}
+      <a href="/" class="mb-4 inline-block hover:opacity-80 transition-opacity" aria-label="Gridika — на главную">
+        <svg viewBox="0 0 51 11" class="h-6 sm:h-7 w-auto" style="shape-rendering: crispEdges;">
+          <path d={VOXEL_DARK_PATH} fill="#132A22" />
+          <path d={VOXEL_GREEN_PATH} fill="#19C37D" />
+        </svg>
+      </a>
+
+      {/* Compact 3D Master Card */}
+      <div class="w-full soft-3d-card rounded-[2rem] px-5 py-6 sm:px-7 sm:py-7 text-center relative overflow-hidden shadow-[0_20px_48px_-15px_rgba(19,42,34,0.13)]">
+        
+        {/* Soft background ambient glow */}
+        <div class="absolute -top-12 -left-12 w-36 h-36 rounded-full bg-[#DFF8EB]/70 blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-12 -right-12 w-36 h-36 rounded-full bg-orange-100/50 blur-2xl pointer-events-none"></div>
+
+        {/* Real 3D Optical Illusion Canvas without podium */}
+        <div class="relative my-1 flex justify-center items-center">
+          <canvas
+            id="illusion-404-canvas"
+            class="w-full max-w-[340px] h-[200px] sm:h-[210px] select-none cursor-grab active:cursor-grabbing touch-pan-y"
+            aria-label="404 из кубиков: потяните, чтобы повернуть"
+          ></canvas>
+        </div>
+
+        {/* Headline & Description */}
+        <div class="relative mt-2">
+          <h1 class="sr-only">Страница не найдена</h1>
+          <p class="text-[13.5px] text-[#5c544c] font-semibold leading-relaxed max-w-xs mx-auto">
+            Страница, которую вы ищете, переместилась или ещё не была построена.
+          </p>
+        </div>
+
+        {/* Single Action Button: Назад */}
+        <div class="relative mt-5 flex justify-center">
+          <button
+            type="button"
+            onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href = '/'; }"
+            class="h-11 px-7 rounded-full bg-gradient-to-b from-[#1d3a2f] to-[#132A22] hover:from-[#254a3c] hover:to-[#173329] text-white font-extrabold text-[13.5px] shadow-[0_10px_22px_-6px_rgba(19,42,34,0.55)] hover:scale-[1.03] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer select-none"
+          >
+            <span class="w-5 h-5 rounded-full bg-[var(--vx-accent)] text-[#132A22] flex items-center justify-center font-black text-xs">←</span>
+            <span>Назад</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import * as THREE from 'three';
+
+  /*
+   * "404" that turns into "404": a two-shadow voxel sculpture (like the "reality / dream" desk object).
+   * front shadow A(x, y) = "404", side shadow B(z, y) = "404";
+   * a cube stands wherever both shadows are filled. Straight on (orthographic camera) the object shows
+   * exactly A; turned 90° it shows exactly B. In between it is a loose lattice of cubes.
+   */
+  const FONT: Record<string, string[]> = {
+    '4': ['00010', '00110', '01010', '10010', '11111', '00010', '00010'],
+    '0': ['01110', '10001', '10011', '10101', '11001', '10001', '01110'],
+  };
+  const TEXT = '404';
+  const ROWS = 7;
+  const COLS = TEXT.length * 5 + (TEXT.length - 1); // 17
+
+  /** pixel of "404" and which digit it belongs to (-1 = empty) */
+  function digitAt(col: number, row: number): number {
+    const d = Math.floor(col / 6), c = col % 6;
+    if (d >= TEXT.length || c === 5) return -1;
+    return FONT[TEXT[d]][row][c] === '1' ? d : -1;
+  }
+
+  function init404Illusion() {
+    const canvas = document.getElementById('illusion-404-canvas') as HTMLCanvasElement | null;
+    if (!canvas) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    const scene = new THREE.Scene();
+    scene.add(new THREE.HemisphereLight(0xffffff, 0xcfd8d2, 1.7));
+    const key = new THREE.DirectionalLight(0xffffff, 1.5);
+    key.position.set(6, 12, 9);
+    scene.add(key);
+    const back = new THREE.DirectionalLight(0xdff8eb, 0.6);
+    back.position.set(-8, -4, -8);
+    scene.add(back);
+
+    // the sculpture: x, y from the front "404", z (reversed, so it reads from the right side) from the side "404"
+    const cells: { x: number; y: number; z: number; a: number; b: number }[] = [];
+    for (let row = 0; row < ROWS; row++) {
+      for (let cx = 0; cx < COLS; cx++) {
+        const a = digitAt(cx, row);
+        if (a < 0) continue;
+        for (let cz = 0; cz < COLS; cz++) {
+          const b = digitAt(cz, row);
+          if (b < 0) continue;
+          cells.push({ x: cx - (COLS - 1) / 2, y: (ROWS - 1) / 2 - row, z: (COLS - 1) / 2 - cz, a, b });
+        }
+      }
+    }
+
+    // each digit has its colour: dark 4, green 0, dark 4. Faces looking along z show the front "404",
+    // faces looking along x show the side "404", so both read cleanly.
+    const PALETTE = [new THREE.Color('#1b3a2e'), new THREE.Color('#19C37D'), new THREE.Color('#1b3a2e')];
+    const geo = new THREE.BoxGeometry(0.94, 0.94, 0.94);
+    const mat = new THREE.MeshStandardMaterial({ roughness: 0.38, metalness: 0.08 });
+    const colB = new Float32Array(cells.length * 3);
+    mat.onBeforeCompile = (sh) => {
+      sh.vertexShader = sh.vertexShader
+        .replace('#include <common>', '#include <common>\nattribute vec3 aColB;\nvarying vec3 vColB;\nvarying vec3 vLocalN;')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvColB = aColB;\nvLocalN = normal;');
+      sh.fragmentShader = sh.fragmentShader
+        .replace('#include <common>', '#include <common>\nvarying vec3 vColB;\nvarying vec3 vLocalN;')
+        .replace('#include <color_fragment>', [
+          '#include <color_fragment>',
+          // side faces (x) take the side digit's colour; tops blend the two
+          'float sideK = abs(vLocalN.x) > 0.5 ? 1.0 : (abs(vLocalN.y) > 0.5 ? 0.5 : 0.0);',
+          '#if defined( USE_COLOR ) || defined( USE_INSTANCING_COLOR )',
+          'diffuseColor.rgb = mix(vColor.rgb, vColB, sideK);',
+          '#endif',
+        ].join('\n'));
+    };
+    mat.customProgramCacheKey = () => 'gridika-404-two-faces';
+    const mesh = new THREE.InstancedMesh(geo, mat, cells.length);
+    const m4 = new THREE.Matrix4();
+    const tint = new THREE.Color();
+    cells.forEach((c, i) => {
+      m4.makeTranslation(c.x, c.y, c.z);
+      mesh.setMatrixAt(i, m4);
+      // a light top row on each digit, as before
+      tint.copy(PALETTE[c.a]);
+      if (c.y === (ROWS - 1) / 2) tint.lerp(new THREE.Color('#ffffff'), 0.25);
+      mesh.setColorAt(i, tint);
+      const cb = PALETTE[c.b].clone();
+      if (c.y === (ROWS - 1) / 2) cb.lerp(new THREE.Color('#ffffff'), 0.25);
+      colB.set([cb.r, cb.g, cb.b], i * 3);
+    });
+    geo.setAttribute('aColB', new THREE.InstancedBufferAttribute(colB, 3));
+    const group = new THREE.Group();
+    group.add(mesh);
+    scene.add(group);
+
+    // orthographic: straight on, depth collapses and only the shadow (= "404") remains
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 200);
+    camera.position.set(0, 0, 60);
+    camera.lookAt(0, 0, 0);
+    let aspect = 1.6;
+    function resize() {
+      const w = canvas!.clientWidth, h = canvas!.clientHeight;
+      if (!w || !h) return;
+      aspect = w / h;
+      renderer.setSize(w, h, false);
+    }
+    function frameCamera(zoomOut: number) {
+      // room for the 17-wide "404"; a little more while the lattice turns (its diagonal is wider)
+      const halfW = (COLS / 2 + 0.9) * (1 + zoomOut * 0.42);
+      const halfH = Math.max(halfW / aspect, (ROWS / 2 + 1) * (1 + zoomOut * 0.42));
+      camera.left = -halfH * aspect;
+      camera.right = halfH * aspect;
+      camera.top = halfH;
+      camera.bottom = -halfH;
+      camera.updateProjectionMatrix();
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // turning: hold "404", turn a quarter (tilting up a little so the volume shows), hold "404", turn back
+    const HOLD = 1.7, TURN = 2.1, CYCLE = (HOLD + TURN) * 2;
+    const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    function autoAngle(t: number) {
+      const u = ((t % CYCLE) + CYCLE) % CYCLE;
+      if (u < HOLD) return 0;
+      if (u < HOLD + TURN) return ease((u - HOLD) / TURN);
+      if (u < HOLD * 2 + TURN) return 1;
+      return 1 - ease((u - HOLD * 2 - TURN) / TURN);
+    }
+
+    // drag to turn; on release it settles on the nearest "404"
+    let dragging = false, dragX = 0, dragFrom = 0, manual = -1, settleFrom = 0, settleTo = 0, settleT = -10, clock0 = performance.now();
+    let k = 0; // 0 = front "404", 1 = side "404"
+    const now = () => (performance.now() - clock0) / 1000;
+    canvas.addEventListener('pointerdown', (e) => {
+      dragging = true; dragX = e.clientX; dragFrom = k; manual = k;
+      canvas.setPointerCapture(e.pointerId);
+    });
+    canvas.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      manual = Math.min(1, Math.max(0, dragFrom - (e.clientX - dragX) / (canvas.clientWidth * 0.6)));
+    });
+    const release = () => {
+      if (!dragging) return;
+      dragging = false;
+      settleFrom = manual; settleTo = manual > 0.5 ? 1 : 0; settleT = now();
+      // the automatic turning continues from the "404" it settled on
+      clock0 = performance.now() - (settleTo ? HOLD + TURN + 0.6 : 0.6) * 1000 - 600;
+    };
+    canvas.addEventListener('pointerup', release);
+    canvas.addEventListener('pointercancel', release);
+
+    let raf = 0;
+    function loop() {
+      raf = requestAnimationFrame(loop);
+      const t = now();
+      if (dragging) k = manual;
+      else if (t - settleT < 0.6) k = settleFrom + (settleTo - settleFrom) * ease((t - settleT) / 0.6);
+      else k = reduced ? 0 : autoAngle(t);
+      // a quarter turn; the tilt peaks halfway and is exactly zero at both "404"s
+      const mid = Math.sin(Math.PI * k);
+      group.rotation.set(0.38 * mid, -(Math.PI / 2) * k, 0, 'XYZ');
+      frameCamera(mid);
+      group.position.y = reduced ? 0 : Math.sin(t * 1.6) * 0.08 * (1 - mid);
+      renderer.render(scene, camera);
+    }
+    loop();
+    (window as any).__g404 = { set: (v: number) => { dragging = true; manual = v; }, free: () => { dragging = false; }, count: cells.length };
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+      renderer.dispose();
+      geo.dispose();
+      mat.dispose();
+    };
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init404Illusion);
+  else init404Illusion();
+</script>

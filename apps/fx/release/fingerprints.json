@@ -1,0 +1,20 @@
+{
+  "note": "Golden fingerprints: the same content must keep the same fingerprint forever, or one-item keys (logo / photo pair) stop matching. Never edit; add new entries for new algorithm versions.",
+  "logo": {
+    "data": {
+      "w": 36,
+      "h": 33,
+      "rle": "16.4a30.7a9.3d17.8a6.6d15.9a5.8d14.9a5.9d13.9a4.10d13.9a4.10d13.9a5.9d13.9a5.8d5.b8.9a6.7d3.5b6.9a7.4d4.7b5.9a14.9b4.9a14.9b4.9a14.9b4.9a14.9b4.9a14.9b4.9a7.4c3.9b4.9a6.6c2.9b4.9a5.8c.9b4.9a5.9c9b4.9a5.9c9b4.9a5.9c9b4.9a5.9c9b4.9a5.9c9b4.9a5.9c9b4.9a5.9c9b4.9a5.9c9b4.9a5.9c9b4.9a5.9c9b4.9a5.9c8b6.8a5.8c2.7b6.7a7.7c3.4b10.4a9.4c3."
+    },
+    "fp": "L1:16x15:018203cf03cf03cf23cef3c0f3c0f3c6f3cff3cff3cff3cff3cff3cfe1ce0000"
+  },
+  "morph": {
+    "data": {
+      "w": 12,
+      "h": 9,
+      "a": "7ynvOe9J71HvYe9x74Hvke+Z76nvue/JjyqPOo9Kj1KPYo9yj4KPko+aj6qPuo/KLysvOy9LL1MvYy9zL4Mvky+bL6svuy/LzyvPO89Lz1PPY89zz4PPk8+bz6vPu8/LbyxvPG9Mb1RvZG90b4RvlG+cb6xvvG/MDy0PPQ9ND1UPZQ91D4UPlQ+dD60PvQ/Njy2PPY9Nj1WPZY91j4WPlY+dj62PvY/NLy4vPi9OL1YvZi92L4Yvli+eL64vvi/Ozy7PPs9Oz1bPZs92z4bPls+ez67Pvs/O",
+      "b": "hd2F1YXFhb2FtYWthZ2FlYWNhYWFfYVth92H1YfFh72HtYeth52HlYeNh4WHfYdtid2J1YnFib2JtYmtiZ2JlYmNiYWJfYlti92L1YvFi72LtYuti52LlYuNi4WLfYttjt2O1Y7Fjr2OtY6tjp2OlY6NjoWOfY5tkN2Q1ZDFkL2QtZCtkJ2QlZCNkIWQfZBtkt2S1ZLFkr2StZKtkp2SlZKNkoWSfZJtlN2U1ZTFlL2UtZStlJ2UlZSNlIWUfZRtlt2W1ZbFlr2WtZatlp2WlZaNloWWfZZt"
+    },
+    "fp": "M1:444455565556667766777888788899999999aaaaaaabbbbcaaaaa999baaaaa99baaaaaa9bbaaaaa9bbaaaaaabbbaaaaa"
+  }
+}

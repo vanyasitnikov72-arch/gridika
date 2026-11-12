@@ -1,0 +1,12 @@
+{
+  "note": "Every public key that has ever signed Gridika licenses. Append-only: never remove or edit an entry, or buyers holding those licenses lose access. scripts/check-release.mjs blocks a release that drops one.",
+  "publicKeys": [
+    {
+      "x": "rlbJNKwFTmSPSkhsNzn797RKXMU5n1hzqg904h0-guU",
+      "y": "Ec6lni9fxjcmdu5MHd06gmb69vpzP6WgrNQuIezLMec",
+      "added": "2026-11-11"
+    }
+  ],
+  "note_products": "Product ids that have ever been sold. They stay valid in keys forever: a product may be hidden from the studio, but its id must never be removed or renamed.",
+  "products": ["qr-morph", "qr-card", "gift-box", "voxel-logo", "voxel-morph", "sale-timer", "all"]
+}

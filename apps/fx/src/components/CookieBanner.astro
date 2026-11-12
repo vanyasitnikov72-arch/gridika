@@ -1,0 +1,152 @@
+---
+---
+
+<aside
+  id="gridika-cookie-banner"
+  role="dialog"
+  aria-live="polite"
+  aria-label="Уведомление о файлах cookie"
+  class="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 z-50 max-w-sm sm:max-w-[400px] pointer-events-none opacity-0 translate-y-8 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+>
+  <div class="relative overflow-hidden bg-white/95 backdrop-blur-xl border border-[#e8e2d8] rounded-[2rem] p-5 sm:p-6 shadow-[0_24px_54px_-12px_rgba(19,42,34,0.22),0_4px_18px_-2px_rgba(85,70,50,0.08),inset_0_1px_1px_rgba(255,255,255,1)]">
+    
+    {/* Subtle decorative warm background glow */}
+    <div class="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-[#DFF8EB]/70 blur-2xl pointer-events-none"></div>
+    <div class="absolute -bottom-10 -left-10 w-28 h-28 rounded-full bg-orange-100/40 blur-2xl pointer-events-none"></div>
+
+    <div class="relative flex items-start justify-between gap-3">
+      <div class="flex items-center gap-3">
+        {/* Voxel Mint-Chip Cookie Icon Badge */}
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#FFF5EB] to-[#FFE6D1] border border-[#F3D7C1] shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_10px_rgba(190,130,70,0.15)] flex items-center justify-center shrink-0">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            {/* Baked round biscuit with cute voxel bite mark */}
+            <path
+              d="M12 2.5C6.75 2.5 2.5 6.75 2.5 12C2.5 17.25 6.75 21.5 12 21.5C17.25 21.5 21.5 17.25 21.5 12C21.5 11.2 20.85 10.5 20 10.5C19.15 10.5 18.5 9.85 18.5 9C18.5 8.15 19.15 7.5 20 7.5C20.45 7.5 20.85 7.3 21.1 7C21.4 6.7 21.5 6.3 21.4 5.9C21 3.9 16.9 2.5 12 2.5Z"
+              fill="#DCA063"
+            />
+            {/* Voxel chocolate and emerald mint cubes */}
+            <rect x="7" y="7" width="2.4" height="2.4" rx="0.6" fill="#132A22" />
+            <rect x="13.2" y="6.2" width="2.4" height="2.4" rx="0.6" fill="#19C37D" />
+            <rect x="10" y="11.2" width="2.4" height="2.4" rx="0.6" fill="#132A22" />
+            <rect x="6.8" y="14" width="2.4" height="2.4" rx="0.6" fill="#19C37D" />
+            <rect x="14.2" y="13.8" width="2.4" height="2.4" rx="0.6" fill="#132A22" />
+          </svg>
+        </div>
+
+        <div>
+          <h3 class="text-[15.5px] font-black text-[#132A22] leading-tight tracking-tight">
+            Мы используем cookies
+          </h3>
+          <span class="mt-0.5 inline-flex items-center gap-1.5 text-[11px] font-bold text-[#19C37D]">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#19C37D] animate-pulse"></span>
+            Для сохранения 3D-настроек
+          </span>
+        </div>
+      </div>
+
+      {/* Dismiss button */}
+      <button
+        id="cookie-close-btn"
+        type="button"
+        aria-label="Закрыть уведомление"
+        class="w-7 h-7 rounded-full bg-[#f4efe8] hover:bg-[#eae1d5] active:scale-90 text-[#78716c] hover:text-[#132A22] flex items-center justify-center transition-all cursor-pointer shrink-0 mt-0.5"
+      >
+        <svg class="w-3.5 h-3.5 stroke-current stroke-[2.4]" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
+
+    <p class="relative mt-3 text-[13px] text-[#5c544c] font-semibold leading-relaxed">
+      Файлы cookie помогают сохранять созданные вами эффекты в студии и делать сайт быстрее. Подробнее — в 
+      <a href="/privacy" class="font-extrabold text-[#132A22] underline decoration-[#19C37D] decoration-2 underline-offset-2 hover:text-[#19C37D] transition-colors">
+        Политике конфиденциальности
+      </a>.
+    </p>
+
+    <div class="relative mt-4 flex items-center gap-2.5">
+      <button
+        id="cookie-accept-all"
+        type="button"
+        class="flex-1 h-10 sm:h-11 px-4 rounded-full bg-gradient-to-b from-[#1d3a2f] to-[#132A22] hover:from-[#254a3c] hover:to-[#173329] text-white font-extrabold text-[13px] shadow-[0_8px_18px_-6px_rgba(19,42,34,0.5)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none"
+      >
+        <span>Принять все</span>
+        <svg class="w-3.5 h-3.5 text-[#19C37D] stroke-current stroke-[2.6]" viewBox="0 0 24 24" fill="none">
+          <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+
+      <button
+        id="cookie-accept-essential"
+        type="button"
+        class="h-10 sm:h-11 px-3.5 rounded-full bg-[#f4efe8] hover:bg-[#ebe2d6] active:scale-95 text-[#6b645c] hover:text-[#132A22] font-bold text-[12px] transition-all flex items-center justify-center cursor-pointer select-none whitespace-nowrap"
+      >
+        Только нужные
+      </button>
+    </div>
+
+  </div>
+</aside>
+
+<script>
+  function initCookieBanner() {
+    const banner = document.getElementById('gridika-cookie-banner');
+    if (!banner) return;
+
+    const STORAGE_KEY = 'gridika_cookie_consent';
+
+    function showBanner() {
+      banner.classList.remove('opacity-0', 'translate-y-8', 'pointer-events-none');
+      banner.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+    }
+
+    function hideBanner(choice: 'all' | 'essential' | 'dismissed') {
+      banner.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+      banner.classList.add('opacity-0', 'translate-y-8', 'pointer-events-none');
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          choice,
+          timestamp: new Date().toISOString()
+        }));
+      } catch (err) {
+        // LocalStorage might be disabled in private mode
+      }
+
+      window.dispatchEvent(new CustomEvent('gridika:cookie-consent', { detail: { choice } }));
+    }
+
+    // Always attach button event listeners so the banner works whenever opened
+    const btnAll = document.getElementById('cookie-accept-all');
+    const btnEssential = document.getElementById('cookie-accept-essential');
+    const btnClose = document.getElementById('cookie-close-btn');
+
+    btnAll?.addEventListener('click', () => hideBanner('all'));
+    btnEssential?.addEventListener('click', () => hideBanner('essential'));
+    btnClose?.addEventListener('click', () => hideBanner('dismissed'));
+
+    // Always expose the helper so the footer button works on any page visit
+    (window as any).openCookieSettings = () => {
+      showBanner();
+    };
+
+    // Auto-show banner only if no consent was previously saved
+    let existingConsent: string | null = null;
+    try {
+      existingConsent = localStorage.getItem(STORAGE_KEY);
+    } catch (e) {
+      // ignore
+    }
+
+    if (!existingConsent) {
+      // Polite delay so the page and 3D preview render first
+      window.setTimeout(showBanner, 900);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCookieBanner);
+  } else {
+    initCookieBanner();
+  }
+</script>

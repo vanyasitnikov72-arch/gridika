@@ -1,84 +1,80 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { gridikaEssence, essenceLevel } from '../brand/gridikaEssence';
+import { gridikaMarkSvg, gridikaMark, gridikaLevel, GRIDIKA_PALETTES, MARK_CONCEPTS, MARK_SIZES } from '../brand/gridikaMark';
+
+const SIZES = [160, 96, 64, 44, 32, 28, 20, 16];
+const PALETTES = Object.entries(GRIDIKA_PALETTES);
 ---
 
-<Layout title="Voxelka — Лаборатория логотипа">
+<Layout title="Gridika — Интерактивный симулятор логотипа 2.5x">
   {/* FLOATING HEADER UNDER TEST */}
-  <div class="fixed top-3 sm:top-5 z-50 w-full px-3 sm:px-6 lg:px-8 pointer-events-none">
+  <div id="old-lab-header" style="display:none" class="fixed top-3 sm:top-5 z-50 w-full px-3 sm:px-6 lg:px-8 pointer-events-none">
     <header
       id="lab-header"
       class="max-w-4xl mx-auto px-3 sm:px-4 h-14 flex items-center justify-between pointer-events-auto rounded-full border border-[#e9e3d7] bg-white/95 backdrop-blur-xl shadow-[0_12px_32px_-10px_rgba(19,42,34,0.18)] transition-all duration-300"
     >
-      {/* BRAND LOGO ZONE */}
+      {/* BRAND LOGO ZONE IN NAVBAR */}
       <a
         href="#"
         id="lab-brand-link"
-        class="group flex items-center select-none cursor-pointer overflow-hidden p-1 rounded-2xl hover:bg-black/[0.03] transition-colors"
+        class="group flex items-center select-none cursor-pointer overflow-hidden p-1 rounded-2xl hover:bg-black/[0.03] transition-colors mode-facets"
       >
         {/* ICON CONTAINER */}
         <div
           id="lab-logo-box"
-          class="relative w-9 h-9 shrink-0 rounded-[12px] bg-[#132A22] shadow-[0_6px_14px_-3px_rgba(19,42,34,0.45)] flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:scale-105"
+          class="relative w-9 h-9 shrink-0 rounded-[12px] bg-[#11231C] border border-[#19C37D]/35 shadow-[0_6px_14px_-3px_rgba(19,42,34,0.45)] flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:scale-105"
         >
-          {/* ICON A: Isometric 3D Voxel Cube */}
-          <svg id="icon-cube" class="w-6 h-6 transition-all duration-300" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2.5 L21 7.5 L12 12.5 L3 7.5 Z" fill="#8BF0C2" />
-            <path d="M3 7.5 L12 12.5 V22 L3 17 Z" fill="#19C37D" />
-            <path d="M21 7.5 L12 12.5 V22 L21 17 Z" fill="#0F8F5B" />
+          {/* APPROVED HYBRID SVG LOGO: ISOMETRIC V-CUBE + QR FINDERS + 5-DOT SEAM */}
+          <svg class="w-6 h-6 transition-all duration-300" viewBox="0 0 32 32" fill="none">
+            {/* Wireframe Cube Faces & Edges */}
+            <path d="M16 3.5 L28.5 10 L16 16.5 L3.5 10 Z" fill="#132A22" stroke="#19C37D" stroke-width="1.3" stroke-linejoin="round" />
+            <path d="M3.5 10 L16 16.5 V29.5 L3.5 23 Z" fill="#0C1B15" stroke="#19C37D" stroke-width="1.3" stroke-linejoin="round" />
+            <path d="M28.5 10 L16 16.5 V29.5 L28.5 23 Z" fill="#081410" stroke="#19C37D" stroke-width="1.3" stroke-linejoin="round" />
+
+            {/* Top Face: Diamond QR Finder + 2 Flanking Dots */}
+            <path d="M16 6.5 L20.5 9.2 L16 12 L11.5 9.2 Z" stroke="#5BE3A6" stroke-width="1.1" fill="#19C37D" fill-opacity="0.3" stroke-linejoin="round" />
+            <circle cx="16" cy="9.2" r="1.1" fill="#8BF0C2" />
+            <circle cx="10" cy="8" r="0.9" fill="#19C37D" />
+            <circle cx="22" cy="8" r="0.9" fill="#19C37D" />
+
+            {/* Left Face: Square QR Finder + Top Dot */}
+            <path d="M6.5 17.5 L12.5 20.5 V25.5 L6.5 22.5 Z" stroke="#5BE3A6" stroke-width="1.1" fill="#19C37D" fill-opacity="0.3" stroke-linejoin="round" />
+            <circle cx="9.5" cy="21.5" r="1.1" fill="#8BF0C2" />
+            <circle cx="9.5" cy="14.8" r="1.0" fill="#19C37D" />
+
+            {/* Right Face: Square QR Finder + Top Dot */}
+            <path d="M25.5 17.5 L19.5 20.5 V25.5 L25.5 22.5 Z" stroke="#5BE3A6" stroke-width="1.1" fill="#19C37D" fill-opacity="0.3" stroke-linejoin="round" />
+            <circle cx="22.5" cy="21.5" r="1.1" fill="#8BF0C2" />
+            <circle cx="22.5" cy="14.8" r="1.0" fill="#19C37D" />
+
+            {/* Center Front Seam: 5 Glowing Emerald Dots */}
+            <circle cx="16" cy="16.5" r="1.4" fill="#8BF0C2" />
+            <circle cx="16" cy="19.7" r="1.0" fill="#19C37D" />
+            <circle cx="16" cy="23.0" r="1.2" fill="#8BF0C2" />
+            <circle cx="16" cy="26.2" r="1.0" fill="#19C37D" />
+            <circle cx="16" cy="29.5" r="1.2" fill="#8BF0C2" />
           </svg>
 
-          {/* ICON B: Matrix QR Voxel */}
-          <svg id="icon-qr" class="hidden w-[22px] h-[22px] transition-all duration-300" viewBox="0 0 22 22">
-            <g fill="none" stroke="#5BE3A6" stroke-width="1.8">
-              <rect x="1.4" y="1.4" width="6.2" height="6.2" rx="1.2" />
-              <rect x="14.4" y="1.4" width="6.2" height="6.2" rx="1.2" />
-              <rect x="1.4" y="14.4" width="6.2" height="6.2" rx="1.2" />
-            </g>
-            <g fill="#5BE3A6">
-              <rect x="3.6" y="3.6" width="1.8" height="1.8" rx="0.4" />
-              <rect x="16.6" y="3.6" width="1.8" height="1.8" rx="0.4" />
-              <rect x="3.6" y="16.6" width="1.8" height="1.8" rx="0.4" />
-              <rect x="10" y="10" width="2.6" height="2.6" rx="0.5" />
-              <rect x="14.4" y="14.4" width="2.6" height="2.6" rx="0.5" />
-              <rect x="18" y="18" width="2.6" height="2.6" rx="0.5" />
-              <rect x="10" y="2" width="2.6" height="2.6" rx="0.5" />
-              <rect x="2" y="10" width="2.6" height="2.6" rx="0.5" />
-            </g>
-          </svg>
-
-          {/* ICON C: Morphing (QR at top, rotates into Cube on scroll) */}
-          <div id="icon-morph" class="hidden relative w-full h-full flex items-center justify-center">
-            <svg class="morph-qr absolute w-[22px] h-[22px] transition-all duration-400" viewBox="0 0 22 22">
-              <g fill="none" stroke="#5BE3A6" stroke-width="1.8">
-                <rect x="1.4" y="1.4" width="6.2" height="6.2" rx="1.2" />
-                <rect x="14.4" y="1.4" width="6.2" height="6.2" rx="1.2" />
-                <rect x="1.4" y="14.4" width="6.2" height="6.2" rx="1.2" />
-              </g>
-              <g fill="#5BE3A6">
-                <rect x="3.6" y="3.6" width="1.8" height="1.8" rx="0.4" />
-                <rect x="16.6" y="3.6" width="1.8" height="1.8" rx="0.4" />
-                <rect x="3.6" y="16.6" width="1.8" height="1.8" rx="0.4" />
-                <rect x="10" y="10" width="2.6" height="2.6" rx="0.5" />
-                <rect x="14.4" y="14.4" width="2.6" height="2.6" rx="0.5" />
-              </g>
-            </svg>
-            <svg class="morph-cube absolute w-6 h-6 transition-all duration-400 opacity-0 scale-50 rotate-[-30deg]" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2.5 L21 7.5 L12 12.5 L3 7.5 Z" fill="#8BF0C2" />
-              <path d="M3 7.5 L12 12.5 V22 L3 17 Z" fill="#19C37D" />
-              <path d="M21 7.5 L12 12.5 V22 L21 17 Z" fill="#0F8F5B" />
-            </svg>
-          </div>
+          {/* Ripple pulse inside logo */}
+          <span id="logo-ripple" class="absolute inset-0 rounded-[12px] bg-[#19C37D]/30 opacity-0 pointer-events-none transition-opacity duration-300"></span>
         </div>
 
-        {/* COLLAPSIBLE BRAND TEXT */}
-        <div
-          id="lab-brand-text"
-          class="flex flex-col leading-none overflow-hidden transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] max-w-[130px] opacity-100 ml-2.5 translate-x-0"
-        >
-          <span class="font-black text-[#132A22] tracking-[-0.03em] text-[17px] whitespace-nowrap">
-            Voxel<span class="text-[#19C37D]">ka</span>
-          </span>
-          <span class="mt-1 text-[9.5px] font-bold tracking-[0.14em] uppercase text-[#a8a29e] whitespace-nowrap">
+        {/* ANIMATED LETTERS CONTAINER IN NAVBAR */}
+        <div id="brand-text-wrapper" class="flex flex-col leading-none ml-2.5 overflow-visible">
+          <div id="word-gridika" class="font-black text-[#132A22] tracking-[-0.03em] text-[17px] flex items-baseline select-none">
+            <span class="v-letter inline-block font-black text-[#132A22]">V</span>
+            <span class="fly-letter letter-o inline-block text-[#132A22]" style="--idx: 1;">o</span>
+            <span class="fly-letter letter-x inline-block text-[#132A22]" style="--idx: 2;">x</span>
+            <span class="fly-letter letter-e inline-block text-[#132A22]" style="--idx: 3;">e</span>
+            <span class="fly-letter letter-l inline-block text-[#132A22]" style="--idx: 4;">l</span>
+            <span class="fly-letter letter-k inline-block text-[#19C37D]" style="--idx: 5;">k</span>
+            <span class="fly-letter letter-a inline-block text-[#19C37D]" style="--idx: 6;">a</span>
+          </div>
+          <span
+            id="brand-subtitle"
+            class="text-[9.5px] font-bold tracking-[0.14em] uppercase text-[#a8a29e] whitespace-nowrap mt-1 transition-all duration-300 ease-out origin-left"
+          >
             3D для сайтов
           </span>
         </div>
@@ -86,9 +82,9 @@ import Layout from '../layouts/Layout.astro';
 
       {/* CENTER NAV DUMMY TABS */}
       <nav class="hidden sm:flex items-center gap-1 p-1 rounded-full bg-[#f6f3ee] border border-[#ebe5da] text-xs font-bold text-[#6b645c] select-none">
-        <a href="#test" class="px-3.5 py-1.5 rounded-full bg-white text-[#132A22] shadow-xs">Студия</a>
-        <a href="#test" class="px-3.5 py-1.5 rounded-full hover:text-[#132A22]">Примеры</a>
-        <a href="#test" class="px-3.5 py-1.5 rounded-full hover:text-[#132A22]">Цены</a>
+        <a href="#simulator" class="px-3.5 py-1.5 rounded-full bg-white text-[#132A22] shadow-xs">Симулятор 2.5x</a>
+        <a href="#variants-section" class="px-3.5 py-1.5 rounded-full hover:text-[#132A22]">4 Варианта</a>
+        <a href="#scroll-test" class="px-3.5 py-1.5 rounded-full hover:text-[#132A22]">Тест скролла</a>
       </nav>
 
       {/* RIGHT ACTION */}
@@ -106,254 +102,1136 @@ import Layout from '../layouts/Layout.astro';
     </header>
   </div>
 
-  {/* MAIN TEST PANEL CONTENT */}
-  <main class="pt-28 pb-32 max-w-4xl mx-auto px-4 sm:px-6">
-    {/* HERO TITLE */}
-    <div class="text-center mb-10">
-      <span class="px-3.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-[#DFF8EB] text-[#132A22] border border-[#19C37D]/25 shadow-sm inline-block mb-3">
-        Лаборатория дизайна
-      </span>
-      <h1 class="text-3xl sm:text-4xl font-black text-[#132A22] tracking-tight">
-        Тестирование анимации логотипа
-      </h1>
-      <p class="text-sm text-[#78716c] mt-2 max-w-lg mx-auto">
-        Прокручивайте страницу вниз или переключайте тумблеры, чтобы увидеть, как название плавно сворачивается в иконку при скролле.
+  {/* FLIP HEADER: mark ↔ word GRIDIKA, driven by scroll */}
+  <div class="fixed top-3 sm:top-5 z-50 w-full px-3 sm:px-6 lg:px-8 pointer-events-none">
+    <header id="flip-header" class="max-w-5xl mx-auto pl-3 pr-3 sm:pr-4 h-20 flex items-center justify-between pointer-events-auto rounded-[28px] border border-[#e9e3d7] bg-white/95 backdrop-blur-xl shadow-[0_14px_36px_-14px_rgba(19,42,34,0.22)]">
+      <a href="#" id="morph-host" class="relative block w-[230px] h-16 select-none" aria-label="Gridika">
+        <div id="morph-tile" class="absolute pointer-events-none border border-[#19C37D]/30 shadow-[0_10px_24px_-8px_rgba(12,26,20,0.55),inset_0_1px_0_rgba(255,255,255,0.06)]" style="left:4px;top:4px;width:56px;height:56px;border-radius:16px;background:linear-gradient(145deg,#12261d,#0a1611);opacity:0;transform:scale(0.7);transform-origin:center"></div>
+        <div id="morph-text" class="absolute left-1 top-1/2 -translate-y-1/2 flex flex-col leading-none pointer-events-none">
+          <span id="morph-name" class="text-[24px] font-black text-[#132A22] tracking-[-0.03em] w-max opacity-0">Grid<span class="text-[#19C37D]">ika</span></span>
+          <span id="morph-sub" class="mt-1.5 text-[10px] font-bold tracking-[0.15em] uppercase text-[#a8a29e]">3D для сайтов</span>
+        </div>
+      </a>
+      <nav class="hidden md:flex items-center gap-1 p-1 rounded-full bg-[#f6f3ee] border border-[#ebe5da] text-[13px] font-bold text-[#6b645c]">
+        <span class="px-4 py-2 rounded-full bg-white text-[#132A22] shadow-sm">Студия</span>
+        <span class="px-4 py-2">Примеры</span>
+        <span class="px-4 py-2">Цены</span>
+      </nav>
+      <span class="h-11 px-5 rounded-full bg-[#132A22] text-white font-extrabold text-sm flex items-center">Создать 3D</span>
+    </header>
+  </div>
+
+  {/* MAIN CONTENT */}
+  <main class="pt-32 pb-32 max-w-4xl mx-auto px-4 sm:px-6">
+
+    {/* ========================================================
+        NEW MARK: ISOMETRIC CUBE · DOTTED FRONT EDGE · QR EYES ON THE FACES
+        ======================================================== */}
+    <section id="flip-test" class="soft-3d-card p-6 sm:p-8 mb-10 bg-white/95 border border-[#e5dfd2] rounded-3xl">
+      <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-[#DFF8EB] text-[#132A22] border border-[#19C37D]/25 inline-block mb-1.5">Прототип · шапка</span>
+      <h2 class="text-2xl sm:text-3xl font-black text-[#132A22] tracking-tight">Название → логотип</h2>
+      <p class="text-sm text-[#6b645c] font-semibold mt-1 max-w-2xl">
+        Наверху страницы — название. Прокрутите вниз: буквы рассыпаются на кубики, те разлетаются, поворачиваются и собираются в кубик-логотип; прокрутка вверх — обратно. Превращение растянуто на 420 px прокрутки. Или крутите ползунком.
       </p>
+      <div class="mt-5 flex items-center gap-4">
+        <input id="flip-range" type="range" min="0" max="1000" value="0" class="flex-1 accent-[#19C37D]" />
+        <span id="flip-val" class="w-16 text-right font-mono text-xs font-bold text-[#19C37D]">0%</span>
+      </div>
+      <div class="mt-4 rounded-3xl bg-[#f6f3ee] border border-[#ebe5da] p-6">
+        <div id="morph-big" class="relative w-[420px] h-[120px]">
+          <div id="morph-big-tile" class="absolute pointer-events-none border border-[#19C37D]/30 shadow-[0_10px_24px_-8px_rgba(12,26,20,0.55),inset_0_1px_0_rgba(255,255,255,0.06)]" style="left:8px;top:-2px;width:124px;height:124px;border-radius:34px;background:linear-gradient(145deg,#12261d,#0a1611);opacity:0;transform:scale(0.7);transform-origin:center"></div>
+          <div class="absolute left-2 top-1/2 -translate-y-1/2 flex flex-col leading-none pointer-events-none" id="morph-big-text">
+            <span id="morph-big-name" class="text-[52px] font-black text-[#132A22] tracking-[-0.03em] w-max opacity-0">Grid<span class="text-[#19C37D]">ika</span></span>
+            <span id="morph-big-sub" class="mt-2 text-[15px] font-bold tracking-[0.15em] uppercase text-[#a8a29e]">3D для сайтов</span>
+          </div>
+        </div>
+        <span id="flip-count" class="block mt-2 text-[11px] font-mono text-[#a8a29e]"></span>
+      </div>
+    </section>
+
+    <section id="essence-mark" class="soft-3d-card p-6 sm:p-8 mb-10 bg-white/95 border border-[#e5dfd2] rounded-3xl">
+      <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-[#DFF8EB] text-[#132A22] border border-[#19C37D]/25 inline-block mb-1.5">Новый вариант · плоское → объём</span>
+      <h2 class="text-2xl sm:text-3xl font-black text-[#132A22] tracking-tight">Gridika: из сетки вырастает объём</h2>
+      <p class="text-sm text-[#6b645c] font-semibold mt-1 max-w-2xl">
+        Общее у всех продуктов — из плоского собирается 3D. Левая грань — QR: глазок и выдавленные модули (3D QR). Правая — пиксельная G из кубиков (бренд и 3D-логотип). Верхняя — сам принцип: клетки сетки от контура к заливке и к кубикам, растущим к переднему углу. Точки — только на переднем ребре.
+      </p>
+
+      <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="rounded-3xl flex items-center justify-center py-8" style={`background:${GRIDIKA_PALETTES.dark.p.bg}`} set:html={gridikaEssence(260, 'dark')} />
+        <div class="rounded-3xl border border-[#ebe5da] flex items-center justify-center py-8" style={`background:${GRIDIKA_PALETTES.light.p.bg}`} set:html={gridikaEssence(260, 'light')} />
+      </div>
+
+      <div class="mt-6 flex flex-wrap items-center gap-4">
+        <div class="h-14 pl-2 pr-5 rounded-full border border-[#e9e3d7] bg-white shadow-[0_10px_30px_-12px_rgba(19,42,34,0.18)] flex items-center gap-2.5">
+          <span class="w-10 h-10 rounded-[12px] flex items-center justify-center" style={`background:${GRIDIKA_PALETTES.dark.p.bg}`} set:html={gridikaEssence(34, 'dark')} />
+          <span class="flex flex-col leading-none">
+            <span class="text-[17px] font-black text-[#132A22] tracking-[-0.03em]">Grid<span class="text-[#19C37D]">ika</span></span>
+            <span class="mt-1 text-[9.5px] font-bold tracking-[0.14em] uppercase text-[#a8a29e]">3D для сайтов</span>
+          </span>
+        </div>
+        <div class="h-14 pl-2 pr-5 rounded-full border border-[#e9e3d7] bg-white flex items-center gap-2.5">
+          <span class="w-10 h-10 flex items-center justify-center" set:html={gridikaEssence(40, 'light')} />
+          <span class="text-[17px] font-black text-[#132A22] tracking-[-0.03em]">Grid<span class="text-[#19C37D]">ika</span></span>
+        </div>
+        <div class="h-14 pl-2 pr-5 rounded-full bg-[#132A22] flex items-center gap-2.5">
+          <span class="w-10 h-10 flex items-center justify-center" set:html={gridikaEssence(40, 'dark')} />
+          <span class="text-[17px] font-black text-white tracking-[-0.03em]">Grid<span class="text-[#19C37D]">ika</span></span>
+        </div>
+        <div class="h-10 pl-3 pr-4 rounded-t-xl bg-[#e9e5de] border border-b-0 border-[#d9d3c7] flex items-center gap-2 self-end">
+          <span set:html={gridikaEssence(16, 'dark')} />
+          <span class="text-[12px] font-semibold text-[#44403c]">Gridika — 3D для сайтов</span>
+        </div>
+      </div>
+
+      <div class="mt-6 rounded-3xl p-5 flex items-end gap-6 flex-wrap" style={`background:${GRIDIKA_PALETTES.dark.p.bg}`}>
+        {SIZES.map((sz) => (
+          <div class="flex flex-col items-center gap-2">
+            <span set:html={gridikaEssence(sz, 'dark')} />
+            <span class="text-[10px] font-mono text-white/50">{sz}px · {essenceLevel(sz)}</span>
+          </div>
+        ))}
+      </div>
+
+      <div class="mt-6 grid grid-cols-2 sm:grid-cols-5 gap-3">
+        {PALETTES.map(([id, v]) => (
+          <figure class="rounded-2xl border border-[#ebe5da] overflow-hidden">
+            <div class="flex items-center justify-center gap-3 py-6" style={`background:${v.p.bg}`}>
+              <span set:html={gridikaEssence(96, id as any)} />
+              <span set:html={gridikaEssence(34, id as any)} />
+            </div>
+            <figcaption class="px-3 py-2 text-[11px] font-bold text-[#57534e] leading-snug">{v.title}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <section id="new-mark" class="soft-3d-card p-6 sm:p-8 mb-10 bg-white/95 border border-[#e5dfd2] rounded-3xl">
+      <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-[#DFF8EB] text-[#132A22] border border-[#19C37D]/25 inline-block mb-1.5">Выбранный знак · точечный QR</span>
+      <h2 class="text-2xl sm:text-3xl font-black text-[#132A22] tracking-tight">Gridika: кубик из точечного QR</h2>
+      <p class="text-sm text-[#6b645c] font-semibold mt-1 max-w-2xl">
+        Переднее ребро — столбик точек (по точке на концах, между ними поровну), контур к нему не касается. Скруглённые глазки QR внизу боковых граней и сверху соединены дорожками-таймингом через верх. Грани заполнены точками-модулями, которые редеют к ребру. Детализация подбирается по размеру сама: L — от 96 px, M — от 28 px, S — меньше.
+      </p>
+
+      {/* hero: dark and light */}
+      <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="rounded-3xl flex items-center justify-center py-10" style={`background:${GRIDIKA_PALETTES.dark.p.bg}`} set:html={gridikaMark(240, 'dark')} />
+        <div class="rounded-3xl border border-[#ebe5da] flex items-center justify-center py-10" style={`background:${GRIDIKA_PALETTES.light.p.bg}`} set:html={gridikaMark(240, 'light')} />
+      </div>
+
+      {/* in the header, next to the word */}
+      <div class="mt-6 flex flex-wrap items-center gap-4">
+        <div class="h-14 pl-2 pr-5 rounded-full border border-[#e9e3d7] bg-white shadow-[0_10px_30px_-12px_rgba(19,42,34,0.18)] flex items-center gap-2.5">
+          <span class="w-10 h-10 rounded-[12px] flex items-center justify-center" style={`background:${GRIDIKA_PALETTES.dark.p.bg}`} set:html={gridikaMark(32, 'dark')} />
+          <span class="flex flex-col leading-none">
+            <span class="text-[17px] font-black text-[#132A22] tracking-[-0.03em]">Grid<span class="text-[#19C37D]">ika</span></span>
+            <span class="mt-1 text-[9.5px] font-bold tracking-[0.14em] uppercase text-[#a8a29e]">3D для сайтов</span>
+          </span>
+        </div>
+        <div class="h-14 pl-2 pr-5 rounded-full border border-[#e9e3d7] bg-white flex items-center gap-2.5">
+          <span class="w-10 h-10 flex items-center justify-center" set:html={gridikaMark(38, 'light')} />
+          <span class="text-[17px] font-black text-[#132A22] tracking-[-0.03em]">Grid<span class="text-[#19C37D]">ika</span></span>
+        </div>
+        <div class="h-14 pl-2 pr-5 rounded-full bg-[#132A22] flex items-center gap-2.5">
+          <span class="w-10 h-10 flex items-center justify-center" set:html={gridikaMark(38, 'dark')} />
+          <span class="text-[17px] font-black text-white tracking-[-0.03em]">Grid<span class="text-[#19C37D]">ika</span></span>
+        </div>
+        {/* browser tab */}
+        <div class="h-10 pl-3 pr-4 rounded-t-xl bg-[#e9e5de] border border-b-0 border-[#d9d3c7] flex items-center gap-2 self-end">
+          <span set:html={gridikaMark(16, 'dark')} />
+          <span class="text-[12px] font-semibold text-[#44403c]">Gridika — 3D для сайтов</span>
+        </div>
+      </div>
+
+      {/* size ramp with the automatic level */}
+      <div class="mt-6 rounded-3xl p-5 flex items-end gap-6 flex-wrap" style={`background:${GRIDIKA_PALETTES.dark.p.bg}`}>
+        {SIZES.map((sz) => (
+          <div class="flex flex-col items-center gap-2">
+            <span set:html={gridikaMark(sz, 'dark')} />
+            <span class="text-[10px] font-mono text-white/50">{sz}px · {gridikaLevel(sz)}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* colour versions */}
+      <div class="mt-6 grid grid-cols-2 sm:grid-cols-5 gap-3">
+        {PALETTES.map(([id, v]) => (
+          <figure class="rounded-2xl border border-[#ebe5da] overflow-hidden">
+            <div class="flex items-center justify-center gap-3 py-6" style={`background:${v.p.bg}`}>
+              <span set:html={gridikaMark(96, id as any)} />
+              <span set:html={gridikaMark(32, id as any)} />
+            </div>
+            <figcaption class="px-3 py-2 text-[11px] font-bold text-[#57534e] leading-snug">{v.title}</figcaption>
+          </figure>
+        ))}
+      </div>
+
+      {/* ===== directions for the faces ===== */}
+      <h3 class="mt-10 text-xl font-black text-[#132A22]">Направления (выбрано B)</h3>
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+        {MARK_CONCEPTS.map((c) => (
+          <figure class="rounded-3xl border border-[#ebe5da] overflow-hidden bg-white">
+            <div class="bg-[#0c1a14] flex items-center justify-center py-6" set:html={gridikaMarkSvg(c.opts, 200)} />
+            <figcaption class="p-4">
+              <div class="text-[15px] font-black text-[#132A22]">{c.title}</div>
+              <p class="mt-1 text-[12px] font-semibold text-[#6b645c] leading-relaxed">{c.text}</p>
+              <div class="mt-3 flex items-center gap-3">
+                <span class="w-9 h-9 rounded-[12px] bg-[#0c1a14] flex items-center justify-center" set:html={gridikaMarkSvg(c.opts, 30)} />
+                <span class="text-[11px] font-bold text-[#a8a29e]">так в шапке (30 px)</span>
+              </div>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+
+      {/* ===== size system ===== */}
+      <h3 class="mt-10 text-xl font-black text-[#132A22]">D. Система размеров</h3>
+      <p class="mt-1 text-sm text-[#6b645c] font-semibold max-w-2xl">Один знак в трёх степенях детализации: крупно — с модулями данных, в шапке — глазки и дорожки, в значке вкладки — только куб, глазки и 4 крупные точки на ребре.</p>
+      <div class="mt-4 rounded-3xl bg-[#0c1a14] p-6 flex flex-wrap items-end gap-10">
+        {MARK_SIZES.map((m) => (
+          <div class="flex flex-col items-center gap-3">
+            <span set:html={gridikaMarkSvg(m.opts, m.px)} />
+            <span class="text-[11px] font-bold text-white/60 text-center">{m.title}<br />{m.px}px</span>
+          </div>
+        ))}
+        <div class="flex flex-col items-center gap-3">
+          <span class="flex items-end gap-3">
+            <span set:html={gridikaMarkSvg(MARK_SIZES[1].opts, 16)} />
+            <span set:html={gridikaMarkSvg(MARK_SIZES[2].opts, 16)} />
+          </span>
+          <span class="text-[11px] font-bold text-white/60 text-center">16 px: M и S<br />рядом</span>
+        </div>
+      </div>
+    </section>
+
+    {/* ========================================================
+        INTERACTIVE 2.5X ZOOM SIMULATOR CARD (IMAGE 1 FORMAT)
+        ======================================================== */}
+    <div id="simulator" class="soft-3d-card p-6 sm:p-8 mb-10 bg-white/95 border border-[#e5dfd2] rounded-3xl shadow-[0_18px_45px_-12px_rgba(19,42,34,0.08)]">
+      
+      {/* SIMULATOR TOP HEADER */}
+      <div class="flex flex-wrap items-start justify-between gap-3 mb-5">
+        <div>
+          <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-[#DFF8EB] text-[#132A22] border border-[#19C37D]/25 shadow-sm inline-block mb-1.5">
+            ИНТЕРАКТИВНЫЙ СИМУЛЯТОР 2.5X
+          </span>
+          <h1 class="text-2xl sm:text-3xl font-black text-[#132A22] tracking-tight leading-tight">
+            Управляйте сборкой логотипа в реальном времени
+          </h1>
+        </div>
+        <p class="text-xs text-[#78716c] font-medium pt-2">
+          Тяните ползунок, чтобы увидеть каждый шаг морфинга
+        </p>
+      </div>
+
+      {/* DOTTED PREVIEW STAGE (IMAGE 1) */}
+      <div class="py-12 px-6 rounded-2xl bg-[#f7f4ee] border border-[#ebe5da] flex items-center justify-center min-h-[160px] relative overflow-hidden shadow-inner">
+        {/* Subtle grid pattern */}
+        <div class="absolute inset-0 bg-[radial-gradient(#d3c9bc_1.2px,transparent_1.2px)] [background-size:18px_18px] opacity-75"></div>
+
+        {/* LOGO STAGE (SCALED 2.2X) */}
+        <div id="sim-logo-container" class="relative z-10 flex items-center select-none scale-[1.7] sm:scale-[2.1] origin-center transition-transform">
+          
+          {/* CUBE BADGE WITH EXACT APPROVED HYBRID SVG */}
+          <div
+            id="sim-logo-box"
+            class="relative w-12 h-12 shrink-0 rounded-[15px] bg-[#11231C] border border-[#19C37D]/40 shadow-[0_8px_22px_-3px_rgba(19,42,34,0.48)] flex items-center justify-center overflow-hidden transition-all duration-300"
+          >
+            <svg id="sim-svg-cube" class="w-8 h-8 transition-transform duration-300" viewBox="0 0 32 32" fill="none">
+              {/* Wireframe Cube Faces & Edges */}
+              <path d="M16 3.5 L28.5 10 L16 16.5 L3.5 10 Z" fill="#132A22" stroke="#19C37D" stroke-width="1.3" stroke-linejoin="round" />
+              <path d="M3.5 10 L16 16.5 V29.5 L3.5 23 Z" fill="#0C1B15" stroke="#19C37D" stroke-width="1.3" stroke-linejoin="round" />
+              <path d="M28.5 10 L16 16.5 V29.5 L28.5 23 Z" fill="#081410" stroke="#19C37D" stroke-width="1.3" stroke-linejoin="round" />
+
+              {/* Top Face: Diamond Finder + 2 Flanking Dots */}
+              <path d="M16 6.5 L20.5 9.2 L16 12 L11.5 9.2 Z" stroke="#5BE3A6" stroke-width="1.1" fill="#19C37D" fill-opacity="0.3" stroke-linejoin="round" />
+              <circle cx="16" cy="9.2" r="1.1" fill="#8BF0C2" />
+              <circle cx="10" cy="8" r="0.9" fill="#19C37D" />
+              <circle cx="22" cy="8" r="0.9" fill="#19C37D" />
+
+              {/* Left Face: Square Finder + Top Dot */}
+              <path d="M6.5 17.5 L12.5 20.5 V25.5 L6.5 22.5 Z" stroke="#5BE3A6" stroke-width="1.1" fill="#19C37D" fill-opacity="0.3" stroke-linejoin="round" />
+              <circle cx="9.5" cy="21.5" r="1.1" fill="#8BF0C2" />
+              <circle cx="9.5" cy="14.8" r="1.0" fill="#19C37D" />
+
+              {/* Right Face: Square Finder + Top Dot */}
+              <path d="M25.5 17.5 L19.5 20.5 V25.5 L25.5 22.5 Z" stroke="#5BE3A6" stroke-width="1.1" fill="#19C37D" fill-opacity="0.3" stroke-linejoin="round" />
+              <circle cx="22.5" cy="21.5" r="1.1" fill="#8BF0C2" />
+              <circle cx="22.5" cy="14.8" r="1.0" fill="#19C37D" />
+
+              {/* Center Front Seam: 5 Glowing Emerald Dots */}
+              <circle cx="16" cy="16.5" r="1.4" fill="#8BF0C2" />
+              <circle cx="16" cy="19.7" r="1.0" fill="#19C37D" />
+              <circle cx="16" cy="23.0" r="1.2" fill="#8BF0C2" />
+              <circle cx="16" cy="26.2" r="1.0" fill="#19C37D" />
+              <circle cx="16" cy="29.5" r="1.2" fill="#8BF0C2" />
+            </svg>
+
+            {/* Facet Letters Overlay for Mode 1 */}
+            <div id="sim-inner-glyphs" class="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 pointer-events-none">
+              <span class="text-[11px] font-black text-[#8BF0C2] transform -translate-y-2 -translate-x-1">V</span>
+              <span class="text-[9px] font-black text-[#19C37D] transform translate-y-1.5 translate-x-1.5">ka</span>
+            </div>
+            <div id="sim-facet-glow" class="absolute inset-0 bg-[#19C37D]/20 opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+          </div>
+
+          {/* SIMULATED LETTERS */}
+          <div id="sim-text-wrapper" class="flex flex-col ml-3.5 leading-none">
+            <div id="sim-word" class="font-black text-[#132A22] text-xl tracking-[-0.03em] flex items-baseline">
+              <span class="sim-glyph glyph-v font-black text-[#132A22]" style="--i: 0;">V</span>
+              <span class="sim-glyph glyph-o text-[#132A22]" style="--i: 1;">o</span>
+              <span class="sim-glyph glyph-x text-[#132A22]" style="--i: 2;">x</span>
+              <span class="sim-glyph glyph-e text-[#132A22]" style="--i: 3;">e</span>
+              <span class="sim-glyph glyph-l text-[#132A22]" style="--i: 4;">l</span>
+              <span class="sim-glyph glyph-k text-[#19C37D]" style="--i: 5;">k</span>
+              <span class="sim-glyph glyph-a text-[#19C37D]" style="--i: 6;">a</span>
+            </div>
+            <span id="sim-sub" class="text-[10px] font-bold tracking-[0.15em] uppercase text-[#a8a29e] mt-1 transition-all">
+              3D для сайтов
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* CONTROLS ROW (PROGRESS LABEL + BUTTONS) */}
+      <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-[#132A22]">Прогресс анимации (скролл):</span>
+          <span id="scrub-pct" class="font-mono text-[#19C37D] font-extrabold text-xs bg-[#DFF8EB] px-2 py-0.5 rounded-md">
+            0%
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            id="btn-play-toggle"
+            class="px-4 py-2 rounded-xl bg-[#132A22] hover:bg-[#19C37D] hover:text-[#132A22] text-white text-xs font-extrabold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+          >
+            <span id="play-icon">▶</span>
+            <span id="play-text">Авто-показ (Play)</span>
+          </button>
+          <button
+            type="button"
+            id="btn-reset-top"
+            class="px-3.5 py-2 rounded-xl bg-white border border-[#e5dfd2] text-[#132A22] text-xs font-bold hover:bg-[#f6f3ee] transition-colors cursor-pointer"
+          >
+            Вверх (0%)
+          </button>
+          <button
+            type="button"
+            id="btn-set-scrolled"
+            class="px-3.5 py-2 rounded-xl bg-white border border-[#e5dfd2] text-[#132A22] text-xs font-bold hover:bg-[#f6f3ee] transition-colors cursor-pointer"
+          >
+            В скролле (100%)
+          </button>
+        </div>
+      </div>
+
+      {/* SLIDER & MILESTONES */}
+      <div class="mt-3">
+        <input
+          id="scrub-slider"
+          type="range"
+          min="0"
+          max="100"
+          value="0"
+          step="0.5"
+          class="w-full h-2.5 bg-[#e5dfd2] rounded-lg appearance-none cursor-pointer accent-[#19C37D]"
+        />
+        <div class="flex justify-between text-[11px] font-semibold text-[#8c827a] mt-2 px-1">
+          <span>0% — Вверху страницы (Слово рядом)</span>
+          <span>50% — Буквы залетают на грани</span>
+          <span>100% — В скролле (Куб собран)</span>
+        </div>
+      </div>
     </div>
 
-    {/* INTERACTIVE CONTROLS CARD */}
-    <div class="soft-3d-card p-6 sm:p-8 mb-12">
-      <h2 class="text-lg font-black text-[#132A22] mb-5 flex items-center gap-2">
-        <span class="w-6 h-6 rounded-lg bg-[#19C37D] text-[#132A22] text-xs flex items-center justify-center font-bold">1</span>
-        <span>Выберите стиль значка</span>
-      </h2>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        {/* Style 1: Cube */}
-        <button
-          type="button"
-          id="btn-style-cube"
-          class="style-btn active p-4 rounded-2xl border-2 border-[#19C37D] bg-[#DFF8EB]/40 flex flex-col items-center gap-3 transition-all cursor-pointer text-center"
-        >
-          <div class="w-12 h-12 rounded-xl bg-[#132A22] flex items-center justify-center shadow-md">
-            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2.5 L21 7.5 L12 12.5 L3 7.5 Z" fill="#8BF0C2" />
-              <path d="M3 7.5 L12 12.5 V22 L3 17 Z" fill="#19C37D" />
-              <path d="M21 7.5 L12 12.5 V22 L21 17 Z" fill="#0F8F5B" />
-            </svg>
-          </div>
-          <div>
-            <div class="font-extrabold text-sm text-[#132A22]">3D Воксель-Куб</div>
-            <div class="text-[11px] text-[#78716c] mt-0.5">Изометрический трёхмерный кубик</div>
-          </div>
-        </button>
-
-        {/* Style 2: Matrix QR */}
-        <button
-          type="button"
-          id="btn-style-qr"
-          class="style-btn p-4 rounded-2xl border-2 border-transparent bg-white/70 hover:bg-white flex flex-col items-center gap-3 transition-all cursor-pointer text-center"
-        >
-          <div class="w-12 h-12 rounded-xl bg-[#132A22] flex items-center justify-center shadow-md">
-            <svg class="w-7 h-7" viewBox="0 0 22 22">
-              <g fill="none" stroke="#5BE3A6" stroke-width="1.8">
-                <rect x="1.4" y="1.4" width="6.2" height="6.2" rx="1.2" />
-                <rect x="14.4" y="1.4" width="6.2" height="6.2" rx="1.2" />
-                <rect x="1.4" y="14.4" width="6.2" height="6.2" rx="1.2" />
-              </g>
-              <g fill="#5BE3A6">
-                <rect x="3.6" y="3.6" width="1.8" height="1.8" rx="0.4" />
-                <rect x="16.6" y="3.6" width="1.8" height="1.8" rx="0.4" />
-                <rect x="3.6" y="16.6" width="1.8" height="1.8" rx="0.4" />
-                <rect x="10" y="10" width="2.6" height="2.6" rx="0.5" />
-                <rect x="14.4" y="14.4" width="2.6" height="2.6" rx="0.5" />
-              </g>
-            </svg>
-          </div>
-          <div>
-            <div class="font-extrabold text-sm text-[#132A22]">Воксельный QR</div>
-            <div class="text-[11px] text-[#78716c] mt-0.5">Стильная пиксельная матрица</div>
-          </div>
-        </button>
-
-        {/* Style 3: Dynamic Morph */}
-        <button
-          type="button"
-          id="btn-style-morph"
-          class="style-btn p-4 rounded-2xl border-2 border-transparent bg-white/70 hover:bg-white flex flex-col items-center gap-3 transition-all cursor-pointer text-center"
-        >
-          <div class="w-12 h-12 rounded-xl bg-[#132A22] flex items-center justify-center shadow-md text-[#19C37D] font-bold text-sm">
-            <span class="text-xs">QR ➔ 3D</span>
-          </div>
-          <div>
-            <div class="font-extrabold text-sm text-[#132A22]">Живой морфинг</div>
-            <div class="text-[11px] text-[#78716c] mt-0.5">Вверху QR, при скролле — 3D-куб</div>
-          </div>
-        </button>
+    {/* ========================================================
+        SECTION: 4 ВАРИАНТА РАСПОЛОЖЕНИЯ БУКВ В ЗНАКЕ (IMAGE 1)
+        ======================================================== */}
+    <div id="variants-section" class="mb-12">
+      
+      {/* SECTION TITLE & BADGE */}
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-xl font-black text-[#132A22] flex items-center gap-2.5">
+          <span class="w-6 h-6 rounded-lg bg-[#19C37D] text-[#132A22] text-xs flex items-center justify-center font-bold">1</span>
+          <span>4 варианта расположения букв в знаке:</span>
+        </h2>
+        <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-[#19C37D] bg-[#DFF8EB] px-3 py-1 rounded-full">
+          Выберите стиль
+        </span>
       </div>
 
-      {/* SIMULATE SCROLL TRIGGER BUTTONS */}
-      <h2 class="text-lg font-black text-[#132A22] mb-4 flex items-center gap-2">
-        <span class="w-6 h-6 rounded-lg bg-[#19C37D] text-[#132A22] text-xs flex items-center justify-center font-bold">2</span>
-        <span>Тест состояния шапки (без скролла)</span>
-      </h2>
+      {/* 2x2 GRID OF LIVE ANIMATED CARDS */}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-      <div class="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          id="force-top-btn"
-          class="px-5 py-2.5 rounded-xl bg-[#132A22] text-white font-bold text-xs shadow transition-transform active:scale-95 cursor-pointer"
-        >
-          Состояние «В самом верху» (Логотип + Текст)
-        </button>
+        {/* CARD 1: OBLIQ-ГРАНИ */}
+        <div id="card-facets" class="variant-live-card active soft-3d-card p-5 sm:p-6 flex flex-col justify-between border-2 border-[#19C37D] bg-white rounded-3xl transition-all shadow-sm">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-[#132A22] text-white">
+                1. Obliq-Грани
+              </span>
+              <span class="card-status-dot w-2.5 h-2.5 rounded-full bg-[#19C37D]"></span>
+            </div>
 
-        <button
-          type="button"
-          id="force-scroll-btn"
-          class="px-5 py-2.5 rounded-xl bg-white border border-[#e5dfd2] text-[#132A22] font-bold text-xs shadow-sm hover:bg-[#f6f3ee] transition-transform active:scale-95 cursor-pointer"
-        >
-          Состояние «При скролле» (Только иконка)
-        </button>
+            <h3 class="text-base font-black text-[#132A22]">
+              «Буквы на 3D гранях куба»
+            </h3>
+            <p class="text-xs text-[#6b645c] mt-1 leading-snug">
+              Как в референсе: буква <b>V</b> ложится на левую грань, <b>e-l</b> на правую, а изумрудные <b>ka</b> взлетают на верхнюю крышу кубика!
+            </p>
+
+            {/* MINI STAGE 1 */}
+            <div class="stage-box my-4 p-4 rounded-2xl bg-[#f7f4ee] border border-[#ebe5da] relative flex items-center justify-center min-h-[105px] overflow-hidden shadow-inner">
+              <div class="stage-stage flex items-center select-none scale-[1.25] origin-center">
+                {/* Badge with Hybrid Cube */}
+                <div class="relative w-10 h-10 shrink-0 rounded-[12px] bg-[#11231C] border border-[#19C37D]/35 shadow-md flex items-center justify-center overflow-hidden">
+                  <svg class="w-6 h-6" viewBox="0 0 32 32" fill="none">
+                    <path d="M16 3.5 L28.5 10 L16 16.5 L3.5 10 Z" fill="#132A22" stroke="#19C37D" stroke-width="1.3" stroke-linejoin="round" />
+                    <path d="M3.5 10 L16 16.5 V29.5 L3.5 23 Z" fill="#0C1B15" stroke="#19C37D" stroke-width="1.3" stroke-linejoin="round" />
+                    <path d="M28.5 10 L16 16.5 V29.5 L28.5 23 Z" fill="#081410" stroke="#19C37D" stroke-width="1.3" stroke-linejoin="round" />
+                    <circle cx="16" cy="9.2" r="1.1" fill="#8BF0C2" />
+                    <circle cx="9.5" cy="21.5" r="1.1" fill="#8BF0C2" />
+                    <circle cx="22.5" cy="21.5" r="1.1" fill="#8BF0C2" />
+                    <circle cx="16" cy="16.5" r="1.4" fill="#8BF0C2" />
+                    <circle cx="16" cy="23.0" r="1.2" fill="#8BF0C2" />
+                    <circle cx="16" cy="29.5" r="1.2" fill="#8BF0C2" />
+                  </svg>
+                  <div class="facet-graphic absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300">
+                    <span class="facet-v text-[9px] font-black text-[#8BF0C2] transform -translate-y-1.5 -translate-x-0.5">V</span>
+                    <span class="facet-ka text-[7.5px] font-black text-[#19C37D] transform translate-y-1 translate-x-1">ka</span>
+                  </div>
+                </div>
+
+                {/* Letters */}
+                <div class="letters-row flex flex-col ml-3 leading-none">
+                  <div class="word flex items-baseline font-black text-[17px] text-[#132A22]">
+                    <span class="g-v font-black text-[#132A22] transition-all">V</span>
+                    <span class="g-o text-[#132A22] transition-all" style="--d: 1;">o</span>
+                    <span class="g-x text-[#132A22] transition-all" style="--d: 2;">x</span>
+                    <span class="g-e text-[#132A22] transition-all" style="--d: 3;">e</span>
+                    <span class="g-l text-[#132A22] transition-all" style="--d: 4;">l</span>
+                    <span class="g-k text-[#19C37D] transition-all" style="--d: 5;">k</span>
+                    <span class="g-a text-[#19C37D] transition-all" style="--d: 6;">a</span>
+                  </div>
+                  <span class="sub text-[8.5px] font-bold tracking-[0.14em] uppercase text-[#a8a29e] mt-1">3D для сайтов</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-3 border-t border-[#ede7dc]">
+            <button type="button" class="btn-play-single px-3 py-1.5 rounded-lg bg-[#f0eae1] hover:bg-[#e4dcce] text-[#132A22] text-xs font-bold transition-colors cursor-pointer" data-target="card-facets">
+              ▶ Тест в цикле
+            </button>
+            <button type="button" class="btn-select-variant px-3 py-1.5 rounded-lg bg-[#132A22] text-white text-xs font-bold transition-colors cursor-pointer" data-variant="facets">
+              Выбран для симулятора
+            </button>
+          </div>
+        </div>
+
+        {/* CARD 2: ВОКСЕЛИ */}
+        <div id="card-voxels" class="variant-live-card soft-3d-card p-5 sm:p-6 flex flex-col justify-between border-2 border-transparent bg-white rounded-3xl transition-all shadow-sm">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-[#132A22] text-white">
+                2. Воксели
+              </span>
+              <span class="card-status-dot w-2.5 h-2.5 rounded-full bg-[#d5cdc2]"></span>
+            </div>
+
+            <h3 class="text-base font-black text-[#132A22]">
+              «7 Вокселей собирают куб»
+            </h3>
+            <p class="text-xs text-[#6b645c] mt-1 leading-snug">
+              Каждая из 7 букв сжимается в изометрический мини-кубик, которые по очереди залетают и заполняют пустой каркас знака.
+            </p>
+
+            {/* MINI STAGE 2 */}
+            <div class="stage-box my-4 p-4 rounded-2xl bg-[#f7f4ee] border border-[#ebe5da] relative flex items-center justify-center min-h-[105px] overflow-hidden shadow-inner">
+              <div class="stage-stage flex items-center select-none scale-[1.25] origin-center">
+                {/* Badge with Solid Cube */}
+                <div class="badge-icon relative w-10 h-10 shrink-0 rounded-[12px] bg-[#11231C] border border-[#19C37D]/35 shadow-md flex items-center justify-center overflow-hidden">
+                  <svg class="w-6 h-6 transition-transform duration-300" viewBox="0 0 32 32" fill="none">
+                    <path d="M16 3.5 L28.5 10 L16 16.5 L3.5 10 Z" fill="#8BF0C2" stroke="#19C37D" stroke-width="1.2" />
+                    <path d="M3.5 10 L16 16.5 V29.5 L3.5 23 Z" fill="#19C37D" stroke="#19C37D" stroke-width="1.2" />
+                    <path d="M28.5 10 L16 16.5 V29.5 L28.5 23 Z" fill="#0F8F5B" stroke="#19C37D" stroke-width="1.2" />
+                  </svg>
+                </div>
+
+                {/* Letters */}
+                <div class="letters-row flex flex-col ml-3 leading-none">
+                  <div class="word flex items-baseline font-black text-[17px] text-[#132A22]">
+                    <span class="g-v font-black text-[#132A22] transition-all">V</span>
+                    <span class="g-o text-[#132A22] transition-all" style="--d: 1;">o</span>
+                    <span class="g-x text-[#132A22] transition-all" style="--d: 2;">x</span>
+                    <span class="g-e text-[#132A22] transition-all" style="--d: 3;">e</span>
+                    <span class="g-l text-[#132A22] transition-all" style="--d: 4;">l</span>
+                    <span class="g-k text-[#19C37D] transition-all" style="--d: 5;">k</span>
+                    <span class="g-a text-[#19C37D] transition-all" style="--d: 6;">a</span>
+                  </div>
+                  <span class="sub text-[8.5px] font-bold tracking-[0.14em] uppercase text-[#a8a29e] mt-1">3D для сайтов</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-3 border-t border-[#ede7dc]">
+            <button type="button" class="btn-play-single px-3 py-1.5 rounded-lg bg-[#f0eae1] hover:bg-[#e4dcce] text-[#132A22] text-xs font-bold transition-colors cursor-pointer" data-target="card-voxels">
+              ▶ Тест в цикле
+            </button>
+            <button type="button" class="btn-select-variant px-3 py-1.5 rounded-lg bg-white hover:bg-[#132A22] hover:text-white border border-[#d5cdc2] text-[#132A22] text-xs font-bold transition-colors cursor-pointer" data-variant="voxels">
+              Выбрать для симулятора
+            </button>
+          </div>
+        </div>
+
+        {/* CARD 3: ТЕЛЕСКОП */}
+        <div id="card-vmonogram" class="variant-live-card soft-3d-card p-5 sm:p-6 flex flex-col justify-between border-2 border-transparent bg-white rounded-3xl transition-all shadow-sm">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-[#132A22] text-white">
+                3. Телескоп
+              </span>
+              <span class="card-status-dot w-2.5 h-2.5 rounded-full bg-[#d5cdc2]"></span>
+            </div>
+
+            <h3 class="text-base font-black text-[#132A22]">
+              «Телескоп под литеру V»
+            </h3>
+            <p class="text-xs text-[#6b645c] mt-1 leading-snug">
+              Буква <b>V</b> остаётся центральной монограммой, а <i>oxelka</i> складывается под неё, как телескопический объектив.
+            </p>
+
+            {/* MINI STAGE 3 */}
+            <div class="stage-box my-4 p-4 rounded-2xl bg-[#f7f4ee] border border-[#ebe5da] relative flex items-center justify-center min-h-[105px] overflow-hidden shadow-inner">
+              <div class="stage-stage flex items-center select-none scale-[1.25] origin-center">
+                {/* Badge with 3D V */}
+                <div class="badge-icon relative w-10 h-10 shrink-0 rounded-[12px] bg-[#11231C] border border-[#19C37D]/35 shadow-md flex items-center justify-center overflow-hidden">
+                  <svg class="w-6 h-6" viewBox="0 0 28 28" fill="none">
+                    <path d="M5 6 L9 3.8 L13 6.2 L9 8.5 Z" fill="#8BF0C2" />
+                    <path d="M5 6 L9 8.5 V13.5 L5 11 Z" fill="#19C37D" />
+                    <path d="M9 8.5 L13 6.2 V11.2 L9 13.5 Z" fill="#0F8F5B" />
+                    <path d="M15 6 L19 3.8 L23 6.2 L19 8.5 Z" fill="#8BF0C2" />
+                    <path d="M15 6 L19 8.5 V13.5 L15 11 Z" fill="#19C37D" />
+                    <path d="M19 8.5 L23 6.2 V11.2 L19 13.5 Z" fill="#0F8F5B" />
+                    <path d="M10 14.5 L14 12.2 L18 14.5 L14 16.8 Z" fill="#8BF0C2" />
+                    <path d="M10 14.5 L14 16.8 V21.8 L10 19.5 Z" fill="#19C37D" />
+                    <path d="M14 16.8 L18 14.5 V19.5 L14 21.8 Z" fill="#0F8F5B" />
+                  </svg>
+                </div>
+
+                {/* Letters */}
+                <div class="letters-row flex flex-col ml-3 leading-none">
+                  <div class="word flex items-baseline font-black text-[17px] text-[#132A22]">
+                    <span class="g-v font-black text-[#132A22] transition-all">V</span>
+                    <span class="g-o text-[#132A22] transition-all" style="--d: 1;">o</span>
+                    <span class="g-x text-[#132A22] transition-all" style="--d: 2;">x</span>
+                    <span class="g-e text-[#132A22] transition-all" style="--d: 3;">e</span>
+                    <span class="g-l text-[#132A22] transition-all" style="--d: 4;">l</span>
+                    <span class="g-k text-[#19C37D] transition-all" style="--d: 5;">k</span>
+                    <span class="g-a text-[#19C37D] transition-all" style="--d: 6;">a</span>
+                  </div>
+                  <span class="sub text-[8.5px] font-bold tracking-[0.14em] uppercase text-[#a8a29e] mt-1">3D для сайтов</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-3 border-t border-[#ede7dc]">
+            <button type="button" class="btn-play-single px-3 py-1.5 rounded-lg bg-[#f0eae1] hover:bg-[#e4dcce] text-[#132A22] text-xs font-bold transition-colors cursor-pointer" data-target="card-vmonogram">
+              ▶ Тест в цикле
+            </button>
+            <button type="button" class="btn-select-variant px-3 py-1.5 rounded-lg bg-white hover:bg-[#132A22] hover:text-white border border-[#d5cdc2] text-[#132A22] text-xs font-bold transition-colors cursor-pointer" data-variant="vmonogram">
+              Выбрать для симулятора
+            </button>
+          </div>
+        </div>
+
+        {/* CARD 4: МОНОГРАММА V·KA */}
+        <div id="card-vka" class="variant-live-card soft-3d-card p-5 sm:p-6 flex flex-col justify-between border-2 border-transparent bg-white rounded-3xl transition-all shadow-sm">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-[#132A22] text-white">
+                4. Монограмма
+              </span>
+              <span class="card-status-dot w-2.5 h-2.5 rounded-full bg-[#d5cdc2]"></span>
+            </div>
+
+            <h3 class="text-base font-black text-[#132A22]">
+              «Слияние в монограмму V·ka»
+            </h3>
+            <p class="text-xs text-[#6b645c] mt-1 leading-snug">
+              Буквы <i>o-x-e-l</i> сжимаются до нуля, а заглавная тёмная <b>V</b> и изумрудные <b>ka</b> смыкаются вместе прямо у значка: получается лаконичный брендовый бейдж [ Vka ].
+            </p>
+
+            {/* MINI STAGE 4 */}
+            <div class="stage-box my-4 p-4 rounded-2xl bg-[#f7f4ee] border border-[#ebe5da] relative flex items-center justify-center min-h-[105px] overflow-hidden shadow-inner">
+              <div class="stage-stage flex items-center select-none scale-[1.25] origin-center">
+                {/* Badge with Hybrid Cube */}
+                <div class="badge-icon relative w-10 h-10 shrink-0 rounded-[12px] bg-[#11231C] border border-[#19C37D]/35 shadow-md flex items-center justify-center overflow-hidden">
+                  <svg class="w-6 h-6" viewBox="0 0 32 32" fill="none">
+                    <path d="M16 3.5 L28.5 10 L16 16.5 L3.5 10 Z" fill="#132A22" stroke="#19C37D" stroke-width="1.3" stroke-linejoin="round" />
+                    <path d="M3.5 10 L16 16.5 V29.5 L3.5 23 Z" fill="#0C1B15" stroke="#19C37D" stroke-width="1.3" stroke-linejoin="round" />
+                    <path d="M28.5 10 L16 16.5 V29.5 L28.5 23 Z" fill="#081410" stroke="#19C37D" stroke-width="1.3" stroke-linejoin="round" />
+                    <circle cx="16" cy="9.2" r="1.1" fill="#8BF0C2" />
+                    <circle cx="9.5" cy="21.5" r="1.1" fill="#8BF0C2" />
+                    <circle cx="22.5" cy="21.5" r="1.1" fill="#8BF0C2" />
+                    <circle cx="16" cy="16.5" r="1.4" fill="#8BF0C2" />
+                    <circle cx="16" cy="23.0" r="1.2" fill="#8BF0C2" />
+                    <circle cx="16" cy="29.5" r="1.2" fill="#8BF0C2" />
+                  </svg>
+                </div>
+
+                {/* Letters */}
+                <div class="letters-row flex flex-col ml-3 leading-none">
+                  <div class="word flex items-baseline font-black text-[17px] text-[#132A22]">
+                    <span class="g-v font-black text-[#132A22] transition-all">V</span>
+                    <span class="g-o text-[#132A22] transition-all" style="--d: 1;">o</span>
+                    <span class="g-x text-[#132A22] transition-all" style="--d: 2;">x</span>
+                    <span class="g-e text-[#132A22] transition-all" style="--d: 3;">e</span>
+                    <span class="g-l text-[#132A22] transition-all" style="--d: 4;">l</span>
+                    <span class="g-k text-[#19C37D] transition-all" style="--d: 5;">k</span>
+                    <span class="g-a text-[#19C37D] transition-all" style="--d: 6;">a</span>
+                  </div>
+                  <span class="sub text-[8.5px] font-bold tracking-[0.14em] uppercase text-[#a8a29e] mt-1">3D для сайтов</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-3 border-t border-[#ede7dc]">
+            <button type="button" class="btn-play-single px-3 py-1.5 rounded-lg bg-[#f0eae1] hover:bg-[#e4dcce] text-[#132A22] text-xs font-bold transition-colors cursor-pointer" data-target="card-vka">
+              ▶ Тест в цикле
+            </button>
+            <button type="button" class="btn-select-variant px-3 py-1.5 rounded-lg bg-white hover:bg-[#132A22] hover:text-white border border-[#d5cdc2] text-[#132A22] text-xs font-bold transition-colors cursor-pointer" data-variant="vka">
+              Выбрать для симулятора
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    {/* DUMMY SCROLL CONTENT */}
-    <div class="space-y-6">
-      <div class="p-6 rounded-3xl bg-white/80 border border-[#e5dfd2] text-center text-sm font-semibold text-[#78716c]">
-        ↓ Листайте страницу вниз, чтобы проверить автоматическое сворачивание шапки по скроллу ↓
+    {/* ========================================================
+        DUMMY SCROLL SECTIONS FOR NATURAL PAGE SCROLL TESTING
+        ======================================================== */}
+    <div id="scroll-test" class="space-y-4 select-none">
+      <div class="p-4 rounded-2xl bg-[#f7f4ee] border border-[#ebe5da] text-center text-xs font-semibold text-[#78716c]">
+        ↓ Листайте страницу вниз, чтобы протестировать нативную верхнюю шапку вживую ↓
       </div>
 
-      {[1, 2, 3, 4, 5, 6].map((i) => (
-        <div class="soft-3d-card p-8 flex items-center justify-between">
+      {[1, 2, 3, 4].map((idx) => (
+        <div class="soft-3d-card p-6 flex items-center justify-between bg-white rounded-2xl border border-[#ebe5da]">
           <div>
-            <span class="text-xs font-mono font-bold text-[#19C37D]">БЛОК {i}</span>
-            <h3 class="text-xl font-black text-[#132A22] mt-1">Демонстрационная секция страницы</h3>
-            <p class="text-xs text-[#78716c] mt-1">При прокрутке шапка остаётся компактной, освобождая максимум места для контента.</p>
+            <span class="text-xs font-mono font-bold text-[#19C37D]">ТЕСТ СКРОЛЛА 0{idx}</span>
+            <h4 class="text-base font-black text-[#132A22] mt-0.5">Плавный возврат без рывков</h4>
+            <p class="text-xs text-[#78716c] mt-0.5">
+              Колёсико мыши вниз — буквы перетекают в куб. Колёсико вверх — буквы плавно вылетают обратно в шапку.
+            </p>
           </div>
-          <div class="w-12 h-12 rounded-2xl bg-[#DFF8EB] text-[#132A22] font-black flex items-center justify-center">
-            0{i}
+          <div class="w-10 h-10 rounded-xl bg-[#DFF8EB] text-[#132A22] font-black text-sm flex items-center justify-center shadow-inner">
+            {idx}
           </div>
         </div>
       ))}
     </div>
+
   </main>
 </Layout>
 
+<style is:global>
+  /* ========================================================
+     NAVBAR LETTER TRANSITIONS (TOP BAR)
+     ======================================================== */
+  .fly-letter {
+    display: inline-block;
+    transition-property: transform, opacity, filter, max-width, margin;
+    transition-duration: 340ms;
+    transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+    max-width: 24px;
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1) skewY(0deg);
+  }
+
+  .v-letter {
+    display: inline-block;
+    transition-property: transform, color, opacity;
+    transition-duration: 340ms;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* 1. Obliq Facets */
+  .mode-facets.is-collapsed .fly-letter {
+    transition-delay: calc((6 - var(--idx)) * 20ms);
+    transform: translate3d(calc(-28px - (var(--idx) * 5px)), -3px, 0) scale(0.12) skewY(calc((var(--idx) - 3) * 8deg));
+    opacity: 0;
+    max-width: 0px;
+    margin: 0;
+  }
+  .mode-facets:not(.is-collapsed) .fly-letter {
+    transition-delay: calc(var(--idx) * 20ms);
+    transform: translate3d(0, 0, 0) scale(1) skewY(0deg);
+    opacity: 1;
+    max-width: 24px;
+  }
+  .mode-facets.is-collapsed .v-letter {
+    transform: translate3d(-24px, 1px, 0) scale(0.22) skewY(30deg);
+    opacity: 0;
+  }
+  .mode-facets:not(.is-collapsed) .v-letter {
+    transform: translate3d(0, 0, 0) scale(1) skewY(0deg);
+    opacity: 1;
+  }
+
+  /* 2. Voxels */
+  .mode-voxels.is-collapsed .fly-letter {
+    transition-delay: calc((6 - var(--idx)) * 24ms);
+    transform: translate3d(calc(-30px - (var(--idx) * 6px)), -2px, 0) scale(0.15) rotate(calc(var(--idx) * 18deg));
+    opacity: 0;
+    max-width: 0px;
+    margin: 0;
+  }
+  .mode-voxels:not(.is-collapsed) .fly-letter {
+    transition-delay: calc(var(--idx) * 24ms);
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+    opacity: 1;
+    max-width: 24px;
+  }
+  .mode-voxels.is-collapsed .v-letter {
+    transform: translate3d(-26px, -1px, 0) scale(0.2) rotate(-45deg);
+    opacity: 0;
+  }
+  .mode-voxels:not(.is-collapsed) .v-letter {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+
+  /* 3. V-Monogram Telescope */
+  .mode-vmonogram.is-collapsed .fly-letter {
+    transition-delay: calc((6 - var(--idx)) * 18ms);
+    transform: translate3d(calc(-20px - (var(--idx) * 7px)), 0, 0) scaleX(0.08) scaleY(0.7);
+    opacity: 0;
+    max-width: 0px;
+    margin: 0;
+  }
+  .mode-vmonogram:not(.is-collapsed) .fly-letter {
+    transition-delay: calc(var(--idx) * 18ms);
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+    max-width: 24px;
+  }
+  .mode-vmonogram.is-collapsed .v-letter {
+    transform: translate3d(-18px, 0, 0) scale(1.15);
+    color: #19C37D;
+  }
+  .mode-vmonogram:not(.is-collapsed) .v-letter {
+    transform: translate3d(0, 0, 0) scale(1);
+    color: #132A22;
+  }
+
+  /* 4. V-ka Monogram Merge */
+  .mode-vka.is-collapsed .fly-letter.letter-o,
+  .mode-vka.is-collapsed .fly-letter.letter-x,
+  .mode-vka.is-collapsed .fly-letter.letter-e,
+  .mode-vka.is-collapsed .fly-letter.letter-l {
+    transform: scale(0.1);
+    opacity: 0;
+    max-width: 0px;
+    margin: 0;
+  }
+  .mode-vka.is-collapsed .fly-letter.letter-k,
+  .mode-vka.is-collapsed .fly-letter.letter-a {
+    transform: translate3d(-46px, 0, 0) scale(1);
+    opacity: 1;
+  }
+  .mode-vka:not(.is-collapsed) .fly-letter {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+    max-width: 24px;
+  }
+
+  /* Subtitle in navbar */
+  .is-collapsed #brand-subtitle {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.8);
+    max-height: 0px;
+    margin-top: 0;
+  }
+
+  /* ========================================================
+     CARD TEST STYLES (MINI STAGES)
+     ======================================================== */
+  .card-collapsed #card-facets .facet-graphic {
+    opacity: 1 !important;
+  }
+  .card-collapsed .letters-row .g-o,
+  .card-collapsed .letters-row .g-x,
+  .card-collapsed .letters-row .g-e,
+  .card-collapsed .letters-row .g-l {
+    transform: translate3d(-35px, 0, 0) scale(0.1);
+    opacity: 0;
+    max-width: 0px;
+  }
+  .card-collapsed .letters-row .g-k,
+  .card-collapsed .letters-row .g-a {
+    transform: translate3d(-35px, -8px, 0) scale(0.85);
+  }
+  .card-collapsed .letters-row .sub {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  /* Pulse animation on trigger */
+  @keyframes logoPulseKeyframes {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+  .logo-pulse {
+    animation: logoPulseKeyframes 320ms cubic-bezier(0.17, 0.89, 0.32, 1.28);
+  }
+</style>
+
 <script>
   function initLab() {
-    const brandText = document.getElementById('lab-brand-text');
-    const header = document.getElementById('lab-header');
-    const iconCube = document.getElementById('icon-cube');
-    const iconQr = document.getElementById('icon-qr');
-    const iconMorph = document.getElementById('icon-morph');
+    // Top Navbar Elements
+    const brandLink = document.getElementById('lab-brand-link');
+    const logoBox = document.getElementById('lab-logo-box');
+    const logoRipple = document.getElementById('logo-ripple');
 
-    const btnCube = document.getElementById('btn-style-cube');
-    const btnQr = document.getElementById('btn-style-qr');
-    const btnMorph = document.getElementById('btn-style-morph');
-    const styleBtns = [btnCube, btnQr, btnMorph];
+    // Cards
+    const cards = [
+      document.getElementById('card-facets'),
+      document.getElementById('card-voxels'),
+      document.getElementById('card-vmonogram'),
+      document.getElementById('card-vka')
+    ];
 
-    let currentStyle: 'cube' | 'qr' | 'morph' = 'cube';
-    let isCollapsed = false;
+    // Simulator Elements
+    const scrubSlider = document.getElementById('scrub-slider') as HTMLInputElement | null;
+    const scrubPct = document.getElementById('scrub-pct');
+    const btnPlayToggle = document.getElementById('btn-play-toggle');
+    const playIcon = document.getElementById('play-icon');
+    const playText = document.getElementById('play-text');
+    const btnResetTop = document.getElementById('btn-reset-top');
+    const btnSetScrolled = document.getElementById('btn-set-scrolled');
+    const simGlyphs = document.querySelectorAll<HTMLElement>('.sim-glyph');
+    const simSub = document.getElementById('sim-sub');
+    const simInnerGlyphs = document.getElementById('sim-inner-glyphs');
+    const simFacetGlow = document.getElementById('sim-facet-glow');
 
-    // Apply Style
-    function setStyle(style: 'cube' | 'qr' | 'morph') {
-      currentStyle = style;
-      iconCube?.classList.add('hidden');
-      iconQr?.classList.add('hidden');
-      iconMorph?.classList.add('hidden');
+    let currentVariant = 'facets'; // 'facets' | 'voxels' | 'vmonogram' | 'vka'
+    let isPlaying = false;
+    let playInterval: number | null = null;
+    let isNavCollapsed = false;
 
-      styleBtns.forEach((b) => {
-        b?.classList.remove('active', 'border-[#19C37D]', 'bg-[#DFF8EB]/40');
-        b?.classList.add('border-transparent', 'bg-white/70');
+    // 1. SELECT ACTIVE VARIANT FOR NAVBAR & SIMULATOR
+    function selectVariant(variant: string) {
+      currentVariant = variant;
+
+      // Update Card Visuals
+      cards.forEach((c) => {
+        if (!c) return;
+        const btnSelect = c.querySelector('.btn-select-variant');
+        const dot = c.querySelector('.card-status-dot');
+
+        if (c.id === `card-${variant}`) {
+          c.classList.add('border-[#19C37D]');
+          c.classList.remove('border-transparent');
+          if (dot) {
+            dot.className = 'card-status-dot w-2.5 h-2.5 rounded-full bg-[#19C37D]';
+          }
+          if (btnSelect) {
+            btnSelect.textContent = 'Выбран для симулятора';
+            btnSelect.className = 'btn-select-variant px-3 py-1.5 rounded-lg bg-[#132A22] text-white text-xs font-bold transition-colors cursor-pointer';
+          }
+        } else {
+          c.classList.remove('border-[#19C37D]');
+          c.classList.add('border-transparent');
+          if (dot) {
+            dot.className = 'card-status-dot w-2.5 h-2.5 rounded-full bg-[#d5cdc2]';
+          }
+          if (btnSelect) {
+            btnSelect.textContent = 'Выбрать для симулятора';
+            btnSelect.className = 'btn-select-variant px-3 py-1.5 rounded-lg bg-white hover:bg-[#132A22] hover:text-white border border-[#d5cdc2] text-[#132A22] text-xs font-bold transition-colors cursor-pointer';
+          }
+        }
       });
 
-      if (style === 'cube') {
-        iconCube?.classList.remove('hidden');
-        btnCube?.classList.add('active', 'border-[#19C37D]', 'bg-[#DFF8EB]/40');
-      } else if (style === 'qr') {
-        iconQr?.classList.remove('hidden');
-        btnQr?.classList.add('active', 'border-[#19C37D]', 'bg-[#DFF8EB]/40');
-      } else if (style === 'morph') {
-        iconMorph?.classList.remove('hidden');
-        btnMorph?.classList.add('active', 'border-[#19C37D]', 'bg-[#DFF8EB]/40');
+      // Update Navbar Class
+      brandLink?.classList.remove('mode-facets', 'mode-voxels', 'mode-vmonogram', 'mode-vka');
+      brandLink?.classList.add(`mode-${variant}`);
+
+      // Re-render simulator
+      if (scrubSlider) updateSimulator(parseFloat(scrubSlider.value));
+    }
+
+    // Attach click to card select buttons
+    document.querySelectorAll<HTMLButtonElement>('.btn-select-variant').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const variant = btn.getAttribute('data-variant');
+        if (variant) selectVariant(variant);
+      });
+    });
+
+    // 2. SIMULATOR UPDATE LOGIC
+    function updateSimulator(progress: number) {
+      const t = progress / 100;
+      if (scrubPct) scrubPct.textContent = `${Math.round(progress)}%`;
+
+      if (simSub) {
+        const subT = Math.min(1, t / 0.35);
+        simSub.style.opacity = `${1 - subT}`;
+        simSub.style.transform = `translateY(${-4 * subT}px) scale(${1 - 0.15 * subT})`;
       }
 
-      updateMorphVisuals(isCollapsed);
-    }
+      simGlyphs.forEach((glyph) => {
+        const idx = parseInt(glyph.style.getPropertyValue('--i') || '0', 10);
 
-    btnCube?.addEventListener('click', () => setStyle('cube'));
-    btnQr?.addEventListener('click', () => setStyle('qr'));
-    btnMorph?.addEventListener('click', () => setStyle('morph'));
+        if (currentVariant === 'facets') {
+          const delay = (6 - idx) * 0.08;
+          const letterT = Math.max(0, Math.min(1, (t - delay) / (1 - 0.48)));
 
-    // Collapse / Expand Functions
-    function collapseLogo() {
-      isCollapsed = true;
-      if (!brandText) return;
-      // Smoothly collapse width, opacity, margin, and translate slightly into the icon
-      brandText.style.maxWidth = '0px';
-      brandText.style.opacity = '0';
-      brandText.style.marginLeft = '0px';
-      brandText.style.transform = 'translateX(-10px) scale(0.9)';
-      header?.classList.add('shadow-[0_16px_36px_-10px_rgba(19,42,34,0.22)]');
+          let targetX = -45 - (idx * 11);
+          let targetY = 0;
+          let targetSkew = 0;
+          let targetScale = 1 - 0.88 * letterT;
 
-      updateMorphVisuals(true);
-    }
+          if (idx >= 5) {
+            targetY = -12 * letterT;
+            targetSkew = -25 * letterT;
+          } else if (idx <= 2) {
+            targetY = 4 * letterT;
+            targetSkew = 30 * letterT;
+          } else {
+            targetY = 5 * letterT;
+            targetSkew = -30 * letterT;
+          }
 
-    function expandLogo() {
-      isCollapsed = false;
-      if (!brandText) return;
-      brandText.style.maxWidth = '130px';
-      brandText.style.opacity = '1';
-      brandText.style.marginLeft = '0.625rem'; // 10px
-      brandText.style.transform = 'translateX(0px) scale(1)';
-      header?.classList.remove('shadow-[0_16px_36px_-10px_rgba(19,42,34,0.22)]');
+          glyph.style.transform = `translate3d(${targetX * letterT}px, ${targetY}px, 0) scale(${targetScale}) skewY(${targetSkew}deg)`;
+          glyph.style.opacity = `${1 - Math.max(0, (letterT - 0.7) * 3.3)}`;
+        } else if (currentVariant === 'voxels') {
+          const delay = (6 - idx) * 0.09;
+          const letterT = Math.max(0, Math.min(1, (t - delay) / (1 - 0.5)));
+          const targetX = (-52 - (idx * 12)) * letterT;
+          const targetY = -4 * letterT;
+          const targetRot = (idx * 15) * letterT;
+          const targetScale = 1 - 0.9 * letterT;
 
-      updateMorphVisuals(false);
-    }
-
-    function updateMorphVisuals(collapsed: boolean) {
-      if (currentStyle !== 'morph') return;
-      const morphQr = iconMorph?.querySelector('.morph-qr') as HTMLElement | null;
-      const morphCube = iconMorph?.querySelector('.morph-cube') as HTMLElement | null;
-
-      if (collapsed) {
-        if (morphQr) {
-          morphQr.style.opacity = '0';
-          morphQr.style.transform = 'scale(0.5) rotate(25deg)';
+          glyph.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) scale(${targetScale}) rotate(${targetRot}deg)`;
+          glyph.style.opacity = `${1 - Math.max(0, (letterT - 0.65) * 2.85)}`;
+        } else if (currentVariant === 'vmonogram') {
+          if (idx === 0) {
+            glyph.style.transform = `translate3d(${-18 * t}px, 0, 0) scale(${1 + 0.12 * t})`;
+            glyph.style.color = t > 0.6 ? '#19C37D' : '#132A22';
+            glyph.style.opacity = '1';
+          } else {
+            const delay = (6 - idx) * 0.08;
+            const letterT = Math.max(0, Math.min(1, (t - delay) / (1 - 0.48)));
+            const targetX = (-25 - (idx * 10)) * letterT;
+            glyph.style.transform = `translate3d(${targetX}px, 0, 0) scaleX(${Math.max(0.05, 1 - letterT)}) scaleY(${1 - 0.3 * letterT})`;
+            glyph.style.opacity = `${1 - Math.max(0, (letterT - 0.5) * 2)}`;
+          }
+        } else if (currentVariant === 'vka') {
+          if (idx === 0) {
+            glyph.style.transform = `translate3d(${-24 * t}px, 0, 0) scale(${1 + 0.08 * t})`;
+            glyph.style.opacity = '1';
+          } else if (idx >= 5) {
+            glyph.style.transform = `translate3d(${-54 * t}px, 0, 0) scale(1)`;
+            glyph.style.opacity = '1';
+          } else {
+            const collapseT = Math.min(1, t / 0.5);
+            glyph.style.transform = `scale(${1 - collapseT})`;
+            glyph.style.opacity = `${1 - collapseT}`;
+          }
         }
-        if (morphCube) {
-          morphCube.style.opacity = '1';
-          morphCube.style.transform = 'scale(1) rotate(0deg)';
-        }
+      });
+
+      // Facet graphic / glow inside badge
+      if (currentVariant === 'facets') {
+        const glowT = Math.max(0, (t - 0.6) / 0.4);
+        if (simInnerGlyphs) simInnerGlyphs.style.opacity = `${glowT}`;
+        if (simFacetGlow) simFacetGlow.style.opacity = `${glowT * 0.6}`;
       } else {
-        if (morphQr) {
-          morphQr.style.opacity = '1';
-          morphQr.style.transform = 'scale(1) rotate(0deg)';
-        }
-        if (morphCube) {
-          morphCube.style.opacity = '0';
-          morphCube.style.transform = 'scale(0.5) rotate(-30deg)';
-        }
+        if (simInnerGlyphs) simInnerGlyphs.style.opacity = '0';
+        if (simFacetGlow) simFacetGlow.style.opacity = '0';
       }
     }
 
-    // Scroll listener: if scrollY > 50px, collapse; otherwise expand
+    // Scrubber input event
+    scrubSlider?.addEventListener('input', () => {
+      stopAutoPlay();
+      if (scrubSlider) updateSimulator(parseFloat(scrubSlider.value));
+    });
+
+    // Reset to Top (0%)
+    btnResetTop?.addEventListener('click', () => {
+      stopAutoPlay();
+      if (scrubSlider) {
+        scrubSlider.value = '0';
+        updateSimulator(0);
+      }
+      brandLink?.classList.remove('is-collapsed');
+    });
+
+    // Set to Scrolled (100%)
+    btnSetScrolled?.addEventListener('click', () => {
+      stopAutoPlay();
+      if (scrubSlider) {
+        scrubSlider.value = '100';
+        updateSimulator(100);
+      }
+      brandLink?.classList.add('is-collapsed');
+      triggerNavbarPulse();
+    });
+
+    // 3. AUTO-PLAY LOOP
+    function startAutoPlay() {
+      isPlaying = true;
+      if (playIcon) playIcon.textContent = '⏸';
+      if (playText) playText.textContent = 'Пауза';
+
+      let direction = 1;
+      let val = scrubSlider ? parseFloat(scrubSlider.value) : 0;
+
+      playInterval = window.setInterval(() => {
+        val += direction * 2;
+        if (val >= 100) {
+          val = 100;
+          direction = -1;
+        } else if (val <= 0) {
+          val = 0;
+          direction = 1;
+        }
+        if (scrubSlider) {
+          scrubSlider.value = val.toString();
+          updateSimulator(val);
+        }
+      }, 35);
+    }
+
+    function stopAutoPlay() {
+      if (playInterval) {
+        clearInterval(playInterval);
+        playInterval = null;
+      }
+      isPlaying = false;
+      if (playIcon) playIcon.textContent = '▶';
+      if (playText) playText.textContent = 'Авто-показ (Play)';
+    }
+
+    btnPlayToggle?.addEventListener('click', () => {
+      if (isPlaying) {
+        stopAutoPlay();
+      } else {
+        startAutoPlay();
+      }
+    });
+
+    // Individual card test buttons
+    document.querySelectorAll<HTMLButtonElement>('.btn-play-single').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-target');
+        const targetCard = document.getElementById(targetId || '');
+        if (targetCard) {
+          targetCard.classList.toggle('card-collapsed');
+        }
+      });
+    });
+
+    // 4. NAVBAR PULSE
+    function triggerNavbarPulse() {
+      if (!logoBox) return;
+      logoBox.classList.remove('logo-pulse');
+      void logoBox.offsetWidth;
+      logoBox.classList.add('logo-pulse');
+      if (logoRipple) {
+        logoRipple.style.opacity = '1';
+        setTimeout(() => {
+          logoRipple.style.opacity = '0';
+        }, 320);
+      }
+    }
+
+    // 5. NATIVE SCROLL LISTENER (NAVBAR COLLAPSE)
     window.addEventListener('scroll', () => {
-      if (window.scrollY > 40) {
-        if (!isCollapsed) collapseLogo();
+      if (window.scrollY > 45) {
+        if (!isNavCollapsed) {
+          isNavCollapsed = true;
+          brandLink?.classList.add('is-collapsed');
+          triggerNavbarPulse();
+        }
       } else {
-        if (isCollapsed) expandLogo();
+        if (isNavCollapsed) {
+          isNavCollapsed = false;
+          brandLink?.classList.remove('is-collapsed');
+          triggerNavbarPulse();
+        }
       }
     }, { passive: true });
 
-    // Buttons for manual testing
-    document.getElementById('force-top-btn')?.addEventListener('click', expandLogo);
-    document.getElementById('force-scroll-btn')?.addEventListener('click', collapseLogo);
+    // Initial run
+    selectVariant('facets');
+    updateSimulator(0);
   }
 
+  // Init on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initLab);
   } else {
     initLab();
   }
+</script>
+
+<script>
+  import { createMorphLogo } from '../brand/morphLogo';
+
+  const start = () => {
+    const host = document.getElementById('morph-host');
+    const name = document.getElementById('morph-name');
+    const sub = document.getElementById('morph-sub');
+    const bigHost = document.getElementById('morph-big');
+    const bigName = document.getElementById('morph-big-name');
+    const bigSub = document.getElementById('morph-big-sub');
+    const range = document.getElementById('flip-range') as HTMLInputElement | null;
+    const tile = document.getElementById('morph-tile');
+    const bigTile = document.getElementById('morph-big-tile');
+    const val = document.getElementById('flip-val');
+    if (!host || !name || !sub) return;
+    const logo = createMorphLogo(host, name, { logoCenter: { x: 32, y: 32 }, logoSize: 44 });
+    const big = bigHost && bigName ? createMorphLogo(bigHost, bigName, { logoCenter: { x: 70, y: 60 }, logoSize: 96 }) : null;
+    const count = document.getElementById('flip-count');
+    if (count) count.textContent = `кубиков: в названии ${logo.counts.text}, в логотипе ${logo.counts.logo}`;
+    (window as any).__morph = { logo, big };
+
+    const smooth = (a: number, b: number, t: number) => { const k = Math.min(1, Math.max(0, (t - a) / (b - a))); return k * k * (3 - 2 * k); };
+    let manual = false;
+    const apply = (p: number) => {
+      logo.setProgress(p);
+      big?.setProgress(p);
+      // the crisp text hands over to its voxel copy right at the start; the subtitle fades a bit slower
+      const subOp = String(1 - smooth(0, 0.22, p));
+      sub.style.opacity = subOp;
+      if (bigSub) bigSub.style.opacity = subOp;
+      // the dark tile behind the mark grows in while the cubes settle
+      const t = smooth(0.55, 0.95, p);
+      for (const el of [tile, bigTile]) {
+        if (!el) continue;
+        el.style.opacity = String(t);
+        el.style.transform = `scale(${0.7 + 0.3 * t})`;
+      }
+      if (range && !manual) range.value = String(Math.round(p * 1000));
+      if (val) val.textContent = `${Math.round(p * 100)}%`;
+    };
+    const fromScroll = () => apply(Math.min(1, window.scrollY / 420));
+    window.addEventListener('scroll', () => { manual = false; fromScroll(); }, { passive: true });
+    range?.addEventListener('input', () => { manual = true; apply(Number(range.value) / 1000); });
+    fromScroll();
+  };
+  // the voxel copy of the name needs the site font: wait for Nunito
+  const go = () => (document.fonts ? document.fonts.load('900 24px Nunito').then(start, start) : start());
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go);
+  else go();
 </script>

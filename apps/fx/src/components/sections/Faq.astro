@@ -11,8 +11,8 @@ const faq = [
     a: 'Да. Сверху сцена — обычный QR с выровненным контрастом, детали в этот момент убираются. Перед выдачей кода студия проверяет, что он читается.',
   },
   {
-    q: 'Что будет, если поменяется ссылка?',
-    a: 'QR хранит ссылку внутри себя, поэтому код нужно создать заново в студии и заменить в блоке T123. Совет: ставьте ссылку, которой управляете сами (например, свой домен с переадресацией), — тогда менять код не придётся.',
+    q: 'Можно поменять ссылку или текст после покупки?',
+    a: 'Да, но не в самом коде: QR и надписи в нём уже собраны из кубиков, ручная правка их сломает. Откройте студию, вставьте ключ из письма, поменяйте что нужно и замените старый код на сайте новым. Ключ не сгорает — пересобирать код для своего сайта можно сколько угодно раз.',
   },
   {
     q: 'Можно ли свои цвета?',
@@ -32,21 +32,25 @@ const faq = [
   },
   {
     q: 'Как купить и получить код?',
-    a: 'В студии эффект можно собрать и посмотреть бесплатно. Для сайта покупается ключ — разово, навсегда для одного сайта. Регистрация не нужна: ключ приходит на почту вместе с чеком, его вставляют в окне «Код для Tilda». Ключ можно вставлять снова — если обновили страницу или поменяли ссылку, код соберётся заново.',
+    a: 'В студии эффект можно собрать и посмотреть бесплатно. Для сайта покупается ключ — разово, навсегда для одного сайта. Регистрация не нужна: сразу после оплаты вы получаете готовый код (скопировать или скачать файлом), а ключ и ссылку на код — на почту. Ключ можно вставлять снова — если обновили страницу или поменяли ссылку, код соберётся заново.',
   },
   {
     q: 'Можно ли поставить один код на несколько сайтов?',
-    a: 'Код привязан к сайту, для которого куплен ключ. Скопированный на другой сайт, он покажет пометку Voxelka. Для нескольких сайтов нужны отдельные ключи — студиям сделаем пакет.',
+    a: 'Код привязан к сайту, для которого куплен ключ. Скопированный на другой сайт, он покажет пометку Gridika. Для нескольких сайтов нужны отдельные ключи — студиям сделаем пакет.',
+  },
+  {
+    q: 'Что входит в один ключ?',
+    a: 'Ключ работает навсегда на одном сайте. Визитка — на одного человека, 3D-логотип — на один знак, морф «до / после» — на одну пару фото: всё остальное (цвета, тексты, режимы) меняется бесплатно, а для коллеги, другого логотипа или новой пары нужен свой ключ — командам и студиям сделаем пакеты со скидкой. 3D QR, подарок и таймер — без ограничений на сайте: любые ссылки, промокоды и даты. Ключ «Все эффекты» — всё без ограничений для одного сайта.',
   },
 ];
 ---
 
-<section id="faq" class="py-16 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
+<section id="faq" class="pt-16 pb-6 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
   <SectionHead label="Вопросы" title="Частые вопросы" />
 
-  <div class="flex flex-col gap-3">
+  <div id="faq-list" class="flex flex-col gap-3 min-h-[880px] sm:min-h-[990px]">
     {faq.map((item) => (
-      <details class="vx-faq soft-3d-card !rounded-[1.5rem] px-6 transition-all duration-300">
+      <details class="vx-faq soft-3d-card !rounded-[1.5rem] px-6 transition-shadow duration-300">
         <summary class="flex items-center justify-between gap-4 py-4 cursor-pointer list-none select-none">
           <span class="text-[15px] font-extrabold text-[#132A22]">{item.q}</span>
           <span class="faq-icon w-7 h-7 shrink-0 rounded-full bg-[var(--vx-soft)] text-[#132A22] flex items-center justify-center text-lg font-black transition-transform duration-300 pointer-events-none select-none">+</span>
@@ -87,10 +91,45 @@ const faq = [
 
 <script>
   function initFaqAccordion() {
+    const container = document.querySelector<HTMLElement>('#faq-list');
     const detailsEls = document.querySelectorAll<HTMLDetailsElement>('details.vx-faq');
     if (!detailsEls.length) return;
 
     const closingTimeouts = new WeakMap<HTMLDetailsElement, number>();
+
+    // Dynamic height reservation so the bottom of the page (FinalCta & Footer)
+    // never jumps or shifts when expanding/collapsing FAQ items.
+    function updateMinHeight() {
+      if (!container) return;
+      let totalClosedHeight = 0;
+      let maxAnswerHeight = 0;
+
+      detailsEls.forEach((el) => {
+        const summary = el.querySelector<HTMLElement>('summary');
+        const p = el.querySelector<HTMLElement>('.faq-anim-grid p');
+        if (summary) {
+          totalClosedHeight += summary.offsetHeight;
+        }
+        if (p) {
+          const h = Math.max(p.scrollHeight, p.offsetHeight);
+          if (h > maxAnswerHeight) {
+            maxAnswerHeight = h;
+          }
+        }
+      });
+
+      const gap = 12; // gap-3 = 12px
+      const totalGaps = (detailsEls.length - 1) * gap;
+      const targetMinHeight = totalClosedHeight + totalGaps + maxAnswerHeight + 28;
+      container.style.minHeight = `${targetMinHeight}px`;
+    }
+
+    updateMinHeight();
+    window.addEventListener('resize', updateMinHeight);
+    if ('fonts' in document) {
+      document.fonts.ready.then(updateMinHeight);
+    }
+    setTimeout(updateMinHeight, 200);
 
     function openDetails(el: HTMLDetailsElement) {
       const timeout = closingTimeouts.get(el);
@@ -135,18 +174,6 @@ const faq = [
             }
           });
           openDetails(el);
-        }
-      });
-    });
-
-    // When clicking anywhere outside open FAQ items, smoothly close them
-    document.addEventListener('click', (e) => {
-      const target = e.target as Node | null;
-      if (!target) return;
-
-      detailsEls.forEach((el) => {
-        if (el.open && !el.contains(target)) {
-          closeDetails(el);
         }
       });
     });

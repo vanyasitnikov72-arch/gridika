@@ -1,0 +1,406 @@
+---
+interface Props {
+  initialTab?: 'offer' | 'privacy';
+}
+
+const { initialTab = 'offer' } = Astro.props;
+---
+
+<div id="legal-container" data-active-tab={initialTab} class="w-full">
+  {/* Header with 3D voxel brand logo and back link */}
+  <header class="w-full flex items-center justify-between mb-8 sm:mb-10">
+    <a href="/" id="legal-brand" class="relative block w-[150px] h-12 select-none cursor-pointer" aria-label="Gridika — на главную">
+      <span id="legal-brand-name" class="absolute left-1 top-1/2 -translate-y-1/2 text-[30px] font-black text-[#132A22] tracking-[-0.03em] w-max opacity-0">Grid<span class="text-[#19C37D]">ika</span></span>
+    </a>
+    <a 
+      href="/" 
+      class="text-[13px] font-extrabold text-[#57534e] hover:text-[#132A22] flex items-center gap-1.5 transition-colors"
+    >
+      <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      На главную
+    </a>
+  </header>
+
+  {/* Smooth Animated Tab Switcher */}
+  <div class="relative flex items-center p-1.5 rounded-2xl bg-[#ebe5dc] max-w-[520px] mx-auto mb-8 sm:mb-10 text-[13px] sm:text-[14px] font-extrabold select-none">
+    {/* Sliding active pill */}
+    <div 
+      id="legal-pill" 
+      class={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] rounded-xl bg-white shadow-[0_3px_12px_-2px_rgba(19,42,34,0.18)] transition-transform duration-300 ease-[cubic-bezier(0.34,1.3,0.64,1)] pointer-events-none ${
+        initialTab === 'privacy' ? 'translate-x-[calc(100%+6px)]' : 'translate-x-0'
+      }`}
+    ></div>
+
+    <a 
+      href="/offer"
+      id="tab-btn-offer" 
+      class={`relative z-10 flex-1 min-h-[44px] flex items-center justify-center px-3 py-2 text-center rounded-xl transition-colors duration-200 cursor-pointer leading-snug ${
+        initialTab === 'offer' ? 'text-[#132A22]' : 'text-[#78716c] hover:text-[#132A22]'
+      }`}
+    >
+      Публичная оферта
+    </a>
+    <a 
+      href="/privacy"
+      id="tab-btn-privacy" 
+      class={`relative z-10 flex-1 min-h-[44px] flex items-center justify-center px-3 py-2 text-center rounded-xl transition-colors duration-200 cursor-pointer leading-snug ${
+        initialTab === 'privacy' ? 'text-[#132A22]' : 'text-[#78716c] hover:text-[#132A22]'
+      }`}
+    >
+      Политика конфиденциальности
+    </a>
+  </div>
+
+  {/* TAB 1: Публичная оферта */}
+  <article 
+    id="doc-offer" 
+    class={`legal-doc bg-white border border-[#ebe5da] rounded-[28px] sm:rounded-[36px] shadow-[0_24px_60px_-28px_rgba(19,42,34,0.18)] p-6 sm:p-12 text-[#1c1917] transition-all duration-300 ease-out ${
+      initialTab === 'offer' ? 'block opacity-100 translate-y-0' : 'hidden opacity-0 translate-y-2'
+    }`}
+  >
+    <header class="border-b border-[#f0ebe3] pb-6 mb-8">
+      <span class="inline-block text-[11px] font-black uppercase tracking-[0.14em] text-[#19C37D] bg-[#DFF8EB] px-3 py-1 rounded-full mb-3">
+        Лицензионный договор
+      </span>
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-[#132A22] tracking-tight leading-tight">
+        Публичная оферта
+      </h1>
+      <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-bold text-[#78716c]">
+        <span>Редакция от 11 ноября 2026 г.</span>
+      </div>
+    </header>
+
+    <div class="prose max-w-none text-[14.5px] sm:text-[15.5px] text-[#44403c] leading-[1.75] space-y-6 font-sans">
+      <p class="font-medium text-[#292524] bg-[#f9f7f4] border border-[#ebe5da] rounded-2xl p-4 sm:p-5">
+        Настоящий документ представляет собой официальное предложение физического лица <strong>Ситникова Ивана Максимовича</strong>, применяющего специальный налоговый режим «Налог на профессиональный доход» (далее — <strong>«Лицензиар»</strong>), заключить лицензионный договор на право использования сервиса и программного обеспечения «Gridika» на изложенных ниже условиях с любым дееспособным лицом (далее — <strong>«Лицензиат»</strong>).
+        <br /><br />
+        В соответствии с пунктом 2 статьи 437 Гражданского кодекса Российской Федерации (ГК РФ) данный документ является публичной офертой.
+      </p>
+
+      <section class="space-y-3 pt-2">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">1. Термины и определения</h2>
+        <p><strong>1.1. Сервис</strong> — веб-сайт, расположенный в сети Интернет по адресу <a href="https://gridika.ru" class="text-[#19C37D] font-bold hover:underline">https://gridika.ru</a>, включая все поддомены, программный код, 3D-движок, дизайн и сопутствующие материалы.</p>
+        <p><strong>1.2. Продукт (Виджет)</strong> — программный модуль (3D QR-морфинг, 3D-визитка, 3D-подарок и др.), настраиваемый с помощью функционала Сервиса и предназначенный для встраивания на сторонние сайты (Tilda, WordPress, Webflow, чистый HTML и др.).</p>
+        <p><strong>1.3. Лицензионный ключ (Ключ)</strong> — уникальная цифровая последовательность, предоставляемая Лицензиату после оплаты, подтверждающая право генерации и использования готового кода Продукта на согласованном домене.</p>
+        <p><strong>1.4. Акцепт Оферты</strong> — полное и безоговорочное принятие условий настоящей Оферты путем внесения 100% оплаты стоимости Лицензии на Сервисе.</p>
+      </section>
+
+      <section class="space-y-3 pt-4 border-t border-[#f0ebe3]">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">2. Предмет договора</h2>
+        <p><strong>2.1.</strong> Лицензиар обязуется предоставить Лицензиату за вознаграждение право использования Сервиса и сгенерированного программного кода Продукта на условиях <strong>простой (неисключительной) лицензии</strong> в пределах и способами, указанными в настоящей Оферте.</p>
+        <p><strong>2.2.</strong> <strong>Срок действия лицензии:</strong> бессрочно (на весь срок действия исключительных прав Лицензиара).</p>
+        <p><strong>2.3.</strong> <strong>Территория действия:</strong> весь мир (без ограничения территории).</p>
+        <p><strong>2.4. Объем предоставляемых прав:</strong></p>
+        <ul class="list-disc pl-5 space-y-1.5">
+          <li>Право использования онлайн-генератора Сервиса для настройки параметров выбранного Продукта;</li>
+          <li>Право генерации готового программного кода Продукта с использованием купленного Лицензионного ключа;</li>
+          <li>Право встраивания (интеграции) сгенерированного кода Продукта на один указанный при оформлении домен сайта;</li>
+          <li>Право повторного редактирования настроек купленного Продукта в Сервисе по действующему Лицензионному ключу.</li>
+        </ul>
+        <p><strong>2.5. Запреты для Лицензиата:</strong></p>
+        <ul class="list-disc pl-5 space-y-1.5">
+          <li>Копировать, декомпилировать, модифицировать исходный код 3D-движка Сервиса;</li>
+          <li>Перепродавать, сдавать в аренду или распространять Сервис или полученный Лицензионный ключ третьим лицам;</li>
+          <li>Заключать сублицензионные договоры;</li>
+          <li>Обходить технические средства защиты и проверку привязки домена.</li>
+        </ul>
+      </section>
+
+      <section class="space-y-3 pt-4 border-t border-[#f0ebe3]">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">3. Порядок заключения договора (Акцепт) и выдачи ключа</h2>
+        <p><strong>3.1.</strong> Создание учетной записи (регистрация аккаунта) на Сервисе не требуется.</p>
+        <p><strong>3.2.</strong> Договор считается заключенным в простой письменной форме с момента совершения Лицензиатом оплаты (ст. 434, ст. 438 ГК РФ).</p>
+        <p><strong>3.3.</strong> Сразу после подтверждения успешной оплаты Лицензиату на экране завершения заказа отображается Лицензионный ключ и готовый код, а также направляется электронное письмо с данными ключа на email, указанный при покупке.</p>
+        <p><strong>3.4.</strong> Обязательство Лицензиара по предоставлению права использования считается исполненным в полном объеме с момента предоставления Лицензионного ключа.</p>
+      </section>
+
+      <section class="space-y-3 pt-4 border-t border-[#f0ebe3]">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">4. Стоимость и порядок оплаты</h2>
+        <p><strong>4.1.</strong> Стоимость лицензии на каждый Продукта определяется в соответствии с тарифами, размещенными на сайте <a href="https://gridika.ru" class="text-[#19C37D] font-bold hover:underline">https://gridika.ru</a> на момент оформления заказа.</p>
+        <p><strong>4.2.</strong> Оплата производится в форме <strong>100% авансового платежа (предоплаты)</strong>.</p>
+        <p><strong>4.3.</strong> Оплата осуществляется в безналичном порядке через подключенные сторонние платежные сервисы (интернет-эквайринг, СБП и др.).</p>
+        <p><strong>4.4.</strong> Моментом исполнения обязательства по оплате считается момент поступления денежных средств на расчетный счет Лицензиара (или счет уполномоченного платежного агента).</p>
+      </section>
+
+      <section class="space-y-3 pt-4 border-t border-[#f0ebe3]">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">5. Условия возврата денежных средств</h2>
+        <p><strong>5.1.</strong> В соответствии со ст. 1286 ГК РФ и ст. 26.1 Закона РФ «О защите прав потребителей», поскольку предметом договора является предоставление права на использование программного обеспечения, имеющего индивидуально-определенные свойства (уникальный ключ и привязка к домену):</p>
+        <ul class="list-disc pl-5 space-y-1.5">
+          <li>До момента предоставления Лицензионного ключа Лицензиат имеет право отказаться от договора с полным возвратом уплаченных средств.</li>
+          <li><strong>После предоставления Лицензионного ключа возврат денежных средств не производится</strong>, так как право использования считается предоставленным в полном объеме.</li>
+        </ul>
+        <p><strong>5.2.</strong> В случае выявления технической неработоспособности кода по вине Лицензиара, Лицензиар обязуется устранить ошибку в разумный срок либо по письменному заявлению Лицензиата произвести возврат денежных средств в течение 10 (десяти) рабочих дней.</p>
+      </section>
+
+      <section class="space-y-3 pt-4 border-t border-[#f0ebe3]">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">6. Ограничение ответственности («КАК ЕСТЬ» / AS IS)</h2>
+        <p><strong>6.1.</strong> Сервис и программный код предоставляются на условиях <strong>«КАК ЕСТЬ» («AS IS»)</strong>. Лицензиар не гарантирует, что Сервис будет соответствовать субъективным ожиданиям Лицензиата, работать непрерывно и безошибочно на абсолютно всех устройствах и устаревших браузерах.</p>
+        <p><strong>6.2.</strong> Лицензиар не несет ответственности за содержание, ссылки, медиафайлы или рекламные материалы, которые Лицензиат самостоятельно зашивает в создаваемые QR-коды и визитки.</p>
+        <p><strong>6.3.</strong> Совокупный размер ответственности Лицензиара по любым претензиям <strong>ограничен суммой, фактически уплаченной Лицензиатом за соответствующий Продукт</strong>. Лицензиар ни при каких обстоятельствах не возмещает упущенную выгоду и косвенные убытки.</p>
+        <p><strong>6.4.</strong> Лицензиар имеет право приостанавливать работу Сервиса для проведения необходимых профилактических и регламентных технических работ.</p>
+      </section>
+
+      <section class="space-y-3 pt-4 border-t border-[#f0ebe3]">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">7. Форс-мажор</h2>
+        <p><strong>7.1.</strong> Стороны освобождаются от ответственности за неисполнение обязательств при возникновении обстоятельств непреодолимой силы (стихийные бедствия, аварии на сетях связи, блокировки провайдеров или органов власти, военные действия).</p>
+      </section>
+
+      <section class="space-y-3 pt-4 border-t border-[#f0ebe3]">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">8. Разрешение споров</h2>
+        <p><strong>8.1.</strong> Все споры решаются путем переговоров с обязательным <strong>досудебным претензионным порядком</strong>. Срок рассмотрения письменной претензии, направленной на электронную почту Лицензиара — <strong>30 (тридцать) календарных дней</strong>.</p>
+        <p><strong>8.2.</strong> В случае недостижения согласия спор подлежит рассмотрению в суде по месту нахождения Лицензиара в соответствии с действующим законодательством Российской Федерации.</p>
+      </section>
+
+      <section class="space-y-3 pt-4 border-t border-[#f0ebe3]">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">9. Изменение оферты</h2>
+        <p><strong>9.1.</strong> Лицензиар вправе в любой момент в одностороннем порядке изменить условия настоящей Оферты. Новая редакция вступает в силу с момента ее публикации на сайте <a href="https://gridika.ru" class="text-[#19C37D] font-bold hover:underline">https://gridika.ru</a>.</p>
+      </section>
+
+      <section class="space-y-4 pt-6 border-t-2 border-[#ebe5da]">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">10. Реквизиты Лицензиара</h2>
+        <div class="rounded-2xl bg-[#f6f3ee] border border-[#e5dfd2] p-5 sm:p-6 text-[13.5px] leading-relaxed text-[#292524] space-y-1.5 font-sans">
+          <p><span class="font-bold text-[#132A22]">Лицензиар:</span> Ситников Иван Максимович</p>
+          <p><span class="font-bold text-[#132A22]">Статус:</span> Плательщик налога на профессиональный доход (Самозанятый)</p>
+          <p><span class="font-bold text-[#132A22]">ИНН:</span> <span class="font-mono font-bold tracking-wide text-[#132A22]">682966705968</span></p>
+          <p><span class="font-bold text-[#132A22]">Email для обращений:</span> <a href="mailto:support@gridika.ru" class="text-[#19C37D] font-bold underline">support@gridika.ru</a></p>
+          <p><span class="font-bold text-[#132A22]">Сайт:</span> <span class="font-mono text-[13px]">https://gridika.ru</span></p>
+        </div>
+      </section>
+    </div>
+  </article>
+
+  {/* TAB 2: Политика конфиденциальности */}
+  <article 
+    id="doc-privacy" 
+    class={`legal-doc bg-white border border-[#ebe5da] rounded-[28px] sm:rounded-[36px] shadow-[0_24px_60px_-28px_rgba(19,42,34,0.18)] p-6 sm:p-12 text-[#1c1917] transition-all duration-300 ease-out ${
+      initialTab === 'privacy' ? 'block opacity-100 translate-y-0' : 'hidden opacity-0 translate-y-2'
+    }`}
+  >
+    <header class="border-b border-[#f0ebe3] pb-6 mb-8">
+      <span class="inline-block text-[11px] font-black uppercase tracking-[0.14em] text-[#19C37D] bg-[#DFF8EB] px-3 py-1 rounded-full mb-3">
+        152-ФЗ РФ
+      </span>
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-[#132A22] tracking-tight leading-tight">
+        Политика конфиденциальности
+      </h1>
+      <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-bold text-[#78716c]">
+        <span>Редакция от 11 ноября 2026 г.</span>
+      </div>
+    </header>
+
+    <div class="prose max-w-none text-[14.5px] sm:text-[15.5px] text-[#44403c] leading-[1.75] space-y-6 font-sans">
+      <p class="font-medium text-[#292524] bg-[#f9f7f4] border border-[#ebe5da] rounded-2xl p-4 sm:p-5">
+        Настоящая политика конфиденциальности опубликована в редакции от <strong>11.11.2026 г.</strong> и действует до момента принятия новой редакции политики конфиденциальности.
+      </p>
+
+      <section class="space-y-3 pt-2">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">1. Общие положения</h2>
+        <p><strong>1.1.</strong> Настоящая Политика конфиденциальности (далее — <strong>«Политика»</strong>) принята Администратором и действует в отношении всей информации, которую Администратор может получить о Пользователе сайта <a href="https://gridika.ru" class="text-[#19C37D] font-bold hover:underline">https://gridika.ru</a> (далее — <strong>«Сайт»</strong> или <strong>«Сервис»</strong>) с любого устройства и при коммуникации с Администратором в любой форме.</p>
+        <p><strong>1.2.</strong> Используя Сайт (просмотр, чтение текста, отправка или загрузка информации) и предоставляя свои персональные данные, Пользователь Сайта дает согласие на обработку персональных данных в соответствии с данной Политикой, если дополнительные требования к согласию не установлены настоящей Политикой.</p>
+        <p><strong>1.3.</strong> Для целей настоящей Политики под «Администратором» понимается физическое лицо — <strong>Ситников Иван Максимович</strong> (применяющий специальный налоговый режим «Налог на профессиональный доход»).</p>
+      </section>
+
+      <section class="space-y-3 pt-4 border-t border-[#f0ebe3]">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">2. Персональные данные</h2>
+        <p><strong>2.1. Персональные данные</strong> — любая информация, относящаяся прямо или косвенно к определенному или определяемому физическому лицу (субъекту персональных данных) — Пользователю.</p>
+        <p><strong>2.2. Обработка персональных данных</strong> — любое действие (операция) или совокупность действий (операций) с персональными данными, совершаемое с использованием средств автоматизации или без их использования, в том числе сбор, запись, систематизация, накопление, хранение, уточнение (обновление, изменение), извлечение, использование, передача (предоставление, доступ), обезличивание, блокирование, удаление, уничтожение.</p>
+        <p><strong>2.3.</strong> Администратор производит обработку следующих персональных данных:</p>
+        <ul class="list-disc pl-5 space-y-1">
+          <li>имя;</li>
+          <li>адрес электронной почты (email);</li>
+          <li>адрес сайта (домен).</li>
+        </ul>
+        <p><strong>2.4. Cookies</strong> — небольшие по размеру текстовые файлы, хранящиеся в браузере посетителей Сервиса. При просмотре Сервиса происходит автоматический сбор (из Cookies) следующих обезличенных статистических данных о посетителе Сервиса, в том числе:</p>
+        <ul class="list-disc pl-5 space-y-1">
+          <li>тип выполненного на Сервисе действия (клик, наведение курсора и т.п.);</li>
+          <li>дата и время выполнения действия;</li>
+          <li>URL страницы;</li>
+          <li>Referer;</li>
+          <li>IP (без возможности работы с IP-адресами в статистике);</li>
+          <li>User-Agent;</li>
+          <li>ClientID (идентификатор браузера по файлу Cookie);</li>
+          <li>экранное разрешение;</li>
+          <li>класс HTML-элемента, на который происходит клик;</li>
+          <li>данные о просматриваемых продуктах.</li>
+        </ul>
+        <p><strong>2.5.</strong> Администратором обрабатываются статистические и иные данные о посетителе Сервиса, в том числе с использованием систем <strong>Яндекс.Метрика</strong>.</p>
+        <p><strong>2.6.</strong> Обработка также может быть поручена третьим лицам для целей достижения обработки персональных данных.</p>
+        <p><strong>2.7.</strong> Перечень третьих лиц, уполномоченных Администратором на обработку персональных данных, определяется Администратором самостоятельно. Пользователь дает полное и безоговорочное согласие на передачу Администратором персональных данных третьим лицам, выбранным Администратором (включая уполномоченные платежные сервисы и службы отправки email).</p>
+        <p><strong>2.8.</strong> Посетитель Сервиса может самостоятельно управлять файлами Cookies путем изменения настроек браузера.</p>
+        <p><strong>2.9.</strong> Изменения пользовательских настроек, в результате которых файлы Cookies будут заблокированы или удалены, могут привести к недоступности отдельных компонентов Сервиса.</p>
+      </section>
+
+      <section class="space-y-3 pt-4 border-t border-[#f0ebe3]">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">3. Цели обработки персональных данных</h2>
+        <p><strong>3.1.</strong> Администратор обрабатывает персональные данные Пользователя для целей:</p>
+        <ul class="list-disc pl-5 space-y-1.5">
+          <li>информационно-справочного обслуживания, в том числе предоставления информации о продуктах Администратора; а также идентификации Пользователя Сервиса;</li>
+          <li>идентификации Пользователя Сервиса;</li>
+          <li>заключения с Пользователем договоров (лицензионных договоров на использование Сервиса и Продуктов).</li>
+        </ul>
+      </section>
+
+      <section class="space-y-3 pt-4 border-t border-[#f0ebe3]">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">4. Порядок и условия обработки персональных данных</h2>
+        <p><strong>4.1.</strong> Обработка персональных данных Пользователя осуществляется без ограничения срока, любым законным способом, в том числе в информационных системах персональных данных с использованием средств автоматизации или без использования таких средств.</p>
+        <p><strong>4.2.</strong> Обработка персональных данных Пользователя осуществляется на срок действия договорных и иных правоотношений Пользователя и Администратора, любым законным способом, в том числе в информационных системах персональных данных с использованием средств автоматизации или без использования таких средств.</p>
+        <p><strong>4.3.</strong> Все персональные данные Администратор получает непосредственно от Пользователя или от его представителя, либо от лица, поручившего Администратору обработку персональных данных Пользователя, за исключением случаев, предусмотренных законодательством Российской Федерации.</p>
+        <p><strong>4.4.</strong> Администратор вправе передавать персональные данные органам дознания и следствия, иным уполномоченным органам по основаниям, предусмотренным действующим законодательством Российской Федерации.</p>
+        <p><strong>4.5.</strong> Правовым основанием обработки персональных данных Администратором являются: Конституция РФ, Гражданский кодекс РФ, согласие Пользователя на обработку его персональных данных, договоры, заключаемые между Администратором и Пользователем.</p>
+        <p><strong>4.6.</strong> Для обеспечения защиты персональных данных Пользователя при их обработке Администратором приняты следующие меры от несанкционированного доступа, а также иных неправомерных действий в отношении персональных данных Пользователя:</p>
+        <ul class="list-disc pl-5 space-y-1.5">
+          <li><strong>4.6.1. Правовые меры:</strong> положение о защите персональных данных, издание приказа о назначении лиц, ответственных за защиту персональных данных, заключение соглашений о конфиденциальности с лицами, имеющими доступ к персональным данным.</li>
+          <li><strong>4.6.2. Организационные меры:</strong> назначение лиц, ответственных за защиту персональных данных, хранение персональных данных, содержащихся на материальных носителях, в сейфе.</li>
+          <li><strong>4.6.3. Технические меры:</strong> использование средств защиты информации, прошедших процедуру оценки соответствия требованиям законодательства РФ (включая протоколы шифрования SSL/HTTPS), взаимодействие с государственной системой обнаружения, предупреждения и ликвидации последствий компьютерных атак (ГосСОПКА).</li>
+        </ul>
+      </section>
+
+      <section class="space-y-3 pt-4 border-t border-[#f0ebe3]">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">5. Права пользователя</h2>
+        <p><strong>5.1.</strong> Пользователь вправе реализовать свои права, предусмотренные законодательством Российской Федерации о персональных данных, в том числе, но не ограничиваясь:</p>
+        <ul class="list-disc pl-5 space-y-1.5">
+          <li>уточнять, обновлять свои персональные данные, требовать их блокирования или уничтожения;</li>
+          <li>запрашивать у Администратора перечень обрабатываемых персональных данных, правовых оснований обработки, источники их получения, информацию о сроках обработки и хранения, а также иные сведения, связанные с обработкой своих персональных данных.</li>
+        </ul>
+      </section>
+
+      <section class="space-y-3 pt-4 border-t border-[#f0ebe3]">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">6. Права и обязанности администратора</h2>
+        <p><strong>6.1.</strong> Администратор обязуется использовать полученную персональную информацию Пользователя только в целях, названных в настоящей Политике.</p>
+        <p><strong>6.2.</strong> Администратор обязан принимать меры предосторожности для защиты конфиденциальности персональных данных Пользователя согласно порядку, обычно используемому для защиты такого рода информации в деловом обороте.</p>
+        <p><strong>6.3.</strong> Администратор обязан хранить персональную информацию Пользователя в течение периода времени, необходимого для целей, указанных в настоящей Политике конфиденциальности, если только более длительный срок хранения не является необходимым в соответствии с действующим законодательством.</p>
+        <p><strong>6.4.</strong> Администратор вправе не удалять данные Пользователя, необходимые для хранения в соответствии с действующим законодательством Российской Федерации.</p>
+      </section>
+
+      <section class="space-y-4 pt-6 border-t-2 border-[#ebe5da]">
+        <h2 class="text-lg sm:text-xl font-black text-[#132A22] tracking-tight">7. Заключительные положения</h2>
+        <p><strong>7.1.</strong> Согласие действует в течение неограниченного времени. Пользователь вправе отозвать настоящее согласие на обработку своих персональных данных, письменно уведомив об этом Администратора по электронной почте: <a href="mailto:support@gridika.ru" class="text-[#19C37D] font-bold underline">support@gridika.ru</a>.</p>
+        <p><strong>7.2.</strong> Новая редакция Политики вступает в силу с момента ее размещения на Сайте. Действующая редакция всегда находится на странице по адресу: <a href="https://gridika.ru/privacy" class="text-[#19C37D] font-bold hover:underline">https://gridika.ru/privacy</a>.</p>
+        
+        <div class="mt-4 rounded-2xl bg-[#f6f3ee] border border-[#e5dfd2] p-5 sm:p-6 text-[13.5px] leading-relaxed text-[#292524] space-y-1.5 font-sans">
+          <p><span class="font-bold text-[#132A22]">Оператор персональных данных:</span> Ситников Иван Максимович</p>
+          <p><span class="font-bold text-[#132A22]">Статус:</span> Плательщик налога на профессиональный доход (Самозанятый)</p>
+          <p><span class="font-bold text-[#132A22]">ИНН:</span> <span class="font-mono font-bold tracking-wide text-[#132A22]">682966705968</span></p>
+          <p><span class="font-bold text-[#132A22]">Email:</span> <a href="mailto:support@gridika.ru" class="text-[#19C37D] font-bold underline">support@gridika.ru</a></p>
+        </div>
+      </section>
+    </div>
+  </article>
+</div>
+
+<script>
+  import { createMorphLogo } from '../brand/morphLogo';
+
+  function initBrandLogo() {
+    const brandHost = document.getElementById('legal-brand');
+    const brandName = document.getElementById('legal-brand-name');
+    if (brandHost && brandName) {
+      const build = () => createMorphLogo(brandHost, brandName, { logoCenter: { x: 24, y: 24 }, logoSize: 40 }).snap(0);
+      document.fonts ? document.fonts.load('900 30px Nunito').then(build, build) : build();
+    }
+  }
+
+  function initLegalTabs() {
+    const container = document.getElementById('legal-container');
+    if (!container) return;
+
+    const pill = document.getElementById('legal-pill');
+    const btnOffer = document.getElementById('tab-btn-offer');
+    const btnPrivacy = document.getElementById('tab-btn-privacy');
+    const docOffer = document.getElementById('doc-offer');
+    const docPrivacy = document.getElementById('doc-privacy');
+
+    if (!pill || !btnOffer || !btnPrivacy || !docOffer || !docPrivacy) return;
+
+    const elPill = pill;
+    const elBtnOffer = btnOffer;
+    const elBtnPrivacy = btnPrivacy;
+    const elDocOffer = docOffer;
+    const elDocPrivacy = docPrivacy;
+
+    function activateTab(tab: 'offer' | 'privacy', updateHistory = true) {
+      if (tab === 'offer') {
+        elPill.classList.remove('translate-x-[calc(100%+6px)]');
+        elPill.classList.add('translate-x-0');
+
+        elBtnOffer.classList.add('text-[#132A22]');
+        elBtnOffer.classList.remove('text-[#78716c]');
+        elBtnPrivacy.classList.remove('text-[#132A22]');
+        elBtnPrivacy.classList.add('text-[#78716c]');
+
+        // Smooth cross-fade transition
+        elDocPrivacy.classList.remove('opacity-100', 'translate-y-0');
+        elDocPrivacy.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => {
+          elDocPrivacy.classList.add('hidden');
+          elDocPrivacy.classList.remove('block');
+
+          elDocOffer.classList.remove('hidden');
+          elDocOffer.classList.add('block');
+          requestAnimationFrame(() => {
+            elDocOffer.classList.remove('opacity-0', 'translate-y-2');
+            elDocOffer.classList.add('opacity-100', 'translate-y-0');
+          });
+        }, 150);
+
+        document.title = 'Публичная оферта — Gridika';
+        if (updateHistory) {
+          window.history.pushState({ tab: 'offer' }, '', '/offer');
+        }
+      } else {
+        elPill.classList.remove('translate-x-0');
+        elPill.classList.add('translate-x-[calc(100%+6px)]');
+
+        elBtnPrivacy.classList.add('text-[#132A22]');
+        elBtnPrivacy.classList.remove('text-[#78716c]');
+        elBtnOffer.classList.remove('text-[#132A22]');
+        elBtnOffer.classList.add('text-[#78716c]');
+
+        // Smooth cross-fade transition
+        elDocOffer.classList.remove('opacity-100', 'translate-y-0');
+        elDocOffer.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => {
+          elDocOffer.classList.add('hidden');
+          elDocOffer.classList.remove('block');
+
+          elDocPrivacy.classList.remove('hidden');
+          elDocPrivacy.classList.add('block');
+          requestAnimationFrame(() => {
+            elDocPrivacy.classList.remove('opacity-0', 'translate-y-2');
+            elDocPrivacy.classList.add('opacity-100', 'translate-y-0');
+          });
+        }, 150);
+
+        document.title = 'Политика конфиденциальности — Gridika';
+        if (updateHistory) {
+          window.history.pushState({ tab: 'privacy' }, '', '/privacy');
+        }
+      }
+    }
+
+    btnOffer.addEventListener('click', (e) => {
+      e.preventDefault();
+      activateTab('offer');
+    });
+
+    btnPrivacy.addEventListener('click', (e) => {
+      e.preventDefault();
+      activateTab('privacy');
+    });
+
+    window.addEventListener('popstate', () => {
+      const path = window.location.pathname;
+      if (path.includes('privacy')) {
+        activateTab('privacy', false);
+      } else {
+        activateTab('offer', false);
+      }
+    });
+  }
+
+  // Run on page load
+  initBrandLogo();
+  initLegalTabs();
+</script>

@@ -1,4 +1,6 @@
 ---
+import CookieBanner from '../components/CookieBanner.astro';
+
 interface Props {
   title: string;
   description?: string;
@@ -6,7 +8,7 @@ interface Props {
 
 const { 
   title, 
-  description = "Витрина готовых интерактивных 3D эффектов для Tilda и веб-сайтов. Установка за 1 минуту без кода." 
+  description = "Готовые интерактивные 3D-эффекты для Tilda, WordPress, Webflow, Wix и любого сайта. Установка за минуту, без программиста." 
 } = Astro.props;
 ---
 
@@ -21,9 +23,9 @@ const {
     <meta name="theme-color" content="#F0EBE9" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   </head>
-  <body class="bg-[#F0EBE9] text-[#132A22] font-sans antialiased selection:bg-[#19C37D] selection:text-white min-h-screen flex flex-col relative overflow-x-hidden">
+  <body class="bg-[#F0EBE9] text-[#132A22] font-sans antialiased selection:bg-[var(--vx-accent)] selection:text-white min-h-screen flex flex-col relative overflow-x-hidden">
     {/* WARM CREAMY AMBIENT DEPTH (Reference: Sofa Cake warm aesthetic) */}
     <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
       {/* Top Left: Soft Mint Foam tint */}
@@ -40,12 +42,26 @@ const {
     </div>
 
     <slot />
+    <CookieBanner />
   </body>
 </html>
 
 <style is:global>
+  /* Product accent: set by the studio (applyProductTheme), animated page-wide */
+  @property --vx-accent { syntax: '<color>'; inherits: true; initial-value: #19C37D; }
+  @property --vx-deep { syntax: '<color>'; inherits: true; initial-value: #132A22; }
+  @property --vx-on { syntax: '<color>'; inherits: true; initial-value: #132A22; }
+  @property --vx-soft { syntax: '<color>'; inherits: true; initial-value: #DFF8EB; }
+  :root {
+    --vx-accent: #19C37D;
+    --vx-deep: #132A22;
+    --vx-on: #132A22;
+    --vx-soft: #DFF8EB;
+    transition: --vx-accent 0.4s ease, --vx-deep 0.4s ease, --vx-on 0.4s ease, --vx-soft 0.4s ease;
+  }
+
   body {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
     letter-spacing: -0.015em;
   }
 
@@ -90,7 +106,7 @@ const {
   }
 
   .soft-3d-card-pine {
-    background-color: #132A22;
+    background-color: var(--vx-deep);
     color: #F0EBE9;
     border-radius: 2.25rem;
     box-shadow: 

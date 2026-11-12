@@ -31,8 +31,8 @@ export const DEMO_CONTACT: CardContact = {
   company: 'Studio Nord',
   phone: '+7 900 123-45-67',
   email: 'anna@example.com',
-  site: 'voxelka.ru',
-  telegram: 'voxelka',
+  site: 'gridika.ru',
+  telegram: 'gridika',
   whatsapp: '',
 };
 

@@ -1,0 +1,344 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { ChangeNote } from '../components/ChangeNote';
+---
+
+<Layout title="Спасибо за покупку — Gridika" description="Ваш ключ Gridika и как получить код для сайта.">
+  <main class="min-h-screen flex flex-col items-center px-4 py-10 sm:py-16">
+    {/* the name made of cubes, the same as in the site header */}
+    <a href="/" id="thx-brand" class="relative block w-[150px] h-12 select-none" aria-label="Gridika — на главную">
+      <span id="thx-brand-name" class="absolute left-1 top-1/2 -translate-y-1/2 text-[30px] font-black text-[#132A22] tracking-[-0.03em] w-max opacity-0">Grid<span class="text-[#19C37D]">ika</span></span>
+    </a>
+
+    <section class="mt-8 w-full max-w-[560px] bg-white border border-[#ebe5da] rounded-[28px] shadow-[0_24px_60px_-28px_rgba(19,42,34,0.25)] p-7 sm:p-9">
+      {/* with a key in the link */}
+      <div id="thx-ok" class="hidden" hidden>
+        {/* status mark: a ring draws, fills, the tick is drawn in, voxel confetti bursts out */}
+        <div class="thx-sky relative w-[132px] h-[92px] rounded-[24px] overflow-hidden border border-[#d5f2e3] shadow-[0_12px_28px_-16px_rgba(19,42,34,0.35)] flex items-center justify-center" style="background:linear-gradient(180deg,#d9f7e8 0%,#fbfefc 100%)" aria-hidden="true">
+          <svg viewBox="0 0 132 92" class="absolute inset-0 w-full h-full">
+            <g class="thx-cloud thx-cloud-a">
+              <rect x="6" y="0" width="12" height="9" rx="2.5" fill="#ffffff" />
+              <rect x="0" y="5" width="30" height="8" rx="2.5" fill="#ffffff" />
+              <rect x="15" y="2" width="10" height="7" rx="2.5" fill="#ffffff" />
+            </g>
+            <g class="thx-cloud thx-cloud-b">
+              <rect x="6" y="0" width="12" height="9" rx="2.5" fill="#ffffff" />
+              <rect x="0" y="5" width="30" height="8" rx="2.5" fill="#ffffff" />
+              <rect x="15" y="2" width="10" height="7" rx="2.5" fill="#ffffff" />
+            </g>
+          </svg>
+          <div class="thx-check relative w-[62px] h-[62px]">
+            <span class="thx-halo"></span>
+            <span class="thx-bit" style="--a:0deg;--c:#19C37D;--d:0ms"></span><span class="thx-bit" style="--a:36deg;--c:#8BF0C2;--d:30ms"></span><span class="thx-bit" style="--a:72deg;--c:#132A22;--d:10ms"></span><span class="thx-bit" style="--a:108deg;--c:#19C37D;--d:40ms"></span><span class="thx-bit" style="--a:144deg;--c:#8BF0C2;--d:20ms"></span><span class="thx-bit" style="--a:180deg;--c:#19C37D;--d:0ms"></span><span class="thx-bit" style="--a:216deg;--c:#132A22;--d:30ms"></span><span class="thx-bit" style="--a:252deg;--c:#8BF0C2;--d:10ms"></span><span class="thx-bit" style="--a:288deg;--c:#19C37D;--d:40ms"></span><span class="thx-bit" style="--a:324deg;--c:#132A22;--d:20ms"></span>
+            <svg viewBox="0 0 96 96" class="thx-check-svg relative w-full h-full overflow-visible">
+              <defs>
+                <linearGradient id="thx-disc-g" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#2ee39a" />
+                  <stop offset="100%" stop-color="#109e60" />
+                </linearGradient>
+              </defs>
+              <circle class="thx-ring" cx="48" cy="48" r="42" fill="none" stroke="#19C37D" stroke-width="5" stroke-linecap="round" pathLength="100" transform="rotate(-90 48 48)" />
+              <circle class="thx-disc" cx="48" cy="48" r="42" fill="url(#thx-disc-g)" />
+              <path class="thx-tick" d="M29 49.5 L42.5 62 L67 35.5" fill="none" stroke="#ffffff" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round" pathLength="100" />
+            </svg>
+          </div>
+        </div>
+
+        <h1 class="mt-6 text-[30px] sm:text-[34px] font-black text-[#132A22] tracking-tight leading-[1.08]">Оплата прошла</h1>
+        <p class="mt-2 text-[15px] font-semibold text-[#6b645c] leading-relaxed"><span id="thx-product"></span> <span id="thx-site"></span>. Навсегда, без подписки.</p>
+
+        <div class="mt-6">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-black uppercase tracking-[0.14em] text-[#a8a29e]">Ваш ключ · № <span id="thx-id" class="font-mono"></span></span>
+            <button id="thx-copy" type="button" class="text-[12px] font-extrabold text-[#132A22] hover:text-[#19C37D] transition-colors cursor-pointer">Скопировать</button>
+          </div>
+          <div id="thx-key" class="mt-2 rounded-2xl bg-[#f6f3ee] border border-dashed border-[#19C37D] px-4 py-3.5 font-mono text-[12px] leading-[1.55] text-[#132A22] break-all select-all"></div>
+        </div>
+
+        <div id="thx-ready" class="mt-7" hidden>
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-black uppercase tracking-[0.14em] text-[#a8a29e]">Ваш код · готов для <span id="thx-ready-site" class="normal-case tracking-normal font-mono text-[#132A22]"></span></span>
+            <span class="text-[11px] font-bold text-[#a8a29e]" id="thx-ready-size"></span>
+          </div>
+          <pre id="thx-code" class="mt-2 max-h-40 overflow-auto rounded-2xl bg-[#132A22] text-[#8BF0C2] px-4 py-3.5 font-mono text-[11px] leading-[1.5] whitespace-pre-wrap break-all"></pre>
+          <div class="mt-3 grid grid-cols-2 gap-2">
+            <button id="thx-copy-code" type="button" class="h-[52px] rounded-full bg-[#19C37D] hover:bg-[#17b373] text-[#132A22] font-extrabold text-[14px] sm:text-[15px] flex items-center justify-center gap-2 transition-colors cursor-pointer">Скопировать код</button>
+            <button id="thx-dl-code" type="button" class="h-[52px] rounded-full bg-white border border-[#e5dfd2] hover:bg-[#f6f3ee] text-[#132A22] font-extrabold text-[14px] sm:text-[15px] flex items-center justify-center gap-2 transition-colors cursor-pointer">Скачать файлом</button>
+          </div>
+          <p class="mt-2 text-center text-[12px] font-semibold text-[#a8a29e]">Как удобнее: в буфер обмена или текстовым файлом — код одинаковый</p>
+
+          {/* where to paste it */}
+          <div class="mt-5 rounded-2xl bg-[#f6f3ee] p-4">
+            <div id="thx-tabs" class="flex flex-wrap gap-1"></div>
+            <ol id="thx-tab-steps" class="mt-3 flex flex-col gap-1.5 text-[13px] font-semibold text-[#44403c] leading-snug list-decimal pl-5"></ol>
+          </div>
+          <div class="mt-3 text-left"><ChangeNote /></div>
+        </div>
+
+        <a id="thx-cta" href="/" class="mt-6 h-[52px] w-full rounded-full bg-[#132A22] hover:bg-[#1d3a2f] text-white font-extrabold text-[15px] flex items-center justify-center gap-2.5 transition-colors">
+          Получить код в студии
+          <span class="w-7 h-7 rounded-full bg-[#19C37D] text-[#132A22] flex items-center justify-center">→</span>
+        </a>
+        <p id="thx-cta-hint" class="mt-2.5 text-center text-[12px] font-semibold text-[#a8a29e]">Студия откроется с уже вставленным ключом</p>
+      </div>
+
+      {/* no key in the link: it comes by email */}
+      <div id="thx-wait">
+        {/* status mark: a paper plane loops through a little sky ("ключ летит на почту") */}
+        <div class="thx-sky relative w-[132px] h-[92px] rounded-[24px] overflow-hidden border border-[#d5f2e3] shadow-[0_12px_28px_-16px_rgba(19,42,34,0.35)]" aria-hidden="true">
+          <svg id="thx-sky-svg" viewBox="0 0 132 92" class="absolute inset-0 w-full h-full">
+            <defs>
+              <linearGradient id="thx-sky-g" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#d9f7e8" />
+                <stop offset="100%" stop-color="#fbfefc" />
+              </linearGradient>
+              {/* the trail shows only where the plane has already been */}
+              <mask id="thx-trail-m" maskUnits="userSpaceOnUse" x="-20" y="-10" width="180" height="110">
+                <path d="M -16 66 C 12 67, 30 58, 46 46 C 60 35, 75 22, 67 14 C 59 7, 46 19, 56 29 C 66 39, 88 40, 104 30 C 117 22, 131 14, 152 7" fill="none" stroke="#ffffff" stroke-width="8" pathLength="100" stroke-dasharray="100 100">
+                  <animate attributeName="stroke-dashoffset" dur="4.4s" repeatCount="indefinite" values="100;0;0" keyTimes="0;0.82;1" calcMode="spline" keySplines="0.45 0 0.55 1; 0 0 1 1" />
+                </path>
+              </mask>
+            </defs>
+            <rect width="132" height="92" fill="url(#thx-sky-g)" />
+            <g class="thx-cloud thx-cloud-a">
+              <rect x="6" y="0" width="12" height="9" rx="2.5" fill="#ffffff" />
+              <rect x="0" y="5" width="30" height="8" rx="2.5" fill="#ffffff" />
+              <rect x="15" y="2" width="10" height="7" rx="2.5" fill="#ffffff" />
+            </g>
+            <g class="thx-cloud thx-cloud-b">
+              <rect x="6" y="0" width="12" height="9" rx="2.5" fill="#ffffff" />
+              <rect x="0" y="5" width="30" height="8" rx="2.5" fill="#ffffff" />
+              <rect x="15" y="2" width="10" height="7" rx="2.5" fill="#ffffff" />
+            </g>
+            <g mask="url(#thx-trail-m)">
+              <path d="M -16 66 C 12 67, 30 58, 46 46 C 60 35, 75 22, 67 14 C 59 7, 46 19, 56 29 C 66 39, 88 40, 104 30 C 117 22, 131 14, 152 7" fill="none" stroke="#19C37D" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="0.1 4.2" opacity="0.75">
+                <animate attributeName="opacity" dur="4.4s" repeatCount="indefinite" values="0.75;0.75;0;0" keyTimes="0;0.8;0.96;1" />
+              </path>
+            </g>
+            <g>
+              <animateMotion dur="4.4s" repeatCount="indefinite" rotate="auto" path="M -16 66 C 12 67, 30 58, 46 46 C 60 35, 75 22, 67 14 C 59 7, 46 19, 56 29 C 66 39, 88 40, 104 30 C 117 22, 131 14, 152 7" keyPoints="0;1;1" keyTimes="0;0.82;1" calcMode="spline" keySplines="0.45 0 0.55 1; 0 0 1 1" />
+              <g transform="scale(1.25)">
+              <g class="thx-plane">
+                <path d="M11 0 L-9 5 L-4 1 Z" fill="#b6efd4" stroke="#0f5c3c" stroke-width="0.9" stroke-linejoin="round" />
+                <path d="M11 0 L-4 1 L-6.5 6 Z" fill="#19C37D" stroke="#0f5c3c" stroke-width="0.9" stroke-linejoin="round" />
+                <path d="M11 0 L-10 -7.5 L-4 1 Z" fill="#ffffff" stroke="#0f5c3c" stroke-width="0.9" stroke-linejoin="round" />
+              </g>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <h1 class="mt-6 text-[30px] sm:text-[34px] font-black text-[#132A22] tracking-tight leading-[1.08]">Спасибо за покупку</h1>
+        <p class="mt-2 text-[15px] font-semibold text-[#6b645c] leading-relaxed">Ключ уже летит на вашу почту вместе с чеком. Вставьте его сюда — и сразу получите код.</p>
+        <input id="thx-input" type="text" spellcheck="false" autocomplete="off" placeholder="GRD1-…" class="mt-6 w-full px-4 py-3.5 rounded-2xl bg-[#f6f3ee] border border-[#ebe5da] font-mono text-[13px] text-[#132A22] outline-none focus:bg-white focus:border-[#19C37D] transition-colors" />
+        <p id="thx-error" class="mt-2 text-[12.5px] font-semibold text-[#c2410c]" hidden></p>
+        <a href="#key=demo" id="thx-demo" class="mt-4 inline-block text-[12.5px] font-bold text-[#6b645c] underline decoration-[#d6cfc2] underline-offset-4 hover:text-[#132A22]">Посмотреть, как это выглядит</a>
+      </div>
+
+      {/* what's next — same for both */}
+      <ol class="mt-8 pt-6 border-t border-[#ece6da] flex flex-col gap-4">
+        <li class="flex gap-3.5">
+          <span class="w-6 h-6 shrink-0 rounded-full bg-[#19C37D] text-[#132A22] text-[12px] font-black flex items-center justify-center">1</span>
+          <span class="text-[14px] font-semibold text-[#6b645c] leading-snug"><b class="text-[#132A22]">Откройте студию</b> — кнопкой «Получить код в студии» или на gridika.ru: «Получить код» → вставить ключ.</span>
+        </li>
+        <li class="flex gap-3.5">
+          <span class="w-6 h-6 shrink-0 rounded-full bg-[#19C37D] text-[#132A22] text-[12px] font-black flex items-center justify-center">2</span>
+          <span class="text-[14px] font-semibold text-[#6b645c] leading-snug"><b class="text-[#132A22]">Скопируйте код</b> — настройте эффект, код соберётся под ваш сайт.</span>
+        </li>
+        <li class="flex gap-3.5">
+          <span class="w-6 h-6 shrink-0 rounded-full bg-[#19C37D] text-[#132A22] text-[12px] font-black flex items-center justify-center">3</span>
+          <span class="text-[14px] font-semibold text-[#6b645c] leading-snug"><b class="text-[#132A22]">Вставьте на сайт</b> — Tilda (блок T123), WordPress, Webflow, Wix или обычный HTML.</span>
+        </li>
+      </ol>
+
+      <div class="mt-6 rounded-2xl bg-[#f6f3ee] px-4 py-3.5 text-[13px] font-semibold text-[#6b645c] leading-relaxed">
+        <b class="text-[#132A22]">Ключ — ваш навсегда.</b> Письмо с ним и чеком уже на почте: сохраните его. Ключ можно вставлять снова, если поменяется ссылка или настройки.
+      </div>
+    </section>
+
+    <p class="mt-6 text-[12px] font-semibold text-[#a8a29e]">Вопросы — ответьте на письмо с ключом. <a href="/" class="underline underline-offset-4 hover:text-[#132A22]">gridika.ru</a></p>
+  </main>
+
+  <style>
+    [hidden] {
+      display: none !important;
+    }
+
+    /* ---- paid: check mark ---- */
+    .thx-ring { stroke-dasharray: 100; stroke-dashoffset: 100; animation: thxDraw 0.6s cubic-bezier(0.65, 0, 0.35, 1) 0.15s forwards; }
+    .thx-disc { transform-box: fill-box; transform-origin: center; transform: scale(0); animation: thxDisc 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s forwards; }
+    .thx-tick { stroke-dasharray: 100; stroke-dashoffset: 100; animation: thxDraw 0.45s cubic-bezier(0.65, 0, 0.35, 1) 0.95s forwards; }
+    .thx-check-svg { animation: thxFloat 3.2s ease-in-out 2.2s infinite; }
+    .thx-halo { position: absolute; inset: 6px; border-radius: 50%; background: #19C37D; opacity: 0; animation: thxHalo 1.1s ease-out 1.05s forwards; }
+    .thx-bit {
+      position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 2px;
+      background: var(--c); opacity: 0; animation: thxBit 0.95s cubic-bezier(0.2, 0.75, 0.3, 1) calc(1.1s + var(--d)) forwards;
+    }
+    @keyframes thxDraw { to { stroke-dashoffset: 0; } }
+    @keyframes thxDisc { to { transform: scale(1); } }
+    @keyframes thxHalo { 0% { opacity: 0.32; transform: scale(0.92); } 100% { opacity: 0; transform: scale(1.7); } }
+    @keyframes thxBit {
+      0% { opacity: 1; transform: rotate(var(--a)) translateX(24px) scale(0.3) rotate(0deg); }
+      70% { opacity: 1; }
+      100% { opacity: 0; transform: rotate(var(--a)) translateX(46px) scale(1) rotate(120deg); }
+    }
+    @keyframes thxFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+    /* ---- waiting: paper plane ---- */
+    .thx-plane { animation: thxBob 0.9s ease-in-out infinite alternate; }
+    @keyframes thxBob { from { transform: translateY(-0.6px) rotate(-3deg); } to { transform: translateY(0.6px) rotate(3deg); } }
+    .thx-cloud { opacity: 0.95; }
+    .thx-cloud-a { animation: thxCloud 13s linear infinite; }
+    .thx-cloud-b { animation: thxCloud 19s linear -9s infinite; opacity: 0.8; }
+    .thx-cloud-a > * { transform: translateY(14px); }
+    .thx-cloud-b > * { transform: translateY(58px) scale(0.8); }
+    @keyframes thxCloud { from { transform: translateX(140px); } to { transform: translateX(-40px); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .thx-ring, .thx-tick { animation: none; stroke-dashoffset: 0; }
+      .thx-disc { animation: none; transform: scale(1); }
+      .thx-bit, .thx-halo { display: none; }
+      .thx-check-svg, .thx-plane, .thx-cloud { animation: none; }
+    }
+  </style>
+</Layout>
+
+<script>
+  import { verifyLicense, cardNameOk, LICENSE_ERRORS } from '../engine/license';
+  import { contentMatches } from '../engine/fingerprint.js';
+  import { PRODUCTS } from '../data/products';
+  import { DEMO_KEY } from '../emails/keyEmail';
+  import { createMorphLogo } from '../brand/morphLogo';
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const sky = document.getElementById('thx-sky-svg') as unknown as SVGSVGElement | null;
+    sky?.pauseAnimations();
+    sky?.setCurrentTime(2.2);
+  }
+  import { readHash, buildHash } from '../engine/purchase';
+  import { buildPurchaseCode } from '../engine/purchaseCode';
+  import { codeFileName, downloadCode } from '../engine/codeNotice';
+  import { DEMO_KEYS } from '../emails/keyEmail';
+
+  // cube name at the top (static: progress 0 = the word)
+  const brandHost = document.getElementById('thx-brand'), brandName = document.getElementById('thx-brand-name');
+  if (brandHost && brandName) {
+    const build = () => createMorphLogo(brandHost, brandName, { logoCenter: { x: 24, y: 24 }, logoSize: 40 }).snap(0);
+    document.fonts ? document.fonts.load('900 30px Nunito').then(build, build) : build();
+  }
+
+  const $ = (id: string) => document.getElementById(id)!;
+
+  let cfg: ReturnType<typeof readHash>['cfg'] = null;
+  async function show(raw: string) {
+    const key = raw === 'demo' ? (cfg ? DEMO_KEYS[cfg.p] ?? DEMO_KEY : DEMO_KEY) : raw.trim();
+    const res = await verifyLicense(key);
+    if (!res.ok) {
+      $('thx-ok').hidden = true;
+      $('thx-ok').classList.add('hidden');
+      $('thx-wait').hidden = false;
+      $('thx-wait').classList.remove('hidden');
+      const err = $('thx-error');
+      err.textContent = LICENSE_ERRORS[res.reason];
+      err.hidden = false;
+      return;
+    }
+    const l = res.license;
+    const all = l.p === 'all' || l.p === 'pro';
+    const prod = PRODUCTS.find((p) => p.id === l.p);
+    $('thx-product').textContent = all ? 'Все эффекты Gridika' : prod?.title ?? 'Эффект Gridika';
+    $('thx-site').innerHTML = l.d === '*' ? 'для одного сайта на ваш выбор' : `для сайта <b class="text-[#132A22]">${l.d.replace(/</g, '&lt;')}</b>`;
+    $('thx-id').textContent = l.id;
+    $('thx-key').textContent = key;
+    const fx = all ? 'qr-morph' : l.p;
+    ($('thx-cta') as HTMLAnchorElement).href = `/?fx=${encodeURIComponent(fx)}#${buildHash(key, cfg)}`;
+
+    // the settings came with the link: the code is ready right here
+    const site = l.d !== '*' ? l.d : cfg?.site || '';
+    // a card key is for one person: the saved card must carry that name
+    const covers =
+      cfg &&
+      (all || l.p === cfg.p) &&
+      (raw === 'demo' || cfg.p !== 'qr-card' || cardNameOk(l, cfg.card?.contact.name || '')) &&
+      (raw === 'demo' || contentMatches(l.f, cfg.p, cfg.p === 'voxel-logo' ? cfg.logo?.data : cfg.p === 'voxel-morph' ? cfg.morph?.data : null));
+    const code = covers && site ? buildPurchaseCode({ ...cfg!, site }, { id: l.id, domain: site }) : null;
+    if (code) {
+      $('thx-ready-site').textContent = site;
+      $('thx-ready-size').textContent = `${Math.round(code.length / 1024)} КБ`;
+      $('thx-code').textContent = code;
+      $('thx-ready').hidden = false;
+      // the studio button becomes the secondary action
+      const cta = $('thx-cta');
+      cta.className = 'mt-4 h-11 w-full rounded-full border border-[#e5dfd2] bg-white hover:bg-[#f6f3ee] text-[#132A22] font-extrabold text-[14px] flex items-center justify-center gap-2 transition-colors';
+      cta.innerHTML = 'Изменить в студии <span class="text-[#19C37D]">→</span>';
+      $('thx-cta-hint').hidden = true;
+      renderTabs();
+    }
+    $('thx-wait').hidden = true;
+    $('thx-wait').classList.add('hidden');
+    $('thx-ok').hidden = false;
+    $('thx-ok').classList.remove('hidden');
+  }
+
+  function fromHash() {
+    const h = readHash(location.hash);
+    cfg = h.cfg;
+    if (h.key) show(h.key);
+    else {
+      $('thx-ok').hidden = true;
+      $('thx-ok').classList.add('hidden');
+      $('thx-wait').hidden = false;
+      $('thx-wait').classList.remove('hidden');
+    }
+  }
+
+  $('thx-copy').addEventListener('click', async () => {
+    const b = $('thx-copy');
+    try { await navigator.clipboard.writeText($('thx-key').textContent || ''); } catch {}
+    b.textContent = 'Скопировано ✓';
+    setTimeout(() => (b.textContent = 'Скопировать'), 1800);
+  });
+  $('thx-dl-code').addEventListener('click', () => {
+    const b = $('thx-dl-code');
+    downloadCode($('thx-code').textContent || '', codeFileName(cfg?.p || 'code', $('thx-ready-site').textContent || ''));
+    b.textContent = 'Файл сохранён ✓';
+    setTimeout(() => (b.textContent = 'Скачать файлом'), 2000);
+  });
+
+  $('thx-copy-code').addEventListener('click', async () => {
+    const b = $('thx-copy-code');
+    try { await navigator.clipboard.writeText($('thx-code').textContent || ''); } catch {}
+    b.textContent = 'Код скопирован ✓';
+    setTimeout(() => (b.textContent = 'Скопировать код'), 2000);
+  });
+
+  const GUIDES: Record<string, string[]> = {
+    Tilda: ['«Все блоки» → «Другое» → «HTML-код» (T123)', 'Вставьте код, сохраните и опубликуйте'],
+    WordPress: ['Добавьте блок «Произвольный HTML» (в Elementor — виджет «HTML»)', 'Вставьте код и обновите страницу'],
+    Webflow: ['Перетащите элемент Code Embed', 'Вставьте код, сохраните и опубликуйте'],
+    Wix: ['«Добавить» → «Встроить код» → «Встроить HTML», режим «Код»', 'Вставьте код и растяните блок по высоте эффекта'],
+    HTML: ['Вставьте код внутрь <body> в нужное место страницы', 'Больше ничего подключать не нужно'],
+  };
+  function renderTabs(active = 'Tilda') {
+    const tabs = $('thx-tabs');
+    tabs.innerHTML = '';
+    Object.keys(GUIDES).forEach((name) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = name;
+      b.className = `px-3 h-7 rounded-lg text-[12px] font-extrabold transition-colors cursor-pointer ${name === active ? 'bg-[#132A22] text-white' : 'text-[#6b645c] hover:text-[#132A22]'}`;
+      b.addEventListener('click', () => renderTabs(name));
+      tabs.appendChild(b);
+    });
+    const ol = $('thx-tab-steps');
+    ol.innerHTML = '';
+    GUIDES[active].forEach((t) => { const li = document.createElement('li'); li.textContent = t; ol.appendChild(li); });
+  }
+
+  $('thx-input').addEventListener('input', (e) => {
+    const v = (e.target as HTMLInputElement).value.trim();
+    $('thx-error').hidden = true;
+    if (v.startsWith('GRD1-') && v.includes('.')) show(v);
+  });
+  window.addEventListener('hashchange', fromHash);
+  fromHash();
+</script>

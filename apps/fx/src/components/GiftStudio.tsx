@@ -37,9 +37,9 @@ const TRIGGERS: { id: GiftTrigger; label: string }[] = [
 
 export const DEMO_GIFT: GiftSettings = {
   kind: 'code',
-  code: 'VOXEL20',
+  code: 'GRID20',
   percent: '20',
-  url: 'https://voxelka.ru',
+  url: 'https://gridika.ru',
   caption: 'Скидка 20% на первый заказ',
   trigger: 'click',
   shape: 'cube',
@@ -225,7 +225,7 @@ export function GiftPanel({ state }: { state: GiftState }) {
       {s.kind === 'code' && (
         <label className="flex flex-col gap-0.5">
           <span className={label}>Промокод</span>
-          <input className={`${input} font-mono uppercase tracking-wider`} value={s.code} maxLength={14} placeholder="VOXEL20" onInput={(e) => set({ code: (e.target as HTMLInputElement).value.toUpperCase() })} />
+          <input className={`${input} font-mono uppercase tracking-wider`} value={s.code} maxLength={14} placeholder="GRID20" onInput={(e) => set({ code: (e.target as HTMLInputElement).value.toUpperCase() })} />
         </label>
       )}
       {s.kind === 'percent' && (

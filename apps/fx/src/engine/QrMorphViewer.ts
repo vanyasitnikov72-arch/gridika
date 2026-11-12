@@ -4,6 +4,10 @@ import { generateTargetShapePositions, type TargetShapeType } from './shapes';
 import { TreeDecor, treeVoxelColor, treeVoxelSideColor, type TreeSeason } from './treeScene';
 import { CityDecor, type TimeOfDay } from './cityScene';
 import { IslandDecor, type IslandMode } from './islandScene';
+import { MazeDecor, type GardenMode } from './mazeScene';
+import { EqualizerDecor, type EqMode } from './equalizerScene';
+import { CakeDecor, type CakeFlavor } from './cakeScene';
+import { CastleDecor, type CastleMode } from './castleScene';
 import { resetStageLighting, type StageScene } from './stageScene';
 
 export interface ThemeConfig {
@@ -85,6 +89,10 @@ export interface QrViewerOptions {
   season?: TreeSeason;
   timeOfDay?: TimeOfDay;
   islandMode?: IslandMode;
+  gardenMode?: GardenMode;
+  eqMode?: EqMode;
+  cakeFlavor?: CakeFlavor;
+  castleMode?: CastleMode;
   initialState?: 'qr' | 'morphed';
   onStateChange?: (state: 'qr' | 'morphed') => void;
   onReady?: () => void;
@@ -153,6 +161,10 @@ export class QrMorphViewer {
   private stageScene: StageScene | null = null;
   private timeOfDay: TimeOfDay = 'day';
   private islandMode: IslandMode = 'summer';
+  private gardenMode: GardenMode = 'day';
+  private eqMode: EqMode = 'neon';
+  private cakeFlavor: CakeFlavor = 'chocolate';
+  private castleMode: CastleMode = 'day';
   private qrSize = 25;
   private clock = new THREE.Clock();
   private morphProgress = 0; // 0 = QR, 1 = Morphed
@@ -161,6 +173,12 @@ export class QrMorphViewer {
   private animFrameId: number | null = null;
   private intersectionObserver: IntersectionObserver | null = null;
   private isVisible = true;
+  private paused = false;
+
+  /** stop rendering while another product is shown in the studio */
+  public setPaused(p: boolean) {
+    this.paused = p;
+  }
   private onPointerDownHandler?: (e: PointerEvent) => void;
   private onPointerUpHandler?: (e: PointerEvent) => void;
   private onResizeHandler?: () => void;
@@ -177,6 +195,10 @@ export class QrMorphViewer {
     this.season = options.season ?? 'spring';
     this.timeOfDay = options.timeOfDay ?? 'day';
     this.islandMode = options.islandMode ?? 'summer';
+    this.gardenMode = options.gardenMode ?? 'day';
+    this.eqMode = options.eqMode ?? 'neon';
+    this.cakeFlavor = options.cakeFlavor ?? 'chocolate';
+    this.castleMode = options.castleMode ?? 'day';
     const initSt = options.initialState ?? 'morphed';
     this.state = initSt;
     this.targetProgress = initSt === 'morphed' ? 1 : 0;
@@ -340,6 +362,10 @@ export class QrMorphViewer {
     }
     if (this.shape === 'city') this.stageScene = new CityDecor(darkCoords, modules, size, this.timeOfDay);
     else if (this.shape === 'island') this.stageScene = new IslandDecor(darkCoords, modules, size, this.islandMode);
+    else if (this.shape === 'maze') this.stageScene = new MazeDecor(darkCoords, modules, size, this.gardenMode);
+    else if (this.shape === 'equalizer') this.stageScene = new EqualizerDecor(darkCoords, modules, size, this.eqMode);
+    else if (this.shape === 'cake') this.stageScene = new CakeDecor(darkCoords, modules, size, this.cakeFlavor);
+    else if (this.shape === 'castle') this.stageScene = new CastleDecor(darkCoords, modules, size, this.castleMode);
     const isStage = !!this.stageScene;
     if (this.stageScene) {
       this.scene.add(this.stageScene.group);
@@ -511,7 +537,28 @@ export class QrMorphViewer {
         this.treeDecor && v.sideScale !== undefined
           ? Math.max(1e-4, THREE.MathUtils.lerp(1, v.sideScale, THREE.MathUtils.smoothstep(this.treeView, 0.12, 0.6)))
           : 1;
-      dummy.scale.set(sx * ks, sy * ks, sz * ks);
+      let kx = ks, ky = ks, kz = ks;
+      // themed scenes: the QR cube hands over to detailed side-view geometry mid-transition
+      if (this.stageScene?.voxelSideScale) {
+        const [fx, fy, fz] = this.stageScene.voxelSideScale(i);
+        const [w0, w1] = this.stageScene.voxelSideWindow ?? [0.35, 0.75];
+        const t = THREE.MathUtils.smoothstep(this.treeView, w0, w1);
+        kx = Math.max(1e-4, THREE.MathUtils.lerp(1, fx, t));
+        ky = Math.max(1e-4, THREE.MathUtils.lerp(1, fy, t));
+        kz = Math.max(1e-4, THREE.MathUtils.lerp(1, fz, t));
+      }
+      dummy.scale.set(sx * kx, sy * ky, sz * kz);
+      // scenes with a rising surface: the voxel sits on it at every moment of the transition
+      if (this.stageScene?.voxelBase) {
+        dummy.position.y = this.stageScene.voxelBase(i, this.treeView) + (sy * ky * 0.88) / 2;
+      }
+      // animated scenes (equalizer): the column's height dances, anchored at its foot
+      if (this.stageScene?.voxelDance) {
+        const f = THREE.MathUtils.lerp(1, this.stageScene.voxelDance(i, this.clock.getElapsedTime()), THREE.MathUtils.smoothstep(this.treeView, 0.55, 1));
+        const height = sy * ky * 0.88;
+        dummy.position.y = y - height / 2 + (height * f) / 2;
+        dummy.scale.y *= f;
+      }
 
       // Add dynamic rotation during morph
       if (this.stageScene) {
@@ -550,6 +597,30 @@ export class QrMorphViewer {
     if (season === this.season) return;
     this.season = season;
     if (this.shape === 'tree') this.rebuildVoxels();
+  }
+
+  public setCastleMode(mode: CastleMode) {
+    if (mode === this.castleMode) return;
+    this.castleMode = mode;
+    if (this.shape === 'castle') this.rebuildVoxels();
+  }
+
+  public setCakeFlavor(flavor: CakeFlavor) {
+    if (flavor === this.cakeFlavor) return;
+    this.cakeFlavor = flavor;
+    if (this.shape === 'cake') this.rebuildVoxels();
+  }
+
+  public setEqMode(mode: EqMode) {
+    if (mode === this.eqMode) return;
+    this.eqMode = mode;
+    if (this.shape === 'equalizer') this.rebuildVoxels();
+  }
+
+  public setGardenMode(mode: GardenMode) {
+    if (mode === this.gardenMode) return;
+    this.gardenMode = mode;
+    if (this.shape === 'maze') this.rebuildVoxels();
   }
 
   public setIslandMode(mode: IslandMode) {
@@ -672,7 +743,7 @@ export class QrMorphViewer {
   private animate = () => {
     this.animFrameId = requestAnimationFrame(this.animate);
 
-    if (!this.isVisible) return; // Battery saving when out of viewport!
+    if (!this.isVisible || this.paused) return; // Battery saving when out of viewport or behind another product
 
     // Static square podium for every shape: only the camera moves between two fixed poses,
     // and the morph itself is driven by that same camera tween (see updateStageCamera)
@@ -736,6 +807,9 @@ export class QrMorphViewer {
     if (e !== this.treeView) {
       this.treeView = e;
       this.morphProgress = e;
+      this.updateMeshTransforms();
+    } else if (this.stageScene?.animated && e > 0.001) {
+      // animated scenes re-pose their QR voxels every frame while they are shown from the side
       this.updateMeshTransforms();
     } else {
       this.treeDecor?.update(e, this.clock.getElapsedTime());

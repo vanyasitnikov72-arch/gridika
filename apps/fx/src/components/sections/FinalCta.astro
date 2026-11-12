@@ -1,0 +1,33 @@
+---
+import { ProductPreview } from '../ProductPreview';
+---
+
+<section class="pt-10 pb-6 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div
+    class="relative overflow-hidden rounded-[2.5rem] px-7 py-12 sm:px-14 sm:py-16 shadow-[0_30px_70px_-30px_rgba(19,42,34,0.55)]"
+    style="background:linear-gradient(135deg,var(--vx-accent) 0%,color-mix(in srgb,var(--vx-accent) 70%,var(--vx-deep)) 55%,var(--vx-deep) 100%)"
+  >
+    {/* echo of the studio wave */}
+    <svg class="absolute right-0 inset-y-0 h-full w-[42%] opacity-[0.13] -scale-x-100" viewBox="0 0 460 620" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M 0,0 L 310,0 C 370,0 430,35 440,110 C 450,175 365,205 325,270 C 290,325 305,385 340,435 C 385,495 440,530 420,580 C 400,620 340,620 280,620 L 0,620 Z" fill="#ffffff" />
+    </svg>
+
+    <div class="relative grid grid-cols-1 md:grid-cols-5 gap-8 items-center">
+      <div class="md:col-span-3 text-[var(--vx-on)]">
+        <h2 class="text-3xl sm:text-[2.6rem] font-black leading-[1.05] tracking-tight">Соберите свой эффект за минуту</h2>
+        <p class="mt-3 text-sm sm:text-base font-semibold opacity-80 max-w-md">Собрать и посмотреть — бесплатно. Код для Тильды — по ключу, разово и без регистрации.</p>
+        <div class="mt-7 flex flex-wrap gap-3">
+          <a href="#studio" data-nav-link="studio" class="h-12 px-6 rounded-full bg-[#132A22] text-[#F0EBE9] font-extrabold text-sm flex items-center gap-2 shadow-lg hover:scale-[1.03] active:scale-95 transition-transform">
+            Открыть студию <span class="w-6 h-6 rounded-full bg-[var(--vx-accent)] text-[var(--vx-on)] flex items-center justify-center">↑</span>
+          </a>
+          <a href="#how-it-works" data-nav-link="how-it-works" class="h-12 px-6 rounded-full bg-white/20 hover:bg-white/30 text-[var(--vx-on)] font-extrabold text-sm flex items-center transition-colors backdrop-blur-sm">
+            Как установить
+          </a>
+        </div>
+      </div>
+      <div class="md:col-span-2 flex justify-center">
+        <ProductPreview id="qr-morph" className="h-48 sm:h-56 w-auto drop-shadow-[0_24px_30px_rgba(0,0,0,0.25)]" />
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,30 +1,53 @@
 ---
 ---
 
-<footer class="mt-auto border-t border-[#dfd8d4] bg-[#eae4e1] py-12">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-    <div class="flex flex-col items-center md:items-start gap-1">
-      <div class="flex items-center gap-2">
-        <span class="text-sm font-black text-[#1c1917] tracking-tight">Voxel<span class="text-[#19C37D]">ka</span></span>
-        <span class="text-xs text-[#a8a29e]">•</span>
-        <span class="text-xs text-[#57534e] font-bold">3D-эффекты для любого сайта</span>
+<footer class="mt-auto border-t border-[#dfd8d4] bg-[#eae4e1] py-10 sm:py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-8">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex flex-col items-center md:items-start gap-1">
+        <div class="flex items-center gap-2">
+          <a href="/" class="text-sm font-black text-[#1c1917] tracking-tight hover:opacity-80 transition-opacity">Grid<span class="text-[#19C37D]">ika</span></a>
+          <span class="text-xs text-[#a8a29e]">•</span>
+          <span class="text-xs text-[#57534e] font-bold">3D-эффекты для любого сайта</span>
+        </div>
+        <p class="text-xs text-[#78716c] font-medium text-center md:text-left">
+          Автономный клиентский WebGL рендеринг. Совместимость с любыми сайтами.
+        </p>
       </div>
-      <p class="text-xs text-[#78716c] font-medium">
-        Автономный клиентский WebGL рендеринг. Совместимость с любыми сайтами.
-      </p>
+
+      <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs font-bold text-[#57534e]">
+        <span class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-[#19C37D]"></span>
+          Автономный код
+        </span>
+        <span class="hidden sm:inline text-[#a8a29e]">•</span>
+        <span>Для дизайнеров</span>
+        <span class="hidden sm:inline text-[#a8a29e]">•</span>
+        <a href="https://t.me" target="_blank" rel="noopener" class="hover:text-[#1c1917] transition-colors">
+          Сообщество
+        </a>
+      </div>
     </div>
 
-    <div class="flex items-center gap-6 text-xs font-bold text-[#57534e]">
-      <span class="flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full bg-[#19C37D]"></span>
-        Автономный код
-      </span>
-      <span>•</span>
-      <span>Для дизайнеров</span>
-      <span>•</span>
-      <a href="https://t.me" target="_blank" rel="noopener" class="hover:text-[#1c1917] transition-colors">
-        Сообщество
-      </a>
+    {/* Юридический блок для соблюдения требований 152-ФЗ, 54-ФЗ и банковского эквайринга */}
+    <div class="border-t border-[#d8d0cb] pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-[12px] text-[#78716c]">
+      <div class="flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-1 text-center md:text-left">
+        <span class="font-bold text-[#44403c]">Самозанятый Ситников И. М.</span>
+        <span>•</span>
+        <span>ИНН: 682966705968</span>
+        <span>•</span>
+        <a href="mailto:support@gridika.ru" class="text-[#132A22] font-semibold hover:text-[#19C37D] transition-colors">support@gridika.ru</a>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-center gap-4 font-semibold text-[#57534e]">
+        <a href="/offer" class="hover:text-[#19C37D] transition-colors">Публичная оферта</a>
+        <span>•</span>
+        <a href="/privacy" class="hover:text-[#19C37D] transition-colors">Политика конфиденциальности</a>
+        <span>•</span>
+        <button type="button" onclick="window.openCookieSettings?.()" class="hover:text-[#19C37D] transition-colors cursor-pointer">Cookies</button>
+        <span>•</span>
+        <span class="text-[#a8a29e]">© 2026 Gridika</span>
+      </div>
     </div>
   </div>
 </footer>

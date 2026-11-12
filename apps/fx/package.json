@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "typecheck": "astro check"
+    "typecheck": "astro check",
+    "check:release": "node scripts/check-release.mjs"
   },
   "dependencies": {
     "@astrojs/preact": "^4.0.0",

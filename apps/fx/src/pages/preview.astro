@@ -6,22 +6,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Temka FX — Embed Preview</title>
+    <title>Gridika — Embed Preview</title>
   </head>
   <body class="m-0 p-0 h-full w-full overflow-hidden flex items-center justify-center">
     <div id="embed-mount" class="w-full h-full relative overflow-hidden">
       {/* Target canvas container */}
       <div id="canvas-container" class="w-full h-full"></div>
 
-      {/* Made in Temka FX badge */}
+      {/* Made in Gridika badge */}
       <a
         id="fx-badge"
-        href="https://temka.io/fx"
+        href="https://gridika.ru"
         target="_blank"
         rel="noopener"
         class="absolute bottom-3 right-3 z-10 text-[11px] font-semibold px-2.5 py-1 rounded-md bg-slate-950/70 text-slate-400 hover:text-white border border-slate-800 backdrop-blur-md transition-opacity"
       >
-        Temka FX
+        Gridika
       </a>
     </div>
 
@@ -30,7 +30,7 @@
       import type { TargetShapeType } from '../engine/shapes';
 
       const params = new URLSearchParams(window.location.search);
-      const text = params.get('text') || 'https://temka.io';
+      const text = params.get('text') || 'https://gridika.ru';
       const shape = (params.get('shape') as TargetShapeType) || 'city';
       const themeId = params.get('theme') || 'dark-gold';
 

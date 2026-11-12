@@ -2,74 +2,69 @@
 ---
 
 <div class="sticky top-3 sm:top-4 z-50 w-full px-3 sm:px-6 lg:px-8 pointer-events-none">
-  <header class="max-w-4xl mx-auto soft-3d-dock px-3.5 sm:px-5 h-13 sm:h-14 flex items-center justify-between pointer-events-auto transition-all bg-white/95 backdrop-blur-md">
-    
-    {/* Left: Brand Logo with Tactile Delta Symbol */}
-    <a href="#studio" data-nav-link="studio" class="flex items-center gap-2.5 group select-none cursor-pointer">
-      <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-[#19C37D] to-[#15a86b] flex items-center justify-center text-[#132A22] shadow-[0_4px_12px_rgba(25,195,125,0.25)] group-hover:scale-105 transition-transform duration-200">
-        <svg class="w-4 h-4 fill-none stroke-[#132A22] stroke-[2.5]" viewBox="0 0 24 24">
-          <path d="M12 2L2 19h20L12 2z" />
-        </svg>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="font-black text-[#132A22] tracking-tight text-sm sm:text-base leading-none">
-          Temka<span class="text-[#19C37D] ml-0.5">FX</span>
-        </span>
-        <span class="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#DFF8EB] text-[#132A22] border border-[#19C37D]/20">
-          3D Studio
-        </span>
+  <header
+    id="site-header"
+    class="vx-header max-w-4xl mx-auto pl-2 pr-2.5 sm:pr-3 h-[68px] flex items-center justify-between pointer-events-auto rounded-full border border-[#e9e3d7] bg-white/90 backdrop-blur-xl shadow-[0_10px_30px_-12px_rgba(19,42,34,0.18),0_1px_0_rgba(255,255,255,0.9)_inset]"
+  >
+    {/* Left: the name "Gridika" made of cubes; on scroll the cubes fly and reassemble into the
+        cube mark inside a dark tile (and back at the top). The real text stays for screen readers. */}
+    <a href="#studio" data-nav-link="studio" id="brand-morph" class="relative block w-[200px] sm:w-[240px] h-16 shrink-0 select-none cursor-pointer" aria-label="Gridika — 3D для сайтов, на главную">
+      <div id="brand-tile" class="absolute pointer-events-none border border-[#19C37D]/30 shadow-[0_10px_24px_-8px_rgba(12,26,20,0.55),inset_0_1px_0_rgba(255,255,255,0.06)]" style="left:4px;top:4px;width:56px;height:56px;border-radius:28px 16px 16px 28px;background:linear-gradient(145deg,#12261d,#0a1611);opacity:0;transform:scale(0.7)"></div>
+      <div class="absolute left-1.5 top-1/2 -translate-y-1/2 flex flex-col leading-none pointer-events-none">
+        <span id="brand-name" class="text-[30px] font-black text-[#132A22] tracking-[-0.03em] w-max opacity-0">Grid<span class="text-[#19C37D]">ika</span></span>
+        <span id="brand-sub" class="mt-1 text-[10.5px] font-bold tracking-[0.15em] uppercase text-[#a8a29e]">3D для сайтов</span>
       </div>
     </a>
 
-    {/* Center: Streamlined Floating Nav Tabs */}
-    <nav class="hidden sm:flex items-center gap-1 p-1 rounded-full bg-[#fbf9f5] border border-[#e5dfd2]/80 shadow-inner text-xs font-bold text-[#57534e] select-none">
-      <a
-        href="#studio"
-        data-nav-link="studio"
-        class="nav-item px-3.5 py-1.5 rounded-full transition-all duration-200 cursor-pointer"
-      >
-        Студия
-      </a>
-      <a
-        href="#catalog"
-        data-nav-link="catalog"
-        class="nav-item px-3.5 py-1.5 rounded-full transition-all duration-200 flex items-center gap-1.5 cursor-pointer"
-      >
-        <span>Каталог</span>
-        <span class="w-4 h-4 rounded-full bg-[#DFF8EB] text-[#132A22] text-[9px] font-mono font-black flex items-center justify-center">6</span>
-      </a>
-      <a
-        href="#how-it-works"
-        data-nav-link="how-it-works"
-        class="nav-item px-3.5 py-1.5 rounded-full transition-all duration-200 cursor-pointer"
-      >
-        Установка в Tilda
-      </a>
+    {/* Center: nav tabs with a sliding active pill */}
+    <nav id="vx-nav" class="relative hidden sm:flex items-center gap-0.5 p-1 rounded-full bg-[#f6f3ee] border border-[#ebe5da] text-[12.5px] font-bold text-[#6b645c] select-none">
+      <span id="vx-pill" class="absolute top-1 bottom-1 left-0 rounded-full bg-white shadow-[0_2px_8px_-2px_rgba(19,42,34,0.18)] transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)] pointer-events-none" style="width:0"></span>
+      <a href="#studio" data-nav-link="studio" class="nav-item relative z-10 px-3 py-1.5 rounded-full transition-colors duration-200 cursor-pointer">Студия</a>
+      <a href="#examples" data-nav-link="examples" class="nav-item relative z-10 px-3 py-1.5 rounded-full transition-colors duration-200 cursor-pointer">Примеры</a>
+      <a href="#how-it-works" data-nav-link="how-it-works" class="nav-item relative z-10 px-3 py-1.5 rounded-full transition-colors duration-200 cursor-pointer">Установка</a>
+      <a href="#pricing" data-nav-link="pricing" class="nav-item relative z-10 px-3 py-1.5 rounded-full transition-colors duration-200 cursor-pointer">Цены</a>
+      <a href="#faq" data-nav-link="faq" class="nav-item relative z-10 px-3 py-1.5 rounded-full transition-colors duration-200 cursor-pointer">Вопросы</a>
     </nav>
 
-    {/* Right: Quick CTA Button */}
-    <div class="flex items-center gap-2 select-none">
-      <a
-        href="#studio"
-        data-nav-link="studio"
-        class="px-4 sm:px-4.5 py-1.5 sm:py-2 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] font-extrabold text-xs shadow-md transition-all duration-200 active:scale-95 flex items-center gap-1.5 cursor-pointer"
-      >
-        <span>Создать 3D</span>
-        <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-          <path d="M5 12h14M12 5l7 7-7 7" />
-        </svg>
-      </a>
-    </div>
-
+    {/* Right: CTA */}
+    <a
+      href="#studio"
+      data-nav-link="studio"
+      class="group relative overflow-hidden pl-4 pr-3 sm:pl-5 sm:pr-3.5 h-10 rounded-full bg-gradient-to-b from-[#1d3a2f] to-[#132A22] text-white font-extrabold text-[13px] shadow-[0_8px_18px_-8px_rgba(19,42,34,0.7)] transition-all duration-200 active:scale-95 flex items-center gap-2 cursor-pointer select-none"
+    >
+      <span class="relative z-10">Создать 3D</span>
+      <span class="relative z-10 w-6 h-6 rounded-full bg-[var(--vx-accent)] text-[var(--vx-on)] flex items-center justify-center transition-transform duration-200 group-hover:translate-x-0.5">
+        <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-[2.4]" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+      </span>
+      <span class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
+    </a>
   </header>
 </div>
+
+<style>
+  .vx-header {
+    transition: height 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+  }
+  .vx-header[data-scrolled='true'] {
+    background-color: rgba(255, 255, 255, 0.78);
+    box-shadow: 0 14px 34px -14px rgba(19, 42, 34, 0.28), 0 1px 0 rgba(255, 255, 255, 0.9) inset;
+  }
+  .nav-item.is-active {
+    color: #132a22;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #vx-pill {
+      transition: none;
+    }
+  }
+</style>
 
 <script>
   function initNav() {
     const navLinks = document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]');
-    
+    const header = document.getElementById('site-header');
+
     function getHeaderBottom(): number {
-      const header = document.querySelector('header');
       if (!header) return 72;
       const rect = header.getBoundingClientRect();
       const top = rect.top > 0 ? rect.top : 16;
@@ -90,17 +85,8 @@
 
       const badge = el.querySelector('span, [class*="badge"], h2') as HTMLElement | null;
       const headerBottom = getHeaderBottom();
-      let targetY: number;
-
-      if (badge) {
-        const badgePageY = badge.getBoundingClientRect().top + window.scrollY;
-        // Position badge with comfortable 24px breathing space below floating header
-        targetY = badgePageY - headerBottom - 24;
-      } else {
-        const elPageY = el.getBoundingClientRect().top + window.scrollY;
-        targetY = elPageY - headerBottom - 24;
-      }
-
+      const anchor = badge ?? el;
+      let targetY = anchor.getBoundingClientRect().top + window.scrollY - headerBottom - 24;
       if (targetY < 0) targetY = 0;
 
       window.scrollTo({ top: targetY, behavior: 'smooth' });
@@ -119,42 +105,54 @@
       });
     });
 
-    // Active tab tracking on scroll
+    // Active tab: a single white pill slides under the current tab
+    const nav = document.getElementById('vx-nav');
+    const pill = document.getElementById('vx-pill');
     const tabItems = document.querySelectorAll<HTMLElement>('.nav-item');
+    let current = '';
+    let placed = false;
+
+    function movePill(tab: HTMLElement | null) {
+      if (!nav || !pill || !tab) return;
+      // first placement is instant (no slide in from zero width), later moves animate
+      if (!placed) {
+        pill.style.transition = 'none';
+        requestAnimationFrame(() => requestAnimationFrame(() => (pill.style.transition = '')));
+        placed = true;
+      }
+      // offsets are relative to the nav (its positioning context), so no border/padding guesswork
+      pill.style.width = `${tab.offsetWidth}px`;
+      pill.style.transform = `translateX(${tab.offsetLeft}px)`;
+    }
+
     function updateActiveTab() {
       const scrollY = window.scrollY;
-      const catalogEl = document.getElementById('catalog');
-      const howItWorksEl = document.getElementById('how-it-works');
-
-      const howItWorksTop = howItWorksEl ? (howItWorksEl.getBoundingClientRect().top + scrollY - 220) : 700;
-      const catalogTop = catalogEl ? (catalogEl.getBoundingClientRect().top + scrollY - 220) : 2100;
-
-      let currentTab = 'studio';
-      if (scrollY >= catalogTop) {
-        currentTab = 'catalog';
-      } else if (scrollY >= howItWorksTop) {
-        currentTab = 'how-it-works';
-      }
-
+      // the last section whose top has passed the header wins
+      let next = 'studio';
       tabItems.forEach((tab) => {
-        const target = tab.getAttribute('data-nav-link');
-        if (target === currentTab) {
-          tab.classList.add('bg-white', 'text-[#132A22]', 'shadow-xs');
-          tab.classList.remove('text-[#57534e]', 'hover:bg-white/60');
-        } else {
-          tab.classList.remove('bg-white', 'text-[#132A22]', 'shadow-xs');
-          tab.classList.add('text-[#57534e]', 'hover:bg-white/60');
-        }
+        const id = tab.getAttribute('data-nav-link');
+        const el = id ? document.getElementById(id) : null;
+        if (el && id !== 'studio' && el.getBoundingClientRect().top + scrollY - 220 <= scrollY) next = id!;
+      });
+      header?.setAttribute('data-scrolled', scrollY > 12 ? 'true' : 'false');
+      if (next === current) return;
+      current = next;
+      tabItems.forEach((tab) => {
+        const active = tab.getAttribute('data-nav-link') === current;
+        tab.classList.toggle('is-active', active);
+        if (active) movePill(tab);
       });
     }
 
     window.addEventListener('scroll', updateActiveTab, { passive: true });
+    window.addEventListener('resize', () => movePill(document.querySelector<HTMLElement>('.nav-item.is-active')));
     updateActiveTab();
+    // fonts can shift tab widths after load — re-measure once they are ready
+    document.fonts?.ready.then(() => movePill(document.querySelector<HTMLElement>('.nav-item.is-active')));
 
-    // Check if initial hash is set
     if (window.location.hash) {
       const hash = window.location.hash.replace('#', '');
-      if (hash === 'catalog' || hash === 'how-it-works' || hash === 'studio') {
+      if (hash && document.querySelector(`[data-nav-link="${hash}"]`)) {
         setTimeout(() => smoothScrollTo(hash), 150);
       }
     }
@@ -165,4 +163,38 @@
   } else {
     initNav();
   }
+</script>
+
+<script>
+  import { createMorphLogo } from '../brand/morphLogo';
+
+  function initBrandMorph() {
+    const host = document.getElementById('brand-morph');
+    const name = document.getElementById('brand-name');
+    const sub = document.getElementById('brand-sub');
+    const tile = document.getElementById('brand-tile');
+    if (!host || !name || !sub || !tile) return;
+    const logo = createMorphLogo(host, name, { logoCenter: { x: 32, y: 32 }, logoSize: 44 });
+    const smooth = (a: number, b: number, t: number) => {
+      const k = Math.min(1, Math.max(0, (t - a) / (b - a)));
+      return k * k * (3 - 2 * k);
+    };
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const apply = () => {
+      const p = Math.min(1, window.scrollY / 420);
+      if (reduce) logo.snap(p > 0.5 ? 1 : 0);
+      else logo.setProgress(p);
+      sub.style.opacity = String(1 - smooth(0, 0.22, p));
+      const t = smooth(0.55, 0.95, p);
+      tile.style.opacity = String(t);
+      tile.style.transform = `scale(${0.7 + 0.3 * t})`;
+    };
+    window.addEventListener('scroll', apply, { passive: true });
+    logo.snap(Math.min(1, window.scrollY / 420));
+    apply();
+  }
+  // the cube copy of the name is drawn with the site font: wait for Nunito
+  const go = () => (document.fonts ? document.fonts.load('900 24px Nunito').then(initBrandMorph, initBrandMorph) : initBrandMorph());
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go);
+  else go();
 </script>

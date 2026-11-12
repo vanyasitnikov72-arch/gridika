@@ -1,0 +1,90 @@
+---
+import SectionHead from './SectionHead.astro';
+import { PRODUCTS } from '../../data/products';
+import { ProductPreview } from '../ProductPreview';
+
+// Everything is sold one-off, per product and per site. Prices are not set yet (see PRODUCTS.md).
+const ready = PRODUCTS.filter((p) => p.ready);
+const included = ['Код для блока T123', 'Навсегда для одного сайта', 'Обновления эффекта', 'Ключ на почту вместе с чеком'];
+---
+
+<section id="pricing" class="py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
+  <SectionHead
+    label="Цены"
+    title="Попробуйте в студии,"
+    accent="платите один раз"
+    lead="Собрать и посмотреть эффект можно бесплатно. Код для сайта — после покупки ключа: разовая оплата, без подписки и регистрации."
+  />
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
+    {ready.map((p) => (
+      <article class="soft-3d-card p-6 flex flex-col">
+        <div class="flex items-center gap-3">
+          <span class="w-14 h-14 rounded-[46%_54%_52%_48%/55%_48%_52%_45%] flex items-center justify-center shadow-[0_10px_20px_-10px_rgba(0,0,0,0.45)]" style={`background:linear-gradient(140deg,${p.theme.accent},${p.theme.deep})`}>
+            <ProductPreview id={p.id} className="w-9 h-9" float={false} />
+          </span>
+          <div>
+            <h3 class="text-lg font-black text-[#132A22] leading-tight">{p.title}</h3>
+            <p class="text-[12px] font-semibold text-[#78716c]">{p.modes.join(' · ')}</p>
+          </div>
+        </div>
+        <div class="mt-5 flex items-baseline gap-2">
+          <span class="text-3xl font-black tracking-tight text-[#132A22]">Скоро</span>
+          <span class="text-xs font-bold text-[#a8a29e]">разово, за сайт</span>
+        </div>
+        <span class="mt-2 self-start px-2.5 py-1 rounded-full text-[11.5px] font-extrabold" style={`background:${p.theme.soft};color:${p.theme.deep}`}>{p.unit}</span>
+        <ul class="mt-4 flex flex-col gap-2 flex-1">
+          {included.map((f) => (
+            <li class="flex items-start gap-2.5 text-[13px] font-semibold text-[#44403c]">
+              <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full text-[9px] font-black flex items-center justify-center" style={`background:${p.theme.accent};color:${p.theme.on}`}>✓</span>
+              {f}
+            </li>
+          ))}
+        </ul>
+        <a
+          href={`?fx=${p.id}#studio`}
+          data-nav-link="studio"
+          data-product={p.id}
+          class="vx-try mt-6 h-11 rounded-full bg-[#132A22] text-[#F0EBE9] font-extrabold text-sm flex items-center justify-center gap-2 transition-opacity hover:opacity-90"
+        >
+          Попробовать в студии <span>↑</span>
+        </a>
+      </article>
+    ))}
+  </div>
+
+  {/* all effects + studios: a wide banner under the products */}
+  <article
+    class="relative mt-8 rounded-[2.25rem] p-7 sm:p-8 grid grid-cols-1 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.2fr)_auto] gap-6 md:gap-8 items-center text-[#F4F1EC] shadow-[0_30px_60px_-24px_rgba(19,42,34,0.5)]"
+    style="background:linear-gradient(150deg,var(--vx-deep),color-mix(in srgb,var(--vx-accent) 45%,var(--vx-deep)))"
+  >
+    <span class="absolute -top-3 left-8 px-3 py-1 rounded-full bg-[var(--vx-accent)] text-[var(--vx-on)] text-[10px] font-black uppercase tracking-wider shadow">Выгоднее</span>
+    <div>
+      <h3 class="text-xl font-black">Все эффекты</h3>
+      <p class="mt-1 text-[13px] font-semibold opacity-75">Один ключ на все эффекты Gridika для сайта — и на те, что выйдут позже.</p>
+      <div class="mt-4 flex items-baseline gap-2">
+        <span class="text-3xl font-black tracking-tight">Скоро</span>
+        <span class="text-xs font-bold opacity-70">разово, за сайт</span>
+      </div>
+    </div>
+    <ul class="flex flex-col gap-2.5">
+      {['Все эффекты без ограничений: визитки, логотипы, пары фото — сколько нужно', 'Новые эффекты по мере выхода', 'Для студий — пакеты ключей на несколько сайтов'].map((f) => (
+        <li class="flex items-start gap-2.5 text-[13px] font-semibold">
+          <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-[var(--vx-accent)] text-[var(--vx-on)] text-[9px] font-black flex items-center justify-center">✓</span>
+          {f}
+        </li>
+      ))}
+    </ul>
+    <span class="h-11 px-6 rounded-full bg-white/10 text-white/70 font-extrabold text-sm flex items-center justify-center whitespace-nowrap">Оплата появится скоро</span>
+  </article>
+
+  <script>
+    // "Попробовать в студии" opens that product in the studio
+    document.querySelectorAll<HTMLAnchorElement>('.vx-try').forEach((a) => {
+      a.addEventListener('click', () => {
+        const id = a.dataset.product;
+        if (id) window.dispatchEvent(new CustomEvent('fx:select-product', { detail: { productId: id } }));
+      });
+    });
+  </script>
+</section>

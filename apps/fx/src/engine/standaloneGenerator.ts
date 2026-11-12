@@ -1,6 +1,8 @@
+import { codeHeader } from './codeNotice';
 import { generateQrMatrix, isFinderPattern } from './qrMatrix';
 import { generateTargetShapePositions, type TargetShapeType } from './shapes';
 import { THEMES } from './QrMorphViewer';
+import { domainLockJs } from './domainLock';
 
 export interface EmbedOptions {
   text: string;
@@ -9,6 +11,11 @@ export interface EmbedOptions {
   width?: string;
   height?: number;
   showBadge?: boolean;
+  /**
+   * Pro license: the badge is hidden only on this domain (and its subdomains).
+   * Copied to any other site, the snippet shows the badge again.
+   */
+  license?: { id: string; domain: string };
 }
 
 /**
@@ -16,7 +23,8 @@ export interface EmbedOptions {
  * Pre-computes the QR matrix and 3D voxel coordinates so the embed snippet is ultra-lightweight.
  */
 export function generateEmbedCode(options: EmbedOptions): string {
-  const { text, shape, themeId, height = 480, showBadge = true } = options;
+  const { text, shape, themeId, height = 480, license } = options;
+  const showBadge = license ? true : options.showBadge ?? true;
   const theme = THEMES[themeId] || THEMES['velvet-emerald'];
   const { modules, size } = generateQrMatrix(text);
 
@@ -33,7 +41,7 @@ export function generateEmbedCode(options: EmbedOptions): string {
     }
   }
 
-  const targets = generateTargetShapePositions(shape, darkCoords.length, size);
+  const targets = generateTargetShapePositions(shape, darkCoords.length, size, darkCoords);
 
   // Compact payload
   const payload = {
@@ -55,19 +63,27 @@ export function generateEmbedCode(options: EmbedOptions): string {
     },
   };
 
-  const instanceId = 'temka-qr-' + Math.random().toString(36).substring(2, 8);
+  const instanceId = 'gridika-qr-' + Math.random().toString(36).substring(2, 8);
 
   const badgeHtml = showBadge
-    ? `\n  <a href="https://temka.io/fx" target="_blank" rel="noopener" style="position:absolute; bottom:12px; right:12px; z-index:10; font-family:system-ui,-apple-system,sans-serif; font-size:11px; font-weight:600; color:${theme.isDark ? '#94a3b8' : '#64748b'}; text-decoration:none; background:${theme.isDark ? 'rgba(15,23,42,0.7)' : 'rgba(255,255,255,0.85)'}; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); padding:4px 9px; border-radius:6px; border:1px solid ${theme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'}; box-shadow:0 2px 6px rgba(0,0,0,0.1); transition:opacity 0.2s;">Temka FX</a>`
+    ? `\n  <a id="${instanceId}-badge" href="https://gridika.ru" target="_blank" rel="noopener" style="position:absolute; bottom:12px; right:12px; z-index:10; font-family:system-ui,-apple-system,sans-serif; font-size:11px; font-weight:600; color:${theme.isDark ? '#94a3b8' : '#64748b'}; text-decoration:none; background:${theme.isDark ? 'rgba(15,23,42,0.7)' : 'rgba(255,255,255,0.85)'}; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); padding:4px 9px; border-radius:6px; border:1px solid ${theme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'}; box-shadow:0 2px 6px rgba(0,0,0,0.1); transition:opacity 0.2s;">Gridika</a>`
     : '';
 
-  return `<!-- Temka FX: 3D Интерактивный QR-код -->
+  const header = license
+    ? codeHeader('3D интерактивный QR-код', license)
+    : `<!-- Gridika: 3D интерактивный QR-код -->`;
+  // badge-free only on the licensed domain; the Tilda editor preview (tilda.cc) counts too
+  const licenseJs = license
+    ? domainLockJs(`${instanceId}-badge`, license.domain)
+    : '';
+
+  return `${header}
 <div id="${instanceId}" style="width:100%; height:${height}px; position:relative; overflow:hidden; border-radius:16px; background:${theme.bgColor};">${badgeHtml}
 </div>
 <script>
 (function() {
   var data = ${JSON.stringify(payload)};
-  var container = document.getElementById("${instanceId}");
+  var container = document.getElementById("${instanceId}");${licenseJs}
   if (!container) return;
 
   function loadThree(cb) {

@@ -1,4 +1,4 @@
-/* Voxelka · Визитка с QR — runtime shared by the studio and the Tilda snippet.
+/* Gridika · Визитка с QR — runtime shared by the studio and the Tilda snippet.
  * Plain JS without imports: three.js is passed in, so the same text can be inlined into the embed.
  * Everything the card needs (contact text, links, the precomputed QR matrix) comes in `data`. */
 
@@ -220,7 +220,7 @@ export function createCardViewer(THREE, container, init) {
         ctx.globalAlpha = 1; top = 470;
         drawMonogram(ctx, 90, 140, 210, p);
       } else if (st === 'wave') {
-        // the Voxelka wave washing in from the bottom-left
+        // the Gridika wave washing in from the bottom-left
         ctx.fillStyle = p.accent; ctx.globalAlpha = 0.18;
         ctx.beginPath(); ctx.moveTo(0, ch); ctx.lineTo(0, 1020);
         ctx.bezierCurveTo(260, 900, 420, 1180, 640, 1120); ctx.bezierCurveTo(860, 1060, 940, 1240, cw, 1200); ctx.lineTo(cw, ch); ctx.closePath(); ctx.fill();

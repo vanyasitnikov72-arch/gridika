@@ -4,32 +4,69 @@ import { type TargetShapeType } from '../engine/shapes';
 import { type TreeSeason } from '../engine/treeScene';
 import { type TimeOfDay } from '../engine/cityScene';
 import { type IslandMode } from '../engine/islandScene';
+import { type GardenMode } from '../engine/mazeScene';
+import { type EqMode } from '../engine/equalizerScene';
+import { type CakeFlavor } from '../engine/cakeScene';
+import { type CastleMode } from '../engine/castleScene';
 import { generateQrMatrix } from '../engine/qrMatrix';
 import { validateQrScan, type ValidationResult } from '../engine/qrValidator';
 import { generateEmbedCode } from '../engine/standaloneGenerator';
+import { verifyLicense, normalizeDomain, isValidDomain, loadSavedKey, saveKey, licenseCovers, cardNameOk, LICENSE_ERRORS, type LicensePayload } from '../engine/license';
+import { PRODUCTS, productById, applyProductTheme, type ProductId } from '../data/products';
+import { ProductPreview } from './ProductPreview';
+import { LiquidNav } from './LiquidNav';
+import { InstallGuide } from './InstallGuide';
+import { codeFileName, downloadCode } from '../engine/codeNotice';
+import { readHash, buildHash, guessSite, type PurchaseConfig } from '../engine/purchase';
+import { DEMO_KEYS, DEMO_KEY } from '../emails/keyEmail';
+import { CardStage, CardPanel, useCardState, visibleContact } from './CardStudio';
+import { GiftStage, GiftPanel, useGiftState } from './GiftStudio';
+import { generateGiftEmbedCode } from '../engine/giftEmbedGenerator';
+import { LogoStage, LogoPanel, useLogoState } from './LogoStudio';
+import { DarkStage } from './DarkStage';
+import { contentMatches } from '../engine/fingerprint.js';
+import { MorphStage, MorphPanel, useMorphState } from './MorphStudio';
+import { TimerStage, TimerPanel, useTimerState } from './TimerStudio';
+import { generateTimerEmbedCode, timerEmbedHeight } from '../engine/timerEmbedGenerator';
+import { generateMorphEmbedCode, morphEmbedHeight } from '../engine/morphEmbedGenerator';
+import { generateLogoEmbedCode, LOGO_EMBED_HEIGHT } from '../engine/logoEmbedGenerator';
+import { generateCardEmbedCode, logoToDataUrl } from '../engine/cardEmbedGenerator';
 import confetti from 'canvas-confetti';
 
-export type ActiveProductType =
-  | 'qr-morph'
-  | 'holo-card'
-  | 'spatial-calc'
-  | 'unbox-3d'
-  | 'jelly-btn'
-  | 'spatial-prism';
+export type ActiveProductType = ProductId;
 
-const STUDIO_PRODUCTS: Array<{ id: ActiveProductType; label: string; number: string }> = [
-  { id: 'qr-morph', label: '3D QR', number: '01' },
-  { id: 'holo-card', label: '3D-Визитка', number: '02' },
-  { id: 'spatial-calc', label: 'Калькулятор', number: '03' },
-  { id: 'unbox-3d', label: 'Анбоксинг', number: '04' },
-  { id: 'jelly-btn', label: 'Hero-Кнопка', number: '05' },
-  { id: 'spatial-prism', label: 'Before/After', number: '06' },
-];
+const STUDIO_PRODUCTS = PRODUCTS;
+/** products with a working studio and site code */
+const BUILT: ProductId[] = ['qr-morph', 'qr-card', 'gift-box', 'voxel-logo', 'voxel-morph', 'sale-timer'];
 
 const ISLAND_OPTIONS: { id: IslandMode; label: string; dot: string }[] = [
   { id: 'summer', label: 'Лето', dot: '#2f9fc7' },
   { id: 'winter', label: 'Зима', dot: '#a9c9da' },
   { id: 'volcano', label: 'Вулкан', dot: '#ff5a1f' },
+];
+
+const CASTLE_OPTIONS: { id: CastleMode; label: string; dot: string }[] = [
+  { id: 'day', label: 'День', dot: '#d8a92a' },
+  { id: 'night', label: 'Ночь', dot: '#3b4a8a' },
+  { id: 'winter', label: 'Зима', dot: '#a9c9da' },
+];
+
+const CAKE_OPTIONS: { id: CakeFlavor; label: string; dot: string }[] = [
+  { id: 'chocolate', label: 'Шоколад', dot: '#7a4a2e' },
+  { id: 'strawberry', label: 'Клубника', dot: '#e8708e' },
+  { id: 'mint', label: 'Мята', dot: '#7fd0b0' },
+];
+
+const EQ_OPTIONS: { id: EqMode; label: string; dot: string }[] = [
+  { id: 'neon', label: 'Неон', dot: '#a98ae0' },
+  { id: 'retro', label: 'Ретро', dot: '#e8c040' },
+  { id: 'mono', label: 'Моно', dot: '#9a9aa6' },
+];
+
+const GARDEN_OPTIONS: { id: GardenMode; label: string; dot: string }[] = [
+  { id: 'day', label: 'День', dot: '#4a9a40' },
+  { id: 'evening', label: 'Вечер', dot: '#8a7ab8' },
+  { id: 'autumn', label: 'Осень', dot: '#d98a2a' },
 ];
 
 const TIME_OPTIONS: { id: TimeOfDay; label: string; dot: string }[] = [
@@ -51,25 +88,47 @@ interface ShapeOption {
   soon?: boolean;
 }
 
-const WAVE_PATH = 'M 0,0 L 310,0 C 370,0 430,35 440,110 C 450,175 365,205 325,270 C 290,325 305,385 340,435 C 385,495 440,530 420,580 C 400,620 340,620 280,620 L 0,620 Z';
+/** 3D QR wave: the canvas is clipped along it, so it must match the qr-morph product wave */
+const WAVE_PATH = productById('qr-morph').wave;
 const WAVE_VIEWBOX = { w: 460, h: 620 };
 
 const SHAPE_OPTIONS: ShapeOption[] = [
   { id: 'tree', label: 'Дерево', desc: 'Бонсай' },
   { id: 'city', label: 'Мегаполис', desc: 'Архитектура' },
   { id: 'island', label: 'Остров', desc: 'Горы и море' },
-  { id: 'maze', label: 'Сад-лабиринт', desc: 'Изгороди', soon: true },
-  { id: 'equalizer', label: 'Эквалайзер', desc: 'Музыка', soon: true },
-  { id: 'castle', label: 'Замок', desc: 'Крепость', soon: true },
-  { id: 'cake', label: 'Торт', desc: 'Праздник', soon: true },
+  { id: 'maze', label: 'Сад-лабиринт', desc: 'Изгороди' },
+  { id: 'equalizer', label: 'Эквалайзер', desc: 'Музыка' },
+  { id: 'cake', label: 'Торт', desc: 'Праздник' },
+  { id: 'castle', label: 'Замок', desc: 'Крепость' },
 ];
 
 export function QrConfigurator() {
   const containerRef = useRef<HTMLDivElement>(null);
   const waveRef = useRef<SVGSVGElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const stageColRef = useRef<HTMLDivElement>(null);
 
   // Active Studio Product
   const [activeProduct, setActiveProduct] = useState<ActiveProductType>('qr-morph');
+  const active = productById(activeProduct);
+  const activeProductRef = useRef(activeProduct);
+  activeProductRef.current = activeProduct;
+  const card = useCardState();
+  const gift = useGiftState();
+  const logo = useLogoState();
+  const morph = useMorphState();
+  const timer = useTimerState();
+
+  useEffect(() => applyProductTheme(activeProduct), [activeProduct]);
+
+  const selectProduct = (id: ProductId) => {
+    setActiveProduct(id);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('fx', id);
+      window.history.replaceState({}, '', url.toString());
+    } catch {}
+  };
 
   // Clip the 3D canvas along the jade wave
   useEffect(() => {
@@ -118,47 +177,147 @@ export function QrConfigurator() {
   const viewerRef = useRef<QrMorphViewer | null>(null);
 
   // Product 1: QR Morph State
-  const [text, setText] = useState('https://temka.io');
+  const [text, setText] = useState('https://gridika.ru');
   const [shape, setShape] = useState<TargetShapeType>('tree');
   const [themeId, setThemeId] = useState<string>('velvet-emerald');
   const [season, setSeason] = useState<TreeSeason>('spring');
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('day');
   const [islandMode, setIslandMode] = useState<IslandMode>('summer');
+  const [gardenMode, setGardenMode] = useState<GardenMode>('day');
+  const [eqMode, setEqMode] = useState<EqMode>('neon');
+  const [cakeFlavor, setCakeFlavor] = useState<CakeFlavor>('chocolate');
+  const [castleMode, setCastleMode] = useState<CastleMode>('day');
   const [currentState, setCurrentState] = useState<'qr' | 'morphed'>('morphed');
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [copied, setCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [embedCode, setEmbedCode] = useState('');
+
+  // Every product is sold: the studio is free to try, the code for a site needs a key for that product.
+  // No accounts: the key lives in the buyer's email and, for convenience, on this device.
+  const [licenseKey, setLicenseKey] = useState('');
+  const [license, setLicense] = useState<LicensePayload | null>(null);
+  const [licenseError, setLicenseError] = useState('');
+  const [siteDomain, setSiteDomain] = useState('');
+  useEffect(() => {
+    const saved = loadSavedKey();
+    if (saved) setLicenseKey(saved);
+  }, []);
+  useEffect(() => {
+    let cancelled = false;
+    const key = licenseKey.trim();
+    if (!key) {
+      setLicense(null);
+      setLicenseError('');
+      return;
+    }
+    verifyLicense(key).then((res) => {
+      if (cancelled) return;
+      if (res.ok) {
+        setLicense(res.license);
+        setLicenseError('');
+        saveKey(key);
+        if (res.license.d !== '*') setSiteDomain(res.license.d);
+      } else {
+        setLicense(null);
+        setLicenseError(LICENSE_ERRORS[res.reason]);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [licenseKey]);
+  // ---- the studio settings that travel through payment (see engine/purchase.ts) ----
+  const currentConfig = (): Omit<PurchaseConfig, 'site'> => {
+    if (activeProduct === 'qr-card') return { p: activeProduct, card: { contact: card.contact, hidden: card.hidden, mode: card.mode, style: card.style } };
+    if (activeProduct === 'gift-box') return { p: activeProduct, gift: { settings: gift.settings, mode: gift.mode } };
+    if (activeProduct === 'voxel-logo') return { p: activeProduct, logo: logo.data ? { data: logo.data, settings: logo.settings, mode: logo.mode } : undefined };
+    if (activeProduct === 'voxel-morph') return { p: activeProduct, morph: morph.data ? { data: morph.data, settings: morph.settings } : undefined };
+    if (activeProduct === 'sale-timer') return { p: activeProduct, timer: { settings: timer.settings, mode: timer.mode } };
+    return { p: 'qr-morph', qr: { text, shape, themeId, modes: { season, timeOfDay, islandMode, gardenMode, eqMode, cakeFlavor, castleMode } } };
+  };
+  function applyConfig(c: PurchaseConfig) {
+    savedSite.current = c.site || '';
+    setActiveProduct(c.p as ActiveProductType);
+    if (c.qr) {
+      setText(c.qr.text);
+      setShape(c.qr.shape as TargetShapeType);
+      setThemeId(c.qr.themeId);
+      const m = c.qr.modes || {};
+      if (m.season) setSeason(m.season as TreeSeason);
+      if (m.timeOfDay) setTimeOfDay(m.timeOfDay as TimeOfDay);
+      if (m.islandMode) setIslandMode(m.islandMode as IslandMode);
+      if (m.gardenMode) setGardenMode(m.gardenMode as GardenMode);
+      if (m.eqMode) setEqMode(m.eqMode as EqMode);
+      if (m.cakeFlavor) setCakeFlavor(m.cakeFlavor as CakeFlavor);
+      if (m.castleMode) setCastleMode(m.castleMode as CastleMode);
+    }
+    if (c.card) {
+      card.setContact(c.card.contact);
+      card.setHidden(c.card.hidden);
+      card.setMode(c.card.mode as any);
+      card.setStyle(c.card.style as any);
+    }
+    if (c.gift) {
+      gift.setSettings(c.gift.settings);
+      gift.setMode(c.gift.mode as any);
+    }
+    if (c.logo) logo.restore(c.logo.data, c.logo.settings, c.logo.mode as any);
+    if (c.morph) morph.restore(c.morph.data, c.morph.settings);
+    if (c.timer) timer.restore(c.timer.settings, c.timer.mode as any);
+  }
+  // where the block will live: guessed from the link typed in the studio, the buyer confirms it
+  const [buySite, setBuySite] = useState('');
+  useEffect(() => {
+    if (showModal && !license) setBuySite((s) => s || guessSite(currentConfig()));
+  }, [showModal, activeProduct]);
+  const buyDomain = normalizeDomain(buySite);
+  const buyCfg: PurchaseConfig = { ...currentConfig(), site: buyDomain };
+  // what the buyer will see after paying, shown with a demo key for example.com
+  const demoKey = DEMO_KEYS[activeProduct] ?? (activeProduct === 'qr-card' ? DEMO_KEY : '');
+  const previewHref = demoKey ? `/thanks#${buildHash('demo', { ...buyCfg, site: 'example.com' })}` : '';
+
+  const proDomain = license ? (license.d !== '*' ? license.d : normalizeDomain(siteDomain)) : '';
+  const covers = licenseCovers(license, activeProduct);
+  // a card key belongs to one person: another name on the card needs another key
+  const cardNameBlocked = activeProduct === 'qr-card' && covers && !cardNameOk(license, card.contact.name);
+  // a logo key / a before-after key is for one logo / one photo pair (fingerprint in the key)
+  const itemData = activeProduct === 'voxel-logo' ? logo.data : activeProduct === 'voxel-morph' ? morph.data : null;
+  const itemBlocked = (activeProduct === 'voxel-logo' || activeProduct === 'voxel-morph') && covers && !!license?.f && !contentMatches(license.f, activeProduct, itemData);
+  const proActive = covers && isValidDomain(proDomain) && !cardNameBlocked && !itemBlocked;
+  const keyProductLabel = !license
+    ? ''
+    : license.p === 'all' || license.p === 'pro'
+      ? 'все эффекты'
+      : '«' + (PRODUCTS.find((x) => x.id === license.p)?.label ?? license.p) + '»';
   const currentShapeLabel = SHAPE_OPTIONS.find((s) => s.id === shape)?.label || 'Форма';
 
-  // Product 2: Holo Card State
-  const [cardName, setCardName] = useState('Алексей Ровер');
-  const [cardRole, setCardRole] = useState('3D & Web Дизайнер');
-  const [cardTelegram, setCardTelegram] = useState('@alex_rover');
-  const [cardPhone, setCardPhone] = useState('+7 (999) 000-00-00');
-  const [cardTheme, setCardTheme] = useState<'emerald' | 'gold' | 'obsidian'>('emerald');
-  const [cardTilt, setCardTilt] = useState({ rx: 0, ry: 0, gx: 50, gy: 50 });
-
-  // Product 3: Spatial Calc State
-  const [calcFloors, setCalcFloors] = useState<number>(3);
-  const [calcBasePrice, setCalcBasePrice] = useState<number>(45000);
-
-  // Product 4: Unbox 3D State
-  const [unboxTitle, setUnboxTitle] = useState('Temka Premium Drop');
-  const [unboxOpen, setUnboxOpen] = useState(false);
-  const [unboxStyle, setUnboxStyle] = useState<'emerald' | 'kraft' | 'neon'>('emerald');
-
-  // Product 5: Jelly Button State
-  const [jellyText, setJellyText] = useState('Запустить проект');
-  const [jellyLink, setJellyLink] = useState('#contact');
-  const [jellyRadius, setJellyRadius] = useState<number>(120);
-  const [jellyOffset, setJellyOffset] = useState({ x: 0, y: 0 });
-  const jellyAreaRef = useRef<HTMLDivElement>(null);
-
-  // Product 6: Spatial Prism State
-  const [prismBefore, setPrismBefore] = useState('Черновой бетон');
-  const [prismAfter, setPrismAfter] = useState('Премиум 3D Лофт');
-  const [prismSide, setPrismSide] = useState<'before' | 'after'>('after');
+  // Arrived from the "thank you" page or the email: #key=GRD1-… in the address.
+  // The hash never reaches a server or analytics; we drop it from the address right away.
+  const openWithKey = useRef(false);
+  const savedSite = useRef('');
+  useEffect(() => {
+    try {
+      const { key, cfg } = readHash(window.location.hash);
+      if (!key && !cfg) return;
+      if (cfg) applyConfig(cfg);
+      if (key) {
+        setLicenseKey(key);
+        openWithKey.current = true;
+      }
+      const url = new URL(window.location.href);
+      url.hash = 'studio';
+      window.history.replaceState({}, '', url.toString());
+    } catch {}
+  }, []);
+  useEffect(() => {
+    if (!openWithKey.current || !license) return;
+    openWithKey.current = false;
+    if (license.d === '*' && savedSite.current) setSiteDomain(savedSite.current);
+    if (PRODUCTS.some((x) => x.id === license.p && x.ready)) setActiveProduct(license.p as ActiveProductType);
+    document.getElementById('studio')?.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => setShowModal(true), 400);
+  }, [license]);
 
   // Sync with URL query parameter & custom events from Catalog
   useEffect(() => {
@@ -193,6 +352,10 @@ export function QrConfigurator() {
         season,
         timeOfDay,
         islandMode,
+        gardenMode,
+        eqMode,
+        cakeFlavor,
+        castleMode,
         initialState: 'morphed',
         onStateChange: (st) => setCurrentState(st),
         onReady: () => {
@@ -201,6 +364,8 @@ export function QrConfigurator() {
       });
 
       viewerRef.current = viewer;
+      // opened straight on another product (?fx=…): build the scene but do not draw it yet
+      if (activeProductRef.current !== 'qr-morph') viewer.setPaused(true);
     } catch (err) {
       console.warn('Failed to initialize 3D viewer:', err);
     }
@@ -217,6 +382,8 @@ export function QrConfigurator() {
 
   // When activeProduct switches to qr-morph, ensure viewer is active and sized properly
   useEffect(() => {
+    // the 3D QR keeps its scene but stops drawing while another product is on screen
+    viewerRef.current?.setPaused(activeProduct !== 'qr-morph');
     if (activeProduct === 'qr-morph') {
       if (!viewerRef.current) {
         initViewer();
@@ -252,6 +419,30 @@ export function QrConfigurator() {
     }
   }, [islandMode, shape]);
 
+  useEffect(() => {
+    if (viewerRef.current && shape === 'maze') {
+      viewerRef.current.setGardenMode(gardenMode);
+    }
+  }, [gardenMode, shape]);
+
+  useEffect(() => {
+    if (viewerRef.current && shape === 'equalizer') {
+      viewerRef.current.setEqMode(eqMode);
+    }
+  }, [eqMode, shape]);
+
+  useEffect(() => {
+    if (viewerRef.current && shape === 'cake') {
+      viewerRef.current.setCakeFlavor(cakeFlavor);
+    }
+  }, [cakeFlavor, shape]);
+
+  useEffect(() => {
+    if (viewerRef.current && shape === 'castle') {
+      viewerRef.current.setCastleMode(castleMode);
+    }
+  }, [castleMode, shape]);
+
   const runValidation = (url: string, theme: string) => {
     try {
       const { modules } = generateQrMatrix(url);
@@ -278,127 +469,80 @@ export function QrConfigurator() {
   };
 
   const handleDownloadPng = () => {
+    if (!proActive) {
+      handleOpenEmbedModal(); // the picture is a working QR too, so it comes with the key
+      return;
+    }
     if (activeProduct === 'qr-morph' && viewerRef.current) {
       const dataUrl = viewerRef.current.exportSnapshot();
       const a = document.createElement('a');
       a.href = dataUrl;
-      a.download = `temka-fx-qr-${shape}-${Date.now()}.png`;
+      a.download = `gridika-qr-${shape}-${Date.now()}.png`;
+      a.click();
+    } else if (activeProduct === 'sale-timer' && timer.viewer.current) {
+      const a = document.createElement('a');
+      a.href = timer.viewer.current.snapshot().toDataURL('image/png');
+      a.download = `gridika-timer-${Date.now()}.png`;
+      a.click();
+    } else if (activeProduct === 'voxel-morph' && morph.viewer.current) {
+      const a = document.createElement('a');
+      a.href = morph.viewer.current.snapshot().toDataURL('image/png');
+      a.download = `gridika-morph-${Date.now()}.png`;
+      a.click();
+    } else if (activeProduct === 'voxel-logo' && logo.viewer.current) {
+      const a = document.createElement('a');
+      a.href = logo.viewer.current.snapshot().toDataURL('image/png');
+      a.download = `gridika-logo-${Date.now()}.png`;
+      a.click();
+    } else if (activeProduct === 'gift-box' && gift.viewer.current) {
+      const a = document.createElement('a');
+      a.href = gift.viewer.current.snapshot().toDataURL('image/png');
+      a.download = `gridika-gift-${Date.now()}.png`;
+      a.click();
+    } else if (activeProduct === 'qr-card' && card.viewer.current) {
+      const a = document.createElement('a');
+      a.href = card.viewer.current.snapshot().toDataURL('image/png');
+      a.download = `gridika-card-${Date.now()}.png`;
       a.click();
     } else {
       handleOpenEmbedModal();
     }
   };
 
-  const getEmbedCodeForProduct = (prod: ActiveProductType): string => {
-    switch (prod) {
-      case 'qr-morph':
-        return generateEmbedCode({
+  const getEmbedCodeForProduct = (prod: ActiveProductType): string =>
+    !proActive
+      ? ''
+      : prod === 'qr-morph'
+      ? generateEmbedCode({
           text,
           shape,
           themeId,
           height: 480,
           showBadge: true,
-        });
-      case 'holo-card':
-        return `<!-- Temka FX: 3D Holographic Card for Tilda T123 -->
-<div id="temka-fx-card" style="width:100%;max-width:440px;margin:0 auto;perspective:900px;font-family:system-ui,-apple-system,sans-serif;">
-  <div class="fx-card" style="width:100%;height:250px;border-radius:24px;padding:24px;background:linear-gradient(135deg,#132A22 0%,#19C37D 100%);color:#fff;box-shadow:0 20px 48px rgba(19,42,34,0.35);display:flex;flex-direction:column;justify-content:space-between;transition:transform 0.1s ease-out;position:relative;overflow:hidden;">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-size:11px;font-family:monospace;letter-spacing:2px;color:#DFF8EB;font-weight:bold;">TEMKA 3D CARD</span>
-      <span style="font-size:10px;font-weight:bold;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:99px;">Tilda T123</span>
-    </div>
-    <div>
-      <div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;">${cardName || 'Алексей Ровер'}</div>
-      <div style="font-size:13px;color:#DFF8EB;opacity:0.9;margin-top:2px;">${cardRole || '3D & Web Дизайнер'}</div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;padding-top:12px;border-top:1px solid rgba(255,255,255,0.2);">
-      <a href="https://t.me/${(cardTelegram || '@alex_rover').replace('@', '')}" target="_blank" style="padding:6px 14px;border-radius:99px;background:#19C37D;color:#132A22;font-size:12px;font-weight:bold;text-decoration:none;">Telegram</a>
-      <a href="tel:${cardPhone || '+79990000000'}" style="padding:6px 14px;border-radius:99px;background:rgba(255,255,255,0.2);color:#fff;font-size:12px;font-weight:bold;text-decoration:none;">Позвонить</a>
-    </div>
-  </div>
-</div>
-<script>
-(function(){
-  var c = document.querySelector('#temka-fx-card .fx-card');
-  if(!c) return;
-  document.addEventListener('mousemove', function(e){
-    var r = c.getBoundingClientRect();
-    var x = e.clientX - r.left - r.width/2;
-    var y = e.clientY - r.top - r.height/2;
-    if(Math.abs(x) < 400 && Math.abs(y) < 400){
-      c.style.transform = 'rotateX(' + (-y*0.04) + 'deg) rotateY(' + (x*0.04) + 'deg) scale3d(1.02,1.02,1.02)';
-    } else {
-      c.style.transform = 'rotateX(0deg) rotateY(0deg)';
-    }
-  });
-})();
-<\/script>`;
-      case 'spatial-calc':
-        return `<!-- Temka FX: 3D Spatial Calculator for Tilda T123 -->
-<div id="temka-fx-calc" style="width:100%;max-width:440px;margin:0 auto;padding:24px;border-radius:24px;background:#fff;border:1px solid #e5dfd2;box-shadow:0 16px 40px rgba(85,70,50,0.08);font-family:system-ui,-apple-system,sans-serif;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-    <span style="font-size:13px;font-weight:bold;color:#132A22;">Объем / Этажи: <b id="fx-step-val">${calcFloors}</b></span>
-    <span style="font-size:16px;font-weight:900;color:#19C37D;" id="fx-sum-val">${(calcFloors * calcBasePrice).toLocaleString('ru-RU')} ₽</span>
-  </div>
-  <input id="fx-range" type="range" min="1" max="5" value="${calcFloors}" style="width:100%;accent-color:#19C37D;cursor:pointer;">
-</div>
-<script>
-(function(){
-  var r = document.getElementById('fx-range');
-  var sv = document.getElementById('fx-step-val');
-  var sm = document.getElementById('fx-sum-val');
-  if(!r) return;
-  r.addEventListener('input', function(e){
-    var v = Number(e.target.value);
-    sv.innerText = v;
-    var total = v * ${calcBasePrice};
-    sm.innerText = total.toLocaleString('ru-RU') + ' ₽';
-    var formInput = document.querySelector('input[name="calc_sum"]');
-    if(formInput) formInput.value = total;
-  });
-})();
-<\/script>`;
-      case 'unbox-3d':
-        return `<!-- Temka FX: 3D Unbox Widget for Tilda T123 -->
-<div id="temka-fx-unbox" style="width:100%;max-width:440px;margin:0 auto;text-align:center;padding:20px;font-family:system-ui,-apple-system,sans-serif;">
-  <div class="fx-unbox-box" style="width:200px;height:120px;margin:0 auto;background:#b45309;border-radius:16px;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 12px 30px rgba(0,0,0,0.15);font-weight:bold;font-size:13px;">
-    <span>${unboxTitle || 'Распаковать товар'}</span>
-  </div>
-</div>`;
-      case 'jelly-btn':
-        return `<!-- Temka FX: Magnetic Jelly Button for Tilda Zero Block -->
-<div style="padding:20px;text-align:center;font-family:system-ui,-apple-system,sans-serif;">
-  <a id="temka-jelly-btn" href="${jellyLink || '#contact'}" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:99px;background:#19C37D;color:#132A22;font-weight:900;font-size:14px;text-decoration:none;box-shadow:0 8px 24px rgba(25,195,125,0.4);transition:transform 0.08s ease-out;">
-    ${jellyText || 'Запустить проект'} →
-  </a>
-</div>
-<script>
-(function(){
-  var btn = document.getElementById('temka-jelly-btn');
-  if(!btn) return;
-  document.addEventListener('mousemove', function(e){
-    var r = btn.getBoundingClientRect();
-    var cx = r.left + r.width/2;
-    var cy = r.top + r.height/2;
-    var dx = e.clientX - cx;
-    var dy = e.clientY - cy;
-    var dist = Math.sqrt(dx*dx + dy*dy);
-    if(dist < 120){
-      btn.style.transform = 'translate(' + (dx*0.35) + 'px, ' + (dy*0.35) + 'px)';
-    } else {
-      btn.style.transform = 'translate(0,0)';
-    }
-  });
-})();
-<\/script>`;
-      case 'spatial-prism':
-        return `<!-- Temka FX: Spatial 3D Before/After for Tilda T123 -->
-<div id="temka-fx-prism" style="width:100%;max-width:440px;margin:0 auto;border-radius:24px;padding:24px;background:#132A22;color:#fff;text-align:center;font-family:system-ui,-apple-system,sans-serif;">
-  <div style="font-size:18px;font-weight:900;margin-bottom:8px;">${prismAfter || 'Премиум Дизайн'}</div>
-  <div style="font-size:12px;color:#DFF8EB;">3D Сравнение До / После</div>
-</div>`;
-    }
-  };
+          license: { id: license!.id, domain: proDomain },
+        })
+      : prod === 'qr-card'
+        ? generateCardEmbedCode({
+            contact: visibleContact(card),
+            mode: card.mode,
+            style: card.style,
+            logo: logoToDataUrl(card.logo),
+            license: { id: license!.id, domain: proDomain },
+          })
+        : prod === 'gift-box'
+          ? generateGiftEmbedCode({ settings: gift.settings, mode: gift.mode, license: { id: license!.id, domain: proDomain } })
+          : prod === 'voxel-logo' && logo.data
+            ? generateLogoEmbedCode({ data: logo.data, mode: logo.mode, license: { id: license!.id, domain: proDomain } })
+            : prod === 'voxel-morph' && morph.data
+              ? generateMorphEmbedCode({ data: morph.data, license: { id: license!.id, domain: proDomain } })
+              : prod === 'sale-timer' && timer.data
+                ? generateTimerEmbedCode({ data: timer.data, license: { id: license!.id, domain: proDomain } })
+                : '';
+
+  // regenerate the snippet when the license or the domain changes while the window is open
+  useEffect(() => {
+    if (showModal) setEmbedCode(getEmbedCodeForProduct(activeProduct));
+  }, [proActive, proDomain, activeProduct, showModal]);
 
   const handleOpenEmbedModal = () => {
     const code = getEmbedCodeForProduct(activeProduct);
@@ -406,8 +550,17 @@ export function QrConfigurator() {
     setShowModal(true);
   };
 
+  const [downloaded, setDownloaded] = useState(false);
+  const handleDownloadCode = () => {
+    const code = embedCode || getEmbedCodeForProduct(activeProduct);
+    if (!code) return;
+    downloadCode(code, codeFileName(activeProduct, proDomain || ''));
+    setDownloaded(true);
+    setTimeout(() => setDownloaded(false), 2500);
+  };
+
   const handleCopyCode = async () => {
-    const code = getEmbedCodeForProduct(activeProduct);
+    const code = embedCode || getEmbedCodeForProduct(activeProduct);
     try {
       await navigator.clipboard.writeText(code);
       setCopied(true);
@@ -453,84 +606,46 @@ export function QrConfigurator() {
     }
   };
 
-  // Tilt handler for Holo Card in Center Stage
-  const handleCardTilt = (e: MouseEvent) => {
-    const el = e.currentTarget as HTMLElement;
-    const r = el.getBoundingClientRect();
-    const px = ((e.clientX - r.left) / r.width) * 2 - 1;
-    const py = ((e.clientY - r.top) / r.height) * 2 - 1;
-    setCardTilt({
-      rx: -py * 16,
-      ry: px * 16,
-      gx: ((e.clientX - r.left) / r.width) * 100,
-      gy: ((e.clientY - r.top) / r.height) * 100,
-    });
-  };
-
-  // Magnetic button handler in Center Stage
-  const handleMagneticMove = (e: MouseEvent) => {
-    const area = jellyAreaRef.current;
-    if (!area) return;
-    const r = area.getBoundingClientRect();
-    const cx = r.width / 2;
-    const cy = r.height / 2;
-    const dx = e.clientX - r.left - cx;
-    const dy = e.clientY - r.top - cy;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist < jellyRadius) {
-      setJellyOffset({ x: dx * 0.38, y: dy * 0.38 });
-    } else {
-      setJellyOffset({ x: 0, y: 0 });
-    }
-  };
-
   return (
     <div className="w-full">
-      {/* STUDIO FX PRODUCT SWITCHER (Top of Master Studio) */}
-      <div className="flex items-center justify-center gap-1.5 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_4px_16px_rgba(85,70,50,0.06)] backdrop-blur-md mb-5 w-fit max-w-full mx-auto overflow-x-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden select-none transition-all">
-        {STUDIO_PRODUCTS.map((prod) => (
-          <button
-            key={prod.id}
-            type="button"
-            onClick={() => {
-              setActiveProduct(prod.id);
-              try {
-                const url = new URL(window.location.href);
-                url.searchParams.set('fx', prod.id);
-                window.history.pushState({}, '', url.toString());
-              } catch {}
-            }}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ease-out shrink-0 cursor-pointer ${
-              activeProduct === prod.id
-                ? 'bg-[#132A22] text-[#F0EBE9] shadow-md scale-[1.03]'
-                : 'text-[#57534e] hover:bg-[#f3efe7] hover:text-[#132A22] active:scale-95'
-            }`}
-          >
-            {prod.label}
-          </button>
-        ))}
-      </div>
-
       {/* MASTER STUDIO CARD CONTAINER */}
       <div className="relative w-full max-w-5xl mx-auto">
-        <div className="relative w-full bg-white rounded-[2.5rem] p-6 sm:p-8 lg:p-10 shadow-[0_24px_64px_-16px_rgba(85,70,50,0.08),0_4px_16px_-2px_rgba(85,70,50,0.03),inset_0_1px_1px_rgba(255,255,255,1)] border border-[#e5dfd2] overflow-hidden select-none">
+        <div ref={cardRef} className="relative w-full bg-white rounded-[2.5rem] p-6 sm:p-8 lg:p-10 shadow-[0_24px_64px_-16px_rgba(85,70,50,0.08),0_4px_16px_-2px_rgba(85,70,50,0.03),inset_0_1px_1px_rgba(255,255,255,1)] border border-[#e5dfd2] overflow-hidden select-none">
           
-          {/* Green Wave Silhouette Background on Left */}
-          <div className="absolute inset-y-0 left-0 w-[42%] lg:w-[38%] pointer-events-none select-none z-0">
+          {/* 3D logo: dark preview that hugs the wave (desktop) */}
+          <DarkStage
+            show={activeProduct === 'voxel-logo' && logo.previewBg === 'dark'}
+            cardRef={cardRef}
+            waveRef={waveRef}
+            stageRef={stageColRef}
+            wavePath={productById('voxel-logo').wave}
+            waveBox={WAVE_VIEWBOX}
+          />
+
+          {/* Product wave: colour and outline follow the selected product (desktop) */}
+          <div className="hidden lg:block absolute inset-y-0 left-0 w-[38%] pointer-events-none select-none z-0">
             <svg
               ref={waveRef}
               viewBox={`0 0 ${WAVE_VIEWBOX.w} ${WAVE_VIEWBOX.h}`}
               preserveAspectRatio="none"
-              className="w-full h-full drop-shadow-[0_12px_32px_rgba(25,195,125,0.25)]"
+              className="w-full h-full"
+              style={{
+                // no shadow over the dark preview: it would draw a dark seam along the wave
+                filter: activeProduct === 'voxel-logo' && logo.previewBg === 'dark' ? 'none' : 'drop-shadow(0 10px 16px rgba(19, 42, 34, 0.14))',
+              }}
             >
               <defs>
                 <linearGradient id="jadeGradient" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#19C37D" />
-                  <stop offset="65%" stopColor="#15a86b" />
-                  <stop offset="100%" stopColor="#132A22" />
+                  <stop offset="0%" style={{ stopColor: 'var(--vx-accent)' }} />
+                  <stop offset="65%" style={{ stopColor: 'color-mix(in srgb, var(--vx-accent) 82%, var(--vx-deep))' }} />
+                  <stop offset="100%" style={{ stopColor: 'var(--vx-deep)' }} />
                 </linearGradient>
               </defs>
-              <path d={WAVE_PATH} fill="url(#jadeGradient)" />
+              <path
+                d={active.wave}
+                fill="url(#jadeGradient)"
+                style={{ d: `path("${active.wave}")`, transition: 'd 0.55s cubic-bezier(0.65, 0, 0.35, 1)' } as any}
+              />
             </svg>
           </div>
 
@@ -542,34 +657,26 @@ export function QrConfigurator() {
           </div>
 
           {/* Master Card 3-Zone Content Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center relative z-10 lg:h-[560px]">
             
-            {/* 1. LEFT ZONE: Brand Typography on Green Wave */}
-            <div className="lg:col-span-3 relative flex flex-col justify-between h-full min-h-[280px] sm:min-h-[340px] p-2 sm:p-3 text-[#132A22] pointer-events-none select-none">
-              <div className="w-8 h-8 rounded-xl border border-[#132A22]/40 flex items-center justify-center opacity-90 shadow-sm">
-                <svg className="w-4 h-4 fill-none stroke-[#132A22] stroke-2" viewBox="0 0 24 24">
-                  <path d="M12 2L2 19h20L12 2z" />
-                </svg>
+            {/* 1. LEFT ZONE: product navigation on the wave */}
+            <div className="lg:col-span-3 relative lg:h-full flex flex-col rounded-[1.75rem] lg:rounded-none p-5 lg:p-2 bg-[linear-gradient(140deg,var(--vx-accent),color-mix(in_srgb,var(--vx-accent)_70%,var(--vx-deep))_70%,var(--vx-deep))] lg:bg-none text-[var(--vx-on)] select-none">
+              <div className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.16em] opacity-75 lg:pt-1">
+                <span>Линейка</span>
+                <span className="font-mono tracking-normal">{active.number}/{String(PRODUCTS.length).padStart(2, '0')}</span>
               </div>
 
-              <div className="my-auto py-6 sm:py-8">
-                <div className="text-4xl sm:text-5xl font-black tracking-[-0.04em] leading-[0.94] text-[#132A22]">
-                  Temka <br />
-                  FX
-                </div>
-                <div className="text-xs font-bold text-[#132A22]/80 tracking-wide mt-2.5">
-                  WebGL 3D Studio
-                </div>
+              <div key={activeProduct} className="mt-4 lg:mt-auto lg:h-[190px] lg:pr-6 flex flex-col justify-end fx-fade-in">
+                <div className="text-[2rem] lg:text-[2.4rem] font-black tracking-[-0.02em] leading-[1]">{active.label}</div>
+                <p className="text-[13px] font-semibold opacity-80 mt-2.5 leading-snug max-w-[14rem] lg:line-clamp-4">{active.tagline}</p>
               </div>
 
-              <div className="inline-flex self-start px-3.5 py-1 rounded-full border border-[#132A22]/40 text-[#132A22] text-[11px] font-bold tracking-tight">
-                @temka.fx
-              </div>
+              <LiquidNav items={STUDIO_PRODUCTS} activeId={activeProduct} onSelect={selectProduct} />
             </div>
 
             {/* 2. CENTER ZONE: Expansive Stage (Switches depending on activeProduct) */}
-            <div className="lg:col-span-5 flex flex-col items-center justify-center relative my-1 lg:my-0">
-              <div className="relative w-full h-[360px] sm:h-[430px] flex flex-col items-center justify-center">
+            <div ref={stageColRef} className="lg:col-span-5 flex flex-col items-center justify-center relative my-1 lg:my-0">
+              <div className="relative w-full h-[360px] sm:h-[430px] lg:h-[520px] flex flex-col items-center justify-center">
 
                 {/* MODE 01: QR MORPH STAGE (Permanently mounted for persistent Three.js context) */}
                 <div
@@ -653,6 +760,78 @@ export function QrConfigurator() {
                       </div>
                     )}
 
+                    {shape === 'maze' && (
+                      <div className="w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-1 shrink-0">
+                        {GARDEN_OPTIONS.map((opt) => (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => setGardenMode(opt.id)}
+                            className={`w-[72px] h-7 flex items-center justify-center gap-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                              gardenMode === opt.id ? 'bg-[#132A22] text-white shadow-sm' : 'text-[#57534e] hover:bg-[#f3efe7]'
+                            }`}
+                          >
+                            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: opt.dot }} />
+                            <span>{opt.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {shape === 'equalizer' && (
+                      <div className="w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-1 shrink-0">
+                        {EQ_OPTIONS.map((opt) => (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => setEqMode(opt.id)}
+                            className={`w-[72px] h-7 flex items-center justify-center gap-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                              eqMode === opt.id ? 'bg-[#132A22] text-white shadow-sm' : 'text-[#57534e] hover:bg-[#f3efe7]'
+                            }`}
+                          >
+                            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: opt.dot }} />
+                            <span>{opt.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {shape === 'cake' && (
+                      <div className="w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-1 shrink-0">
+                        {CAKE_OPTIONS.map((opt) => (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => setCakeFlavor(opt.id)}
+                            className={`w-[72px] h-7 flex items-center justify-center gap-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                              cakeFlavor === opt.id ? 'bg-[#132A22] text-white shadow-sm' : 'text-[#57534e] hover:bg-[#f3efe7]'
+                            }`}
+                          >
+                            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: opt.dot }} />
+                            <span>{opt.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {shape === 'castle' && (
+                      <div className="w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-1 shrink-0">
+                        {CASTLE_OPTIONS.map((opt) => (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => setCastleMode(opt.id)}
+                            className={`w-[72px] h-7 flex items-center justify-center gap-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                              castleMode === opt.id ? 'bg-[#132A22] text-white shadow-sm' : 'text-[#57534e] hover:bg-[#f3efe7]'
+                            }`}
+                          >
+                            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: opt.dot }} />
+                            <span>{opt.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
                     {shape === 'city' && (
                       <div className="w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-1 shrink-0">
                         {TIME_OPTIONS.map((opt) => (
@@ -673,193 +852,67 @@ export function QrConfigurator() {
                   </div>
                 </div>
 
-                {/* MODE 02: 3D-ВИЗИТКА STAGE */}
-                {activeProduct === 'holo-card' && (
-                  <div
-                    className="w-full h-full flex flex-col items-center justify-center p-4 [perspective:900px] select-none"
-                    onMouseMove={handleCardTilt}
-                    onMouseLeave={() => setCardTilt({ rx: 0, ry: 0, gx: 50, gy: 50 })}
-                  >
-                    <div
-                      className="w-72 h-44 rounded-2xl p-5 flex flex-col justify-between text-white shadow-2xl transition-transform duration-100 ease-out relative overflow-hidden"
-                      style={{
-                        background:
-                          cardTheme === 'emerald'
-                            ? 'linear-gradient(135deg, #132A22 0%, #19C37D 100%)'
-                            : cardTheme === 'gold'
-                              ? 'linear-gradient(135deg, #1c1917 0%, #b45309 50%, #d97706 100%)'
-                              : 'linear-gradient(135deg, #09090b 0%, #27272a 100%)',
-                        transform: `rotateX(${cardTilt.rx}deg) rotateY(${cardTilt.ry}deg) scale3d(1.03, 1.03, 1.03)`,
-                        boxShadow: '0 24px 50px -12px rgba(19, 42, 34, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.35)',
-                      }}
-                    >
-                      <div
-                        className="absolute inset-0 pointer-events-none opacity-40 transition-opacity"
-                        style={{
-                          background: `radial-gradient(circle at ${cardTilt.gx}% ${cardTilt.gy}%, rgba(255,255,255,0.7) 0%, transparent 60%)`,
-                        }}
-                      />
-                      <div className="flex items-center justify-between relative z-10">
-                        <div className="w-8 h-6 rounded-md bg-white/20 border border-white/30 flex items-center justify-center">
-                          <div className="w-5 h-3 rounded-sm border border-white/40"></div>
-                        </div>
-                        <span className="text-[10px] font-mono tracking-widest text-[#DFF8EB] font-bold uppercase">
-                          3D Holo Card
-                        </span>
-                      </div>
-                      <div className="relative z-10">
-                        <div className="text-xl font-black tracking-tight text-white">{cardName || 'Ваше Имя'}</div>
-                        <div className="text-xs text-[#DFF8EB]/90 font-medium mt-0.5">{cardRole || 'Специализация'}</div>
-                      </div>
-                      <div className="flex items-center gap-2 relative z-10 pt-2 border-t border-white/15 text-xs">
-                        <span className="px-2.5 py-0.5 rounded-full bg-white/20 font-bold">{cardTelegram || '@telegram'}</span>
-                        <span className="text-[10px] text-[#DFF8EB] font-bold ml-auto">Tilda T123</span>
-                      </div>
-                    </div>
+                {/* PLANNED PRODUCTS: voxel preview */}
+                {/* 02: business card (kept mounted, paused when hidden) */}
+                <div
+                  className={`w-full h-full transition-opacity duration-300 ${
+                    activeProduct === 'qr-card' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
+                  }`}
+                >
+                  <CardStage state={card} active={activeProduct === 'qr-card'} />
+                </div>
 
-                    <div className="mt-4 flex items-center gap-1.5 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-sm">
-                      {(['emerald', 'gold', 'obsidian'] as const).map((t) => (
-                        <button
-                          key={t}
-                          type="button"
-                          onClick={() => setCardTheme(t)}
-                          className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
-                            cardTheme === t ? 'bg-[#132A22] text-white shadow-sm' : 'text-[#57534e] hover:bg-[#f3efe7]'
-                          }`}
-                        >
-                          {t === 'emerald' ? 'Изумруд' : t === 'gold' ? 'Золото' : 'Оникс'}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {/* 03: gift box (kept mounted, paused when hidden) */}
+                <div
+                  className={`w-full h-full transition-opacity duration-300 ${
+                    activeProduct === 'gift-box' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
+                  }`}
+                >
+                  <GiftStage state={gift} active={activeProduct === 'gift-box'} />
+                </div>
 
-                {/* MODE 03: ЖИВОЙ 3D-КАЛЬКУЛЯТОР STAGE */}
-                {activeProduct === 'spatial-calc' && (
-                  <div className="w-full h-full flex flex-col items-center justify-center p-4 select-none">
-                    <div className="w-72 p-5 rounded-2xl bg-white border border-[#e5dfd2] shadow-xl text-center">
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#19C37D]">
-                        3D Voxel Building
-                      </span>
-                      <div className="my-4 h-28 flex items-end justify-center gap-2">
-                        {Array.from({ length: calcFloors }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="w-12 h-9 rounded-xl bg-[#19C37D] border border-[#149e64] shadow-md flex items-center justify-center text-[#132A22] font-black text-xs animate-in zoom-in-75 duration-200"
-                          >
-                            Э{i + 1}
-                          </div>
-                        ))}
-                      </div>
-                      <div className="text-2xl font-black text-[#132A22] font-mono">
-                        {(calcFloors * calcBasePrice).toLocaleString('ru-RU')} ₽
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {/* 04: voxel logo (kept mounted, paused when hidden) */}
+                <div
+                  className={`w-full h-full transition-opacity duration-300 ${
+                    activeProduct === 'voxel-logo' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
+                  }`}
+                >
+                  <LogoStage state={logo} active={activeProduct === 'voxel-logo'} />
+                </div>
 
-                {/* MODE 04: 3D АНБОКСИНГ STAGE */}
-                {activeProduct === 'unbox-3d' && (
-                  <div className="w-full h-full flex flex-col items-center justify-center p-4 select-none cursor-pointer" onClick={() => setUnboxOpen(!unboxOpen)}>
-                    <div className="relative w-36 h-28 flex items-center justify-center">
-                      <div
-                        className={`absolute w-16 h-16 rounded-2xl bg-[#19C37D] text-[#132A22] flex items-center justify-center font-black text-xs shadow-2xl transition-all duration-300 ${
-                          unboxOpen ? '-translate-y-12 scale-110 opacity-100' : 'translate-y-0 scale-75 opacity-0'
-                        }`}
-                      >
-                        Товар
-                      </div>
-                      <div
-                        className={`w-32 h-8 rounded-t-xl bg-[#d97706] shadow-md transition-all duration-300 ${
-                          unboxOpen ? '-translate-y-8 -rotate-12' : 'translate-y-0 rotate-0'
-                        }`}
-                      />
-                      <div className="w-32 h-16 rounded-b-xl bg-[#b45309] shadow-inner flex items-center justify-center text-xs font-bold text-white/90">
-                        {unboxTitle}
-                      </div>
+                {/* 05: before / after morph (kept mounted, paused when hidden) */}
+                <div
+                  className={`w-full h-full transition-opacity duration-300 ${
+                    activeProduct === 'voxel-morph' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
+                  }`}
+                >
+                  <MorphStage state={morph} active={activeProduct === 'voxel-morph'} />
+                </div>
+
+                {/* 06: sale countdown (kept mounted, paused when hidden) */}
+                <div
+                  className={`w-full h-full transition-opacity duration-300 ${
+                    activeProduct === 'sale-timer' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
+                  }`}
+                >
+                  <TimerStage state={timer} active={activeProduct === 'sale-timer'} />
+                </div>
+
+                {!BUILT.includes(activeProduct) && (
+                  <div key={activeProduct} className="w-full h-full flex flex-col items-center justify-center gap-5 fx-fade-in select-none">
+                    <div className="w-[70%] max-w-[270px] aspect-square flex items-center justify-center lg:translate-x-12">
+                      <ProductPreview id={activeProduct} className="w-full h-full drop-shadow-[0_18px_30px_rgba(19,42,34,0.18)]" />
                     </div>
-                    <span className="text-xs font-bold text-[#78716c] mt-4">
-                      {unboxOpen ? 'Кликните, чтобы закрыть коробку' : 'Кликните по упаковке для открытия'}
+                    <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#f3efe7] text-[#78716c] border border-[#e5dfd2]">
+                      В разработке
                     </span>
                   </div>
                 )}
-
-                {/* MODE 05: KINETIC HERO-КНОПКА STAGE */}
-                {activeProduct === 'jelly-btn' && (
-                  <div
-                    ref={jellyAreaRef}
-                    className="w-full h-full flex flex-col items-center justify-center p-4 relative overflow-hidden select-none"
-                    onMouseMove={handleMagneticMove}
-                    onMouseLeave={() => setJellyOffset({ x: 0, y: 0 })}
-                  >
-                    <div
-                      className="px-8 py-4 rounded-full bg-[#19C37D] text-[#132A22] font-black text-sm shadow-[0_12px_32px_rgba(25,195,125,0.45)] border border-white/40 flex items-center gap-2 cursor-pointer transition-transform duration-75 ease-out active:scale-95"
-                      style={{
-                        transform: `translate(${jellyOffset.x}px, ${jellyOffset.y}px)`,
-                      }}
-                    >
-                      <span>{jellyText}</span>
-                      <span>→</span>
-                    </div>
-                    <span className="text-xs font-bold text-[#a8a29e] mt-4">
-                      Притягивается к курсору в радиусе {jellyRadius}px
-                    </span>
-                  </div>
-                )}
-
-                {/* MODE 06: SPATIAL BEFORE / AFTER STAGE */}
-                {activeProduct === 'spatial-prism' && (
-                  <div className="w-full h-full flex flex-col items-center justify-center p-4 select-none">
-                    <div
-                      className="w-64 h-44 rounded-2xl p-5 flex flex-col justify-between shadow-2xl border border-[#e5dfd2] transition-all duration-300"
-                      style={{
-                        background:
-                          prismSide === 'after'
-                            ? 'linear-gradient(135deg, #19C37D 0%, #132A22 100%)'
-                            : 'linear-gradient(135deg, #78716c 0%, #292524 100%)',
-                        color: '#F0EBE9',
-                      }}
-                    >
-                      <div className="flex items-center justify-between text-xs font-mono font-bold uppercase tracking-wider">
-                        <span>{prismSide === 'after' ? 'После (3D)' : 'До ремонта'}</span>
-                        <span className="w-2.5 h-2.5 rounded-full bg-white"></span>
-                      </div>
-                      <div className="text-center font-black text-lg">
-                        {prismSide === 'after' ? prismAfter : prismBefore}
-                      </div>
-                      <div className="text-xs text-white/80 font-mono text-center">
-                        {prismSide === 'after' ? '✓ Готовый проект под ключ' : '0% завершения'}
-                      </div>
-                    </div>
-
-                    <div className="mt-4 flex items-center gap-2 bg-[#eee9de] p-1 rounded-full">
-                      <button
-                        type="button"
-                        onClick={() => setPrismSide('before')}
-                        className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
-                          prismSide === 'before' ? 'bg-[#132A22] text-white shadow-sm' : 'text-[#57534e]'
-                        }`}
-                      >
-                        До
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPrismSide('after')}
-                        className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
-                          prismSide === 'after' ? 'bg-[#19C37D] text-[#132A22] font-black shadow-sm' : 'text-[#57534e]'
-                        }`}
-                      >
-                        После (3D)
-                      </button>
-                    </div>
-                  </div>
-                )}
-
               </div>
             </div>
 
             {/* 3. RIGHT ZONE: Dynamic Configuration Controls based on activeProduct */}
-            <div className="lg:col-span-4 flex flex-col justify-center gap-3 text-left">
+            <div className="lg:col-span-4 lg:h-full lg:overflow-y-auto overflow-x-hidden lg:-mr-3 lg:pr-3 [scrollbar-width:thin] flex flex-col justify-center [justify-content:safe_center] gap-3 text-left">
               
               {/* CONTROLS: 01 3D QR */}
               {activeProduct === 'qr-morph' && (
@@ -873,10 +926,10 @@ export function QrConfigurator() {
                     </h2>
                   </div>
 
-                  <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-[#a8a29e] pt-2 pb-1 border-b border-[#f0ede6]">
-                    <span>ФОРМА</span>
-                    <span className="hidden sm:inline">СПЕЦИФИКАЦИЯ</span>
-                    <span>ВЫБОР</span>
+                  <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-wide text-[#a8a29e] pt-2 pb-1 px-3 border-b border-[#f0ede6]">
+                    <span className="w-[100px] shrink-0">ФОРМА</span>
+                    <span className="hidden sm:inline flex-1 min-w-0 truncate">СПЕЦИФИКАЦИЯ</span>
+                    <span className="ml-auto shrink-0">ВЫБОР</span>
                   </div>
 
                   <div className="flex flex-col gap-1">
@@ -895,7 +948,7 @@ export function QrConfigurator() {
                               viewerRef.current.setState('morphed');
                             }
                           }}
-                          className={`group w-full flex items-center justify-between py-1.5 px-3 rounded-2xl transition-all text-left ${
+                          className={`group w-full flex items-center gap-2 py-1.5 px-3 rounded-2xl transition-all text-left ${
                             opt.soon
                               ? 'text-[#a8a29e] cursor-default'
                               : isSelected
@@ -903,11 +956,12 @@ export function QrConfigurator() {
                                 : 'text-[#57534e] hover:text-[#132A22] hover:bg-[#faf8f4] cursor-pointer'
                           }`}
                         >
-                          <span className="text-xs font-bold tracking-tight">{opt.label}</span>
-                          <span className="text-[11px] font-mono text-[#a8a29e] hidden sm:inline">
+                          {/* fixed-width name column keeps every spec on one vertical line */}
+                          <span className="w-[100px] shrink-0 text-xs font-bold tracking-tight truncate">{opt.label}</span>
+                          <span className="flex-1 min-w-0 text-[11px] font-mono text-[#a8a29e] hidden sm:inline truncate">
                             {opt.desc}
                           </span>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 ml-auto shrink-0">
                             <div
                               className={`w-6 h-6 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105 ${
                                 isSelected ? 'bg-[#19C37D] text-[#132A22] shadow-sm font-bold' : 'bg-[#eee9de] text-[#78716c]'
@@ -950,7 +1004,7 @@ export function QrConfigurator() {
                         type="text"
                         value={text}
                         onInput={(e) => setText((e.target as HTMLInputElement).value)}
-                        placeholder="https://temka.io"
+                        placeholder="https://gridika.ru"
                         className="w-full pl-8 pr-7 py-2 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-[#132A22] text-xs font-mono font-bold outline-none focus:bg-white focus:border-[#19C37D] transition-all shadow-inner"
                       />
                       {text && (
@@ -966,234 +1020,70 @@ export function QrConfigurator() {
                 </div>
               )}
 
-              {/* CONTROLS: 02 3D-ВИЗИТКА */}
-              {activeProduct === 'holo-card' && (
-                <div className="flex flex-col gap-3 fx-fade-in">
-                  <div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#19C37D]">
-                      Витрина
-                    </span>
-                    <h2 className="text-3xl sm:text-4xl font-black text-[#132A22] tracking-tight leading-[1.05] mt-0.5">
-                      3D-Визитка
-                    </h2>
-                  </div>
+              {/* PLANNED PRODUCTS: what it will be */}
+              {activeProduct === 'qr-card' && <CardPanel state={card} />}
+              {activeProduct === 'gift-box' && <GiftPanel state={gift} />}
+              {activeProduct === 'voxel-logo' && <LogoPanel state={logo} />}
+              {activeProduct === 'voxel-morph' && <MorphPanel state={morph} />}
+              {activeProduct === 'sale-timer' && <TimerPanel state={timer} />}
 
-                  <div className="flex flex-col gap-2.5 mt-2">
+              {!BUILT.includes(activeProduct) && (() => {
+                const prod = productById(activeProduct);
+                return (
+                  <div key={prod.id} className="flex flex-col gap-3 fx-fade-in">
                     <div>
-                      <label className="text-[10px] font-bold uppercase text-[#a8a29e] tracking-wider block mb-1">
-                        Имя эксперта
-                      </label>
-                      <input
-                        type="text"
-                        value={cardName}
-                        onInput={(e) => setCardName((e.target as HTMLInputElement).value)}
-                        className="w-full px-3 py-2 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-[#132A22] text-xs font-bold outline-none focus:border-[#19C37D]"
-                      />
+                      <span className="text-[10px] font-black uppercase tracking-wider text-[var(--vx-accent)]">
+                        Скоро · {prod.number}
+                      </span>
+                      <h2 className="text-3xl sm:text-4xl font-black text-[#132A22] tracking-tight leading-[1.05] mt-0.5">
+                        {prod.title}
+                      </h2>
+                      <p className="text-xs text-[#57534e] font-medium leading-relaxed mt-2">{prod.tagline}</p>
                     </div>
-                    <div>
-                      <label className="text-[10px] font-bold uppercase text-[#a8a29e] tracking-wider block mb-1">
-                        Специализация / Роль
-                      </label>
-                      <input
-                        type="text"
-                        value={cardRole}
-                        onInput={(e) => setCardRole((e.target as HTMLInputElement).value)}
-                        className="w-full px-3 py-2 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-[#132A22] text-xs font-bold outline-none focus:border-[#19C37D]"
-                      />
+                    <ul className="flex flex-col gap-2 mt-1">
+                      {prod.bullets.map((b) => (
+                        <li key={b} className="flex gap-2 text-xs text-[#44403c] leading-relaxed">
+                          <span className="mt-1.5 w-1.5 h-1.5 rounded-[2px] bg-[var(--vx-accent)] shrink-0" />
+                          <span>{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-[#a8a29e] mr-1">Режимы</span>
+                      {prod.modes.map((m) => (
+                        <span key={m} className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#f3efe7] text-[#57534e]">{m}</span>
+                      ))}
                     </div>
-                    <div>
-                      <label className="text-[10px] font-bold uppercase text-[#a8a29e] tracking-wider block mb-1">
-                        Telegram ник
-                      </label>
-                      <input
-                        type="text"
-                        value={cardTelegram}
-                        onInput={(e) => setCardTelegram((e.target as HTMLInputElement).value)}
-                        className="w-full px-3 py-2 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-[#132A22] text-xs font-mono font-bold outline-none focus:border-[#19C37D]"
-                      />
+                    <div className="mt-2 px-3 py-2.5 rounded-2xl bg-[#fbf9f5] border border-[#ede7db] text-[11px] text-[#78716c] font-medium">
+                      Тот же воксельный стиль, что у 3D QR. Встраивание: <span className="font-mono font-bold text-[#132A22]">{prod.tildaBlock}</span>
                     </div>
                   </div>
-                </div>
-              )}
-
-              {/* CONTROLS: 03 3D-КАЛЬКУЛЯТОР */}
-              {activeProduct === 'spatial-calc' && (
-                <div className="flex flex-col gap-3 fx-fade-in">
-                  <div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#19C37D]">
-                      Витрина
-                    </span>
-                    <h2 className="text-3xl sm:text-4xl font-black text-[#132A22] tracking-tight leading-[1.05] mt-0.5">
-                      3D-Калькулятор
-                    </h2>
-                  </div>
-
-                  <div className="flex flex-col gap-3 mt-2">
-                    <div>
-                      <div className="flex justify-between text-xs font-bold mb-1">
-                        <span className="text-[#a8a29e]">Количество этажей / шагов:</span>
-                        <span className="text-[#19C37D] font-mono font-black">{calcFloors}</span>
-                      </div>
-                      <input
-                        type="range"
-                        min="1"
-                        max="5"
-                        value={calcFloors}
-                        onInput={(e) => setCalcFloors(Number((e.target as HTMLInputElement).value))}
-                        className="w-full accent-[#19C37D] cursor-pointer"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-bold uppercase text-[#a8a29e] tracking-wider block mb-1">
-                        Базовая цена за единицу (₽)
-                      </label>
-                      <input
-                        type="number"
-                        value={calcBasePrice}
-                        onInput={(e) => setCalcBasePrice(Number((e.target as HTMLInputElement).value))}
-                        className="w-full px-3 py-2 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-[#132A22] text-xs font-mono font-bold outline-none focus:border-[#19C37D]"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* CONTROLS: 04 3D-АНБОКСИНГ */}
-              {activeProduct === 'unbox-3d' && (
-                <div className="flex flex-col gap-3 fx-fade-in">
-                  <div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#19C37D]">
-                      Витрина
-                    </span>
-                    <h2 className="text-3xl sm:text-4xl font-black text-[#132A22] tracking-tight leading-[1.05] mt-0.5">
-                      3D-Анбоксинг
-                    </h2>
-                  </div>
-
-                  <div className="flex flex-col gap-2.5 mt-2">
-                    <div>
-                      <label className="text-[10px] font-bold uppercase text-[#a8a29e] tracking-wider block mb-1">
-                        Название товара на упаковке
-                      </label>
-                      <input
-                        type="text"
-                        value={unboxTitle}
-                        onInput={(e) => setUnboxTitle((e.target as HTMLInputElement).value)}
-                        className="w-full px-3 py-2 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-[#132A22] text-xs font-bold outline-none focus:border-[#19C37D]"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* CONTROLS: 05 HERO-КНОПКА */}
-              {activeProduct === 'jelly-btn' && (
-                <div className="flex flex-col gap-3 fx-fade-in">
-                  <div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#19C37D]">
-                      Витрина
-                    </span>
-                    <h2 className="text-3xl sm:text-4xl font-black text-[#132A22] tracking-tight leading-[1.05] mt-0.5">
-                      Hero-Кнопка
-                    </h2>
-                  </div>
-
-                  <div className="flex flex-col gap-2.5 mt-2">
-                    <div>
-                      <label className="text-[10px] font-bold uppercase text-[#a8a29e] tracking-wider block mb-1">
-                        Текст на кнопке
-                      </label>
-                      <input
-                        type="text"
-                        value={jellyText}
-                        onInput={(e) => setJellyText((e.target as HTMLInputElement).value)}
-                        className="w-full px-3 py-2 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-[#132A22] text-xs font-bold outline-none focus:border-[#19C37D]"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-bold uppercase text-[#a8a29e] tracking-wider block mb-1">
-                        Ссылка действия
-                      </label>
-                      <input
-                        type="text"
-                        value={jellyLink}
-                        onInput={(e) => setJellyLink((e.target as HTMLInputElement).value)}
-                        className="w-full px-3 py-2 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-[#132A22] text-xs font-mono font-bold outline-none focus:border-[#19C37D]"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* CONTROLS: 06 BEFORE/AFTER */}
-              {activeProduct === 'spatial-prism' && (
-                <div className="flex flex-col gap-3 fx-fade-in">
-                  <div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#19C37D]">
-                      Витрина
-                    </span>
-                    <h2 className="text-3xl sm:text-4xl font-black text-[#132A22] tracking-tight leading-[1.05] mt-0.5">
-                      Before / After
-                    </h2>
-                  </div>
-
-                  <div className="flex flex-col gap-2.5 mt-2">
-                    <div>
-                      <label className="text-[10px] font-bold uppercase text-[#a8a29e] tracking-wider block mb-1">
-                        Заголовок «До»
-                      </label>
-                      <input
-                        type="text"
-                        value={prismBefore}
-                        onInput={(e) => setPrismBefore((e.target as HTMLInputElement).value)}
-                        className="w-full px-3 py-2 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-[#132A22] text-xs font-bold outline-none focus:border-[#19C37D]"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-bold uppercase text-[#a8a29e] tracking-wider block mb-1">
-                        Заголовок «После»
-                      </label>
-                      <input
-                        type="text"
-                        value={prismAfter}
-                        onInput={(e) => setPrismAfter((e.target as HTMLInputElement).value)}
-                        className="w-full px-3 py-2 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-[#132A22] text-xs font-bold outline-none focus:border-[#19C37D]"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
+                );
+              })()}
 
             </div>
 
           </div>
 
-          {/* BOTTOM DOCK BAR: Arrow CTA & Download PNG */}
-          <div className="mt-3 sm:mt-4 flex items-center justify-end gap-2.5 relative z-10">
-            {/* Arrow CTA Button (Get code for Tilda T123) */}
+          {/* BOTTOM DOCK: the one action of the studio. Everything that depends on the key lives in the window. */}
+          <div className={`mt-3 sm:mt-4 flex items-center justify-end gap-3 relative z-10 transition-opacity ${BUILT.includes(activeProduct) ? '' : 'opacity-0 pointer-events-none'}`}>
+            {proActive && (
+              <span className="flex items-center gap-1 text-[11.5px] font-extrabold text-[var(--vx-deep)]" title={`Ключ ${license!.id} для ${proDomain}`}>
+                <span className="w-4 h-4 rounded-full bg-[var(--vx-accent)] text-[var(--vx-on)] text-[9px] flex items-center justify-center">✓</span>
+                ключ
+              </span>
+            )}
             <button
+              type="button"
               onClick={handleOpenEmbedModal}
-              title="Получить код для Tilda T123"
-              aria-label="Получить код для Tilda"
-              className="w-13 sm:w-14 h-9 rounded-full bg-[#132A22] hover:bg-[#19C37D] text-[#F0EBE9] hover:text-[#132A22] flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer"
+              className="h-10 pl-5 pr-1.5 rounded-full bg-[#132A22] hover:bg-[#1d3a2f] text-[#F0EBE9] text-[13.5px] font-extrabold flex items-center gap-3 transition-colors shadow-md active:scale-[0.97] cursor-pointer"
             >
-              <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            {/* Download PNG or action */}
-            <button
-              onClick={handleDownloadPng}
-              title="Скачать снимок"
-              aria-label="Скачать снимок"
-              className="w-13 sm:w-14 h-9 rounded-full bg-[#eee9de] hover:bg-[#e4ded2] text-[#132A22] flex items-center justify-center transition-colors shadow-sm active:scale-95 cursor-pointer"
-            >
-              <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
+              {proActive ? 'Код для сайта' : 'Получить код'}
+              <span className="w-7 h-7 rounded-full bg-[var(--vx-accent)] text-[var(--vx-on)] flex items-center justify-center" aria-hidden="true">
+                <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-[2.5]" viewBox="0 0 24 24">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </span>
             </button>
           </div>
 
@@ -1202,12 +1092,12 @@ export function QrConfigurator() {
         {/* EMBED CODE SOFT 3D MODAL */}
         {showModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="relative w-full max-w-2xl bg-white border border-[#e5dfd2] rounded-[2.5rem] p-6 sm:p-8 shadow-2xl flex flex-col gap-5 text-[#132A22]">
+            <div className="relative w-full max-w-2xl max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain bg-white border border-[#e5dfd2] rounded-[2.5rem] p-6 sm:p-7 shadow-2xl flex flex-col gap-4 text-[#132A22] [scrollbar-width:thin]">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-black text-[#132A22]">Код для блока T123 в Tilda</h3>
+                  <h3 className="text-xl font-black text-[#132A22]">Код для сайта</h3>
                   <p className="text-xs text-[#78716c] mt-0.5 font-medium">
-                    Самодостаточный HTML/JS блок. Без сторонних серверов.
+                    Tilda, WordPress, Webflow, Wix или обычный HTML. Работает без нашего сервера.
                   </p>
                 </div>
                 <button
@@ -1218,31 +1108,200 @@ export function QrConfigurator() {
                 </button>
               </div>
 
-              {/* Code Snippet Box */}
-              <div className="relative">
-                <pre className="w-full max-h-64 overflow-y-auto p-4 rounded-2xl bg-[#132A22] text-[#19C37D] font-mono text-xs leading-relaxed select-all shadow-inner">
-                  {embedCode}
-                </pre>
-                <button
-                  onClick={handleCopyCode}
-                  className="absolute top-3 right-3 px-3.5 py-1.5 rounded-full bg-[#19C37D] hover:bg-[#149e64] text-[#132A22] font-bold text-xs transition-all flex items-center gap-1.5 shadow-md cursor-pointer"
-                >
-                  <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                  </svg>
-                  <span>{copied ? 'Скопировано' : 'Копировать'}</span>
-                </button>
+              {/* KEY: the code for a site is issued only for a key that covers this product */}
+              <div className="rounded-2xl border border-[#e5dfd2] bg-[#fbf9f5] p-4 flex flex-col gap-2.5">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-[13px] font-black text-[#132A22]">
+                    {proActive ? `Ключ ${license!.id} · ${keyProductLabel}` : `${productById(activeProduct).title}: код после покупки`}
+                  </div>
+                  {license ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLicenseKey('');
+                        setSiteDomain('');
+                        saveKey('');
+                      }}
+                      className="text-[11px] font-bold text-[#a8a29e] hover:text-[#132A22] cursor-pointer"
+                    >
+                      Другой ключ
+                    </button>
+                  ) : null}
+                </div>
+
+                {!license && (
+                  <>
+                    <div className="rounded-xl bg-white border border-[#ebe5da] p-3.5 flex flex-col gap-2">
+                      {activeProduct === 'qr-card' && (
+                        <div className="flex items-center justify-between gap-3 pb-2 mb-0.5 border-b border-[#f0ebe2]">
+                          <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#a8a29e]">Визитка для</span>
+                          <span className="text-[13px] font-extrabold text-[#132A22] truncate">{card.contact.name || '— впишите имя в студии —'}</span>
+                        </div>
+                      )}
+                      {(activeProduct === 'voxel-logo' || activeProduct === 'voxel-morph') && (
+                        <div className="flex items-center justify-between gap-3 pb-2 mb-0.5 border-b border-[#f0ebe2]">
+                          <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#a8a29e] shrink-0">{activeProduct === 'voxel-logo' ? 'Ключ на логотип' : 'Ключ на пару фото'}</span>
+                          <span className="flex items-center gap-1.5 min-w-0">
+                            {activeProduct === 'voxel-logo'
+                              ? logo.src && <img src={logo.src} alt="" className="w-7 h-7 object-contain rounded-md bg-[#f6f3ee] p-0.5" />
+                              : [morph.srcA, morph.srcB].map((src, i) => src && <img key={i} src={src} alt="" className="w-9 h-7 object-cover rounded-md" />)}
+                            <span className="text-[12px] font-extrabold text-[#132A22] truncate">{activeProduct === 'voxel-logo' ? logo.fileName : 'до → после'}</span>
+                          </span>
+                        </div>
+                      )}
+                      <label className="text-[10px] font-black uppercase tracking-[0.14em] text-[#a8a29e]" htmlFor="buy-site">Сайт, где будет стоять блок</label>
+                      <input
+                        id="buy-site"
+                        type="text"
+                        value={buySite}
+                        onInput={(e) => setBuySite((e.target as HTMLInputElement).value)}
+                        placeholder="ваш-сайт.ru"
+                        spellcheck={false}
+                        autoComplete="off"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#fbf9f5] border border-[#e5dfd2] text-sm font-mono font-bold text-[#132A22] outline-none focus:bg-white focus:border-[var(--vx-accent)]"
+                      />
+                      <p className="text-[11.5px] font-semibold text-[#6b645c] leading-relaxed">
+                        {activeProduct === 'qr-card'
+                          ? 'Ключ выпустим под этот сайт и этого человека, настройки сохранятся. Телефон, ссылки, цвет и стиль потом меняются бесплатно; визитка для другого человека — отдельный ключ.'
+                          : activeProduct === 'voxel-logo'
+                            ? 'Ключ выпустим под этот сайт и этот логотип, настройки сохранятся. Цвета, толщина, детализация и эффекты потом меняются бесплатно; другой логотип — отдельный ключ.'
+                            : activeProduct === 'voxel-morph'
+                              ? 'Ключ выпустим под этот сайт и эту пару фото, настройки сохранятся. Режим, сетка и подписи меняются бесплатно; другая пара — отдельный ключ (пакеты на 5 и 15 пар — дешевле).'
+                              : activeProduct === 'gift-box'
+                                ? 'Ключ выпустим под этот сайт, настройки сохранятся. Промокоды и акции потом меняйте сколько угодно — бесплатно.'
+                                : activeProduct === 'sale-timer'
+                                  ? 'Ключ выпустим под этот сайт, настройки сохранятся. Новые даты, тексты и режимы для следующих акций — бесплатно.'
+                                  : 'Ключ выпустим под этот сайт, а ваши настройки сохранятся — после оплаты сразу получите готовый код. Разово, навсегда, без регистрации.'}
+                      </p>
+                      <button type="button" disabled className="h-11 rounded-full bg-[#132A22] text-white/70 font-extrabold text-sm cursor-not-allowed">
+                        Купить ключ · оплата появится скоро
+                      </button>
+                      {previewHref && isValidDomain(buyDomain) && (
+                        <a href={previewHref} target="_blank" rel="noopener" className="text-center text-[11.5px] font-bold text-[#6b645c] underline decoration-[#d6cfc2] underline-offset-4 hover:text-[#132A22]">
+                          Как это будет после оплаты (пример) →
+                        </a>
+                      )}
+                    </div>
+                    <p className="text-[11.5px] font-semibold text-[#6b645c] leading-relaxed">Уже купили? Вставьте ключ из письма:</p>
+                    <input
+                      type="text"
+                      value={licenseKey}
+                      onInput={(e) => setLicenseKey((e.target as HTMLInputElement).value)}
+                      placeholder="GRD1-…"
+                      spellcheck={false}
+                      autoComplete="off"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#e5dfd2] text-xs font-mono text-[#132A22] outline-none focus:border-[var(--vx-accent)]"
+                    />
+                  </>
+                )}
+                {licenseError && <div className="text-[11.5px] font-semibold text-[#c2410c]">{licenseError}</div>}
+
+                {license && !covers && (
+                  <div className="text-[11.5px] font-semibold text-[#c2410c] leading-relaxed">
+                    Ключ {license.id} куплен на {keyProductLabel}. Для «{productById(activeProduct).label}» нужен свой ключ или ключ «Все эффекты».
+                  </div>
+                )}
+
+                {license && covers && (
+                  <div className="flex flex-col gap-2">
+                    <div className="text-[11.5px] font-semibold text-[#57534e]">
+                      Ключ <b className="font-mono text-[#132A22]">{license.id}</b> подтверждён.{' '}
+                      {license.d !== '*' ? (
+                        <>Он выпущен для сайта <b className="text-[#132A22]">{license.d}</b>{activeProduct === 'qr-card' && license.n ? <> и визитки <b className="text-[#132A22]">{license.n}</b></> : null}{license.f && activeProduct === 'voxel-logo' ? ' и одного логотипа' : license.f && activeProduct === 'voxel-morph' ? ' и одной пары фото' : null}.</>
+                      ) : (
+                        <>Укажите сайт, где будет стоять код:</>
+                      )}
+                    </div>
+                    {cardNameBlocked && (
+                      <div className="rounded-xl bg-[#FFF4DB] border border-[#F5D58A] px-3.5 py-3 flex flex-col gap-2">
+                        <div className="text-[12px] font-semibold text-[#7c4a03] leading-snug">
+                          Этот ключ — для визитки <b>{license.n}</b>, а сейчас на карточке «{card.contact.name || 'без имени'}». Один ключ — одна визитка: телефон, ссылки, цвет и стиль можно менять, а для другого человека нужен свой ключ.
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => card.setContact({ ...card.contact, name: license.n! })}
+                          className="self-start h-8 px-3.5 rounded-full bg-[#132A22] text-white text-[12px] font-extrabold cursor-pointer"
+                        >
+                          Вернуть имя «{license.n}»
+                        </button>
+                      </div>
+                    )}
+                    {itemBlocked && (
+                      <div className="rounded-xl bg-[#FFF4DB] border border-[#F5D58A] px-3.5 py-3 text-[12px] font-semibold text-[#7c4a03] leading-snug">
+                        {activeProduct === 'voxel-logo' ? (
+                          <>
+                            Этот ключ — для другого логотипа. <b>Один ключ — один логотип</b>: цвета, толщина, детализация и эффекты меняются свободно, а для другого знака нужен свой ключ. Чтобы вернуть свой логотип, откройте ссылку «Изменить в студии» из письма.
+                          </>
+                        ) : (
+                          <>
+                            Этот ключ — для другой пары фото. <b>Один ключ — одна пара</b>: режим, сетка и подписи меняются свободно, а для других фото нужен свой ключ. Чтобы вернуть свою пару, откройте ссылку «Изменить в студии» из письма.
+                          </>
+                        )}
+                      </div>
+                    )}
+                    {license.d === '*' && (
+                      <input
+                        type="text"
+                        value={siteDomain}
+                        onInput={(e) => setSiteDomain((e.target as HTMLInputElement).value)}
+                        placeholder="ваш-сайт.ru"
+                        spellcheck={false}
+                        autoComplete="off"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#e5dfd2] text-xs font-mono text-[#132A22] outline-none focus:border-[var(--vx-accent)]"
+                      />
+                    )}
+                    {!proActive && <div className="text-[11.5px] font-semibold text-[#a8a29e]">Введите адрес сайта, например zerno-coffee.ru</div>}
+                  </div>
+                )}
               </div>
 
-              <div className="p-4 rounded-2xl bg-[#DFF8EB]/50 border border-[#19C37D]/20 text-xs text-[#132A22] flex items-start gap-2.5 shadow-sm">
-                <div className="w-5 h-5 rounded-full bg-[#19C37D] text-[#132A22] flex items-center justify-center text-xs font-black shrink-0 mt-0.5 shadow-sm">
-                  i
-                </div>
-                <div>
-                  <b className="text-[#132A22]">Инструкция:</b> В редакторе Tilda добавьте блок <b>T123 (HTML-код)</b> и вставьте этот сниппет. Эффект готов к публикации!
-                </div>
-              </div>
+              {/* Code — only with a key for this product */}
+              {proActive && (
+                <>
+                  <pre className="w-full h-36 overflow-y-auto p-4 rounded-2xl bg-[#132A22] text-[var(--vx-accent)] font-mono text-xs leading-relaxed select-all shadow-inner whitespace-pre-wrap break-all">
+                    {embedCode}
+                  </pre>
+                  {/* the buyer picks: clipboard or a file */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 -mt-1">
+                    <button
+                      type="button"
+                      onClick={handleCopyCode}
+                      className="h-11 rounded-full bg-[#19C37D] hover:bg-[#149e64] text-[#132A22] font-extrabold text-[13px] transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                      </svg>
+                      {copied ? 'Скопировано ✓' : 'Скопировать код'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDownloadCode}
+                      className="h-11 rounded-full bg-white border border-[#e5dfd2] hover:bg-[#f6f3ee] text-[#132A22] font-extrabold text-[13px] transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <svg className="w-4 h-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 3v12M7 10l5 5 5-5M5 21h14" />
+                      </svg>
+                      {downloaded ? 'Файл сохранён ✓' : 'Скачать файлом'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDownloadPng}
+                      className="col-span-2 sm:col-span-1 h-11 rounded-full bg-white border border-[#e5dfd2] hover:bg-[#f6f3ee] text-[#132A22] font-extrabold text-[13px] transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <svg className="w-4 h-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="9" cy="9" r="1.6" /><path d="m21 15-5-5L5 21" />
+                      </svg>
+                      Картинка PNG
+                    </button>
+                  </div>
+                  <div className="text-[11.5px] font-semibold text-[#15803d] -mt-2">
+                    ✓ Код работает на {proDomain} и в предпросмотре Тильды. Скопированный на другой сайт, он покажет пометку Gridika.
+                  </div>
+                </>
+              )}
+
+              {proActive && <InstallGuide height={activeProduct === 'qr-card' ? 560 : activeProduct === 'gift-box' ? 520 : activeProduct === 'voxel-logo' ? LOGO_EMBED_HEIGHT : activeProduct === 'voxel-morph' && morph.data ? morphEmbedHeight(morph.data) : activeProduct === 'sale-timer' && timer.data ? timerEmbedHeight(timer.data) : 480} />}
             </div>
           </div>
         )}

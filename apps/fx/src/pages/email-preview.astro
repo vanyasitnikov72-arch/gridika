@@ -1,0 +1,43 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { renderKeyEmail, DEMO_KEY } from '../emails/keyEmail';
+import { buildHash } from '../engine/purchase';
+import { DEMO_CONTACT } from '../components/CardStudio';
+
+// preview of the email with the demo key; the real one is filled per purchase (see PRODUCTS.md)
+const hash = buildHash(DEMO_KEY, { p: 'qr-card', site: 'example.com', card: { contact: DEMO_CONTACT, hidden: [], mode: 'graphite', style: 'classic' } });
+const html = renderKeyEmail({
+  productTitle: 'Визитка с QR',
+  key: DEMO_KEY,
+  keyId: 'DW9Q6D',
+  holder: DEMO_CONTACT.name,
+  domain: 'example.com',
+  studioUrl: `https://gridika.ru/?fx=qr-card#${hash}`,
+  readyUrl: `https://gridika.ru/thanks#${hash}`,
+});
+---
+
+<Layout title="Письмо с ключом — Gridika">
+  <main class="max-w-3xl mx-auto px-4 py-10">
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-[#DFF8EB] text-[#132A22] inline-block">Предпросмотр</span>
+        <h1 class="mt-2 text-2xl sm:text-3xl font-black text-[#132A22] tracking-tight">Письмо с ключом</h1>
+        <p class="mt-1 text-sm font-semibold text-[#6b645c]">Так покупатель увидит письмо после оплаты (демо-ключ для example.com).</p>
+      </div>
+      <button id="copy-html" type="button" class="h-10 px-4 rounded-full bg-[#132A22] text-white text-[13px] font-extrabold cursor-pointer">Скопировать HTML письма</button>
+    </div>
+    <iframe id="mail" title="Письмо с ключом" class="mt-6 w-full h-[1000px] rounded-3xl border border-[#ebe5da] bg-white" srcdoc={html}></iframe>
+    <textarea id="mail-src" class="hidden">{html}</textarea>
+  </main>
+</Layout>
+
+<script>
+  const btn = document.getElementById('copy-html')!;
+  btn.addEventListener('click', async () => {
+    const src = (document.getElementById('mail-src') as HTMLTextAreaElement).value;
+    try { await navigator.clipboard.writeText(src); } catch {}
+    btn.textContent = 'Скопировано ✓';
+    setTimeout(() => (btn.textContent = 'Скопировать HTML письма'), 1800);
+  });
+</script>

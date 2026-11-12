@@ -1,4 +1,26 @@
-export type TargetShapeType = 'tree' | 'phone' | 'city' | 'crystal' | 'pyramid' | 'heart' | 'sphere';
+import { treeVoxelTargets, type DarkModule } from './treeScene';
+import { cityVoxelTargets } from './cityScene';
+import { islandVoxelTargets } from './islandScene';
+import { mazeVoxelTargets } from './mazeScene';
+import { eqVoxelTargets } from './equalizerScene';
+import { cakeVoxelTargets } from './cakeScene';
+import { castleVoxelTargets } from './castleScene';
+
+export type TargetShapeType =
+  | 'tree'
+  | 'city'
+  // planned showcase shapes (listed as «Скоро», not implemented yet)
+  | 'maze'
+  | 'island'
+  | 'equalizer'
+  | 'castle'
+  | 'cake'
+  // legacy shapes, no longer in the showcase
+  | 'phone'
+  | 'crystal'
+  | 'pyramid'
+  | 'heart'
+  | 'sphere';
 
 export interface VoxelTarget {
   x: number;
@@ -16,8 +38,39 @@ export interface VoxelTarget {
 export function generateTargetShapePositions(
   shape: TargetShapeType,
   count: number,
-  qrSize: number
+  qrSize: number,
+  modules?: DarkModule[]
 ): VoxelTarget[] {
+  // QR Tree: each dark module keeps its x/z and rises into the crown (or becomes grass),
+  // so the tree seen from above is still the QR code. Sits on its own base slab.
+  if (shape === 'tree' && modules && modules.length === count) {
+    return treeVoxelTargets(modules, qrSize);
+  }
+  // QR City: every dark module is a building column standing on its own QR cell
+  if (shape === 'city' && modules && modules.length === count) {
+    return cityVoxelTargets(modules, qrSize);
+  }
+  // QR Island: every dark module is a terrain column (cliffs, mountains, islets)
+  if (shape === 'island' && modules && modules.length === count) {
+    return islandVoxelTargets(modules, qrSize);
+  }
+  // QR Garden Maze: every dark module is a hedge column, the light modules are the paths
+  if (shape === 'maze' && modules && modules.length === count) {
+    return mazeVoxelTargets(modules, qrSize);
+  }
+  // QR Equalizer: every dark module is an LED bar, finder squares are subwoofers
+  if (shape === 'equalizer' && modules && modules.length === count) {
+    return eqVoxelTargets(modules, qrSize);
+  }
+  // QR Cake: every dark module is a decoration on a cake tier
+  if (shape === 'cake' && modules && modules.length === count) {
+    return cakeVoxelTargets(modules, qrSize);
+  }
+  // QR Castle: every dark module is a wall section, finder squares are towers
+  if (shape === 'castle' && modules && modules.length === count) {
+    return castleVoxelTargets(modules, qrSize);
+  }
+
   const targets: VoxelTarget[] = [];
   const hoverGap = 1.0; // Air cushion gap above the ceramic podium
 

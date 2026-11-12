@@ -1,4 +1,4 @@
-/* Voxelka · Подарок с промокодом — runtime shared by the studio and the site snippet.
+/* Gridika · Подарок с промокодом — runtime shared by the studio and the site snippet.
  * Plain JS without imports: three.js is passed in. The reward (promo code / discount / QR coupon)
  * comes precomputed as a grid of cells, so the snippet needs no fonts or QR library for it. */
 
@@ -282,7 +282,8 @@ export function createGiftViewer(THREE, container, init) {
         if (onPodium && c.p.y < 0.03) { c.p.y = 0.03; c.v.set(0, 0, 0); c.w.set(0, 0, 0); c.r.x = -Math.PI / 2; }
         if (c.p.y < -6) c.alive = false;
       }
-      q.setFromEuler(c.r); sc.setScalar(c.alive ? 1 : 0.0001); mtx.compose(c.p, q, sc); confetti.setMatrixAt(i, mtx);
+      var fade = closeT >= 0 ? Math.max(0.0001, 1 - (now() - closeT) / 0.6) : 1;
+      q.setFromEuler(c.r); sc.setScalar(c.alive ? fade : 0.0001); mtx.compose(c.p, q, sc); confetti.setMatrixAt(i, mtx);
     }
     confetti.instanceMatrix.needsUpdate = true;
   }
@@ -308,7 +309,7 @@ export function createGiftViewer(THREE, container, init) {
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(d.code).then(done, done); else done();
   });
   function applyOverlay() {
-    var d = state.data, p = pal(), opened = openT >= 0;
+    var d = state.data, p = pal(), opened = openT >= 0 && closeT < 0;
     hint.style.display = opened || d.trigger === 'scroll' ? 'none' : '';
     caption.textContent = d.caption || '';
     caption.style.display = opened && d.caption ? '' : 'none';
@@ -321,6 +322,21 @@ export function createGiftViewer(THREE, container, init) {
   var t0 = performance.now();
   function now() { return (performance.now() - t0) / 1000; }
   var openT = -1, jiggle = -10, visible = true, paused = false, raf = 0, last = now(), burstDone = false;
+  // closing plays the opening timeline backwards (from where it is, a bit faster)
+  var closeT = -1, closeFrom = 0, CLOSE_SPEED = 1.35, OPEN_END = 2.6, curOt = -1;
+  function timeline(t) {
+    if (closeT >= 0) {
+      var ot = closeFrom - (t - closeT) * CLOSE_SPEED;
+      if (ot <= 0) { finishClose(); return -1; }
+      return ot;
+    }
+    return openT >= 0 ? t - openT : -1;
+  }
+  function finishClose() {
+    openT = -1; closeT = -1;
+    for (var i = 0; i < CN; i++) conf[i].alive = false;
+    applyOverlay();
+  }
 
   function applyMode() {
     var p = pal();
@@ -330,8 +346,22 @@ export function createGiftViewer(THREE, container, init) {
     hemi.groundColor.set(p.neon ? '#3a3040' : '#d8cfc0');
     buildBox(); colorConfetti(); if (plateMesh) colorPlate(); applyOverlay();
   }
-  function open() { if (openT >= 0) return; openT = now(); burstDone = false; applyOverlay(); if (api.onOpen) api.onOpen(true); }
-  function close() { openT = -1; for (var i = 0; i < CN; i++) conf[i].alive = false; applyOverlay(); if (api.onOpen) api.onOpen(false); }
+  function open() {
+    var t = now();
+    if (closeT >= 0) { var ot = Math.max(0, timeline(t)); closeT = -1; openT = t - ot; } // reopen mid-close: continue from here
+    else if (openT >= 0) return;
+    else { openT = t; burstDone = false; }
+    applyOverlay();
+    if (api.onOpen) api.onOpen(true);
+  }
+  function close() {
+    if (openT < 0 || closeT >= 0) return;
+    var t = now();
+    closeFrom = Math.min(t - openT, OPEN_END);
+    closeT = t;
+    applyOverlay();
+    if (api.onOpen) api.onOpen(false);
+  }
 
   function ribbonScale(c, s) { return [c[3] === 0 ? 0.22 * s : s, s, c[3] === 2 ? 0.22 * s : s]; }
   function setBodyRibbon(t) {
@@ -370,7 +400,7 @@ export function createGiftViewer(THREE, container, init) {
     return pts;
   }
   function camTargets() {
-    var opened = openT >= 0, pts = keyPoints(opened);
+    var opened = closeT >= 0 ? curOt > 1.0 : openT >= 0, pts = keyPoints(opened);
     var f = new THREE.Vector3(Math.sin(camYaw) * Math.cos(camPitch), Math.sin(camPitch), Math.cos(camYaw) * Math.cos(camPitch));
     var r = new THREE.Vector3(Math.cos(camYaw), 0, -Math.sin(camYaw)), u = new THREE.Vector3().crossVectors(f, r).normalize();
     var tanV = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2), tanH = tanV * camera.aspect;
@@ -400,7 +430,8 @@ export function createGiftViewer(THREE, container, init) {
   }
 
   function frame(t, dt) {
-    var opened = openT >= 0, ot = opened ? t - openT : -1;
+    var ot = timeline(t), opened = ot >= 0;
+    curOt = ot;
     if (!opened) {
       var phase = t % 3.2, jump = phase < 0.5 ? Math.sin(phase / 0.5 * Math.PI) * 0.35 : 0, squash = phase < 0.08 ? 1 : 0;
       boxG.rotation.z = Math.sin(t * 1.6) * 0.035; boxG.rotation.x = Math.sin(t * 1.3 + 1) * 0.02;
@@ -468,7 +499,7 @@ export function createGiftViewer(THREE, container, init) {
   api.setMode = function (m) { state.mode = m; applyMode(); };
   api.open = open;
   api.close = close;
-  api.isOpen = function () { return openT >= 0; };
+  api.isOpen = function () { return openT >= 0 && closeT < 0; };
   api.setPaused = function (p) { paused = p; };
   api.snapshot = function () {
     var t = now(); frame(t, 1 / 60); renderer.render(scene, camera);
