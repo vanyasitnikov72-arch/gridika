@@ -3,44 +3,52 @@ import SectionHead from './SectionHead.astro';
 import { PRODUCTS } from '../../data/products';
 import { ProductPreview } from '../ProductPreview';
 
-// Everything is sold one-off, per product and per site. Prices are not set yet (see PRODUCTS.md).
 const ready = PRODUCTS.filter((p) => p.ready);
 const included = ['Код для блока T123', 'Навсегда для одного сайта', 'Обновления эффекта', 'Ключ на почту вместе с чеком'];
 ---
 
 <section id="pricing" class="py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
-  <SectionHead
-    label="Цены"
-    title="Попробуйте в студии,"
-    accent="платите один раз"
-    lead="Собрать и посмотреть эффект можно бесплатно. Код для сайта — после покупки ключа: разовая оплата, без подписки и регистрации."
-  />
+  <div class="flex flex-col items-center text-center mb-10">
+    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#DFF8EB] text-[#132A22] text-xs font-black tracking-wide border border-[#19C37D]/30 mb-4 shadow-sm">
+      <span class="w-2 h-2 rounded-full bg-[#19C37D] animate-pulse"></span>
+      <span>Цены раннего доступа · Разовая оплата</span>
+    </div>
+    <SectionHead
+      label="Цены"
+      title="Попробуйте в студии,"
+      accent="платите один раз"
+      lead="Собрать и посмотреть эффект можно бесплатно. Код для сайта — после покупки ключа: разовая оплата, без подписки и регистрации."
+    />
+  </div>
 
+  {/* 6 Individual Product Cards */}
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
     {ready.map((p) => (
-      <article class="soft-3d-card p-6 flex flex-col">
-        <div class="flex items-center gap-3">
-          <span class="w-14 h-14 rounded-[46%_54%_52%_48%/55%_48%_52%_45%] flex items-center justify-center shadow-[0_10px_20px_-10px_rgba(0,0,0,0.45)]" style={`background:linear-gradient(140deg,${p.theme.accent},${p.theme.deep})`}>
-            <ProductPreview id={p.id} className="w-9 h-9" float={false} />
-          </span>
-          <div>
-            <h3 class="text-lg font-black text-[#132A22] leading-tight">{p.title}</h3>
-            <p class="text-[12px] font-semibold text-[#78716c]">{p.modes.join(' · ')}</p>
+      <article class="soft-3d-card p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-3">
+            <span class="w-14 h-14 rounded-[46%_54%_52%_48%/55%_48%_52%_45%] flex items-center justify-center shadow-[0_10px_20px_-10px_rgba(0,0,0,0.45)] shrink-0" style={`background:linear-gradient(140deg,${p.theme.accent},${p.theme.deep})`}>
+              <ProductPreview id={p.id} className="w-9 h-9" float={false} />
+            </span>
+            <div>
+              <h3 class="text-lg font-black text-[#132A22] leading-tight">{p.title}</h3>
+              <p class="text-[12px] font-semibold text-[#78716c]">{p.modes.join(' · ')}</p>
+            </div>
           </div>
+          <div class="mt-5 flex items-baseline gap-2">
+            <span class="text-3xl font-black tracking-tight text-[#132A22]">990 ₽</span>
+            <span class="text-xs font-bold text-[#a8a29e]">разово, за сайт</span>
+          </div>
+          <span class="mt-2 self-start inline-block px-2.5 py-1 rounded-full text-[11.5px] font-extrabold" style={`background:${p.theme.soft};color:${p.theme.deep}`}>{p.unit}</span>
+          <ul class="mt-4 flex flex-col gap-2">
+            {included.map((f) => (
+              <li class="flex items-start gap-2.5 text-[13px] font-semibold text-[#44403c]">
+                <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full text-[9px] font-black flex items-center justify-center" style={`background:${p.theme.accent};color:${p.theme.on}`}>✓</span>
+                {f}
+              </li>
+            ))}
+          </ul>
         </div>
-        <div class="mt-5 flex items-baseline gap-2">
-          <span class="text-3xl font-black tracking-tight text-[#132A22]">Скоро</span>
-          <span class="text-xs font-bold text-[#a8a29e]">разово, за сайт</span>
-        </div>
-        <span class="mt-2 self-start px-2.5 py-1 rounded-full text-[11.5px] font-extrabold" style={`background:${p.theme.soft};color:${p.theme.deep}`}>{p.unit}</span>
-        <ul class="mt-4 flex flex-col gap-2 flex-1">
-          {included.map((f) => (
-            <li class="flex items-start gap-2.5 text-[13px] font-semibold text-[#44403c]">
-              <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full text-[9px] font-black flex items-center justify-center" style={`background:${p.theme.accent};color:${p.theme.on}`}>✓</span>
-              {f}
-            </li>
-          ))}
-        </ul>
         <a
           href={`?fx=${p.id}#studio`}
           data-nav-link="studio"
@@ -53,30 +61,141 @@ const included = ['Код для блока T123', 'Навсегда для од
     ))}
   </div>
 
-  {/* all effects + studios: a wide banner under the products */}
-  <article
-    class="relative mt-8 rounded-[2.25rem] p-7 sm:p-8 grid grid-cols-1 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.2fr)_auto] gap-6 md:gap-8 items-center text-[#F4F1EC] shadow-[0_30px_60px_-24px_rgba(19,42,34,0.5)]"
-    style="background:linear-gradient(150deg,var(--vx-deep),color-mix(in srgb,var(--vx-accent) 45%,var(--vx-deep)))"
-  >
-    <span class="absolute -top-3 left-8 px-3 py-1 rounded-full bg-[var(--vx-accent)] text-[var(--vx-on)] text-[10px] font-black uppercase tracking-wider shadow">Выгоднее</span>
-    <div>
-      <h3 class="text-xl font-black">Все эффекты</h3>
-      <p class="mt-1 text-[13px] font-semibold opacity-75">Один ключ на все эффекты Gridika для сайта — и на те, что выйдут позже.</p>
-      <div class="mt-4 flex items-baseline gap-2">
-        <span class="text-3xl font-black tracking-tight">Скоро</span>
-        <span class="text-xs font-bold opacity-70">разово, за сайт</span>
+  {/* Bundles & Studio Master */}
+  <div class="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+    
+    {/* Card 1: Все эффекты (1 сайт) */}
+    <article class="lg:col-span-5 soft-3d-card p-7 sm:p-8 flex flex-col justify-between relative overflow-hidden">
+      <span class="absolute top-4 right-5 px-3 py-1 rounded-full bg-[#DFF8EB] text-[#132A22] text-[11px] font-black uppercase tracking-wider border border-[#19C37D]/30">
+        Для 1 сайта
+      </span>
+      <div>
+        <h3 class="text-2xl font-black text-[#132A22]">Все эффекты</h3>
+        <p class="mt-1.5 text-[13px] font-semibold text-[#57534e] leading-snug">
+          Все 8 эффектов текущей линейки Gridika для одного сайта. Без ограничений по формам, цветам и генерациям.
+        </p>
+        <div class="mt-6 flex items-baseline gap-2.5">
+          <span class="text-4xl font-black tracking-tight text-[#132A22]">2 990 ₽</span>
+          <span class="text-xs font-bold text-[#a8a29e]">разово, за сайт</span>
+        </div>
+        <div class="mt-2 text-xs font-extrabold text-[#19C37D]">
+          Окупается уже на 3-м эффекте
+        </div>
+
+        <ul class="mt-6 flex flex-col gap-2.5">
+          {[
+            'Все 8 эффектов каталога без ограничений',
+            'Визитки, логотипы, пары фото, таймеры, QR',
+            'Все новые темы, цвета и режимы для этих эффектов',
+            'Код для блока T123 и любых HTML-платформ',
+            'Обновления и чек на почту сразу после оплаты',
+          ].map((f) => (
+            <li class="flex items-start gap-2.5 text-[13px] font-semibold text-[#44403c]">
+              <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-[#DFF8EB] text-[#132A22] text-[10px] font-black flex items-center justify-center">✓</span>
+              {f}
+            </li>
+          ))}
+        </ul>
       </div>
-    </div>
-    <ul class="flex flex-col gap-2.5">
-      {['Все эффекты без ограничений: визитки, логотипы, пары фото — сколько нужно', 'Новые эффекты по мере выхода', 'Для студий — пакеты ключей на несколько сайтов'].map((f) => (
-        <li class="flex items-start gap-2.5 text-[13px] font-semibold">
-          <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-[var(--vx-accent)] text-[var(--vx-on)] text-[9px] font-black flex items-center justify-center">✓</span>
-          {f}
-        </li>
-      ))}
-    </ul>
-    <span class="h-11 px-6 rounded-full bg-white/10 text-white/70 font-extrabold text-sm flex items-center justify-center whitespace-nowrap">Оплата появится скоро</span>
-  </article>
+
+      <a
+        href="#studio"
+        data-nav-link="studio"
+        class="mt-8 h-12 rounded-full bg-[#132A22] hover:bg-[#1f4235] text-[#F0EBE9] font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md"
+      >
+        Выбрать для 1 сайта <span>→</span>
+      </a>
+    </article>
+
+    {/* Card 2: Studio Master (интерактивный свитчер) */}
+    <article
+      class="lg:col-span-7 relative rounded-[2.5rem] p-7 sm:p-9 flex flex-col justify-between text-[#F4F1EC] shadow-[0_30px_60px_-20px_rgba(19,42,34,0.6)]"
+      style="background:linear-gradient(150deg,#0f241d,color-mix(in srgb,var(--vx-accent) 40%,#0f241d))"
+    >
+      <span class="absolute -top-3 left-8 px-3.5 py-1 rounded-full bg-[var(--vx-accent)] text-[#132A22] text-[11px] font-black uppercase tracking-wider shadow">
+        Выгоднее для студий
+      </span>
+
+      <div>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-2xl sm:text-3xl font-black text-white">Studio Master</h3>
+            <p class="mt-1 text-[13px] font-semibold text-white/80">
+              Один мастер-ключ со свободной привязкой доменов под проекты клиентов.
+            </p>
+          </div>
+        </div>
+
+        {/* Interactive Site Switcher */}
+        <div class="mt-6 p-1.5 rounded-2xl bg-black/25 backdrop-blur-sm border border-white/10 flex flex-col sm:flex-row gap-1.5 sm:items-center">
+          <span class="px-3 text-[11.5px] font-extrabold text-white/60 uppercase tracking-wider">Сайты:</span>
+          <div class="grid grid-cols-4 gap-1.5 flex-1" id="studio-switcher" role="radiogroup" aria-label="Количество сайтов">
+            {[
+              { count: 2, label: '2 сайта' },
+              { count: 3, label: '3 сайта' },
+              { count: 4, label: '4 сайта' },
+              { count: 5, label: '5 сайтов' },
+            ].map((s, idx) => (
+              <button
+                type="button"
+                data-sites={s.count}
+                class={`studio-tab-btn py-2 px-2 rounded-xl text-xs font-black transition-all cursor-pointer text-center select-none ${
+                  idx === 0
+                    ? 'bg-[var(--vx-accent)] text-[#132A22] shadow-md scale-[1.02]'
+                    : 'bg-white/5 hover:bg-white/15 text-white/80'
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Dynamic Price Display */}
+        <div class="mt-6 flex flex-wrap items-baseline gap-3">
+          <span id="studio-price" class="text-4xl sm:text-5xl font-black tracking-tight text-white transition-all">4 990 ₽</span>
+          <span class="text-xs font-bold text-white/70">разово, мастер-ключ</span>
+          <span id="studio-persite" class="px-2.5 py-1 rounded-full bg-white/15 text-[var(--vx-accent)] text-xs font-black">
+            ~2 495 ₽ / сайт
+          </span>
+        </div>
+
+        {/* Bullets */}
+        <ul class="mt-6 flex flex-col gap-2.5">
+          <li class="flex items-start gap-2.5 text-[13px] font-semibold text-white/95">
+            <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-[var(--vx-accent)] text-[#132A22] text-[10px] font-black flex items-center justify-center">✓</span>
+            <span>Мастер-ключ для <b id="studio-bullet-sites" class="text-[var(--vx-accent)] font-extrabold">2 сайтов</b> (свободная привязка по очереди)</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-[13px] font-semibold text-white/95">
+            <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-[var(--vx-accent)] text-[#132A22] text-[10px] font-black flex items-center justify-center">✓</span>
+            <span class="text-[var(--vx-accent)] font-extrabold">Все будущие эффекты линейки Gridika включены навсегда</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-[13px] font-semibold text-white/95">
+            <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-[var(--vx-accent)] text-[#132A22] text-[10px] font-black flex items-center justify-center">✓</span>
+            <span>Все 8 эффектов текущей линейки без ограничений</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-[13px] font-semibold text-white/95">
+            <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-[var(--vx-accent)] text-[#132A22] text-[10px] font-black flex items-center justify-center">✓</span>
+            <span>Все новые стили, пресеты и режимы для всех эффектов</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-[13px] font-semibold text-white/95">
+            <span class="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-[var(--vx-accent)] text-[#132A22] text-[10px] font-black flex items-center justify-center">✓</span>
+            <span>Приоритетная поддержка разработчика</span>
+          </li>
+        </ul>
+      </div>
+
+      <a
+        href="#studio"
+        data-nav-link="studio"
+        id="studio-cta"
+        class="mt-8 h-12 rounded-full bg-[var(--vx-accent)] hover:brightness-110 text-[#132A22] font-black text-sm flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01] active:scale-95"
+      >
+        <span id="studio-cta-text">Выбрать Studio Master (2 сайта)</span> <span>→</span>
+      </a>
+    </article>
+
+  </div>
 
   <script>
     // "Попробовать в студии" opens that product in the studio
@@ -86,5 +205,41 @@ const included = ['Код для блока T123', 'Навсегда для од
         if (id) window.dispatchEvent(new CustomEvent('fx:select-product', { detail: { productId: id } }));
       });
     });
+
+    // Studio Master interactive switcher
+    const STUDIO_DATA: Record<number, { price: string; perSite: string; sitesWord: string; btnText: string }> = {
+      2: { price: '4 990 ₽', perSite: '~2 495 ₽ / сайт', sitesWord: '2 сайтов', btnText: 'Выбрать Studio Master (2 сайта)' },
+      3: { price: '6 990 ₽', perSite: '~2 330 ₽ / сайт', sitesWord: '3 сайтов', btnText: 'Выбрать Studio Master (3 сайта)' },
+      4: { price: '8 490 ₽', perSite: '~2 120 ₽ / сайт', sitesWord: '4 сайтов', btnText: 'Выбрать Studio Master (4 сайта)' },
+      5: { price: '9 990 ₽', perSite: '~1 998 ₽ / сайт', sitesWord: '5 сайтов', btnText: 'Выбрать Studio Master (5 сайтов)' },
+    };
+
+    const switcher = document.getElementById('studio-switcher');
+    const priceEl = document.getElementById('studio-price');
+    const perSiteEl = document.getElementById('studio-persite');
+    const bulletSitesEl = document.getElementById('studio-bullet-sites');
+    const ctaTextEl = document.getElementById('studio-cta-text');
+
+    if (switcher && priceEl && perSiteEl && bulletSitesEl && ctaTextEl) {
+      switcher.querySelectorAll<HTMLButtonElement>('.studio-tab-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const sites = Number(btn.dataset.sites);
+          const d = STUDIO_DATA[sites];
+          if (!d) return;
+
+          // update active styles
+          switcher.querySelectorAll<HTMLButtonElement>('.studio-tab-btn').forEach((b) => {
+            b.className = 'studio-tab-btn py-2 px-2 rounded-xl text-xs font-black transition-all cursor-pointer text-center select-none bg-white/5 hover:bg-white/15 text-white/80';
+          });
+          btn.className = 'studio-tab-btn py-2 px-2 rounded-xl text-xs font-black transition-all cursor-pointer text-center select-none bg-[var(--vx-accent)] text-[#132A22] shadow-md scale-[1.02]';
+
+          // update dynamic content
+          priceEl.textContent = d.price;
+          perSiteEl.textContent = d.perSite;
+          bulletSitesEl.textContent = d.sitesWord;
+          ctaTextEl.textContent = d.btnText;
+        });
+      });
+    }
   </script>
 </section>
