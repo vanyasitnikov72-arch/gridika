@@ -269,6 +269,25 @@ async function onOrderStatus(event, body) {
   const order = body.orderId ? await db.getOrder(String(body.orderId)) : null;
   if (!order || !body.token || !safeEqual(order.accessToken, body.token)) return reply(event, 404, { error: 'not_found' });
   if (order.status === 'paid' && order.orderUrl) return reply(event, 200, { status: 'paid', orderUrl: order.orderUrl, email: order.email });
+
+  if (order.status !== 'paid' && order.paymentId && yookassaConfigured()) {
+    try {
+      const payment = await getPayment(order.paymentId);
+      if (payment?.status === 'succeeded' && payment.paid === true) {
+        if (await db.markPaid(order.id, payment.id)) {
+          await fulfil(order, payment.id);
+          const updated = await db.getOrder(order.id);
+          return reply(event, 200, { status: 'paid', orderUrl: updated?.orderUrl || order.orderUrl, email: order.email });
+        }
+      } else if (payment?.status === 'canceled') {
+        await db.setStatus(order.id, 'canceled');
+        return reply(event, 200, { status: 'canceled' });
+      }
+    } catch (err) {
+      console.error('onOrderStatus live check error:', err);
+    }
+  }
+
   return reply(event, 200, { status: order.status === 'paid' ? 'pending' : order.status });
 }
 

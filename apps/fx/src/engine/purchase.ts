@@ -95,6 +95,7 @@ export interface OrderLink {
   /** the items exactly as written in the link (what the signature covers) */
   itemsB64: string;
   sig: string;
+  token?: string;
 }
 
 /** the order in a "#order=…&items=…&sig=…" hash; null when the hash has no order */
@@ -116,5 +117,5 @@ export function readOrderHash(hash: string): OrderLink | null {
       /* broken link */
     }
   }
-  return { id, items, itemsB64, sig: get('sig') || '' };
+  return { id, items, itemsB64, sig: get('sig') || '', token: get('t') || '' };
 }

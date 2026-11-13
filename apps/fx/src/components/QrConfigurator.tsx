@@ -360,7 +360,13 @@ export function QrConfigurator() {
 
   // Cart state & reactivity
   const [cartItems, setCartItems] = useState<CartItem[]>(getCart);
-  const [showCartModal, setShowCartModal] = useState(false);
+  const [showCartModal, setShowCartModal] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search);
+      return p.get('cart') === 'open';
+    }
+    return false;
+  });
   const cartBtnRef = useRef<HTMLButtonElement>(null);
   /** product → the order item the studio is editing right now */
   const editingItem = useRef<Map<string, string>>(new Map());
