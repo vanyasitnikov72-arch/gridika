@@ -31,13 +31,13 @@ const SITE = () => (process.env.SITE_URL || 'https://gridika.ru').replace(/\/$/,
 // ---------- helpers ----------
 
 function corsHeaders(event) {
-  const allowed = (process.env.ALLOWED_ORIGINS || 'https://gridika.ru,https://www.gridika.ru').split(',').map((s) => s.trim());
+  const allowed = (process.env.ALLOWED_ORIGINS || 'https://gridika.ru,https://www.gridika.ru,http://localhost:4321,http://localhost:3000').split(',').map((s) => s.trim());
   const origin = event.headers?.origin || event.headers?.Origin || '';
   const h = { 'Content-Type': 'application/json', Vary: 'Origin' };
-  if (allowed.includes(origin)) {
+  if (allowed.includes(origin) || origin.startsWith('http://localhost:')) {
     h['Access-Control-Allow-Origin'] = origin;
     h['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
-    h['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
+    h['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Admin-Secret, x-admin-secret';
   }
   return h;
 }
@@ -110,12 +110,14 @@ function cleanItems(items) {
   return out;
 }
 
-/** admin calls carry "Authorization: Bearer <ADMIN_SECRET>"; no secret configured → admin is off */
+/** admin calls carry "X-Admin-Secret: <ADMIN_SECRET>" or "Authorization: Bearer <ADMIN_SECRET>"; no secret configured → admin is off */
 function adminCheck(event) {
   const secret = process.env.ADMIN_SECRET || '';
-  if (secret.length < 16) return 503;
-  const auth = event.headers?.authorization || event.headers?.Authorization || '';
-  return safeEqual(auth, `Bearer ${secret}`) ? 0 : 401;
+  if (secret.length < 8) return 503;
+  const h = event.headers || {};
+  const auth = h['x-admin-secret'] || h['X-Admin-Secret'] || h.authorization || h.Authorization || event.queryStringParameters?.secret || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : auth;
+  return safeEqual(token, secret) ? 0 : 401;
 }
 
 const publicOrder = ({ accessToken: _t, ...o }) => o;

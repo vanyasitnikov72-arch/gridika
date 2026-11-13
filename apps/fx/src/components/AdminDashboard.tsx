@@ -41,7 +41,10 @@ export function AdminDashboard() {
     if (!url) return null;
     try {
       const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${authToken}` },
+        headers: {
+          'X-Admin-Secret': authToken,
+          'Content-Type': 'application/json',
+        },
       });
       if (res.ok) {
         const data = await res.json();
@@ -244,7 +247,7 @@ export function AdminDashboard() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
+            'X-Admin-Secret': token,
           },
           body: JSON.stringify({ orderId: selectedOrder.id, targetEmail }),
         });
@@ -299,7 +302,7 @@ export function AdminDashboard() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
+            'X-Admin-Secret': token,
           },
           body: JSON.stringify({ orderId: selectedOrder.id }),
         });
