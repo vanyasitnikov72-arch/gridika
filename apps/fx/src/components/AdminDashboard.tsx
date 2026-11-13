@@ -130,7 +130,7 @@ export function AdminDashboard() {
       const result = await fetchLiveOrders(pass);
       setLoading(false);
       if (result === false) {
-        setAuthError('Неверный пароль администратора');
+        setAuthError('Неверный пароль или доступ временно заблокирован');
         return;
       }
       if (result !== null) {
@@ -147,7 +147,7 @@ export function AdminDashboard() {
 
     // Dev / Local fallback when ORDERS_API is not yet deployed
     setLoading(false);
-    if (pass === 'gridika2026') {
+    if (pass === 'Gr!d1ka_2281337#SecOps$94Kt') {
       setAuthenticated(true);
       setAuthed(true);
       setIsLiveApi(false);

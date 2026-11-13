@@ -110,14 +110,35 @@ function cleanItems(items) {
   return out;
 }
 
+const failedAdminAttempts = new Map();
+
 /** admin calls carry "X-Admin-Secret: <ADMIN_SECRET>" or "Authorization: Bearer <ADMIN_SECRET>"; no secret configured → admin is off */
 function adminCheck(event) {
   const secret = process.env.ADMIN_SECRET || '';
   if (secret.length < 8) return 503;
+
+  const ip = event.headers?.['x-forwarded-for'] || event.requestContext?.identity?.sourceIp || 'unknown';
+  const now = Date.now();
+  const attempt = failedAdminAttempts.get(ip);
+  if (attempt && attempt.lockedUntil > now) {
+    return 429;
+  }
+
   const h = event.headers || {};
   const auth = h['x-admin-secret'] || h['X-Admin-Secret'] || h.authorization || h.Authorization || event.queryStringParameters?.secret || '';
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : auth;
-  return safeEqual(token, secret) ? 0 : 401;
+
+  if (safeEqual(token, secret)) {
+    failedAdminAttempts.delete(ip);
+    return 0;
+  }
+
+  const prevCount = (attempt && attempt.lockedUntil <= now) ? 0 : (attempt?.count || 0);
+  const nextCount = prevCount + 1;
+  const lockedUntil = nextCount >= 5 ? now + 15 * 60 * 1000 : 0; // 15 min lock after 5 bad attempts
+  failedAdminAttempts.set(ip, { count: nextCount, lockedUntil });
+
+  return 401;
 }
 
 const publicOrder = ({ accessToken: _t, ...o }) => o;
