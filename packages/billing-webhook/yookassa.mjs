@@ -75,6 +75,10 @@ export function getPayment(paymentId) {
   return call('GET', `/payments/${encodeURIComponent(paymentId)}`);
 }
 
+export function listPayments(limit = 40) {
+  return call('GET', `/payments?limit=${limit}`);
+}
+
 export function createRefund({ paymentId, total, orderId }) {
   return call('POST', '/refunds', { payment_id: paymentId, amount: money(total), description: `Возврат по заказу Gridika № ${orderId}` }, `refund-${orderId}`);
 }

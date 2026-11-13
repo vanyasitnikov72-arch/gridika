@@ -21,7 +21,7 @@ import { signOrderLink, newOrderId, verifyOrderLink } from './signer.mjs';
 import { renderOrderEmail } from './emailTemplate.mjs';
 import { orderPrice } from './pricing.mjs';
 import * as db from './db.mjs';
-import { yookassaConfigured, createPayment, getPayment, createRefund } from './yookassa.mjs';
+import { yookassaConfigured, createPayment, getPayment, listPayments, createRefund } from './yookassa.mjs';
 
 const PRODUCTS = new Set(['qr-morph', 'qr-card', 'gift-box', 'voxel-logo', 'voxel-morph', 'sale-timer']);
 const MAX_ITEMS = 50;
@@ -266,7 +266,48 @@ async function onWebhook(event, body) {
 }
 
 async function onOrderStatus(event, body) {
-  const order = body.orderId ? await db.getOrder(String(body.orderId)) : null;
+  let order = body.orderId ? await db.getOrder(String(body.orderId)) : null;
+
+  // Stateless recovery from YooKassa if container instance is fresh or empty
+  if ((!order || !body.token || !safeEqual(order.accessToken, body.token)) && yookassaConfigured()) {
+    try {
+      const data = await listPayments(30);
+      const payment = data.items?.find((p) => p.metadata?.orderId === body.orderId);
+      if (payment && payment.metadata?.token && (!body.token || safeEqual(payment.metadata.token, body.token))) {
+        let items = [];
+        try {
+          if (payment.metadata.items) {
+            items = JSON.parse(Buffer.from(payment.metadata.items, 'base64url').toString('utf8'));
+          }
+        } catch {}
+        const isPaid = payment.status === 'succeeded' && payment.paid === true;
+        const key = privateKey();
+        const signed = (isPaid && key) ? await signOrderLink(key, { orderId: payment.metadata.orderId, items, baseUrl: SITE() }) : null;
+
+        order = {
+          id: payment.metadata.orderId,
+          email: payment.metadata.email || payment.receipt?.customer?.email || '',
+          items,
+          total: Number(payment.amount?.value || 0),
+          discount: 0,
+          status: isPaid ? 'paid' : payment.status,
+          accessToken: payment.metadata.token,
+          paymentId: payment.id,
+          orderUrl: signed?.orderUrl || '',
+          source: payment.metadata.src || 'direct',
+        };
+        await db.createOrder(order);
+        if (isPaid && signed) {
+          await db.setStatus(order.id, 'paid', payment.id);
+          await db.setOrderUrl(order.id, signed.orderUrl);
+          return reply(event, 200, { status: 'paid', orderUrl: signed.orderUrl, email: order.email });
+        }
+      }
+    } catch (err) {
+      console.error('YooKassa recovery in onOrderStatus failed:', err);
+    }
+  }
+
   if (!order || !body.token || !safeEqual(order.accessToken, body.token)) return reply(event, 404, { error: 'not_found' });
   if (order.status === 'paid' && order.orderUrl) return reply(event, 200, { status: 'paid', orderUrl: order.orderUrl, email: order.email });
 
@@ -325,7 +366,42 @@ async function onAdmin(event, action, body) {
   if (denied) return reply(event, denied, { error: denied === 503 ? 'admin_disabled' : 'unauthorized' });
 
   if (action === 'admin-orders') {
-    const orders = await db.listOrders({ limit: 500 });
+    let orders = await db.listOrders({ limit: 500 });
+    if (orders.length === 0 && yookassaConfigured()) {
+      try {
+        const data = await listPayments(50);
+        for (const p of data.items || []) {
+          const orderId = p.metadata?.orderId;
+          if (orderId && !orders.some((o) => o.id === orderId)) {
+            let items = [];
+            try {
+              if (p.metadata?.items) {
+                items = JSON.parse(Buffer.from(p.metadata.items, 'base64url').toString('utf8'));
+              }
+            } catch {}
+            orders.push({
+              id: orderId,
+              createdAt: p.created_at,
+              paidAt: p.status === 'succeeded' ? p.captured_at || p.created_at : null,
+              email: p.metadata?.email || p.receipt?.customer?.email || 'клиент',
+              items,
+              codesCount: items.length || 1,
+              total: Number(p.amount?.value || 0),
+              discount: 0,
+              paymentId: p.id,
+              status: p.status === 'succeeded' && p.paid ? 'paid' : p.status,
+              emailStatus: p.status === 'succeeded' ? 'sent' : 'none',
+              orderUrl: '',
+              accessToken: p.metadata?.token || '',
+              source: p.metadata?.src || 'direct',
+              note: '',
+            });
+          }
+        }
+      } catch (err) {
+        console.error('YooKassa recovery in admin-orders failed:', err);
+      }
+    }
     return reply(event, 200, { orders: orders.map(publicOrder) });
   }
 
