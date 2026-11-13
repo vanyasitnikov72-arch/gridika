@@ -2,11 +2,31 @@
 import Layout from '../layouts/Layout.astro';
 import Footer from '../components/Footer.astro';
 import LegalDocs from '../components/LegalDocs.astro';
+
+const breadcrumbs = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Главная',
+      item: 'https://gridika.ru/',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Политика конфиденциальности',
+      item: 'https://gridika.ru/privacy',
+    },
+  ],
+};
 ---
 
 <Layout 
   title="Политика конфиденциальности — Gridika" 
-  description="Политика обработки персональных данных и конфиденциальности сервиса Gridika в соответствии с 152-ФЗ."
+  description="Политика обработки персональных данных и конфиденциальности сервиса 3D-эффектов Gridika в соответствии с 152-ФЗ."
+  structuredData={breadcrumbs}
 >
   <main class="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10">
     <LegalDocs initialTab="privacy" />

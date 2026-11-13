@@ -9,9 +9,131 @@ import WhyGridika from '../components/sections/WhyGridika.astro';
 import Pricing from '../components/sections/Pricing.astro';
 import Faq from '../components/sections/Faq.astro';
 import FinalCta from '../components/sections/FinalCta.astro';
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://gridika.ru/#organization',
+      name: 'Gridika',
+      url: 'https://gridika.ru',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://gridika.ru/gridika-avatar.png',
+        width: 512,
+        height: 512,
+      },
+      description: 'Готовые интерактивные 3D-эффекты и виджеты для любого сайта без программиста',
+      founder: {
+        '@type': 'Person',
+        name: 'Иван Ситников',
+      },
+      contactPoint: {
+        '@type': 'ContactPoint',
+        contactType: 'customer support',
+        email: 'support@gridika.ru',
+        availableLanguage: ['Russian', 'English'],
+      },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://gridika.ru/#website',
+      url: 'https://gridika.ru',
+      name: 'Gridika',
+      description: 'Готовые интерактивные 3D-эффекты для сайтов на Tilda, WordPress, Webflow, Wix',
+      publisher: {
+        '@id': 'https://gridika.ru/#organization',
+      },
+      inLanguage: 'ru',
+    },
+    {
+      '@type': 'WebApplication',
+      '@id': 'https://gridika.ru/#app',
+      name: 'Gridika 3D Studio',
+      applicationCategory: 'DesignApplication',
+      operatingSystem: 'All',
+      browserRequirements: 'Requires WebGL support',
+      url: 'https://gridika.ru',
+      offers: {
+        '@type': 'AggregateOffer',
+        priceCurrency: 'RUB',
+        lowPrice: '1490',
+        highPrice: '6490',
+        offerCount: '6',
+      },
+    },
+    {
+      '@type': 'FAQPage',
+      '@id': 'https://gridika.ru/#faq',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Почему нет регистрации и личного кабинета?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Мы намеренно отказались от паролей, анкет и сбора данных — это ваше прямое удобство: вы не тратите время на регистрации, а сразу забираете готовый код после оплаты. Ссылка на заказ приходит на почту и не сгорает: по ней код каждого эффекта можно скопировать снова в любой момент.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Работает ли на телефоне?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Да. 3D-сцена адаптируется под любой экран смартфона или планшета, поддерживает сенсорное управление (вращение пальцем), а вне экрана автоматически засыпает и не расходует батарею.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'QR-код точно сканируется?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Да, гарантированно. При повороте камеры сверху сцена превращается в плоский чёткий QR-код с выверенным контрастом, а лишние 3D-детали скрываются. Перед выдачей кода студия автоматически проверяет его считываемость сканером.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Не замедлит ли это загрузку сайта?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Нет. Сам код компактный, библиотека Three.js загружается с быстрого CDN (около 150 КБ в сжатом виде), а анимация запускается только в тот момент, когда посетитель доскроллил до блока.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Можно ли поменять ссылку или текст после покупки?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Да. Заголовки, подписи, текст и ссылки кнопок лежат в коде обычным текстом — их можно поправить прямо там. А то, что собрано из кубиков (QR, промокод на подарке, логотип, фото), меняется в студии: откройте эффект по ссылке из письма кнопкой «Изменить в студии», поменяйте и оформите новый код — он вставляется на место старого.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'На каких платформах работает и какой нужен тариф?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Подходит любая CMS и конструктор: Tilda, WordPress, Webflow, Wix, Битрикс или самописный HTML-сайт. В Tilda для вставки используется стандартный блок T123 «HTML-код» (доступен на тарифах Personal и Business). Для каждой платформы в окне кода есть короткая инструкция.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Можно ли заказать сразу несколько эффектов?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Да. Настройте каждый эффект в студии и нажмите «В заказ» — в одном заказе может быть сразу несколько, и чем их больше, тем дешевле каждый. После оплаты вы получите код каждого эффекта отдельно: каждый вставляется своим HTML-блоком.',
+          },
+        },
+      ],
+    },
+  ],
+};
 ---
 
-<Layout title="Gridika — интерактивные 3D-эффекты для любого сайта">
+<Layout 
+  title="Gridika — готовые интерактивные 3D-эффекты для любого сайта"
+  description="Готовые интерактивные 3D-эффекты и виджеты для Tilda, WordPress, Webflow, Wix и любого сайта. 3D QR-код, визитка, подарок с промокодом, воксели. Установка в 1 клик без программиста."
+  structuredData={structuredData}
+>
   <Navbar />
 
   <main class="flex-1 pb-24 relative overflow-hidden">

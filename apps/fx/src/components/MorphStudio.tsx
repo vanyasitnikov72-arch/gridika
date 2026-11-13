@@ -256,7 +256,7 @@ function PictureSlot({ side, state }: { side: 'a' | 'b'; state: MorphState }) {
           drag ? 'border-[var(--vx-accent)] bg-[var(--vx-soft)]' : 'border-[#e5dfd2] bg-[#fbf9f5] hover:border-[var(--vx-accent)]'
         }`}
       >
-        {src && <img src={src} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+        {src && <img src={src} alt={name || "Изображение для морфинга"} className="absolute inset-0 w-full h-full object-cover" />}
         <span className="absolute inset-x-1.5 bottom-1.5 h-6 rounded-full bg-white/90 text-[10.5px] font-extrabold text-[#132A22] flex items-center justify-center shadow-sm group-hover:bg-white">
           {src ? 'Заменить' : 'Загрузить фото'}
         </span>

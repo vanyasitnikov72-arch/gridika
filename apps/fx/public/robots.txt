@@ -1,0 +1,25 @@
+# https://gridika.ru robots.txt
+User-agent: *
+Allow: /
+Allow: /offer
+Allow: /privacy
+Disallow: /manage-7q4k2d
+Disallow: /thanks
+Disallow: /preview
+Disallow: /logo-lab
+Disallow: /email-preview
+
+# Yandex bot specifics
+User-agent: Yandex
+Allow: /
+Allow: /offer
+Allow: /privacy
+Disallow: /manage-7q4k2d
+Disallow: /thanks
+Disallow: /preview
+Disallow: /logo-lab
+Disallow: /email-preview
+
+# Host and Sitemap
+Host: https://gridika.ru
+Sitemap: https://gridika.ru/sitemap.xml

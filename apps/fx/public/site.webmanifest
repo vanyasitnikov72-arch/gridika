@@ -1,0 +1,25 @@
+{
+  "name": "Gridika — 3D-эффекты для любого сайта",
+  "short_name": "Gridika",
+  "description": "Готовые интерактивные 3D-эффекты для Tilda, WordPress, Webflow, Wix и любого сайта. Установка за минуту без программиста.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F0EBE9",
+  "theme_color": "#19C37D",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "/gridika-avatar.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/gridika-avatar.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -269,7 +269,7 @@ export function LogoPanel({ state }: { state: LogoState }) {
       >
         <div className="w-12 h-12 shrink-0 rounded-xl bg-white border border-[#ebe5da] flex items-center justify-center overflow-hidden">
           {state.src ? (
-            <img src={state.src} alt="" className="max-w-[80%] max-h-[80%] object-contain" />
+            <img src={state.src} alt="Загруженный логотип" className="max-w-[80%] max-h-[80%] object-contain" />
           ) : (
             <div className="flex gap-0.5">
               {(state.data?.palette || []).slice(0, 4).map((c) => (
