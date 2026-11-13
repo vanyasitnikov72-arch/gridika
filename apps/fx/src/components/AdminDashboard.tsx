@@ -216,9 +216,15 @@ export function AdminDashboard() {
 
   // Order actions
   const openOrderDrawer = (o: AdminOrder) => {
-    setSelectedOrder(o);
+    setSelectedOrder({
+      ...o,
+      events: Array.isArray(o.events) ? o.events : [],
+      items: Array.isArray(o.items) ? o.items : [],
+      discount: o.discount || 0,
+      paymentProvider: o.paymentProvider || 'ЮKassa',
+    });
     setEditingNote(o.note || '');
-    setResendEmail(o.email);
+    setResendEmail(o.email || '');
     setShowResendInput(false);
     setActionSuccess('');
   };
@@ -273,7 +279,7 @@ export function AdminDashboard() {
           ...o,
           email: targetEmail,
           emailStatus: 'resent' as const,
-          events: [newEvent, ...o.events],
+          events: [newEvent, ...(Array.isArray(o.events) ? o.events : [])],
         };
       }
       return o;
@@ -285,7 +291,7 @@ export function AdminDashboard() {
       ...selectedOrder,
       email: targetEmail,
       emailStatus: 'resent',
-      events: [newEvent, ...selectedOrder.events],
+      events: [newEvent, ...(Array.isArray(selectedOrder.events) ? selectedOrder.events : [])],
     });
     setShowResendInput(false);
     setActionSuccess(`Письмо успешно отправлено на ${targetEmail}`);
@@ -327,7 +333,7 @@ export function AdminDashboard() {
         return {
           ...o,
           status: 'refunded' as const,
-          events: [newEvent, ...o.events],
+          events: [newEvent, ...(Array.isArray(o.events) ? o.events : [])],
         };
       }
       return o;
@@ -338,7 +344,7 @@ export function AdminDashboard() {
     setSelectedOrder({
       ...selectedOrder,
       status: 'refunded',
-      events: [newEvent, ...selectedOrder.events],
+      events: [newEvent, ...(Array.isArray(selectedOrder.events) ? selectedOrder.events : [])],
     });
     setActionSuccess(`Статус заказа изменён на «Возврат»`);
     setTimeout(() => setActionSuccess(''), 3000);
@@ -900,9 +906,16 @@ export function AdminDashboard() {
 
                       {/* Action */}
                       <td className="py-4 pl-3 pr-6 text-right whitespace-nowrap">
-                        <span className="text-xs font-black text-[#19C37D] group-hover:translate-x-1 inline-flex transition-transform">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openOrderDrawer(o);
+                          }}
+                          className="text-xs font-black text-[#19C37D] hover:text-[#132A22] group-hover:translate-x-1 inline-flex items-center gap-1 transition-all cursor-pointer py-1 px-2.5 rounded-full hover:bg-[#DFF8EB]"
+                        >
                           Подробнее →
-                        </span>
+                        </button>
                       </td>
                     </tr>
                   );
@@ -1009,11 +1022,11 @@ export function AdminDashboard() {
               {/* Bought Effects List */}
               <div>
                 <h3 className="text-xs font-black uppercase tracking-wider text-[#a8a29e] mb-2.5">
-                  Эффекты в заказе ({selectedOrder.items.length})
+                  Эффекты в заказе ({(selectedOrder.items || []).length})
                 </h3>
                 <div className="flex flex-col gap-2">
-                  {selectedOrder.items.map((it, idx) => {
-                    const prod = productById(it.p);
+                  {(selectedOrder.items || []).map((it, idx) => {
+                    const prod = productById(it.p) || { title: it.p, id: it.p, theme: { accent: '#19C37D' } };
                     const targetLink = it.qr?.text || it.card?.contact?.site || it.gift?.settings?.url || '—';
 
                     return (
@@ -1048,12 +1061,23 @@ export function AdminDashboard() {
               {/* Quick Actions (Open thanks page / Refund) */}
               <div className="flex flex-wrap items-center gap-2 pt-2">
                 <a
-                  href="/thanks#order=demo"
-                  target="_blank"
+                  href={selectedOrder.orderUrl || (selectedOrder.status === 'paid' ? `/thanks#order=${selectedOrder.id}` : '#')}
+                  target={selectedOrder.orderUrl || selectedOrder.status === 'paid' ? '_blank' : undefined}
                   rel="noreferrer"
-                  className="h-10 px-4 rounded-full bg-[#132A22] hover:bg-[#1d3a2f] text-white text-xs font-black flex items-center gap-1.5 shadow-sm transition-colors"
+                  className={`h-10 px-4 rounded-full text-white text-xs font-black flex items-center gap-1.5 shadow-sm transition-colors ${
+                    selectedOrder.orderUrl || selectedOrder.status === 'paid'
+                      ? 'bg-[#132A22] hover:bg-[#1d3a2f] cursor-pointer'
+                      : 'bg-[#a8a29e] opacity-60 cursor-not-allowed'
+                  }`}
+                  onClick={(e) => {
+                    if (!selectedOrder.orderUrl && selectedOrder.status !== 'paid') {
+                      e.preventDefault();
+                      alert('Ссылка на страницу выдачи кода доступна только для оплаченных заказов.');
+                    }
+                  }}
                 >
                   <span>🔗 Открыть страницу заказа покупателя</span>
+                  <span>↗</span>
                 </a>
 
                 {selectedOrder.status === 'paid' && (
@@ -1093,18 +1117,26 @@ export function AdminDashboard() {
               {/* Events Log (Section 2) */}
               <div>
                 <h3 className="text-xs font-black uppercase tracking-wider text-[#a8a29e] mb-2.5">
-                  Журнал событий
+                  Журнал событий {selectedOrder.events?.length ? `(${selectedOrder.events.length})` : ''}
                 </h3>
-                <div className="flex flex-col gap-1.5">
-                  {selectedOrder.events.map((ev) => (
-                    <div key={ev.id} className="text-xs p-2.5 rounded-xl bg-[#f6f3ee] flex items-start gap-2.5">
-                      <span className="font-mono text-[10.5px] font-black text-[#78716c] whitespace-nowrap mt-0.5">
-                        {ev.time}
-                      </span>
-                      <span className="font-semibold text-[#44403c] leading-snug">{ev.text}</span>
-                    </div>
-                  ))}
-                </div>
+                {selectedOrder.events && selectedOrder.events.length > 0 ? (
+                  <div className="flex flex-col gap-1.5">
+                    {selectedOrder.events.map((ev) => (
+                      <div key={ev.id} className="text-xs p-2.5 rounded-xl bg-[#f6f3ee] flex items-start gap-2.5">
+                        <span className="font-mono text-[10.5px] font-black text-[#78716c] whitespace-nowrap mt-0.5">
+                          {ev.time}
+                        </span>
+                        <span className="font-semibold text-[#44403c] leading-snug">{ev.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-xs p-3 rounded-xl bg-[#f6f3ee] text-[#78716c] font-medium">
+                    {selectedOrder.status === 'paid'
+                      ? `Оплата подтверждена через ${selectedOrder.paymentProvider || 'ЮKassa'} (ID: ${selectedOrder.paymentId || '—'})`
+                      : `Статус: ${selectedOrder.status === 'refunded' ? 'Возврат средств оформлен' : 'Ожидает оплаты / Отменен'}`}
+                  </div>
+                )}
               </div>
             </div>
 
