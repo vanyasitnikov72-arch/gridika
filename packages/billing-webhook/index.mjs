@@ -416,7 +416,33 @@ async function onAdmin(event, action, body) {
     return reply(event, 200, { orders: orders.map(publicOrder) });
   }
 
-  const order = body.orderId ? await db.getOrder(String(body.orderId)) : null;
+  let order = body.orderId ? await db.getOrder(String(body.orderId)) : null;
+  if (!order && yookassaConfigured()) {
+    try {
+      const data = await listPayments(50);
+      const payment = data.items?.find((p) => p.metadata?.orderId === body.orderId);
+      if (payment) {
+        let items = unpackMetadataItems(payment.metadata);
+        if (!items || items.length === 0) items = getFallbackEffects(payment);
+        order = {
+          id: payment.metadata.orderId,
+          email: payment.metadata.email || payment.receipt?.customer?.email || '',
+          items,
+          total: Number(payment.amount?.value || 0),
+          discount: 0,
+          status: payment.status === 'succeeded' && payment.paid ? 'paid' : payment.status,
+          paymentId: payment.id,
+          source: payment.metadata.src || 'direct',
+        };
+        await db.createOrder(order);
+        if (order.status === 'paid') {
+          await db.setStatus(order.id, 'paid', payment.id);
+        }
+      }
+    } catch (err) {
+      console.error('YooKassa recovery for admin action failed:', err);
+    }
+  }
   if (!order) return reply(event, 404, { error: 'not_found' });
 
   if (action === 'admin-resend') {
