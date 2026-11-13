@@ -142,7 +142,7 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
         aria-modal="true"
         aria-label="Ваш заказ"
         tabIndex={-1}
-        className={`relative w-full sm:max-w-[560px] max-h-[92dvh] sm:max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain bg-white sm:border border-[#e5dfd2] rounded-t-[2rem] sm:rounded-[2.25rem] shadow-[0_30px_80px_-24px_rgba(19,42,34,0.45)] flex flex-col text-[#132A22] outline-none [scrollbar-width:thin] transition-[opacity,transform] duration-200 ease-out ${
+        className={`relative w-full max-w-full sm:max-w-[560px] max-h-[92dvh] sm:max-h-[calc(100dvh-2rem)] overflow-y-auto overflow-x-hidden overscroll-contain bg-white sm:border border-[#e5dfd2] rounded-t-[2rem] sm:rounded-[2.25rem] shadow-[0_30px_80px_-24px_rgba(19,42,34,0.45)] flex flex-col text-[#132A22] outline-none [scrollbar-width:thin] transition-[opacity,transform] duration-200 ease-out ${
           shown ? 'opacity-100 translate-y-0 sm:scale-100' : 'opacity-0 translate-y-6 sm:translate-y-2 sm:scale-[0.97]'
         }`}
       >
@@ -152,21 +152,21 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
         </div>
 
         {/* header */}
-        <div className="sticky top-0 z-10 bg-white/95 backdrop-blur px-5 sm:px-7 pt-4 sm:pt-6 pb-4 flex items-start justify-between gap-4 border-b border-[#f0ebe2]">
+        <div className="sticky top-0 z-10 bg-white/95 backdrop-blur px-4 sm:px-7 pt-4 sm:pt-6 pb-3.5 sm:pb-4 flex items-start justify-between gap-3 sm:gap-4 border-b border-[#f0ebe2]">
           <div className="min-w-0">
-            <div className="flex items-center gap-2.5">
-              <h3 className="text-[22px] sm:text-2xl font-black tracking-tight">Ваш заказ</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-[20px] sm:text-2xl font-black tracking-tight">Ваш заказ</h3>
               {count > 0 && (
-                <span className="px-2.5 h-6 inline-flex items-center rounded-full bg-[var(--vx-soft)] text-[var(--vx-deep)] text-[11.5px] font-black">{codes(count)}</span>
+                <span className="px-2 sm:px-2.5 h-5.5 sm:h-6 inline-flex items-center rounded-full bg-[var(--vx-soft)] text-[var(--vx-deep)] text-[11px] sm:text-[11.5px] font-black">{codes(count)}</span>
               )}
             </div>
-            <p className="text-[12px] text-[#78716c] mt-1 font-semibold">Готовый код для Tilda и любого сайта. Купили — и он ваш.</p>
+            <p className="text-[11.5px] sm:text-[12px] text-[#78716c] mt-0.5 sm:mt-1 font-semibold leading-tight">Готовый код для Tilda и любого сайта. Купили — и он ваш.</p>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Закрыть"
-            className="w-9 h-9 rounded-full bg-[#f3efe7] hover:bg-[#e8e2d5] text-[#132A22] flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            className="w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-full bg-[#f3efe7] hover:bg-[#e8e2d5] text-[#132A22] flex items-center justify-center transition-colors cursor-pointer shrink-0"
           >
             <svg className="w-3.5 h-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
               <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" />
@@ -174,7 +174,7 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
           </button>
         </div>
 
-        <div className="px-5 sm:px-7 pt-4 pb-6 flex flex-col gap-4">
+        <div className="px-4 sm:px-7 pt-4 pb-6 flex flex-col gap-4">
           {count === 0 ? (
             <div className="py-8 text-center flex flex-col items-center">
               <div className="w-14 h-14 rounded-2xl bg-[var(--vx-soft)] flex items-center justify-center mb-3" aria-hidden="true">
@@ -202,31 +202,31 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
                 {items.map((item, idx) => (
                   <li
                     key={item.id}
-                    className={`group p-3 pr-2.5 rounded-2xl bg-[#faf7f2] border border-[#efe9de] flex items-center gap-3 transition-[opacity,transform,border-color] duration-200 hover:border-[#e2dacb] ${
+                    className={`group p-2.5 sm:p-3 pr-2 sm:pr-2.5 rounded-2xl bg-[#faf7f2] border border-[#efe9de] flex items-center gap-2 sm:gap-3 transition-[opacity,transform,border-color] duration-200 hover:border-[#e2dacb] ${
                       leaving === item.id ? 'opacity-0 -translate-x-3' : 'opacity-100'
                     }`}
                   >
                     <span
-                      className="w-11 h-11 rounded-[14px] flex items-center justify-center shrink-0 shadow-[0_6px_14px_-8px_rgba(0,0,0,0.5)]"
+                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-[12px] sm:rounded-[14px] flex items-center justify-center shrink-0 shadow-[0_6px_14px_-8px_rgba(0,0,0,0.5)]"
                       style={`background:linear-gradient(135deg,${item.theme.accent},${item.theme.deep})`}
                       aria-hidden="true"
                     >
-                      <ProductPreview id={item.productId} className="w-6 h-6" float={false} />
+                      <ProductPreview id={item.productId} className="w-5 h-5 sm:w-6 sm:h-6" float={false} />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-[14px] font-black truncate leading-tight flex items-center gap-1.5">
+                      <h4 className="text-[13px] sm:text-[14px] font-black truncate leading-tight flex items-center gap-1.5">
                         <span className="truncate">{numbered[idx]}</span>
                         {editingId === item.id && (
-                          <span className="shrink-0 px-1.5 h-[18px] inline-flex items-center rounded-full bg-[var(--vx-soft)] text-[var(--vx-deep)] text-[9.5px] font-black uppercase tracking-wide">в студии</span>
+                          <span className="shrink-0 px-1.5 h-[18px] inline-flex items-center rounded-full bg-[var(--vx-soft)] text-[var(--vx-deep)] text-[9px] sm:text-[9.5px] font-black uppercase tracking-wide">в студии</span>
                         )}
                       </h4>
-                      <p className="text-[12px] font-semibold text-[#78716c] truncate mt-0.5">{item.subtitle}</p>
+                      <p className="text-[11px] sm:text-[12px] font-semibold text-[#78716c] truncate mt-0.5">{item.subtitle}</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => onEditItem(item)}
                       aria-label={`Изменить «${item.title}» в студии`}
-                      className="h-8 px-3 rounded-full bg-white border border-[#e5dfd2] hover:border-[#132A22] hover:bg-[#132A22] hover:text-white text-[#44403c] text-[11.5px] font-extrabold transition-colors cursor-pointer shrink-0"
+                      className="h-7 sm:h-8 px-2 sm:px-3 rounded-full bg-white border border-[#e5dfd2] hover:border-[#132A22] hover:bg-[#132A22] hover:text-white text-[#44403c] text-[11px] sm:text-[11.5px] font-extrabold transition-colors cursor-pointer shrink-0"
                     >
                       Изменить
                     </button>
@@ -235,7 +235,7 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
                         type="button"
                         onClick={() => onDuplicateItem(item)}
                         aria-label={`Ещё один «${item.title}» — копия, которую можно изменить`}
-                        className="w-8 h-8 rounded-full text-[#78716c] hover:text-[#132A22] hover:bg-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                        className="w-7 h-7 sm:w-8 sm:h-8 rounded-full text-[#78716c] hover:text-[#132A22] hover:bg-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
                       >
                         <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                           <rect x="5" y="5" width="8.5" height="8.5" rx="2" />
@@ -248,7 +248,7 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
                       type="button"
                       onClick={() => removeWithFade(item.id)}
                       aria-label={`Убрать «${item.title}» из заказа`}
-                      className="w-8 h-8 rounded-full text-[#a8a29e] hover:text-[#be3a52] hover:bg-[#fdecef] flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full text-[#a8a29e] hover:text-[#be3a52] hover:bg-[#fdecef] flex items-center justify-center transition-colors cursor-pointer shrink-0"
                     >
                       <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
                         <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" />

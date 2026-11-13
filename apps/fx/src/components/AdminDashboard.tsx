@@ -915,17 +915,17 @@ export function AdminDashboard() {
       {/* ORDER DETAILS DRAWER / MODAL (Section 3.4) */}
       {selectedOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/50 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white border border-[#ebe5da] rounded-[32px] w-full max-w-2xl max-h-[92vh] flex flex-col shadow-[0_30px_90px_-20px_rgba(19,42,34,0.4)] overflow-hidden">
+          <div className="bg-white border border-[#ebe5da] rounded-[28px] sm:rounded-[32px] w-full max-w-2xl max-w-[calc(100vw-24px)] max-h-[92vh] flex flex-col shadow-[0_30px_90px_-20px_rgba(19,42,34,0.4)] overflow-hidden">
             {/* Drawer Header */}
-            <div className="px-6 py-5 border-b border-[#ede7db] flex items-center justify-between bg-[#fbf9f5]">
-              <div className="flex items-center gap-3">
-                <span className="font-mono text-xl font-black text-[#132A22]">{selectedOrder.id}</span>
+            <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-[#ede7db] flex items-center justify-between bg-[#fbf9f5]">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="font-mono text-lg sm:text-xl font-black text-[#132A22]">{selectedOrder.id}</span>
                 {selectedOrder.status === 'paid' ? (
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#DFF8EB] text-[#0f5c3c] text-[11px] font-black">
+                  <span className="px-2 sm:px-2.5 py-0.5 rounded-full bg-[#DFF8EB] text-[#0f5c3c] text-[10.5px] sm:text-[11px] font-black">
                     Оплачен
                   </span>
                 ) : (
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#fee2e2] text-[#991b1b] text-[11px] font-black">
+                  <span className="px-2 sm:px-2.5 py-0.5 rounded-full bg-[#fee2e2] text-[#991b1b] text-[10.5px] sm:text-[11px] font-black">
                     Возврат
                   </span>
                 )}
@@ -933,14 +933,14 @@ export function AdminDashboard() {
               <button
                 type="button"
                 onClick={() => setSelectedOrder(null)}
-                className="w-9 h-9 rounded-full bg-white border border-[#e5dfd2] text-[#78716c] hover:text-[#132A22] flex items-center justify-center font-black transition-colors cursor-pointer"
+                className="w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-full bg-white border border-[#e5dfd2] text-[#78716c] hover:text-[#132A22] flex items-center justify-center font-black transition-colors cursor-pointer shrink-0"
               >
                 ✕
               </button>
             </div>
 
             {/* Drawer Body (Scrollable) */}
-            <div className="p-6 overflow-y-auto flex-1 flex flex-col gap-6">
+            <div className="p-4 sm:p-6 overflow-y-auto flex-1 flex flex-col gap-4 sm:gap-6">
               {actionSuccess && (
                 <div className="p-3 rounded-2xl bg-[#DFF8EB] border border-[#a7f3d0] text-xs font-black text-[#065f46]">
                   ✓ {actionSuccess}
@@ -948,36 +948,36 @@ export function AdminDashboard() {
               )}
 
               {/* Order Meta Info */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-[#f6f3ee]">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 p-3.5 sm:p-4 rounded-2xl bg-[#f6f3ee]">
                 <div>
                   <span className="text-[10px] font-black uppercase tracking-wider text-[#a8a29e] block">Сумма</span>
-                  <span className="text-base font-black text-[#132A22]">{rub(selectedOrder.total)}</span>
+                  <span className="text-sm sm:text-base font-black text-[#132A22]">{rub(selectedOrder.total)}</span>
                 </div>
                 <div>
                   <span className="text-[10px] font-black uppercase tracking-wider text-[#a8a29e] block">Скидка</span>
-                  <span className="text-base font-black text-[#19C37D]">{rub(selectedOrder.discount)}</span>
+                  <span className="text-sm sm:text-base font-black text-[#19C37D]">{rub(selectedOrder.discount)}</span>
                 </div>
                 <div>
                   <span className="text-[10px] font-black uppercase tracking-wider text-[#a8a29e] block">Кодов</span>
-                  <span className="text-base font-black text-[#132A22]">{selectedOrder.codesCount}</span>
+                  <span className="text-sm sm:text-base font-black text-[#132A22]">{selectedOrder.codesCount}</span>
                 </div>
                 <div>
                   <span className="text-[10px] font-black uppercase tracking-wider text-[#a8a29e] block">Провайдер</span>
-                  <span className="text-xs font-black text-[#132A22] uppercase">{selectedOrder.paymentProvider}</span>
+                  <span className="text-[11px] sm:text-xs font-black text-[#132A22] uppercase">{selectedOrder.paymentProvider}</span>
                 </div>
               </div>
 
               {/* Customer Email & Resend Email Action */}
-              <div className="p-4 rounded-2xl border border-[#ebe5da] flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <div>
+              <div className="p-3.5 sm:p-4 rounded-2xl border border-[#ebe5da] flex flex-col gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="min-w-0">
                     <span className="text-[10.5px] font-black uppercase tracking-wider text-[#a8a29e]">Email покупателя</span>
-                    <div className="font-black text-sm text-[#132A22] mt-0.5">{selectedOrder.email}</div>
+                    <div className="font-black text-sm text-[#132A22] mt-0.5 break-all">{selectedOrder.email}</div>
                   </div>
                   <button
                     type="button"
                     onClick={() => setShowResendInput(!showResendInput)}
-                    className="h-8 px-3 rounded-full bg-[#f6f3ee] hover:bg-[#e9e3d7] text-xs font-black text-[#132A22] transition-colors cursor-pointer"
+                    className="self-start sm:self-auto h-8 px-3 rounded-full bg-[#f6f3ee] hover:bg-[#e9e3d7] text-xs font-black text-[#132A22] transition-colors cursor-pointer shrink-0"
                   >
                     ✉️ Переслать письмо
                   </button>
@@ -1106,14 +1106,14 @@ export function AdminDashboard() {
             </div>
 
             {/* Drawer Footer */}
-            <div className="px-6 py-4 border-t border-[#ede7db] bg-[#fbf9f5] flex items-center justify-between">
-              <span className="text-[11px] font-mono font-semibold text-[#a8a29e] truncate max-w-xs">
-                ID платежа: {selectedOrder.paymentId}
+            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-t border-[#ede7db] bg-[#fbf9f5] flex items-center justify-between gap-2">
+              <span className="text-[11px] font-mono font-semibold text-[#a8a29e] truncate flex-1 min-w-0">
+                ID: {selectedOrder.paymentId}
               </span>
               <button
                 type="button"
                 onClick={() => setSelectedOrder(null)}
-                className="h-9 px-4 rounded-full bg-[#132A22] text-white text-xs font-black cursor-pointer"
+                className="h-8.5 sm:h-9 px-4 rounded-full bg-[#132A22] text-white text-xs font-black cursor-pointer shrink-0"
               >
                 Закрыть
               </button>
