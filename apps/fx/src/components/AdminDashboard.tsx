@@ -9,12 +9,16 @@ import {
   setAuthenticated,
   INITIAL_ADMIN_ORDERS,
 } from '../engine/adminOrders';
-import { PRODUCTS, productById } from '../data/products';
+import { PRODUCTS, productById, type ProductId } from '../data/products';
+import { ordersApi } from '../data/api';
 
 export function AdminDashboard() {
   const [authed, setAuthed] = useState<boolean>(false);
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState('');
+  const [token, setToken] = useState(() => (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('gridika_admin_token') || '' : ''));
+  const [isLiveApi, setIsLiveApi] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Orders state
   const [orders, setOrders] = useState<AdminOrder[]>([]);
@@ -32,10 +36,45 @@ export function AdminDashboard() {
   const [revenuePeriod, setRevenuePeriod] = useState<'today' | '7d' | '30d' | 'total'>('7d');
   const [activeTab, setActiveTab] = useState<'orders' | 'customers'>('orders');
 
+  const fetchLiveOrders = async (authToken: string) => {
+    const url = ordersApi('admin-orders');
+    if (!url) return null;
+    try {
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return Array.isArray(data.orders) ? data.orders : [];
+      }
+      return false; // invalid token
+    } catch (err) {
+      console.warn('Failed to reach orders API:', err);
+      return null; // network / offline
+    }
+  };
+
   // Load state on mount
   useEffect(() => {
-    setAuthed(isUserAuthenticated());
-    setOrders(loadAdminOrders());
+    const init = async () => {
+      const savedToken = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('gridika_admin_token') : null;
+      if (savedToken && ordersApi('admin-orders')) {
+        const live = await fetchLiveOrders(savedToken);
+        if (live && live !== false) {
+          setOrders(live);
+          setIsLiveApi(true);
+          setAuthed(true);
+          setToken(savedToken);
+          return;
+        }
+      }
+
+      if (isUserAuthenticated()) {
+        setAuthed(true);
+        setOrders(loadAdminOrders());
+      }
+    };
+    init();
   }, []);
 
   const summary = useMemo(() => computeOrdersSummary(orders), [orders]);
@@ -76,21 +115,50 @@ export function AdminDashboard() {
   }, [orders]);
 
   // Handle Login
-  const handleLogin = (e: Event) => {
+  const handleLogin = async (e: Event) => {
     e.preventDefault();
-    // Default admin pass or any in dev mode
-    if (password.trim() === 'gridika2026' || password.trim() === 'admin') {
+    const pass = password.trim();
+    if (!pass) return;
+    setLoading(true);
+    setAuthError('');
+
+    const liveUrl = ordersApi('admin-orders');
+    if (liveUrl) {
+      const result = await fetchLiveOrders(pass);
+      setLoading(false);
+      if (result === false) {
+        setAuthError('Неверный пароль администратора');
+        return;
+      }
+      if (result !== null) {
+        setToken(pass);
+        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('gridika_admin_token', pass);
+        setIsLiveApi(true);
+        setOrders(result);
+        setAuthed(true);
+        return;
+      }
+      setAuthError('Не удалось подключиться к серверной функции в Yandex Cloud');
+      return;
+    }
+
+    // Dev / Local fallback when ORDERS_API is not yet deployed
+    setLoading(false);
+    if (pass === 'gridika2026') {
       setAuthenticated(true);
       setAuthed(true);
-      setAuthError('');
+      setIsLiveApi(false);
+      setOrders(loadAdminOrders());
     } else {
-      setAuthError('Неверный пароль. Для входа введите: gridika2026');
+      setAuthError('Неверный пароль');
     }
   };
 
   const handleLogout = () => {
     setAuthenticated(false);
     setAuthed(false);
+    setToken('');
+    if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem('gridika_admin_token');
     setSelectedOrder(null);
   };
 
@@ -162,9 +230,32 @@ export function AdminDashboard() {
     setTimeout(() => setActionSuccess(''), 2500);
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (!selectedOrder) return;
     const targetEmail = resendEmail.trim() || selectedOrder.email;
+    if (!targetEmail.includes('@') || !targetEmail.includes('.')) {
+      setActionSuccess('Укажите корректный email');
+      return;
+    }
+
+    if (isLiveApi && ordersApi('admin-resend')) {
+      try {
+        const res = await fetch(ordersApi('admin-resend'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ orderId: selectedOrder.id, targetEmail }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Ошибка отправки письма');
+      } catch (err: any) {
+        alert(`Ошибка отправки: ${err.message}`);
+        return;
+      }
+    }
+
     const nowStr = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
     const newEvent: OrderEvent = {
       id: 'ev-' + Date.now(),
@@ -186,7 +277,7 @@ export function AdminDashboard() {
     });
 
     setOrders(updated);
-    saveAdminOrders(updated);
+    if (!isLiveApi) saveAdminOrders(updated);
     setSelectedOrder({
       ...selectedOrder,
       email: targetEmail,
@@ -198,9 +289,27 @@ export function AdminDashboard() {
     setTimeout(() => setActionSuccess(''), 3000);
   };
 
-  const handleRefund = () => {
+  const handleRefund = async () => {
     if (!selectedOrder) return;
     if (!confirm(`Подтвердите возврат ${selectedOrder.total} ₽ по заказу ${selectedOrder.id}?`)) return;
+
+    if (isLiveApi && ordersApi('admin-refund')) {
+      try {
+        const res = await fetch(ordersApi('admin-refund'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ orderId: selectedOrder.id }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Ошибка возврата через ЮKassa');
+      } catch (err: any) {
+        alert(`Ошибка возврата: ${err.message}`);
+        return;
+      }
+    }
 
     const nowStr = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
     const newEvent: OrderEvent = {
@@ -222,7 +331,7 @@ export function AdminDashboard() {
     });
 
     setOrders(updated);
-    saveAdminOrders(updated);
+    if (!isLiveApi) saveAdminOrders(updated);
     setSelectedOrder({
       ...selectedOrder,
       status: 'refunded',
@@ -293,18 +402,13 @@ export function AdminDashboard() {
 
             <button
               type="submit"
-              className="mt-2 h-12 rounded-full bg-[#132A22] hover:bg-[#1d3a2f] text-[#F0EBE9] font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer"
+              disabled={loading}
+              className="mt-2 h-12 rounded-full bg-[#132A22] hover:bg-[#1d3a2f] text-[#F0EBE9] font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-60"
             >
-              <span>Войти в систему</span>
+              <span>{loading ? 'Проверка...' : 'Войти в систему'}</span>
               <span className="w-5 h-5 rounded-full bg-[#19C37D] text-[#132A22] text-xs font-black flex items-center justify-center">→</span>
             </button>
           </form>
-
-          <div className="mt-6 pt-5 border-t border-[#f0ebe1] text-center">
-            <span className="text-[11px] font-semibold text-[#a8a29e]">
-              Подсказка для локального теста: пароль <code className="font-mono font-bold text-[#132A22]">gridika2026</code>
-            </span>
-          </div>
         </div>
       </div>
     );
@@ -334,6 +438,15 @@ export function AdminDashboard() {
               <span className="px-2 py-0.5 rounded-full bg-[#DFF8EB] text-[#0f5c3c] text-[10px] font-black uppercase tracking-wider">
                 Админка
               </span>
+              {isLiveApi ? (
+                <span className="px-2 py-0.5 rounded-full bg-[#DFF8EB] text-[#0f5c3c] text-[10px] font-bold">
+                  ● Онлайн API
+                </span>
+              ) : (
+                <span className="px-2 py-0.5 rounded-full bg-[#fef3c7] text-[#92400e] text-[10px] font-bold" title="Для подключения реальных заказов укажите URL функции в src/data/api.ts">
+                  ● Демо (локальные заказы)
+                </span>
+              )}
             </div>
             <p className="text-xs font-semibold text-[#78716c]">Управление покупками, отправкой и кодами</p>
           </div>

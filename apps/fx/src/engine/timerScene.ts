@@ -13,6 +13,10 @@ export type TimerEndType = 'date' | 'personal';
 export type TimerEndAction = 'text' | 'link' | 'hide';
 export { TIMER_MODES, timerParts };
 
+export function timerEmbedHeight(d: Pick<TimerData, 'format' | 'title' | 'button'>): number {
+  return Math.round(900 / (d.format === 'dhms' ? 2.7 : 2.2)) + (d.title ? 40 : 0) + (d.button ? 70 : 0);
+}
+
 export interface TimerSettings {
   /** YYYY-MM-DD */
   date: string;

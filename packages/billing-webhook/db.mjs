@@ -1,93 +1,120 @@
 /**
- * Database storage for Gridika orders and audit events.
- * Supports:
- * - In-memory / JSON store (default, fallback, and local dev)
- * - YDB Serverless / PostgreSQL / Object Storage hooks
+ * Orders storage: PostgreSQL (Yandex Managed PostgreSQL), see schema.sql.
+ *
+ *   DATABASE_URL   postgres://user:pass@host:6432/gridika   (required in production)
+ *   DATABASE_CA    the provider's root certificate (PEM) — turns on certificate checks
+ *
+ * A Cloud Function instance is short-lived and several may run at once, so nothing is kept in
+ * memory: every read and write goes to the database. Tests pass their own pool (setPool).
  */
+import pg from 'pg';
 
-// In-memory cache for fast lookups and fallback
-const memoryOrders = new Map();
+let pool = null;
 
-export async function saveOrder(order) {
-  const record = {
-    id: order.id,
-    createdAt: order.createdAt || new Date().toISOString(),
-    email: order.email,
-    items: order.items || [],
-    codesCount: order.codesCount || (order.items || []).length,
-    total: Number(order.total) || 0,
-    discount: Number(order.discount) || 0,
-    paymentId: order.paymentId || '',
-    paymentProvider: order.paymentProvider || 'yookassa',
-    status: order.status || 'paid',
-    emailStatus: order.emailStatus || 'sent',
-    orderUrl: order.orderUrl || '',
-    source: order.source || '',
-    note: order.note || '',
-    events: order.events || [],
+/** tests: a pg-compatible pool (pg-mem); production: built from DATABASE_URL */
+export function setPool(p) {
+  pool = p;
+}
+
+function db() {
+  if (pool) return pool;
+  const url = process.env.DATABASE_URL;
+  if (!url) throw new Error('DATABASE_URL is not set: orders cannot be stored');
+  const ca = process.env.DATABASE_CA;
+  pool = new pg.Pool({
+    connectionString: url,
+    max: 2,
+    idleTimeoutMillis: 10_000,
+    ssl: process.env.DATABASE_SSL === 'off' ? false : ca ? { ca, rejectUnauthorized: true } : { rejectUnauthorized: false },
+  });
+  return pool;
+}
+
+const q = (text, params = []) => db().query(text, params);
+
+function rowToOrder(r) {
+  if (!r) return null;
+  return {
+    id: r.id,
+    createdAt: new Date(r.created_at).toISOString(),
+    paidAt: r.paid_at ? new Date(r.paid_at).toISOString() : null,
+    email: r.email,
+    items: typeof r.items === 'string' ? JSON.parse(r.items) : r.items || [],
+    codesCount: Number(r.codes_count),
+    total: Number(r.total),
+    discount: Number(r.discount),
+    paymentId: r.payment_id || '',
+    status: r.status,
+    emailStatus: r.email_status,
+    orderUrl: r.order_url || '',
+    accessToken: r.access_token,
+    source: r.source || '',
+    note: r.note || '',
   };
+}
 
-  memoryOrders.set(record.id, record);
-
-  // If YDB or PostgreSQL connection is configured via env
-  if (process.env.DATABASE_URL) {
-    try {
-      // Lazy import or pg query
-    } catch (err) {
-      console.error('Failed to persist order to SQL DB:', err);
-    }
-  }
-
-  return record;
+/** a new order waiting for payment (status "pending") */
+export async function createOrder(o) {
+  await q(
+    `INSERT INTO orders (id, email, items, codes_count, total, discount, status, email_status, access_token, source)
+     VALUES ($1, $2, $3, $4, $5, $6, 'pending', 'none', $7, $8)`,
+    [o.id, o.email, JSON.stringify(o.items), o.items.length, o.total, o.discount, o.accessToken, o.source || 'direct'],
+  );
+  await addEvent(o.id, 'created', `Заказ создан: ${o.items.length} код(ов), ${o.total} ₽`);
 }
 
 export async function getOrder(id) {
-  return memoryOrders.get(id) || null;
+  const { rows } = await q(`SELECT * FROM orders WHERE id = $1`, [id]);
+  return rowToOrder(rows[0]);
 }
 
-export async function getOrderByPaymentId(paymentId) {
-  if (!paymentId) return null;
-  for (const order of memoryOrders.values()) {
-    if (order.paymentId === paymentId) return order;
+export async function setPaymentId(id, paymentId) {
+  await q(`UPDATE orders SET payment_id = $2 WHERE id = $1`, [id, paymentId]);
+}
+
+/**
+ * pending → paid, exactly once: of two notifications arriving together only one gets true,
+ * so the email goes out once.
+ */
+export async function markPaid(id, paymentId) {
+  const { rows } = await q(
+    `UPDATE orders SET status = 'paid', paid_at = NOW(), payment_id = $2 WHERE id = $1 AND status = 'pending' RETURNING id`,
+    [id, paymentId],
+  );
+  return rows.length === 1;
+}
+
+export async function setStatus(id, status) {
+  await q(`UPDATE orders SET status = $2 WHERE id = $1`, [id, status]);
+}
+
+export async function setOrderUrl(id, url) {
+  await q(`UPDATE orders SET order_url = $2 WHERE id = $1`, [id, url]);
+}
+
+export async function setEmailStatus(id, status) {
+  await q(`UPDATE orders SET email_status = $2 WHERE id = $1`, [id, status]);
+}
+
+export async function setNote(id, note) {
+  await q(`UPDATE orders SET note = $2 WHERE id = $1`, [id, note]);
+}
+
+export async function addEvent(orderId, type, text) {
+  await q(`INSERT INTO order_events (order_id, event_type, description) VALUES ($1, $2, $3)`, [orderId, type, text]);
+}
+
+/** newest first, each with its events (newest first) */
+export async function listOrders({ limit = 200, offset = 0 } = {}) {
+  const { rows } = await q(`SELECT * FROM orders ORDER BY created_at DESC LIMIT $1 OFFSET $2`, [limit, offset]);
+  const orders = rows.map(rowToOrder);
+  if (!orders.length) return orders;
+  const ids = orders.map((o) => o.id);
+  const params = ids.map((_, i) => `$${i + 1}`).join(', ');
+  const ev = await q(`SELECT * FROM order_events WHERE order_id IN (${params}) ORDER BY created_at DESC, id DESC`, ids);
+  const byOrder = new Map(ids.map((id) => [id, []]));
+  for (const e of ev.rows) {
+    byOrder.get(e.order_id)?.push({ id: String(e.id), time: new Date(e.created_at).toISOString(), type: e.event_type, text: e.description });
   }
-  return null;
-}
-
-export async function addOrderEvent(orderId, { type, text }) {
-  const order = memoryOrders.get(orderId);
-  if (!order) return null;
-
-  const event = {
-    id: 'ev-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
-    time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-    type,
-    text,
-  };
-
-  order.events = [event, ...(order.events || [])];
-  memoryOrders.set(orderId, order);
-  return event;
-}
-
-export async function updateOrderStatus(orderId, status) {
-  const order = memoryOrders.get(orderId);
-  if (!order) return null;
-  order.status = status;
-  memoryOrders.set(orderId, order);
-  return order;
-}
-
-export async function updateOrderNote(orderId, note) {
-  const order = memoryOrders.get(orderId);
-  if (!order) return null;
-  order.note = note;
-  memoryOrders.set(orderId, order);
-  return order;
-}
-
-export async function listOrders({ limit = 50, offset = 0 } = {}) {
-  const all = Array.from(memoryOrders.values());
-  // Sort descending by creation date
-  all.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  return all.slice(offset, offset + limit);
+  return orders.map((o) => ({ ...o, events: byOrder.get(o.id) || [] }));
 }

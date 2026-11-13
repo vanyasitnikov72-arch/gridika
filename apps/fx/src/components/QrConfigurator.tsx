@@ -10,7 +10,6 @@ import { type CakeFlavor } from '../engine/cakeScene';
 import { type CastleMode } from '../engine/castleScene';
 import { generateQrMatrix } from '../engine/qrMatrix';
 import { validateQrScan, type ValidationResult } from '../engine/qrValidator';
-import { generateEmbedCode } from '../engine/standaloneGenerator';
 import { verifyLicense, normalizeDomain, isValidDomain, loadSavedKey, saveKey, licenseCovers, cardNameOk, LICENSE_ERRORS, type LicensePayload } from '../engine/license';
 import { PRODUCTS, productById, applyProductTheme, type ProductId } from '../data/products';
 import { ProductPreview } from './ProductPreview';
@@ -21,17 +20,17 @@ import { readHash, buildHash, guessSite, type PurchaseConfig } from '../engine/p
 import { DEMO_KEYS, DEMO_KEY } from '../emails/keyEmail';
 import { CardStage, CardPanel, useCardState, visibleContact } from './CardStudio';
 import { GiftStage, GiftPanel, useGiftState } from './GiftStudio';
-import { generateGiftEmbedCode } from '../engine/giftEmbedGenerator';
 import { LogoStage, LogoPanel, useLogoState } from './LogoStudio';
 import { DarkStage } from './DarkStage';
 import { contentMatches } from '../engine/fingerprint.js';
 import { MorphStage, MorphPanel, useMorphState } from './MorphStudio';
 import { TimerStage, TimerPanel, useTimerState } from './TimerStudio';
-import { generateTimerEmbedCode, timerEmbedHeight } from '../engine/timerEmbedGenerator';
-import { generateMorphEmbedCode, morphEmbedHeight } from '../engine/morphEmbedGenerator';
-import { generateLogoEmbedCode, LOGO_EMBED_HEIGHT } from '../engine/logoEmbedGenerator';
-import { generateCardEmbedCode, logoToDataUrl } from '../engine/cardEmbedGenerator';
+import { timerEmbedHeight } from '../engine/timerScene';
+import { morphEmbedHeight } from '../engine/morphScene';
+import { logoToDataUrl } from '../engine/cardScene';
 import { getCart, addToCart, updateCartItem, removeFromCart, subscribeCart, type CartItem } from '../engine/cartStore';
+
+const LOGO_EMBED_HEIGHT = 440;
 import { CartModal } from './CartModal';
 import { CartFloatingPill } from './CartFloatingPill';
 import confetti from 'canvas-confetti';
@@ -639,35 +638,21 @@ export function QrConfigurator() {
     }
   };
 
-  const getEmbedCodeForProduct = (prod: ActiveProductType): string =>
-    !proActive
-      ? ''
-      : prod === 'qr-morph'
-      ? generateEmbedCode({
-          text,
-          shape,
-          themeId,
-          height: 480,
-          showBadge: true,
-          license: { id: license!.id, domain: proDomain },
-        })
-      : prod === 'qr-card'
-        ? generateCardEmbedCode({
-            contact: visibleContact(card),
-            mode: card.mode,
-            style: card.style,
-            logo: logoToDataUrl(card.logo),
-            license: { id: license!.id, domain: proDomain },
-          })
-        : prod === 'gift-box'
-          ? generateGiftEmbedCode({ settings: gift.settings, mode: gift.mode, license: { id: license!.id, domain: proDomain } })
-          : prod === 'voxel-logo' && logo.data
-            ? generateLogoEmbedCode({ data: logo.data, mode: logo.mode, license: { id: license!.id, domain: proDomain } })
-            : prod === 'voxel-morph' && morph.data
-              ? generateMorphEmbedCode({ data: morph.data, license: { id: license!.id, domain: proDomain } })
-              : prod === 'sale-timer' && timer.data
-                ? generateTimerEmbedCode({ data: timer.data, license: { id: license!.id, domain: proDomain } })
-                : '';
+  const getEmbedCodeForProduct = (prod: ActiveProductType): string => {
+    if (!proActive) return '';
+    const title = productById(prod)?.title || prod;
+    return `<!-- Gridika Demo Code: ${title} (${proDomain || 'example.com'}) -->
+<!-- Демо-версия для вставки на сайт (Tilda T123, WordPress, Webflow, HTML). -->
+<div id="gridika-${prod}-demo" style="position:relative;width:100%;max-width:560px;min-height:380px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:#f6f3ee;border-radius:24px;border:1px dashed #d5cfc4;font-family:Nunito,system-ui,sans-serif;color:#132A22;font-weight:800;padding:24px;text-align:center;">
+  <div>
+    <div style="font-size:20px;margin-bottom:8px;">Gridika · ${title}</div>
+    <div style="font-size:12px;color:#78716c;font-weight:600;">Демо-код эффекта. Готовый чистый код без водяных знаков компилируется сервером после заказа.</div>
+  </div>
+</div>
+<script type="module">
+  console.log("Gridika demo effect loaded: ${prod}");
+</script>`;
+  };
 
   // regenerate the snippet when the license or the domain changes while the window is open
   useEffect(() => {

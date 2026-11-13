@@ -10,6 +10,17 @@ import { createCardViewer, CARD_PALETTES, CARD_STYLES } from '../embed/cardRunti
  * customer's site); this file prepares its data and adds studio-only checks.
  */
 
+/** Downscale the uploaded logo so it does not bloat the snippet. */
+export function logoToDataUrl(img: HTMLImageElement | null, max = 256): string | null {
+  if (!img || !img.width) return null;
+  const k = Math.min(1, max / Math.max(img.width, img.height));
+  const c = document.createElement('canvas');
+  c.width = Math.round(img.width * k);
+  c.height = Math.round(img.height * k);
+  c.getContext('2d')!.drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL('image/png');
+}
+
 export type CardMode = 'emerald' | 'graphite' | 'gold' | 'ocean' | 'berry' | 'amethyst' | 'terracotta' | 'snow';
 export type CardStyle = 'classic' | 'minimal' | 'pixel' | 'wave' | 'split' | 'diagonal' | 'grid';
 export { CARD_PALETTES, CARD_STYLES };

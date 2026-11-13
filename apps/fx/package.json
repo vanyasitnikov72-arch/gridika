@@ -5,11 +5,12 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
+    "prebuild": "node scripts/build-server-compiler.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "typecheck": "astro check",
-    "check:release": "node scripts/check-release.mjs",
+    "check:release": "node scripts/build-server-compiler.mjs && node scripts/check-release.mjs",
     "build:compiler": "node scripts/build-server-compiler.mjs",
     "order": "node scripts/order.mjs"
   },
