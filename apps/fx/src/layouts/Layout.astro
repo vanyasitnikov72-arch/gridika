@@ -40,7 +40,8 @@ const computedCanonical = canonicalUrl || (currentPath === '/' ? siteUrl : `${si
     <meta name="format-detection" content="telephone=no" />
     <link rel="canonical" href={computedCanonical} />
 
-    {/* Search Engine Robots Directives */}
+    {/* Search Engine Robots & Verification Directives */}
+    <meta name="yandex-verification" content="637ebf922b7d6122" />
     {noindex ? (
       <meta name="robots" content="noindex, nofollow" />
     ) : (
