@@ -1,6 +1,6 @@
-export const PRICE_ONE = 1;
-const STEPS = [1, 1, 1, 1, 1];
-export const EXTRA_CODE_PRICE = 1;
+export const PRICE_ONE = 1490;
+const STEPS = [1200, 1100, 1000, 900, 800];
+export const EXTRA_CODE_PRICE = 790;
 export const BUNDLE_MAX = 6;
 
 export function codePrice(nth) {
