@@ -5,11 +5,11 @@
  *   1 — 1 490 ₽ · 2 — 2 690 ₽ · 3 — 3 790 ₽ · 4 — 4 790 ₽ · 5 — 5 690 ₽ · 6 — 6 490 ₽ · +790 ₽ each
  * A "code" is one configured effect in the order; the same effect may be ordered several times.
  */
-export const PRICE_ONE = 1490;
+export const PRICE_ONE = 1;
 /** what the 2nd … 6th code adds to the order */
-const STEPS = [1200, 1100, 1000, 900, 800];
+const STEPS = [1, 1, 1, 1, 1];
 /** every code from the 7th on */
-export const EXTRA_CODE_PRICE = 790;
+export const EXTRA_CODE_PRICE = 1;
 /** all effects of the line: 6 codes */
 export const BUNDLE_MAX = 6;
 
