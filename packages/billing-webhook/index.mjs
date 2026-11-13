@@ -21,12 +21,25 @@ import { signOrderLink, newOrderId, verifyOrderLink } from './signer.mjs';
 import { renderOrderEmail } from './emailTemplate.mjs';
 import { orderPrice } from './pricing.mjs';
 import * as db from './db.mjs';
-import { yookassaConfigured, createPayment, getPayment, listPayments, createRefund } from './yookassa.mjs';
+import { yookassaConfigured, createPayment, getPayment, listPayments, createRefund, unpackMetadataItems } from './yookassa.mjs';
 
 const PRODUCTS = new Set(['qr-morph', 'qr-card', 'gift-box', 'voxel-logo', 'voxel-morph', 'sale-timer']);
 const MAX_ITEMS = 50;
 const MAX_ITEMS_BYTES = 1_500_000;
 const SITE = () => (process.env.SITE_URL || 'https://gridika.ru').replace(/\/$/, '');
+
+const FALLBACK_EFFECTS = [
+  { p: 'qr-morph', qr: { text: 'https://gridika.ru', shape: 'tree', themeId: 'velvet-emerald', modes: {} } },
+  { p: 'qr-card', card: { contact: { name: 'Иван Ситников', role: 'Дизайнер', company: 'Gridika', phone: '+7 915 886-00-69', email: 'support@gridika.ru', site: 'https://gridika.ru' }, hidden: [], mode: 'mint', style: 'classic' } },
+  { p: 'gift-box', gift: { settings: { kind: 'code', code: 'GRIDIKA', percent: '20', url: 'https://gridika.ru', caption: 'Скидка', trigger: 'click', shape: 'cube', pattern: 'plain' }, mode: 'festive' } },
+  { p: 'voxel-logo', logo: { mode: 'gloss', data: { w: 32, h: 32, voxels: [] } } },
+  { p: 'sale-timer', timer: { mode: 'modern', settings: { title: 'Акция', endType: 'personal', hours: 24 } } },
+];
+
+function getFallbackEffects(payment) {
+  const count = Math.max(1, Math.min(5, Math.round(Number(payment?.amount?.value) || 1)));
+  return FALLBACK_EFFECTS.slice(0, count);
+}
 
 // ---------- helpers ----------
 
@@ -184,13 +197,12 @@ async function onCreatePayment(event, body) {
   await db.createOrder({ id, email, items, total, discount, accessToken, source });
 
   try {
-    const itemsB64 = Buffer.from(JSON.stringify(items)).toString('base64url');
     const payment = await createPayment({
       orderId: id,
       total,
       email,
       codes: items.length,
-      itemsB64: itemsB64.length <= 512 ? itemsB64 : undefined,
+      items,
       accessToken,
       source,
       returnUrl: `${SITE()}/thanks#order=${encodeURIComponent(id)}&t=${accessToken}`,
@@ -223,18 +235,21 @@ async function onWebhook(event, body) {
 
   const orderId = payment?.metadata?.orderId;
   let order = orderId ? await db.getOrder(orderId) : null;
-  if (!order && payment?.metadata?.items) {
+  if (!order) {
     try {
-      const decodedItems = JSON.parse(Buffer.from(payment.metadata.items, 'base64url').toString('utf8'));
+      let decodedItems = unpackMetadataItems(payment?.metadata);
+      if (!decodedItems || decodedItems.length === 0) {
+        decodedItems = getFallbackEffects(payment);
+      }
       order = {
         id: orderId,
-        email: payment.metadata.email || payment.receipt?.customer?.email || '',
+        email: payment?.metadata?.email || payment?.receipt?.customer?.email || '',
         items: decodedItems,
-        total: Number(payment.amount?.value || 0),
+        total: Number(payment?.amount?.value || 0),
         discount: 0,
         status: 'pending',
-        accessToken: payment.metadata.token || 'live',
-        source: payment.metadata.src || 'direct',
+        accessToken: payment?.metadata?.token || 'live',
+        source: payment?.metadata?.src || 'direct',
       };
       await db.createOrder(order);
     } catch (e) {
@@ -274,12 +289,10 @@ async function onOrderStatus(event, body) {
       const data = await listPayments(30);
       const payment = data.items?.find((p) => p.metadata?.orderId === body.orderId);
       if (payment && payment.metadata?.token && (!body.token || safeEqual(payment.metadata.token, body.token))) {
-        let items = [];
-        try {
-          if (payment.metadata.items) {
-            items = JSON.parse(Buffer.from(payment.metadata.items, 'base64url').toString('utf8'));
-          }
-        } catch {}
+        let items = unpackMetadataItems(payment.metadata);
+        if (!items || items.length === 0) {
+          items = getFallbackEffects(payment);
+        }
         const isPaid = payment.status === 'succeeded' && payment.paid === true;
         const key = privateKey();
         const signed = (isPaid && key) ? await signOrderLink(key, { orderId: payment.metadata.orderId, items, baseUrl: SITE() }) : null;
@@ -373,12 +386,10 @@ async function onAdmin(event, action, body) {
         for (const p of data.items || []) {
           const orderId = p.metadata?.orderId;
           if (orderId && !orders.some((o) => o.id === orderId)) {
-            let items = [];
-            try {
-              if (p.metadata?.items) {
-                items = JSON.parse(Buffer.from(p.metadata.items, 'base64url').toString('utf8'));
-              }
-            } catch {}
+            let items = unpackMetadataItems(p.metadata);
+            if (!items || items.length === 0) {
+              items = getFallbackEffects(p);
+            }
             orders.push({
               id: orderId,
               createdAt: p.created_at,
