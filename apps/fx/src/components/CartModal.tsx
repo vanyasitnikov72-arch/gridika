@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'preact/hooks';
 import type { CartItem } from '../engine/cartStore';
 import { ProductPreview } from './ProductPreview';
 import { orderPrice, nextCodeHint, codes, rub, PRICE_ONE } from '../engine/pricing';
+import { ordersApi } from '../data/api';
 
 interface CartModalProps {
   isOpen: boolean;
@@ -95,7 +96,7 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
     setLoading(true);
 
     try {
-      const apiUrl = (typeof window !== 'undefined' && (window as any).GRIDIKA_API_URL) || '/api/create-payment';
+      const apiUrl = (typeof window !== 'undefined' && (window as any).GRIDIKA_API_URL) || ordersApi('create-payment') || '/api/create-payment';
       const cleanItems = items.map((it) => it.config);
 
       const res = await fetch(apiUrl, {

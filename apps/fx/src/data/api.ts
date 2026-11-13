@@ -3,7 +3,7 @@
  * e.g. 'https://functions.yandexcloud.net/d4e…'. It is public, not a secret.
  * Empty: payments are switched off on the site (the cart shows «Оплата скоро»), nothing breaks.
  */
-export const ORDERS_API = '';
+export const ORDERS_API = 'https://functions.yandexcloud.net/d4e9qjpupk3vuqjf09fb';
 
 /** the URL for one action of the function, or '' while it is not connected */
 export function ordersApi(action: string): string {

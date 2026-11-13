@@ -200,6 +200,7 @@ import { ChangeNote } from '../components/ChangeNote';
   import { DEMO_ORDER, DEMO_ORDER_ID } from '../engine/demoOrder';
   import { verifyOrder } from '../engine/license';
   import { effectsWord } from '../emails/orderEmail';
+  import { ordersApi } from '../data/api';
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const sky = document.getElementById('thx-sky-svg') as unknown as SVGSVGElement | null;
@@ -349,8 +350,10 @@ import { ChangeNote } from '../components/ChangeNote';
     // Real paid order: fetch clean, compiled commercial code directly from the server!
     try {
       const apiEndpoint = (window as any).GRIDIKA_API_URL
-        ? `${(window as any).GRIDIKA_API_URL.replace(/\/create-payment\/?$/, '')}/get-order-codes`
-        : '/api/get-order-codes';
+        ? `${(window as any).GRIDIKA_API_URL.replace(/(\?action=create-payment|\/create-payment\/?)$/, '')}${
+            (window as any).GRIDIKA_API_URL.includes('?') ? '&' : '?'
+          }action=get-order-codes`
+        : ordersApi('get-order-codes') || '/api/get-order-codes';
 
       const res = await fetch(apiEndpoint, {
         method: 'POST',
