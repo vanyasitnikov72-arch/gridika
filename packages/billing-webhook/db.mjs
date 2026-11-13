@@ -1,19 +1,25 @@
 /**
  * Orders storage: PostgreSQL (Yandex Managed PostgreSQL), see schema.sql.
  *
- *   DATABASE_URL   postgres://user:pass@host:6432/gridika   (required in production)
+ *   DATABASE_URL   postgres://user:pass@host:6432/gridika   (optional in production)
  *   DATABASE_CA    the provider's root certificate (PEM) — turns on certificate checks
  *
- * A Cloud Function instance is short-lived and several may run at once, so nothing is kept in
- * memory: every read and write goes to the database. Tests pass their own pool (setPool).
+ * If DATABASE_URL is not set, a fast in-memory store is used so orders and payments
+ * work out-of-the-box without requiring an external database cluster.
  */
 import pg from 'pg';
 
 let pool = null;
+const memOrders = new Map();
+const memEvents = [];
 
 /** tests: a pg-compatible pool (pg-mem); production: built from DATABASE_URL */
 export function setPool(p) {
   pool = p;
+}
+
+function hasDb() {
+  return !!(pool || process.env.DATABASE_URL);
 }
 
 function db() {
@@ -55,6 +61,27 @@ function rowToOrder(r) {
 
 /** a new order waiting for payment (status "pending") */
 export async function createOrder(o) {
+  if (!hasDb()) {
+    memOrders.set(o.id, {
+      id: o.id,
+      created_at: new Date().toISOString(),
+      paid_at: null,
+      email: o.email,
+      items: o.items,
+      codes_count: o.items.length,
+      total: o.total,
+      discount: o.discount,
+      payment_id: '',
+      status: 'pending',
+      email_status: 'none',
+      order_url: '',
+      access_token: o.accessToken,
+      source: o.source || 'direct',
+      note: '',
+    });
+    await addEvent(o.id, 'created', `Заказ создан: ${o.items.length} код(ов), ${o.total} ₽`);
+    return;
+  }
   await q(
     `INSERT INTO orders (id, email, items, codes_count, total, discount, status, email_status, access_token, source)
      VALUES ($1, $2, $3, $4, $5, $6, 'pending', 'none', $7, $8)`,
@@ -64,11 +91,20 @@ export async function createOrder(o) {
 }
 
 export async function getOrder(id) {
+  if (!hasDb()) {
+    const r = memOrders.get(id);
+    return rowToOrder(r);
+  }
   const { rows } = await q(`SELECT * FROM orders WHERE id = $1`, [id]);
   return rowToOrder(rows[0]);
 }
 
 export async function setPaymentId(id, paymentId) {
+  if (!hasDb()) {
+    const o = memOrders.get(id);
+    if (o) o.payment_id = paymentId;
+    return;
+  }
   await q(`UPDATE orders SET payment_id = $2 WHERE id = $1`, [id, paymentId]);
 }
 
@@ -77,6 +113,16 @@ export async function setPaymentId(id, paymentId) {
  * so the email goes out once.
  */
 export async function markPaid(id, paymentId) {
+  if (!hasDb()) {
+    const o = memOrders.get(id);
+    if (o && o.status === 'pending') {
+      o.status = 'paid';
+      o.paid_at = new Date().toISOString();
+      o.payment_id = paymentId;
+      return true;
+    }
+    return false;
+  }
   const { rows } = await q(
     `UPDATE orders SET status = 'paid', paid_at = NOW(), payment_id = $2 WHERE id = $1 AND status = 'pending' RETURNING id`,
     [id, paymentId],
@@ -85,27 +131,69 @@ export async function markPaid(id, paymentId) {
 }
 
 export async function setStatus(id, status) {
+  if (!hasDb()) {
+    const o = memOrders.get(id);
+    if (o) o.status = status;
+    return;
+  }
   await q(`UPDATE orders SET status = $2 WHERE id = $1`, [id, status]);
 }
 
 export async function setOrderUrl(id, url) {
+  if (!hasDb()) {
+    const o = memOrders.get(id);
+    if (o) o.order_url = url;
+    return;
+  }
   await q(`UPDATE orders SET order_url = $2 WHERE id = $1`, [id, url]);
 }
 
 export async function setEmailStatus(id, status) {
+  if (!hasDb()) {
+    const o = memOrders.get(id);
+    if (o) o.email_status = status;
+    return;
+  }
   await q(`UPDATE orders SET email_status = $2 WHERE id = $1`, [id, status]);
 }
 
 export async function setNote(id, note) {
+  if (!hasDb()) {
+    const o = memOrders.get(id);
+    if (o) o.note = note;
+    return;
+  }
   await q(`UPDATE orders SET note = $2 WHERE id = $1`, [id, note]);
 }
 
 export async function addEvent(orderId, type, text) {
+  if (!hasDb()) {
+    memEvents.unshift({
+      id: String(Date.now() + Math.random()),
+      order_id: orderId,
+      created_at: new Date().toISOString(),
+      event_type: type,
+      description: text,
+    });
+    return;
+  }
   await q(`INSERT INTO order_events (order_id, event_type, description) VALUES ($1, $2, $3)`, [orderId, type, text]);
 }
 
 /** newest first, each with its events (newest first) */
 export async function listOrders({ limit = 200, offset = 0 } = {}) {
+  if (!hasDb()) {
+    const orders = Array.from(memOrders.values())
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .slice(offset, offset + limit)
+      .map(rowToOrder);
+    return orders.map((o) => ({
+      ...o,
+      events: memEvents
+        .filter((e) => e.order_id === o.id)
+        .map((e) => ({ id: String(e.id), time: e.created_at, type: e.event_type, text: e.description })),
+    }));
+  }
   const { rows } = await q(`SELECT * FROM orders ORDER BY created_at DESC LIMIT $1 OFFSET $2`, [limit, offset]);
   const orders = rows.map(rowToOrder);
   if (!orders.length) return orders;

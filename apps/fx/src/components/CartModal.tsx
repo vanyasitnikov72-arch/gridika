@@ -110,7 +110,8 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
       });
 
       if (!res.ok) {
-        throw new Error('API offline or error');
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.description || errData.message || errData.error || `Ошибка платежного шлюза (${res.status})`);
       }
 
       const data = await res.json();
@@ -118,10 +119,10 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
         window.location.href = data.confirmationUrl;
         return;
       }
-    } catch (err) {
-      // Local fallback / demo preview if serverless endpoint is not connected yet
-      console.warn('Payment API is offline; redirecting to demo thanks view:', err);
-      window.location.href = `/thanks#order=demo`;
+      throw new Error('ЮKassa не вернула ссылку на оплату');
+    } catch (err: any) {
+      console.warn('Payment API error:', err);
+      setErrorMsg(err.message || 'Не удалось связаться с платежным шлюзом. Попробуйте ещё раз.');
     } finally {
       setLoading(false);
     }

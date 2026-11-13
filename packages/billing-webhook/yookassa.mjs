@@ -35,7 +35,13 @@ async function call(method, path, body, idempotenceKey) {
 const money = (rub) => ({ value: Number(rub).toFixed(2), currency: 'RUB' });
 
 /** a payment for an order; only the order number travels in metadata (it has a 512-char limit per value) */
-export function createPayment({ orderId, total, email, codes, returnUrl }) {
+export function createPayment({ orderId, total, email, codes, itemsB64, accessToken, source, returnUrl }) {
+  const metadata = { orderId };
+  if (itemsB64) metadata.items = itemsB64;
+  if (email && email.length <= 100) metadata.email = email;
+  if (accessToken) metadata.token = accessToken;
+  if (source) metadata.src = source.slice(0, 50);
+
   return call(
     'POST',
     '/payments',
@@ -57,7 +63,7 @@ export function createPayment({ orderId, total, email, codes, returnUrl }) {
           },
         ],
       },
-      metadata: { orderId },
+      metadata,
     },
     // one payment per order, even if the request is repeated
     `pay-${orderId}`,

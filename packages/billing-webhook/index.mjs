@@ -161,11 +161,15 @@ async function onCreatePayment(event, body) {
   await db.createOrder({ id, email, items, total, discount, accessToken, source });
 
   try {
+    const itemsB64 = Buffer.from(JSON.stringify(items)).toString('base64url');
     const payment = await createPayment({
       orderId: id,
       total,
       email,
       codes: items.length,
+      itemsB64: itemsB64.length <= 512 ? itemsB64 : undefined,
+      accessToken,
+      source,
       returnUrl: `${SITE()}/thanks#order=${encodeURIComponent(id)}&t=${accessToken}`,
     });
     await db.setPaymentId(id, payment.id);
@@ -174,7 +178,7 @@ async function onCreatePayment(event, body) {
     console.error('Payment creation failed:', err.message, err.data || '');
     await db.setStatus(id, 'canceled');
     await db.addEvent(id, 'canceled', 'ЮKassa не создала платёж');
-    return reply(event, 502, { error: 'payment_failed' });
+    return reply(event, 502, { error: 'payment_failed', message: err.message, data: err.data });
   }
 }
 
@@ -195,7 +199,25 @@ async function onWebhook(event, body) {
   }
 
   const orderId = payment?.metadata?.orderId;
-  const order = orderId ? await db.getOrder(orderId) : null;
+  let order = orderId ? await db.getOrder(orderId) : null;
+  if (!order && payment?.metadata?.items) {
+    try {
+      const decodedItems = JSON.parse(Buffer.from(payment.metadata.items, 'base64url').toString('utf8'));
+      order = {
+        id: orderId,
+        email: payment.metadata.email || payment.receipt?.customer?.email || '',
+        items: decodedItems,
+        total: Number(payment.amount?.value || 0),
+        discount: 0,
+        status: 'pending',
+        accessToken: payment.metadata.token || 'live',
+        source: payment.metadata.src || 'direct',
+      };
+      await db.createOrder(order);
+    } catch (e) {
+      console.warn('Reconstructing order failed:', e.message);
+    }
+  }
   if (!order) return reply(event, 200, { status: 'ignored', reason: 'unknown_order' });
 
   if (payment.status === 'canceled') {
