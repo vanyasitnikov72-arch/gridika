@@ -116,7 +116,7 @@ export function renderOrderEmail({ orderId, items, total, orderUrl, accent = '#1
         </table></td></tr>
 
         <tr><td style="padding-top:24px;border-top:1px solid ${line};font:600 12.5px/18px ${font};color:#a8a29e">
-          Если возникнут вопросы по установке или захотите изменить настройки — просто ответьте на это письмо или напишите в Telegram: <a href="https://t.me/gridika_bot" style="color:${ink};font-weight:700;text-decoration:none">@gridika_bot</a>.
+          Если возникнут вопросы по установке или захотите изменить настройки — просто ответьте на это письмо или напишите нам на <a href="mailto:support@gridika.ru" style="color:${ink};font-weight:700;text-decoration:none">support@gridika.ru</a>.
         </td></tr>
       </table>
     </td></tr>
