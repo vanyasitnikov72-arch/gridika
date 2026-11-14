@@ -11,10 +11,11 @@ import type { LogoMode } from './logoScene';
 import type { CardMode, CardStyle } from './cardScene';
 import type { GiftMode } from './giftScene';
 import type { CardContact } from './vcard';
-import type { PurchaseConfig } from './purchase';
+import { WIDGET_SIZE_MAP, type PurchaseConfig } from './purchase';
 
 /** The site code for a purchase, built from the saved studio settings (null if not supported). */
 export function buildPurchaseCode(c: PurchaseConfig, license: { id: string; domain: string }): string | null {
+  const maxWidth = WIDGET_SIZE_MAP[c.p]?.[c.size || 'm'];
   if (c.p === 'qr-morph' && c.qr) {
     const shape = c.qr.shape || 'tree';
     return generateQrMorphEmbedCode({
@@ -22,6 +23,7 @@ export function buildPurchaseCode(c: PurchaseConfig, license: { id: string; doma
       shape: shape as TargetShapeType,
       themeId: c.qr.themeId,
       height: 480,
+      maxWidth,
       season: (c.qr.modes?.season || c.qr.modes?.tree) as any,
       timeOfDay: (c.qr.modes?.timeOfDay || c.qr.modes?.city) as any,
       islandMode: (c.qr.modes?.islandMode || c.qr.modes?.island) as any,
@@ -36,20 +38,20 @@ export function buildPurchaseCode(c: PurchaseConfig, license: { id: string; doma
     const hidden = new Set(c.card.hidden);
     const contact = Object.fromEntries(Object.entries(c.card.contact).map(([k, v]) => [k, hidden.has(k as keyof CardContact) ? '' : v])) as unknown as CardContact;
     // the logo is not carried in the link (too big): the card falls back to the monogram
-    return generateCardEmbedCode({ contact, mode: c.card.mode as CardMode, style: c.card.style as CardStyle, logo: null, license });
+    return generateCardEmbedCode({ contact, mode: c.card.mode as CardMode, style: c.card.style as CardStyle, logo: null, maxWidth, license });
   }
   if (c.p === 'gift-box' && c.gift) {
-    return generateGiftEmbedCode({ settings: c.gift.settings, mode: c.gift.mode as GiftMode, license });
+    return generateGiftEmbedCode({ settings: c.gift.settings, mode: c.gift.mode as GiftMode, maxWidth, license });
   }
   if (c.p === 'sale-timer' && c.timer) {
     const data = buildTimerData(c.timer.settings, c.timer.mode as TimerMode);
-    return data ? generateTimerEmbedCode({ data, license }) : null;
+    return data ? generateTimerEmbedCode({ data, maxWidth, license }) : null;
   }
   if (c.p === 'voxel-morph' && c.morph) {
-    return generateMorphEmbedCode({ data: c.morph.data, license });
+    return generateMorphEmbedCode({ data: c.morph.data, maxWidth, license });
   }
   if (c.p === 'voxel-logo' && c.logo) {
-    return generateLogoEmbedCode({ data: c.logo.data, mode: c.logo.mode as LogoMode, license });
+    return generateLogoEmbedCode({ data: c.logo.data, mode: c.logo.mode as LogoMode, maxWidth, license });
   }
   return null;
 }

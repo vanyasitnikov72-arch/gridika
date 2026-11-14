@@ -14,6 +14,7 @@ export interface LogoEmbedOptions {
   data: LogoData;
   mode: LogoMode;
   height?: number;
+  maxWidth?: number;
   license: { id: string; domain: string };
 }
 
@@ -32,11 +33,12 @@ const safeJson = (v: unknown) => JSON.stringify(v).replace(/</g, BS + 'u003c').r
 export function generateLogoEmbedCode(o: LogoEmbedOptions): string {
   const id = 'gridika-logo-' + Math.random().toString(36).slice(2, 8);
   const height = o.height ?? LOGO_EMBED_HEIGHT;
+  const maxW = o.maxWidth ?? 480;
   const badge = `<a id="${id}-badge" href="https://gridika.ru" target="_blank" rel="noopener" style="position:absolute;right:12px;bottom:12px;z-index:5;font:600 11px system-ui,-apple-system,sans-serif;color:#64748b;text-decoration:none;background:rgba(255,255,255,0.85);padding:4px 9px;border-radius:6px;border:1px solid rgba(0,0,0,0.08)">Gridika</a>`;
   const runtime = runtimeSource.replace(/^export /gm, '');
 
   return `${codeHeader('3D-логотип из вокселей', o.license)}
-<div id="${id}" style="position:relative;width:100%;max-width:480px;height:${height}px;margin:0 auto;">${badge}</div>
+<div id="${id}" style="position:relative;width:100%;max-width:${maxW}px;height:${height}px;margin:0 auto;">${badge}</div>
 <script type="module">${domainLockJs(`${id}-badge`, o.license.domain)}
 var GRIDIKA = ${safeJson({ data: o.data, mode: o.mode })};
 ${runtime}

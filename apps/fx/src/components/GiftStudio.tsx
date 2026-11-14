@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { GiftViewer, GIFT_PALETTES, type GiftKind, type GiftMode, type GiftPattern, type GiftSettings, type GiftShape, type GiftTrigger } from '../engine/giftScene';
+import { SizePill } from './SizePill';
+import type { WidgetSize } from '../engine/purchase';
 
 /** 03 · Подарок с промокодом — studio stage and settings panel (state lives in QrConfigurator). */
 
@@ -69,7 +71,7 @@ export function useGiftState(): GiftState {
 
 const pill = 'h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center gap-1 shrink-0';
 
-export function GiftStage({ state, active }: { state: GiftState; active: boolean }) {
+export function GiftStage({ state, active, size = 'm', onSizeChange }: { state: GiftState; active: boolean; size?: WidgetSize; onSizeChange?: (s: WidgetSize) => void }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<GiftViewer | null>(null);
   const activeRef = useRef(active);
@@ -116,65 +118,74 @@ export function GiftStage({ state, active }: { state: GiftState; active: boolean
   }, [state.opened, state.settings, state.mode]);
 
   return (
-    <div className="w-full h-full flex flex-col items-center">
-      <div className="w-full flex-1 min-h-0 lg:pl-12">
-        <div ref={hostRef} className="w-full h-full relative select-none" />
+    <div className="w-full h-full relative">
+      <div className="w-full h-full pb-20 lg:pl-16 flex items-center justify-center">
+        <div
+          ref={hostRef}
+          className={`w-full h-full relative select-none transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+            size === 's' ? 'scale-[0.86]' : size === 'l' ? 'scale-[1.12]' : 'scale-100'
+          }`}
+          style={{ transformOrigin: 'center center' }}
+        />
       </div>
 
-      <div className="relative z-20 mt-2 flex flex-nowrap items-center justify-center gap-2.5 shrink-0 lg:translate-x-12">
-        {/* closed / opened */}
-        <div className={`relative w-[68px] ${pill}`}>
-          <div
-            className={`absolute top-1 left-1 w-7 h-7 rounded-full bg-[var(--vx-accent)] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-none ${
-              state.opened ? 'translate-x-[32px]' : 'translate-x-0'
-            }`}
-          />
-          <button
-            type="button"
-            title="Закрыть коробку"
-            onClick={() => state.setOpened(false)}
-            className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer ${!state.opened ? 'text-[var(--vx-on)]' : 'text-[#78716c] hover:text-[#132A22]'}`}
-          >
-            <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" strokeLinejoin="round">
-              <rect x="4" y="10" width="16" height="10" rx="1.5" />
-              <rect x="3" y="7" width="18" height="4" rx="1" />
-              <path d="M12 7v13" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            title="Открыть подарок"
-            onClick={() => state.setOpened(true)}
-            className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer ${state.opened ? 'text-[var(--vx-on)]' : 'text-[#78716c] hover:text-[#132A22]'}`}
-          >
-            <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" strokeLinejoin="round">
-              <rect x="4" y="12" width="16" height="8" rx="1.5" />
-              <path d="M5 8.5 18 4l1 3-13 4.5z" />
-            </svg>
-          </button>
-        </div>
+      <div className="absolute bottom-2 left-0 right-0 z-20 flex flex-col items-center gap-1.5 pointer-events-auto lg:translate-x-12">
+        <div className="flex flex-nowrap items-center justify-center gap-2.5 h-9">
+          {/* closed / opened */}
+          <div className={`relative w-[68px] ${pill}`}>
+            <div
+              className={`absolute top-1 left-1 w-7 h-7 rounded-full bg-[var(--vx-accent)] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-none ${
+                state.opened ? 'translate-x-[32px]' : 'translate-x-0'
+              }`}
+            />
+            <button
+              type="button"
+              title="Закрыть коробку"
+              onClick={() => state.setOpened(false)}
+              className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer ${!state.opened ? 'text-[var(--vx-on)]' : 'text-[#78716c] hover:text-[#132A22]'}`}
+            >
+              <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" strokeLinejoin="round">
+                <rect x="4" y="10" width="16" height="10" rx="1.5" />
+                <rect x="3" y="7" width="18" height="4" rx="1" />
+                <path d="M12 7v13" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              title="Открыть подарок"
+              onClick={() => state.setOpened(true)}
+              className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer ${state.opened ? 'text-[var(--vx-on)]' : 'text-[#78716c] hover:text-[#132A22]'}`}
+            >
+              <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24" strokeLinejoin="round">
+                <rect x="4" y="12" width="16" height="8" rx="1.5" />
+                <path d="M5 8.5 18 4l1 3-13 4.5z" />
+              </svg>
+            </button>
+          </div>
 
-        <div className={`w-[234px] justify-between px-2 ${pill}`}>
-          {GIFT_MODES.map((opt) => {
-            const p = (GIFT_PALETTES as Record<string, { box: string; ribbon: string }>)[opt.id];
-            const on = state.mode === opt.id;
-            return (
-              <button
-                key={opt.id}
-                type="button"
-                title={opt.title}
-                aria-label={opt.title}
-                aria-pressed={on}
-                onClick={() => state.setMode(opt.id)}
-                className={`w-[24px] h-[24px] rounded-full shrink-0 cursor-pointer transition-transform duration-200 ${on ? 'scale-110' : 'hover:scale-110'}`}
-                style={{
-                  background: `linear-gradient(90deg, ${p.box} 0 38%, ${p.ribbon} 38% 62%, ${p.box} 62% 100%)`,
-                  boxShadow: on ? '0 0 0 2px #fff, 0 0 0 4px #132A22' : 'inset 0 0 0 1px rgba(0,0,0,0.12)',
-                }}
-              />
-            );
-          })}
+          <div className={`w-[234px] justify-between px-2 ${pill}`}>
+            {GIFT_MODES.map((opt) => {
+              const p = (GIFT_PALETTES as Record<string, { box: string; ribbon: string }>)[opt.id];
+              const on = state.mode === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  title={opt.title}
+                  aria-label={opt.title}
+                  aria-pressed={on}
+                  onClick={() => state.setMode(opt.id)}
+                  className={`w-[24px] h-[24px] rounded-full shrink-0 cursor-pointer transition-transform duration-200 ${on ? 'scale-110' : 'hover:scale-110'}`}
+                  style={{
+                    background: `linear-gradient(90deg, ${p.box} 0 38%, ${p.ribbon} 38% 62%, ${p.box} 62% 100%)`,
+                    boxShadow: on ? '0 0 0 2px #fff, 0 0 0 4px #132A22' : 'inset 0 0 0 1px rgba(0,0,0,0.12)',
+                  }}
+                />
+              );
+            })}
+          </div>
         </div>
+        {onSizeChange && <SizePill size={size} onChange={onSizeChange} productId="gift-box" />}
       </div>
     </div>
   );

@@ -16,8 +16,9 @@ import { ProductPreview } from './ProductPreview';
 import { LiquidNav } from './LiquidNav';
 import { InstallGuide } from './InstallGuide';
 import { codeFileName, downloadCode } from '../engine/codeNotice';
-import { readHash, buildHash, guessSite, type PurchaseConfig } from '../engine/purchase';
+import { readHash, buildHash, guessSite, WIDGET_SIZE_MAP, type PurchaseConfig, type WidgetSize } from '../engine/purchase';
 import { DEMO_KEYS, DEMO_KEY } from '../emails/keyEmail';
+import { SizePill } from './SizePill';
 import { CardStage, CardPanel, useCardState, visibleContact } from './CardStudio';
 import { GiftStage, GiftPanel, useGiftState } from './GiftStudio';
 import { LogoStage, LogoPanel, useLogoState } from './LogoStudio';
@@ -232,14 +233,27 @@ export function QrConfigurator() {
       cancelled = true;
     };
   }, [licenseKey]);
+  // ---- product sizes (s / m / l) ----
+  const [productSizes, setProductSizes] = useState<Record<ActiveProductType, WidgetSize>>({
+    'qr-morph': 'm',
+    'qr-card': 'm',
+    'gift-box': 'm',
+    'voxel-logo': 'm',
+    'voxel-morph': 'm',
+    'sale-timer': 'm',
+  });
+  const activeSize = productSizes[activeProduct] || 'm';
+  const setActiveSize = (s: WidgetSize) => setProductSizes((prev) => ({ ...prev, [activeProduct]: s }));
+
   // ---- the studio settings that travel through payment (see engine/purchase.ts) ----
   const currentConfig = (): Omit<PurchaseConfig, 'site'> => {
-    if (activeProduct === 'qr-card') return { p: activeProduct, card: { contact: card.contact, hidden: card.hidden, mode: card.mode, style: card.style } };
-    if (activeProduct === 'gift-box') return { p: activeProduct, gift: { settings: gift.settings, mode: gift.mode } };
-    if (activeProduct === 'voxel-logo') return { p: activeProduct, logo: logo.data ? { data: logo.data, settings: logo.settings, mode: logo.mode } : undefined };
-    if (activeProduct === 'voxel-morph') return { p: activeProduct, morph: morph.data ? { data: morph.data, settings: morph.settings } : undefined };
-    if (activeProduct === 'sale-timer') return { p: activeProduct, timer: { settings: timer.settings, mode: timer.mode } };
-    return { p: 'qr-morph', qr: { text, shape, themeId, modes: { season, timeOfDay, islandMode, gardenMode, eqMode, cakeFlavor, castleMode } } };
+    const size = activeSize;
+    if (activeProduct === 'qr-card') return { p: activeProduct, size, card: { contact: card.contact, hidden: card.hidden, mode: card.mode, style: card.style } };
+    if (activeProduct === 'gift-box') return { p: activeProduct, size, gift: { settings: gift.settings, mode: gift.mode } };
+    if (activeProduct === 'voxel-logo') return { p: activeProduct, size, logo: logo.data ? { data: logo.data, settings: logo.settings, mode: logo.mode } : undefined };
+    if (activeProduct === 'voxel-morph') return { p: activeProduct, size, morph: morph.data ? { data: morph.data, settings: morph.settings } : undefined };
+    if (activeProduct === 'sale-timer') return { p: activeProduct, size, timer: { settings: timer.settings, mode: timer.mode } };
+    return { p: 'qr-morph', size, qr: { text, shape, themeId, modes: { season, timeOfDay, islandMode, gardenMode, eqMode, cakeFlavor, castleMode } } };
   };
   /** shows saved settings in the studio; with an order item id the studio edits that item live */
   function applyConfig(c: PurchaseConfig, itemId?: string) {
@@ -248,6 +262,9 @@ export function QrConfigurator() {
     else editingItem.current.delete(c.p);
     savedSite.current = c.site || '';
     setActiveProduct(c.p as ActiveProductType);
+    if (c.size) {
+      setProductSizes((prev) => ({ ...prev, [c.p]: c.size || 'm' }));
+    }
     if (c.qr) {
       setText(c.qr.text);
       setShape(c.qr.shape as TargetShapeType);
@@ -707,15 +724,45 @@ export function QrConfigurator() {
         );
       case 'city':
         return (
-          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M3 21h18M6 21V9l6-4v16M12 5l6 4v12" />
           </svg>
         );
       case 'island':
         return (
-          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M2 20c2-1 4-1 6 0s4 1 6 0 4-1 6 0" />
             <path d="M4 18l5-9 4 5 3-3 4 7" />
+          </svg>
+        );
+      case 'maze':
+        return (
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 21V3h18v18H9" />
+            <path d="M7 17V7h10v10h-6" />
+            <path d="M11 13h2" />
+          </svg>
+        );
+      case 'equalizer':
+        return (
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 10v4M8 6v12M12 3v18M16 8v8M20 11v2" />
+          </svg>
+        );
+      case 'cake':
+        return (
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 20h18M4 20v-7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v7" />
+            <path d="M12 4v4M8 5v3M16 5v3" />
+            <path d="M4 15h16" />
+          </svg>
+        );
+      case 'castle':
+        return (
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 21h18" />
+            <path d="M5 21V7h3v3h2V7h4v3h2V7h3v14" />
+            <path d="M10 21v-5a2 2 0 0 1 4 0v5" />
           </svg>
         );
       default:
@@ -807,10 +854,17 @@ export function QrConfigurator() {
                       : 'absolute inset-0 opacity-0 scale-95 pointer-events-none -z-10'
                   }`}
                 >
-                  <div ref={containerRef} className="w-full flex-1 min-h-0 cursor-grab active:cursor-grabbing z-10 relative select-none" />
+                  <div
+                    ref={containerRef}
+                    className={`w-full h-full pb-20 cursor-grab active:cursor-grabbing z-10 relative select-none transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                      activeSize === 's' ? 'scale-[0.86]' : activeSize === 'l' ? 'scale-[1.12]' : 'scale-100'
+                    }`}
+                    style={{ transformOrigin: 'center center' }}
+                  />
 
                   {/* Sub-toolbar under the QR stage */}
-                  <div className="relative z-20 mt-2 flex flex-nowrap items-center justify-center gap-2.5 shrink-0 translate-x-5 sm:translate-x-7">
+                  <div className="absolute bottom-2 left-0 right-0 z-20 flex flex-col items-center gap-1.5 pointer-events-auto lg:translate-x-12">
+                    <div className="flex flex-nowrap items-center justify-center gap-2.5 h-9">
                     <div className="relative w-[68px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center gap-1 shrink-0">
                       <div
                         className={`absolute top-1 left-1 w-7 h-7 rounded-full bg-[#19C37D] shadow-[0_2px_8px_rgba(25,195,125,0.35)] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-none ${
@@ -971,53 +1025,55 @@ export function QrConfigurator() {
                       </div>
                     )}
                   </div>
+                  <SizePill size={activeSize} onChange={setActiveSize} productId="qr-morph" />
                 </div>
+              </div>
 
-                {/* PLANNED PRODUCTS: voxel preview */}
-                {/* 02: business card (kept mounted, paused when hidden) */}
-                <div
-                  className={`w-full h-full transition-opacity duration-300 ${
-                    activeProduct === 'qr-card' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
-                  }`}
-                >
-                  <CardStage state={card} active={activeProduct === 'qr-card'} />
-                </div>
+              {/* PLANNED PRODUCTS: voxel preview */}
+              {/* 02: business card (kept mounted, paused when hidden) */}
+              <div
+                className={`w-full h-full transition-opacity duration-300 ${
+                  activeProduct === 'qr-card' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
+                }`}
+              >
+                <CardStage state={card} active={activeProduct === 'qr-card'} size={activeSize} onSizeChange={setActiveSize} />
+              </div>
 
-                {/* 03: gift box (kept mounted, paused when hidden) */}
-                <div
-                  className={`w-full h-full transition-opacity duration-300 ${
-                    activeProduct === 'gift-box' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
-                  }`}
-                >
-                  <GiftStage state={gift} active={activeProduct === 'gift-box'} />
-                </div>
+              {/* 03: gift box (kept mounted, paused when hidden) */}
+              <div
+                className={`w-full h-full transition-opacity duration-300 ${
+                  activeProduct === 'gift-box' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
+                }`}
+              >
+                <GiftStage state={gift} active={activeProduct === 'gift-box'} size={activeSize} onSizeChange={setActiveSize} />
+              </div>
 
-                {/* 04: voxel logo (kept mounted, paused when hidden) */}
-                <div
-                  className={`w-full h-full transition-opacity duration-300 ${
-                    activeProduct === 'voxel-logo' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
-                  }`}
-                >
-                  <LogoStage state={logo} active={activeProduct === 'voxel-logo'} />
-                </div>
+              {/* 04: voxel logo (kept mounted, paused when hidden) */}
+              <div
+                className={`w-full h-full transition-opacity duration-300 ${
+                  activeProduct === 'voxel-logo' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
+                }`}
+              >
+                <LogoStage state={logo} active={activeProduct === 'voxel-logo'} size={activeSize} onSizeChange={setActiveSize} />
+              </div>
 
-                {/* 05: before / after morph (kept mounted, paused when hidden) */}
-                <div
-                  className={`w-full h-full transition-opacity duration-300 ${
-                    activeProduct === 'voxel-morph' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
-                  }`}
-                >
-                  <MorphStage state={morph} active={activeProduct === 'voxel-morph'} />
-                </div>
+              {/* 05: before / after morph (kept mounted, paused when hidden) */}
+              <div
+                className={`w-full h-full transition-opacity duration-300 ${
+                  activeProduct === 'voxel-morph' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
+                }`}
+              >
+                <MorphStage state={morph} active={activeProduct === 'voxel-morph'} size={activeSize} onSizeChange={setActiveSize} />
+              </div>
 
-                {/* 06: sale countdown (kept mounted, paused when hidden) */}
-                <div
-                  className={`w-full h-full transition-opacity duration-300 ${
-                    activeProduct === 'sale-timer' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
-                  }`}
-                >
-                  <TimerStage state={timer} active={activeProduct === 'sale-timer'} />
-                </div>
+              {/* 06: sale countdown (kept mounted, paused when hidden) */}
+              <div
+                className={`w-full h-full transition-opacity duration-300 ${
+                  activeProduct === 'sale-timer' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
+                }`}
+              >
+                <TimerStage state={timer} active={activeProduct === 'sale-timer'} size={activeSize} onSizeChange={setActiveSize} />
+              </div>
 
                 {!BUILT.includes(activeProduct) && (
                   <div key={activeProduct} className="w-full h-full flex flex-col items-center justify-center gap-5 fx-fade-in select-none">
@@ -1148,6 +1204,8 @@ export function QrConfigurator() {
               {activeProduct === 'voxel-logo' && <LogoPanel state={logo} />}
               {activeProduct === 'voxel-morph' && <MorphPanel state={morph} />}
               {activeProduct === 'sale-timer' && <TimerPanel state={timer} />}
+
+
 
               {!BUILT.includes(activeProduct) && (() => {
                 const prod = productById(activeProduct);

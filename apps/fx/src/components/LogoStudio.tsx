@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { SizePill } from './SizePill';
+import type { WidgetSize } from '../engine/purchase';
 import {
   LogoViewer,
   rasterizeLogo,
@@ -120,7 +122,7 @@ export function useLogoState(): LogoState {
 
 const pill = 'h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center gap-1 shrink-0';
 
-export function LogoStage({ state, active }: { state: LogoState; active: boolean }) {
+export function LogoStage({ state, active, size = 'm', onSizeChange }: { state: LogoState; active: boolean; size?: WidgetSize; onSizeChange?: (s: WidgetSize) => void }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<LogoViewer | null>(null);
   const replayIconRef = useRef<SVGSVGElement>(null);
@@ -141,63 +143,72 @@ export function LogoStage({ state, active }: { state: LogoState; active: boolean
   useEffect(() => viewerRef.current?.setMode(state.mode), [state.mode]);
 
   return (
-    <div className="w-full h-full flex flex-col items-center">
-      <div className="w-full flex-1 min-h-0 lg:pl-12">
+    <div className="w-full h-full relative">
+      <div className="w-full h-full pb-20 lg:pl-16 flex items-center justify-center">
         <div className="relative w-full h-full">
           {/* mobile: no wave, so a rounded dark tile; desktop: the card draws a dark area that hugs the wave */}
           <div className={`lg:hidden absolute inset-0 rounded-[2rem] bg-[#17141f] transition-opacity duration-500 ${state.previewBg === 'dark' ? 'opacity-100' : 'opacity-0'}`} />
-          <div ref={hostRef} className="relative w-full h-full select-none" />
+          <div
+            ref={hostRef}
+            className={`relative w-full h-full select-none transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+              size === 's' ? 'scale-[0.86]' : size === 'l' ? 'scale-[1.12]' : 'scale-100'
+            }`}
+            style={{ transformOrigin: 'center center' }}
+          />
         </div>
       </div>
 
-      <div className="relative z-20 mt-2 flex flex-nowrap items-center justify-center gap-2.5 shrink-0 lg:translate-x-6">
-        <button
-          type="button"
-          title="Собрать заново"
-          aria-label="Собрать заново"
-          onClick={(e) => {
-            viewerRef.current?.replay();
-            // feedback: the arrow makes a full turn (the way it points), the button dips and glows
-            const btn = e.currentTarget as HTMLElement;
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-            replayIconRef.current?.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(-360deg)' }], {
-              duration: 750,
-              easing: 'cubic-bezier(0.3, 0.7, 0.25, 1)',
-            });
-            btn.animate(
-              [
-                { transform: 'scale(1)', color: '#57534e' },
-                { transform: 'scale(0.86)', color: 'var(--vx-accent)', offset: 0.25 },
-                { transform: 'scale(1.06)', color: 'var(--vx-accent)', offset: 0.6 },
-                { transform: 'scale(1)', color: '#57534e' },
-              ],
-              { duration: 750, easing: 'ease-out' },
-            );
-          }}
-          className={`${pill} w-9 justify-center text-[#57534e] hover:text-[#132A22] cursor-pointer`}
-        >
-          <svg ref={replayIconRef} className="w-4 h-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
-            <path d="M3 3v5h5" />
-          </svg>
-        </button>
-        <div className={`${pill} px-1.5 gap-1.5`}>
-          {LOGO_MODE_OPTIONS.map((o) => {
-            const on = state.mode === o.id;
-            return (
-              <button
-                key={o.id}
-                type="button"
-                title={o.label}
-                aria-label={o.label}
-                aria-pressed={on}
-                onClick={() => state.setMode(o.id)}
-                className={`w-[24px] h-[24px] rounded-full shrink-0 cursor-pointer transition-transform duration-200 ${on ? 'scale-110' : 'hover:scale-110'}`}
-                style={{ background: o.swatch, boxShadow: on ? '0 0 0 2px #fff, 0 0 0 4px #132A22' : 'inset 0 0 0 1px rgba(0,0,0,0.14)' }}
-              />
-            );
-          })}
+      <div className="absolute bottom-2 left-0 right-0 z-20 flex flex-col items-center gap-1.5 pointer-events-auto lg:translate-x-12">
+        <div className="flex flex-nowrap items-center justify-center gap-2.5 h-9">
+          <button
+            type="button"
+            title="Собрать заново"
+            aria-label="Собрать заново"
+            onClick={(e) => {
+              viewerRef.current?.replay();
+              // feedback: the arrow makes a full turn (the way it points), the button dips and glows
+              const btn = e.currentTarget as HTMLElement;
+              if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+              replayIconRef.current?.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(-360deg)' }], {
+                duration: 750,
+                easing: 'cubic-bezier(0.3, 0.7, 0.25, 1)',
+              });
+              btn.animate(
+                [
+                  { transform: 'scale(1)', color: '#57534e' },
+                  { transform: 'scale(0.86)', color: 'var(--vx-accent)', offset: 0.25 },
+                  { transform: 'scale(1.06)', color: 'var(--vx-accent)', offset: 0.6 },
+                  { transform: 'scale(1)', color: '#57534e' },
+                ],
+                { duration: 750, easing: 'ease-out' },
+              );
+            }}
+            className={`${pill} w-9 justify-center text-[#57534e] hover:text-[#132A22] cursor-pointer`}
+          >
+            <svg ref={replayIconRef} className="w-4 h-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+              <path d="M3 3v5h5" />
+            </svg>
+          </button>
+          <div className={`${pill} px-1.5 gap-1.5`}>
+            {LOGO_MODE_OPTIONS.map((o) => {
+              const on = state.mode === o.id;
+              return (
+                <button
+                  key={o.id}
+                  type="button"
+                  title={o.label}
+                  aria-label={o.label}
+                  aria-pressed={on}
+                  onClick={() => state.setMode(o.id)}
+                  className={`w-[24px] h-[24px] rounded-full shrink-0 cursor-pointer transition-transform duration-200 ${on ? 'scale-110' : 'hover:scale-110'}`}
+                  style={{ background: o.swatch, boxShadow: on ? '0 0 0 2px #fff, 0 0 0 4px #132A22' : 'inset 0 0 0 1px rgba(0,0,0,0.14)' }}
+                />
+              );
+            })}
+          </div>
         </div>
+        {onSizeChange && <SizePill size={size} onChange={onSizeChange} productId="voxel-logo" />}
       </div>
     </div>
   );

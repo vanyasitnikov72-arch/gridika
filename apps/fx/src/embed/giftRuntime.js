@@ -290,7 +290,8 @@ export function createGiftViewer(THREE, container, init) {
 
   // ---------- overlay (caption + button): plain DOM so it works on any site ----------
   var ov = document.createElement('div');
-  ov.style.cssText = 'position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;font-family:Nunito,system-ui,sans-serif;width:max-content;max-width:92%';
+  var btm = init.isStudio ? '88px' : '14px';
+  ov.style.cssText = 'position:absolute;left:50%;bottom:' + btm + ';transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;font-family:Nunito,system-ui,sans-serif;width:max-content;max-width:92%;z-index:15;';
   var hint = document.createElement('div');
   hint.style.cssText = 'padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.92);box-shadow:0 6px 18px -8px rgba(0,0,0,.35);font-weight:800;font-size:13px;color:#2b2622';
   hint.textContent = 'Нажмите на подарок 🎁';

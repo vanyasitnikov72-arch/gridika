@@ -18,6 +18,7 @@ export interface CardEmbedOptions {
   /** small PNG data URL (see logoToDataUrl) */
   logo?: string | null;
   height?: number;
+  maxWidth?: number;
   license?: { id: string; domain: string };
 }
 
@@ -47,6 +48,7 @@ export function logoToDataUrl(img: HTMLImageElement | null, max = 256): string |
 export function generateCardEmbedCode(o: CardEmbedOptions): string {
   const id = 'gridika-card-' + Math.random().toString(36).slice(2, 8);
   const height = o.height ?? 560;
+  const maxW = o.maxWidth ?? 440;
   const data = buildCardData(o.contact);
   const payload = {
     card: { contact: data.contact, siteLabel: data.siteLabel, links: data.links, qr: data.qr },
@@ -68,7 +70,7 @@ export function generateCardEmbedCode(o: CardEmbedOptions): string {
   const runtime = runtimeSource.replace(/^export /gm, '');
 
   return `${header}
-<div id="${id}" style="position:relative;width:100%;max-width:440px;height:${height}px;margin:0 auto;">${badge}</div>
+<div id="${id}" style="position:relative;width:100%;max-width:${maxW}px;height:${height}px;margin:0 auto;">${badge}</div>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap">
 <script type="module">${lock}
 var GRIDIKA = ${safeJson(payload)};

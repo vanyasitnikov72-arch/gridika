@@ -13,6 +13,7 @@ export interface GiftEmbedOptions {
   settings: GiftSettings;
   mode: GiftMode;
   height?: number;
+  maxWidth?: number;
   license: { id: string; domain: string };
 }
 
@@ -29,13 +30,14 @@ const safeJson = (v: unknown) => JSON.stringify(v).replace(/</g, BS + 'u003c').r
 export function generateGiftEmbedCode(o: GiftEmbedOptions): string {
   const id = 'gridika-gift-' + Math.random().toString(36).slice(2, 8);
   const height = o.height ?? 520;
+  const maxW = o.maxWidth ?? 560;
   const d = buildGiftData(o.settings);
   const data = { reward: d.reward, code: d.code, url: d.url, caption: d.caption, trigger: d.trigger, shape: d.shape, pattern: d.pattern };
   const badge = `<a id="${id}-badge" href="https://gridika.ru" target="_blank" rel="noopener" style="position:absolute;right:12px;top:12px;z-index:5;font:600 11px system-ui,-apple-system,sans-serif;color:#64748b;text-decoration:none;background:rgba(255,255,255,0.85);padding:4px 9px;border-radius:6px;border:1px solid rgba(0,0,0,0.08)">Gridika</a>`;
   const runtime = runtimeSource.replace(/^export /gm, '');
 
   return `${codeHeader('подарок с промокодом', o.license)}
-<div id="${id}" style="position:relative;width:100%;max-width:560px;height:${height}px;margin:0 auto;">${badge}</div>
+<div id="${id}" style="position:relative;width:100%;max-width:${maxW}px;height:${height}px;margin:0 auto;">${badge}</div>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap">
 <script type="module">${domainLockJs(`${id}-badge`, o.license.domain)}
 var GRIDIKA = ${safeJson({ data, mode: o.mode })};

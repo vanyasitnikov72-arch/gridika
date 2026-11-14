@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { SizePill } from './SizePill';
+import type { WidgetSize } from '../engine/purchase';
 import {
   MorphViewer,
   sampleMorph,
@@ -141,7 +143,17 @@ export function useMorphState(): MorphState {
 
 const pill = 'h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center gap-1 shrink-0';
 
-export function MorphStage({ state, active }: { state: MorphState; active: boolean }) {
+export function MorphStage({
+  state,
+  active,
+  size = 'm',
+  onSizeChange,
+}: {
+  state: MorphState;
+  active: boolean;
+  size?: WidgetSize;
+  onSizeChange?: (s: WidgetSize) => void;
+}) {
   const hostRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<MorphViewer | null>(null);
 
@@ -161,40 +173,45 @@ export function MorphStage({ state, active }: { state: MorphState; active: boole
 
   const d = state.data;
   return (
-    <div className="w-full h-full flex flex-col items-center">
-      <div className="w-full lg:w-[calc(100%+22px)] lg:self-start flex-1 min-h-0 lg:pl-[80px] flex items-center justify-center">
+    <div className="w-full h-full relative">
+      <div className="w-full h-full pb-20 lg:pl-[80px] flex items-center justify-center">
         {/* the block keeps the pictures' proportions, like on the site; clear of the wave on desktop */}
         <div
           ref={hostRef}
-          className="relative w-full max-h-full rounded-[18px] overflow-hidden select-none shadow-[0_18px_40px_-18px_rgba(40,20,30,0.45)] lg:translate-y-[90px] lg:-translate-x-[30px]"
-          style={{ aspectRatio: d ? `${d.w} / ${d.h}` : '4 / 3' }}
+          className={`relative w-full max-h-full rounded-[18px] overflow-hidden select-none shadow-[0_18px_40px_-18px_rgba(40,20,30,0.45)] lg:-translate-x-[6px] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+            size === 's' ? 'scale-[0.86]' : size === 'l' ? 'scale-[1.12]' : 'scale-100'
+          }`}
+          style={{ aspectRatio: d ? `${d.w} / ${d.h}` : '4 / 3', transformOrigin: 'center center' }}
         />
       </div>
 
-      <div className="relative z-20 mt-3 flex flex-nowrap items-center justify-center gap-2.5 shrink-0 lg:translate-x-12">
-        <div className={`${pill} pr-3`}>
-          {MORPH_MODE_OPTIONS.map((o) => {
-            const on = state.settings.mode === o.id;
-            return (
-              <button
-                key={o.id}
-                type="button"
-                title={o.title}
-                aria-label={o.label}
-                aria-pressed={on}
-                onClick={() => state.setSettings({ ...state.settings, mode: o.id })}
-                className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
-                  on ? 'bg-[var(--vx-accent)] text-[var(--vx-on)]' : 'text-[#78716c] hover:text-[#132A22] hover:bg-[#f6f3ee]'
-                }`}
-              >
-                <svg className="w-4 h-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d={o.icon} />
-                </svg>
-              </button>
-            );
-          })}
-          <span className="ml-1 min-w-[58px] text-[11.5px] font-extrabold text-[#132A22] whitespace-nowrap">{MORPH_MODE_OPTIONS.find((o) => o.id === state.settings.mode)?.label}</span>
+      <div className="absolute bottom-2 left-0 right-0 z-20 flex flex-col items-center gap-1.5 pointer-events-auto lg:translate-x-12">
+        <div className="flex flex-nowrap items-center justify-center gap-2.5 h-9">
+          <div className={`${pill} pr-3`}>
+            {MORPH_MODE_OPTIONS.map((o) => {
+              const on = state.settings.mode === o.id;
+              return (
+                <button
+                  key={o.id}
+                  type="button"
+                  title={o.title}
+                  aria-label={o.label}
+                  aria-pressed={on}
+                  onClick={() => state.setSettings({ ...state.settings, mode: o.id })}
+                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+                    on ? 'bg-[var(--vx-accent)] text-[var(--vx-on)]' : 'text-[#78716c] hover:text-[#132A22] hover:bg-[#f6f3ee]'
+                  }`}
+                >
+                  <svg className="w-4 h-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d={o.icon} />
+                  </svg>
+                </button>
+              );
+            })}
+            <span className="ml-1 min-w-[58px] text-[11.5px] font-extrabold text-[#132A22] whitespace-nowrap">{MORPH_MODE_OPTIONS.find((o) => o.id === state.settings.mode)?.label}</span>
+          </div>
         </div>
+        {onSizeChange && <SizePill size={size} onChange={onSizeChange} productId="voxel-morph" />}
       </div>
     </div>
   );

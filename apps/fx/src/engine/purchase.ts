@@ -10,11 +10,23 @@ import type { LogoData, LogoSettings } from './logoScene';
 import type { MorphData, MorphSettings } from './morphScene';
 import type { TimerSettings } from './timerScene';
 
+export type WidgetSize = 's' | 'm' | 'l';
+
+export const WIDGET_SIZE_MAP: Record<ProductId, Record<WidgetSize, number>> = {
+  'qr-morph': { s: 360, m: 480, l: 640 },
+  'qr-card': { s: 340, m: 440, l: 580 },
+  'gift-box': { s: 420, m: 560, l: 720 },
+  'voxel-logo': { s: 360, m: 480, l: 640 },
+  'voxel-morph': { s: 360, m: 480, l: 680 },
+  'sale-timer': { s: 280, m: 320, l: 700 },
+};
+
 export interface PurchaseConfig {
   /** product */
   p: ProductId;
   /** the site where the block will be installed (the key is bound to it) */
   site: string;
+  size?: WidgetSize;
   qr?: { text: string; shape: string; themeId: string; modes: Record<string, string> };
   card?: { contact: CardContact; hidden: (keyof CardContact)[]; mode: string; style: string };
   gift?: { settings: GiftSettings; mode: string };
