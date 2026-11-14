@@ -31,4539 +31,6 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/can-promise.js
-var require_can_promise = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/can-promise.js"(exports, module) {
-    module.exports = function() {
-      return typeof Promise === "function" && Promise.prototype && Promise.prototype.then;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/utils.js
-var require_utils = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/utils.js"(exports) {
-    var toSJISFunction;
-    var CODEWORDS_COUNT = [
-      0,
-      // Not used
-      26,
-      44,
-      70,
-      100,
-      134,
-      172,
-      196,
-      242,
-      292,
-      346,
-      404,
-      466,
-      532,
-      581,
-      655,
-      733,
-      815,
-      901,
-      991,
-      1085,
-      1156,
-      1258,
-      1364,
-      1474,
-      1588,
-      1706,
-      1828,
-      1921,
-      2051,
-      2185,
-      2323,
-      2465,
-      2611,
-      2761,
-      2876,
-      3034,
-      3196,
-      3362,
-      3532,
-      3706
-    ];
-    exports.getSymbolSize = function getSymbolSize(version) {
-      if (!version) throw new Error('"version" cannot be null or undefined');
-      if (version < 1 || version > 40) throw new Error('"version" should be in range from 1 to 40');
-      return version * 4 + 17;
-    };
-    exports.getSymbolTotalCodewords = function getSymbolTotalCodewords(version) {
-      return CODEWORDS_COUNT[version];
-    };
-    exports.getBCHDigit = function(data) {
-      let digit = 0;
-      while (data !== 0) {
-        digit++;
-        data >>>= 1;
-      }
-      return digit;
-    };
-    exports.setToSJISFunction = function setToSJISFunction(f) {
-      if (typeof f !== "function") {
-        throw new Error('"toSJISFunc" is not a valid function.');
-      }
-      toSJISFunction = f;
-    };
-    exports.isKanjiModeEnabled = function() {
-      return typeof toSJISFunction !== "undefined";
-    };
-    exports.toSJIS = function toSJIS(kanji) {
-      return toSJISFunction(kanji);
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/error-correction-level.js
-var require_error_correction_level = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/error-correction-level.js"(exports) {
-    exports.L = { bit: 1 };
-    exports.M = { bit: 0 };
-    exports.Q = { bit: 3 };
-    exports.H = { bit: 2 };
-    function fromString(string) {
-      if (typeof string !== "string") {
-        throw new Error("Param is not a string");
-      }
-      const lcStr = string.toLowerCase();
-      switch (lcStr) {
-        case "l":
-        case "low":
-          return exports.L;
-        case "m":
-        case "medium":
-          return exports.M;
-        case "q":
-        case "quartile":
-          return exports.Q;
-        case "h":
-        case "high":
-          return exports.H;
-        default:
-          throw new Error("Unknown EC Level: " + string);
-      }
-    }
-    exports.isValid = function isValid(level) {
-      return level && typeof level.bit !== "undefined" && level.bit >= 0 && level.bit < 4;
-    };
-    exports.from = function from(value, defaultValue) {
-      if (exports.isValid(value)) {
-        return value;
-      }
-      try {
-        return fromString(value);
-      } catch (e) {
-        return defaultValue;
-      }
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/bit-buffer.js
-var require_bit_buffer = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/bit-buffer.js"(exports, module) {
-    function BitBuffer() {
-      this.buffer = [];
-      this.length = 0;
-    }
-    BitBuffer.prototype = {
-      get: function(index) {
-        const bufIndex = Math.floor(index / 8);
-        return (this.buffer[bufIndex] >>> 7 - index % 8 & 1) === 1;
-      },
-      put: function(num, length) {
-        for (let i = 0; i < length; i++) {
-          this.putBit((num >>> length - i - 1 & 1) === 1);
-        }
-      },
-      getLengthInBits: function() {
-        return this.length;
-      },
-      putBit: function(bit) {
-        const bufIndex = Math.floor(this.length / 8);
-        if (this.buffer.length <= bufIndex) {
-          this.buffer.push(0);
-        }
-        if (bit) {
-          this.buffer[bufIndex] |= 128 >>> this.length % 8;
-        }
-        this.length++;
-      }
-    };
-    module.exports = BitBuffer;
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/bit-matrix.js
-var require_bit_matrix = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/bit-matrix.js"(exports, module) {
-    function BitMatrix(size) {
-      if (!size || size < 1) {
-        throw new Error("BitMatrix size must be defined and greater than 0");
-      }
-      this.size = size;
-      this.data = new Uint8Array(size * size);
-      this.reservedBit = new Uint8Array(size * size);
-    }
-    BitMatrix.prototype.set = function(row, col, value, reserved) {
-      const index = row * this.size + col;
-      this.data[index] = value;
-      if (reserved) this.reservedBit[index] = true;
-    };
-    BitMatrix.prototype.get = function(row, col) {
-      return this.data[row * this.size + col];
-    };
-    BitMatrix.prototype.xor = function(row, col, value) {
-      this.data[row * this.size + col] ^= value;
-    };
-    BitMatrix.prototype.isReserved = function(row, col) {
-      return this.reservedBit[row * this.size + col];
-    };
-    module.exports = BitMatrix;
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/alignment-pattern.js
-var require_alignment_pattern = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/alignment-pattern.js"(exports) {
-    var getSymbolSize = require_utils().getSymbolSize;
-    exports.getRowColCoords = function getRowColCoords(version) {
-      if (version === 1) return [];
-      const posCount = Math.floor(version / 7) + 2;
-      const size = getSymbolSize(version);
-      const intervals = size === 145 ? 26 : Math.ceil((size - 13) / (2 * posCount - 2)) * 2;
-      const positions = [size - 7];
-      for (let i = 1; i < posCount - 1; i++) {
-        positions[i] = positions[i - 1] - intervals;
-      }
-      positions.push(6);
-      return positions.reverse();
-    };
-    exports.getPositions = function getPositions(version) {
-      const coords = [];
-      const pos = exports.getRowColCoords(version);
-      const posLength = pos.length;
-      for (let i = 0; i < posLength; i++) {
-        for (let j = 0; j < posLength; j++) {
-          if (i === 0 && j === 0 || // top-left
-          i === 0 && j === posLength - 1 || // bottom-left
-          i === posLength - 1 && j === 0) {
-            continue;
-          }
-          coords.push([pos[i], pos[j]]);
-        }
-      }
-      return coords;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/finder-pattern.js
-var require_finder_pattern = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/finder-pattern.js"(exports) {
-    var getSymbolSize = require_utils().getSymbolSize;
-    var FINDER_PATTERN_SIZE = 7;
-    exports.getPositions = function getPositions(version) {
-      const size = getSymbolSize(version);
-      return [
-        // top-left
-        [0, 0],
-        // top-right
-        [size - FINDER_PATTERN_SIZE, 0],
-        // bottom-left
-        [0, size - FINDER_PATTERN_SIZE]
-      ];
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/mask-pattern.js
-var require_mask_pattern = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/mask-pattern.js"(exports) {
-    exports.Patterns = {
-      PATTERN000: 0,
-      PATTERN001: 1,
-      PATTERN010: 2,
-      PATTERN011: 3,
-      PATTERN100: 4,
-      PATTERN101: 5,
-      PATTERN110: 6,
-      PATTERN111: 7
-    };
-    var PenaltyScores = {
-      N1: 3,
-      N2: 3,
-      N3: 40,
-      N4: 10
-    };
-    exports.isValid = function isValid(mask) {
-      return mask != null && mask !== "" && !isNaN(mask) && mask >= 0 && mask <= 7;
-    };
-    exports.from = function from(value) {
-      return exports.isValid(value) ? parseInt(value, 10) : void 0;
-    };
-    exports.getPenaltyN1 = function getPenaltyN1(data) {
-      const size = data.size;
-      let points = 0;
-      let sameCountCol = 0;
-      let sameCountRow = 0;
-      let lastCol = null;
-      let lastRow = null;
-      for (let row = 0; row < size; row++) {
-        sameCountCol = sameCountRow = 0;
-        lastCol = lastRow = null;
-        for (let col = 0; col < size; col++) {
-          let module2 = data.get(row, col);
-          if (module2 === lastCol) {
-            sameCountCol++;
-          } else {
-            if (sameCountCol >= 5) points += PenaltyScores.N1 + (sameCountCol - 5);
-            lastCol = module2;
-            sameCountCol = 1;
-          }
-          module2 = data.get(col, row);
-          if (module2 === lastRow) {
-            sameCountRow++;
-          } else {
-            if (sameCountRow >= 5) points += PenaltyScores.N1 + (sameCountRow - 5);
-            lastRow = module2;
-            sameCountRow = 1;
-          }
-        }
-        if (sameCountCol >= 5) points += PenaltyScores.N1 + (sameCountCol - 5);
-        if (sameCountRow >= 5) points += PenaltyScores.N1 + (sameCountRow - 5);
-      }
-      return points;
-    };
-    exports.getPenaltyN2 = function getPenaltyN2(data) {
-      const size = data.size;
-      let points = 0;
-      for (let row = 0; row < size - 1; row++) {
-        for (let col = 0; col < size - 1; col++) {
-          const last = data.get(row, col) + data.get(row, col + 1) + data.get(row + 1, col) + data.get(row + 1, col + 1);
-          if (last === 4 || last === 0) points++;
-        }
-      }
-      return points * PenaltyScores.N2;
-    };
-    exports.getPenaltyN3 = function getPenaltyN3(data) {
-      const size = data.size;
-      let points = 0;
-      let bitsCol = 0;
-      let bitsRow = 0;
-      for (let row = 0; row < size; row++) {
-        bitsCol = bitsRow = 0;
-        for (let col = 0; col < size; col++) {
-          bitsCol = bitsCol << 1 & 2047 | data.get(row, col);
-          if (col >= 10 && (bitsCol === 1488 || bitsCol === 93)) points++;
-          bitsRow = bitsRow << 1 & 2047 | data.get(col, row);
-          if (col >= 10 && (bitsRow === 1488 || bitsRow === 93)) points++;
-        }
-      }
-      return points * PenaltyScores.N3;
-    };
-    exports.getPenaltyN4 = function getPenaltyN4(data) {
-      let darkCount = 0;
-      const modulesCount = data.data.length;
-      for (let i = 0; i < modulesCount; i++) darkCount += data.data[i];
-      const k = Math.abs(Math.ceil(darkCount * 100 / modulesCount / 5) - 10);
-      return k * PenaltyScores.N4;
-    };
-    function getMaskAt(maskPattern, i, j) {
-      switch (maskPattern) {
-        case exports.Patterns.PATTERN000:
-          return (i + j) % 2 === 0;
-        case exports.Patterns.PATTERN001:
-          return i % 2 === 0;
-        case exports.Patterns.PATTERN010:
-          return j % 3 === 0;
-        case exports.Patterns.PATTERN011:
-          return (i + j) % 3 === 0;
-        case exports.Patterns.PATTERN100:
-          return (Math.floor(i / 2) + Math.floor(j / 3)) % 2 === 0;
-        case exports.Patterns.PATTERN101:
-          return i * j % 2 + i * j % 3 === 0;
-        case exports.Patterns.PATTERN110:
-          return (i * j % 2 + i * j % 3) % 2 === 0;
-        case exports.Patterns.PATTERN111:
-          return (i * j % 3 + (i + j) % 2) % 2 === 0;
-        default:
-          throw new Error("bad maskPattern:" + maskPattern);
-      }
-    }
-    exports.applyMask = function applyMask(pattern, data) {
-      const size = data.size;
-      for (let col = 0; col < size; col++) {
-        for (let row = 0; row < size; row++) {
-          if (data.isReserved(row, col)) continue;
-          data.xor(row, col, getMaskAt(pattern, row, col));
-        }
-      }
-    };
-    exports.getBestMask = function getBestMask(data, setupFormatFunc) {
-      const numPatterns = Object.keys(exports.Patterns).length;
-      let bestPattern = 0;
-      let lowerPenalty = Infinity;
-      for (let p = 0; p < numPatterns; p++) {
-        setupFormatFunc(p);
-        exports.applyMask(p, data);
-        const penalty = exports.getPenaltyN1(data) + exports.getPenaltyN2(data) + exports.getPenaltyN3(data) + exports.getPenaltyN4(data);
-        exports.applyMask(p, data);
-        if (penalty < lowerPenalty) {
-          lowerPenalty = penalty;
-          bestPattern = p;
-        }
-      }
-      return bestPattern;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/error-correction-code.js
-var require_error_correction_code = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/error-correction-code.js"(exports) {
-    var ECLevel = require_error_correction_level();
-    var EC_BLOCKS_TABLE = [
-      // L  M  Q  H
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      2,
-      2,
-      1,
-      2,
-      2,
-      4,
-      1,
-      2,
-      4,
-      4,
-      2,
-      4,
-      4,
-      4,
-      2,
-      4,
-      6,
-      5,
-      2,
-      4,
-      6,
-      6,
-      2,
-      5,
-      8,
-      8,
-      4,
-      5,
-      8,
-      8,
-      4,
-      5,
-      8,
-      11,
-      4,
-      8,
-      10,
-      11,
-      4,
-      9,
-      12,
-      16,
-      4,
-      9,
-      16,
-      16,
-      6,
-      10,
-      12,
-      18,
-      6,
-      10,
-      17,
-      16,
-      6,
-      11,
-      16,
-      19,
-      6,
-      13,
-      18,
-      21,
-      7,
-      14,
-      21,
-      25,
-      8,
-      16,
-      20,
-      25,
-      8,
-      17,
-      23,
-      25,
-      9,
-      17,
-      23,
-      34,
-      9,
-      18,
-      25,
-      30,
-      10,
-      20,
-      27,
-      32,
-      12,
-      21,
-      29,
-      35,
-      12,
-      23,
-      34,
-      37,
-      12,
-      25,
-      34,
-      40,
-      13,
-      26,
-      35,
-      42,
-      14,
-      28,
-      38,
-      45,
-      15,
-      29,
-      40,
-      48,
-      16,
-      31,
-      43,
-      51,
-      17,
-      33,
-      45,
-      54,
-      18,
-      35,
-      48,
-      57,
-      19,
-      37,
-      51,
-      60,
-      19,
-      38,
-      53,
-      63,
-      20,
-      40,
-      56,
-      66,
-      21,
-      43,
-      59,
-      70,
-      22,
-      45,
-      62,
-      74,
-      24,
-      47,
-      65,
-      77,
-      25,
-      49,
-      68,
-      81
-    ];
-    var EC_CODEWORDS_TABLE = [
-      // L  M  Q  H
-      7,
-      10,
-      13,
-      17,
-      10,
-      16,
-      22,
-      28,
-      15,
-      26,
-      36,
-      44,
-      20,
-      36,
-      52,
-      64,
-      26,
-      48,
-      72,
-      88,
-      36,
-      64,
-      96,
-      112,
-      40,
-      72,
-      108,
-      130,
-      48,
-      88,
-      132,
-      156,
-      60,
-      110,
-      160,
-      192,
-      72,
-      130,
-      192,
-      224,
-      80,
-      150,
-      224,
-      264,
-      96,
-      176,
-      260,
-      308,
-      104,
-      198,
-      288,
-      352,
-      120,
-      216,
-      320,
-      384,
-      132,
-      240,
-      360,
-      432,
-      144,
-      280,
-      408,
-      480,
-      168,
-      308,
-      448,
-      532,
-      180,
-      338,
-      504,
-      588,
-      196,
-      364,
-      546,
-      650,
-      224,
-      416,
-      600,
-      700,
-      224,
-      442,
-      644,
-      750,
-      252,
-      476,
-      690,
-      816,
-      270,
-      504,
-      750,
-      900,
-      300,
-      560,
-      810,
-      960,
-      312,
-      588,
-      870,
-      1050,
-      336,
-      644,
-      952,
-      1110,
-      360,
-      700,
-      1020,
-      1200,
-      390,
-      728,
-      1050,
-      1260,
-      420,
-      784,
-      1140,
-      1350,
-      450,
-      812,
-      1200,
-      1440,
-      480,
-      868,
-      1290,
-      1530,
-      510,
-      924,
-      1350,
-      1620,
-      540,
-      980,
-      1440,
-      1710,
-      570,
-      1036,
-      1530,
-      1800,
-      570,
-      1064,
-      1590,
-      1890,
-      600,
-      1120,
-      1680,
-      1980,
-      630,
-      1204,
-      1770,
-      2100,
-      660,
-      1260,
-      1860,
-      2220,
-      720,
-      1316,
-      1950,
-      2310,
-      750,
-      1372,
-      2040,
-      2430
-    ];
-    exports.getBlocksCount = function getBlocksCount(version, errorCorrectionLevel) {
-      switch (errorCorrectionLevel) {
-        case ECLevel.L:
-          return EC_BLOCKS_TABLE[(version - 1) * 4 + 0];
-        case ECLevel.M:
-          return EC_BLOCKS_TABLE[(version - 1) * 4 + 1];
-        case ECLevel.Q:
-          return EC_BLOCKS_TABLE[(version - 1) * 4 + 2];
-        case ECLevel.H:
-          return EC_BLOCKS_TABLE[(version - 1) * 4 + 3];
-        default:
-          return void 0;
-      }
-    };
-    exports.getTotalCodewordsCount = function getTotalCodewordsCount(version, errorCorrectionLevel) {
-      switch (errorCorrectionLevel) {
-        case ECLevel.L:
-          return EC_CODEWORDS_TABLE[(version - 1) * 4 + 0];
-        case ECLevel.M:
-          return EC_CODEWORDS_TABLE[(version - 1) * 4 + 1];
-        case ECLevel.Q:
-          return EC_CODEWORDS_TABLE[(version - 1) * 4 + 2];
-        case ECLevel.H:
-          return EC_CODEWORDS_TABLE[(version - 1) * 4 + 3];
-        default:
-          return void 0;
-      }
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/galois-field.js
-var require_galois_field = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/galois-field.js"(exports) {
-    var EXP_TABLE = new Uint8Array(512);
-    var LOG_TABLE = new Uint8Array(256);
-    (function initTables() {
-      let x = 1;
-      for (let i = 0; i < 255; i++) {
-        EXP_TABLE[i] = x;
-        LOG_TABLE[x] = i;
-        x <<= 1;
-        if (x & 256) {
-          x ^= 285;
-        }
-      }
-      for (let i = 255; i < 512; i++) {
-        EXP_TABLE[i] = EXP_TABLE[i - 255];
-      }
-    })();
-    exports.log = function log(n) {
-      if (n < 1) throw new Error("log(" + n + ")");
-      return LOG_TABLE[n];
-    };
-    exports.exp = function exp(n) {
-      return EXP_TABLE[n];
-    };
-    exports.mul = function mul(x, y) {
-      if (x === 0 || y === 0) return 0;
-      return EXP_TABLE[LOG_TABLE[x] + LOG_TABLE[y]];
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/polynomial.js
-var require_polynomial = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/polynomial.js"(exports) {
-    var GF = require_galois_field();
-    exports.mul = function mul(p1, p2) {
-      const coeff = new Uint8Array(p1.length + p2.length - 1);
-      for (let i = 0; i < p1.length; i++) {
-        for (let j = 0; j < p2.length; j++) {
-          coeff[i + j] ^= GF.mul(p1[i], p2[j]);
-        }
-      }
-      return coeff;
-    };
-    exports.mod = function mod(divident, divisor) {
-      let result = new Uint8Array(divident);
-      while (result.length - divisor.length >= 0) {
-        const coeff = result[0];
-        for (let i = 0; i < divisor.length; i++) {
-          result[i] ^= GF.mul(divisor[i], coeff);
-        }
-        let offset = 0;
-        while (offset < result.length && result[offset] === 0) offset++;
-        result = result.slice(offset);
-      }
-      return result;
-    };
-    exports.generateECPolynomial = function generateECPolynomial(degree) {
-      let poly = new Uint8Array([1]);
-      for (let i = 0; i < degree; i++) {
-        poly = exports.mul(poly, new Uint8Array([1, GF.exp(i)]));
-      }
-      return poly;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/reed-solomon-encoder.js
-var require_reed_solomon_encoder = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/reed-solomon-encoder.js"(exports, module) {
-    var Polynomial = require_polynomial();
-    function ReedSolomonEncoder(degree) {
-      this.genPoly = void 0;
-      this.degree = degree;
-      if (this.degree) this.initialize(this.degree);
-    }
-    ReedSolomonEncoder.prototype.initialize = function initialize(degree) {
-      this.degree = degree;
-      this.genPoly = Polynomial.generateECPolynomial(this.degree);
-    };
-    ReedSolomonEncoder.prototype.encode = function encode(data) {
-      if (!this.genPoly) {
-        throw new Error("Encoder not initialized");
-      }
-      const paddedData = new Uint8Array(data.length + this.degree);
-      paddedData.set(data);
-      const remainder = Polynomial.mod(paddedData, this.genPoly);
-      const start = this.degree - remainder.length;
-      if (start > 0) {
-        const buff = new Uint8Array(this.degree);
-        buff.set(remainder, start);
-        return buff;
-      }
-      return remainder;
-    };
-    module.exports = ReedSolomonEncoder;
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/version-check.js
-var require_version_check = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/version-check.js"(exports) {
-    exports.isValid = function isValid(version) {
-      return !isNaN(version) && version >= 1 && version <= 40;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/regex.js
-var require_regex = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/regex.js"(exports) {
-    var numeric = "[0-9]+";
-    var alphanumeric = "[A-Z $%*+\\-./:]+";
-    var kanji = "(?:[u3000-u303F]|[u3040-u309F]|[u30A0-u30FF]|[uFF00-uFFEF]|[u4E00-u9FAF]|[u2605-u2606]|[u2190-u2195]|u203B|[u2010u2015u2018u2019u2025u2026u201Cu201Du2225u2260]|[u0391-u0451]|[u00A7u00A8u00B1u00B4u00D7u00F7])+";
-    kanji = kanji.replace(/u/g, "\\u");
-    var byte = "(?:(?![A-Z0-9 $%*+\\-./:]|" + kanji + ")(?:.|[\r\n]))+";
-    exports.KANJI = new RegExp(kanji, "g");
-    exports.BYTE_KANJI = new RegExp("[^A-Z0-9 $%*+\\-./:]+", "g");
-    exports.BYTE = new RegExp(byte, "g");
-    exports.NUMERIC = new RegExp(numeric, "g");
-    exports.ALPHANUMERIC = new RegExp(alphanumeric, "g");
-    var TEST_KANJI = new RegExp("^" + kanji + "$");
-    var TEST_NUMERIC = new RegExp("^" + numeric + "$");
-    var TEST_ALPHANUMERIC = new RegExp("^[A-Z0-9 $%*+\\-./:]+$");
-    exports.testKanji = function testKanji(str) {
-      return TEST_KANJI.test(str);
-    };
-    exports.testNumeric = function testNumeric(str) {
-      return TEST_NUMERIC.test(str);
-    };
-    exports.testAlphanumeric = function testAlphanumeric(str) {
-      return TEST_ALPHANUMERIC.test(str);
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/mode.js
-var require_mode = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/mode.js"(exports) {
-    var VersionCheck = require_version_check();
-    var Regex = require_regex();
-    exports.NUMERIC = {
-      id: "Numeric",
-      bit: 1 << 0,
-      ccBits: [10, 12, 14]
-    };
-    exports.ALPHANUMERIC = {
-      id: "Alphanumeric",
-      bit: 1 << 1,
-      ccBits: [9, 11, 13]
-    };
-    exports.BYTE = {
-      id: "Byte",
-      bit: 1 << 2,
-      ccBits: [8, 16, 16]
-    };
-    exports.KANJI = {
-      id: "Kanji",
-      bit: 1 << 3,
-      ccBits: [8, 10, 12]
-    };
-    exports.MIXED = {
-      bit: -1
-    };
-    exports.getCharCountIndicator = function getCharCountIndicator(mode, version) {
-      if (!mode.ccBits) throw new Error("Invalid mode: " + mode);
-      if (!VersionCheck.isValid(version)) {
-        throw new Error("Invalid version: " + version);
-      }
-      if (version >= 1 && version < 10) return mode.ccBits[0];
-      else if (version < 27) return mode.ccBits[1];
-      return mode.ccBits[2];
-    };
-    exports.getBestModeForData = function getBestModeForData(dataStr) {
-      if (Regex.testNumeric(dataStr)) return exports.NUMERIC;
-      else if (Regex.testAlphanumeric(dataStr)) return exports.ALPHANUMERIC;
-      else if (Regex.testKanji(dataStr)) return exports.KANJI;
-      else return exports.BYTE;
-    };
-    exports.toString = function toString(mode) {
-      if (mode && mode.id) return mode.id;
-      throw new Error("Invalid mode");
-    };
-    exports.isValid = function isValid(mode) {
-      return mode && mode.bit && mode.ccBits;
-    };
-    function fromString(string) {
-      if (typeof string !== "string") {
-        throw new Error("Param is not a string");
-      }
-      const lcStr = string.toLowerCase();
-      switch (lcStr) {
-        case "numeric":
-          return exports.NUMERIC;
-        case "alphanumeric":
-          return exports.ALPHANUMERIC;
-        case "kanji":
-          return exports.KANJI;
-        case "byte":
-          return exports.BYTE;
-        default:
-          throw new Error("Unknown mode: " + string);
-      }
-    }
-    exports.from = function from(value, defaultValue) {
-      if (exports.isValid(value)) {
-        return value;
-      }
-      try {
-        return fromString(value);
-      } catch (e) {
-        return defaultValue;
-      }
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/version.js
-var require_version = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/version.js"(exports) {
-    var Utils = require_utils();
-    var ECCode = require_error_correction_code();
-    var ECLevel = require_error_correction_level();
-    var Mode = require_mode();
-    var VersionCheck = require_version_check();
-    var G18 = 1 << 12 | 1 << 11 | 1 << 10 | 1 << 9 | 1 << 8 | 1 << 5 | 1 << 2 | 1 << 0;
-    var G18_BCH = Utils.getBCHDigit(G18);
-    function getBestVersionForDataLength(mode, length, errorCorrectionLevel) {
-      for (let currentVersion = 1; currentVersion <= 40; currentVersion++) {
-        if (length <= exports.getCapacity(currentVersion, errorCorrectionLevel, mode)) {
-          return currentVersion;
-        }
-      }
-      return void 0;
-    }
-    function getReservedBitsCount(mode, version) {
-      return Mode.getCharCountIndicator(mode, version) + 4;
-    }
-    function getTotalBitsFromDataArray(segments, version) {
-      let totalBits = 0;
-      segments.forEach(function(data) {
-        const reservedBits = getReservedBitsCount(data.mode, version);
-        totalBits += reservedBits + data.getBitsLength();
-      });
-      return totalBits;
-    }
-    function getBestVersionForMixedData(segments, errorCorrectionLevel) {
-      for (let currentVersion = 1; currentVersion <= 40; currentVersion++) {
-        const length = getTotalBitsFromDataArray(segments, currentVersion);
-        if (length <= exports.getCapacity(currentVersion, errorCorrectionLevel, Mode.MIXED)) {
-          return currentVersion;
-        }
-      }
-      return void 0;
-    }
-    exports.from = function from(value, defaultValue) {
-      if (VersionCheck.isValid(value)) {
-        return parseInt(value, 10);
-      }
-      return defaultValue;
-    };
-    exports.getCapacity = function getCapacity(version, errorCorrectionLevel, mode) {
-      if (!VersionCheck.isValid(version)) {
-        throw new Error("Invalid QR Code version");
-      }
-      if (typeof mode === "undefined") mode = Mode.BYTE;
-      const totalCodewords = Utils.getSymbolTotalCodewords(version);
-      const ecTotalCodewords = ECCode.getTotalCodewordsCount(version, errorCorrectionLevel);
-      const dataTotalCodewordsBits = (totalCodewords - ecTotalCodewords) * 8;
-      if (mode === Mode.MIXED) return dataTotalCodewordsBits;
-      const usableBits = dataTotalCodewordsBits - getReservedBitsCount(mode, version);
-      switch (mode) {
-        case Mode.NUMERIC:
-          return Math.floor(usableBits / 10 * 3);
-        case Mode.ALPHANUMERIC:
-          return Math.floor(usableBits / 11 * 2);
-        case Mode.KANJI:
-          return Math.floor(usableBits / 13);
-        case Mode.BYTE:
-        default:
-          return Math.floor(usableBits / 8);
-      }
-    };
-    exports.getBestVersionForData = function getBestVersionForData(data, errorCorrectionLevel) {
-      let seg;
-      const ecl = ECLevel.from(errorCorrectionLevel, ECLevel.M);
-      if (Array.isArray(data)) {
-        if (data.length > 1) {
-          return getBestVersionForMixedData(data, ecl);
-        }
-        if (data.length === 0) {
-          return 1;
-        }
-        seg = data[0];
-      } else {
-        seg = data;
-      }
-      return getBestVersionForDataLength(seg.mode, seg.getLength(), ecl);
-    };
-    exports.getEncodedBits = function getEncodedBits(version) {
-      if (!VersionCheck.isValid(version) || version < 7) {
-        throw new Error("Invalid QR Code version");
-      }
-      let d = version << 12;
-      while (Utils.getBCHDigit(d) - G18_BCH >= 0) {
-        d ^= G18 << Utils.getBCHDigit(d) - G18_BCH;
-      }
-      return version << 12 | d;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/format-info.js
-var require_format_info = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/format-info.js"(exports) {
-    var Utils = require_utils();
-    var G15 = 1 << 10 | 1 << 8 | 1 << 5 | 1 << 4 | 1 << 2 | 1 << 1 | 1 << 0;
-    var G15_MASK = 1 << 14 | 1 << 12 | 1 << 10 | 1 << 4 | 1 << 1;
-    var G15_BCH = Utils.getBCHDigit(G15);
-    exports.getEncodedBits = function getEncodedBits(errorCorrectionLevel, mask) {
-      const data = errorCorrectionLevel.bit << 3 | mask;
-      let d = data << 10;
-      while (Utils.getBCHDigit(d) - G15_BCH >= 0) {
-        d ^= G15 << Utils.getBCHDigit(d) - G15_BCH;
-      }
-      return (data << 10 | d) ^ G15_MASK;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/numeric-data.js
-var require_numeric_data = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/numeric-data.js"(exports, module) {
-    var Mode = require_mode();
-    function NumericData(data) {
-      this.mode = Mode.NUMERIC;
-      this.data = data.toString();
-    }
-    NumericData.getBitsLength = function getBitsLength(length) {
-      return 10 * Math.floor(length / 3) + (length % 3 ? length % 3 * 3 + 1 : 0);
-    };
-    NumericData.prototype.getLength = function getLength() {
-      return this.data.length;
-    };
-    NumericData.prototype.getBitsLength = function getBitsLength() {
-      return NumericData.getBitsLength(this.data.length);
-    };
-    NumericData.prototype.write = function write(bitBuffer) {
-      let i, group, value;
-      for (i = 0; i + 3 <= this.data.length; i += 3) {
-        group = this.data.substr(i, 3);
-        value = parseInt(group, 10);
-        bitBuffer.put(value, 10);
-      }
-      const remainingNum = this.data.length - i;
-      if (remainingNum > 0) {
-        group = this.data.substr(i);
-        value = parseInt(group, 10);
-        bitBuffer.put(value, remainingNum * 3 + 1);
-      }
-    };
-    module.exports = NumericData;
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/alphanumeric-data.js
-var require_alphanumeric_data = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/alphanumeric-data.js"(exports, module) {
-    var Mode = require_mode();
-    var ALPHA_NUM_CHARS = [
-      "0",
-      "1",
-      "2",
-      "3",
-      "4",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "A",
-      "B",
-      "C",
-      "D",
-      "E",
-      "F",
-      "G",
-      "H",
-      "I",
-      "J",
-      "K",
-      "L",
-      "M",
-      "N",
-      "O",
-      "P",
-      "Q",
-      "R",
-      "S",
-      "T",
-      "U",
-      "V",
-      "W",
-      "X",
-      "Y",
-      "Z",
-      " ",
-      "$",
-      "%",
-      "*",
-      "+",
-      "-",
-      ".",
-      "/",
-      ":"
-    ];
-    function AlphanumericData(data) {
-      this.mode = Mode.ALPHANUMERIC;
-      this.data = data;
-    }
-    AlphanumericData.getBitsLength = function getBitsLength(length) {
-      return 11 * Math.floor(length / 2) + 6 * (length % 2);
-    };
-    AlphanumericData.prototype.getLength = function getLength() {
-      return this.data.length;
-    };
-    AlphanumericData.prototype.getBitsLength = function getBitsLength() {
-      return AlphanumericData.getBitsLength(this.data.length);
-    };
-    AlphanumericData.prototype.write = function write(bitBuffer) {
-      let i;
-      for (i = 0; i + 2 <= this.data.length; i += 2) {
-        let value = ALPHA_NUM_CHARS.indexOf(this.data[i]) * 45;
-        value += ALPHA_NUM_CHARS.indexOf(this.data[i + 1]);
-        bitBuffer.put(value, 11);
-      }
-      if (this.data.length % 2) {
-        bitBuffer.put(ALPHA_NUM_CHARS.indexOf(this.data[i]), 6);
-      }
-    };
-    module.exports = AlphanumericData;
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/byte-data.js
-var require_byte_data = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/byte-data.js"(exports, module) {
-    var Mode = require_mode();
-    function ByteData(data) {
-      this.mode = Mode.BYTE;
-      if (typeof data === "string") {
-        this.data = new TextEncoder().encode(data);
-      } else {
-        this.data = new Uint8Array(data);
-      }
-    }
-    ByteData.getBitsLength = function getBitsLength(length) {
-      return length * 8;
-    };
-    ByteData.prototype.getLength = function getLength() {
-      return this.data.length;
-    };
-    ByteData.prototype.getBitsLength = function getBitsLength() {
-      return ByteData.getBitsLength(this.data.length);
-    };
-    ByteData.prototype.write = function(bitBuffer) {
-      for (let i = 0, l = this.data.length; i < l; i++) {
-        bitBuffer.put(this.data[i], 8);
-      }
-    };
-    module.exports = ByteData;
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/kanji-data.js
-var require_kanji_data = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/kanji-data.js"(exports, module) {
-    var Mode = require_mode();
-    var Utils = require_utils();
-    function KanjiData(data) {
-      this.mode = Mode.KANJI;
-      this.data = data;
-    }
-    KanjiData.getBitsLength = function getBitsLength(length) {
-      return length * 13;
-    };
-    KanjiData.prototype.getLength = function getLength() {
-      return this.data.length;
-    };
-    KanjiData.prototype.getBitsLength = function getBitsLength() {
-      return KanjiData.getBitsLength(this.data.length);
-    };
-    KanjiData.prototype.write = function(bitBuffer) {
-      let i;
-      for (i = 0; i < this.data.length; i++) {
-        let value = Utils.toSJIS(this.data[i]);
-        if (value >= 33088 && value <= 40956) {
-          value -= 33088;
-        } else if (value >= 57408 && value <= 60351) {
-          value -= 49472;
-        } else {
-          throw new Error(
-            "Invalid SJIS character: " + this.data[i] + "\nMake sure your charset is UTF-8"
-          );
-        }
-        value = (value >>> 8 & 255) * 192 + (value & 255);
-        bitBuffer.put(value, 13);
-      }
-    };
-    module.exports = KanjiData;
-  }
-});
-
-// ../../node_modules/.pnpm/dijkstrajs@1.0.3/node_modules/dijkstrajs/dijkstra.js
-var require_dijkstra = __commonJS({
-  "../../node_modules/.pnpm/dijkstrajs@1.0.3/node_modules/dijkstrajs/dijkstra.js"(exports, module) {
-    "use strict";
-    var dijkstra = {
-      single_source_shortest_paths: function(graph, s, d) {
-        var predecessors = {};
-        var costs = {};
-        costs[s] = 0;
-        var open = dijkstra.PriorityQueue.make();
-        open.push(s, 0);
-        var closest, u, v, cost_of_s_to_u, adjacent_nodes, cost_of_e, cost_of_s_to_u_plus_cost_of_e, cost_of_s_to_v, first_visit;
-        while (!open.empty()) {
-          closest = open.pop();
-          u = closest.value;
-          cost_of_s_to_u = closest.cost;
-          adjacent_nodes = graph[u] || {};
-          for (v in adjacent_nodes) {
-            if (adjacent_nodes.hasOwnProperty(v)) {
-              cost_of_e = adjacent_nodes[v];
-              cost_of_s_to_u_plus_cost_of_e = cost_of_s_to_u + cost_of_e;
-              cost_of_s_to_v = costs[v];
-              first_visit = typeof costs[v] === "undefined";
-              if (first_visit || cost_of_s_to_v > cost_of_s_to_u_plus_cost_of_e) {
-                costs[v] = cost_of_s_to_u_plus_cost_of_e;
-                open.push(v, cost_of_s_to_u_plus_cost_of_e);
-                predecessors[v] = u;
-              }
-            }
-          }
-        }
-        if (typeof d !== "undefined" && typeof costs[d] === "undefined") {
-          var msg = ["Could not find a path from ", s, " to ", d, "."].join("");
-          throw new Error(msg);
-        }
-        return predecessors;
-      },
-      extract_shortest_path_from_predecessor_list: function(predecessors, d) {
-        var nodes = [];
-        var u = d;
-        var predecessor;
-        while (u) {
-          nodes.push(u);
-          predecessor = predecessors[u];
-          u = predecessors[u];
-        }
-        nodes.reverse();
-        return nodes;
-      },
-      find_path: function(graph, s, d) {
-        var predecessors = dijkstra.single_source_shortest_paths(graph, s, d);
-        return dijkstra.extract_shortest_path_from_predecessor_list(
-          predecessors,
-          d
-        );
-      },
-      /**
-       * A very naive priority queue implementation.
-       */
-      PriorityQueue: {
-        make: function(opts) {
-          var T = dijkstra.PriorityQueue, t = {}, key;
-          opts = opts || {};
-          for (key in T) {
-            if (T.hasOwnProperty(key)) {
-              t[key] = T[key];
-            }
-          }
-          t.queue = [];
-          t.sorter = opts.sorter || T.default_sorter;
-          return t;
-        },
-        default_sorter: function(a, b) {
-          return a.cost - b.cost;
-        },
-        /**
-         * Add a new item to the queue and ensure the highest priority element
-         * is at the front of the queue.
-         */
-        push: function(value, cost) {
-          var item = { value, cost };
-          this.queue.push(item);
-          this.queue.sort(this.sorter);
-        },
-        /**
-         * Return the highest priority element in the queue.
-         */
-        pop: function() {
-          return this.queue.shift();
-        },
-        empty: function() {
-          return this.queue.length === 0;
-        }
-      }
-    };
-    if (typeof module !== "undefined") {
-      module.exports = dijkstra;
-    }
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/segments.js
-var require_segments = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/segments.js"(exports) {
-    var Mode = require_mode();
-    var NumericData = require_numeric_data();
-    var AlphanumericData = require_alphanumeric_data();
-    var ByteData = require_byte_data();
-    var KanjiData = require_kanji_data();
-    var Regex = require_regex();
-    var Utils = require_utils();
-    var dijkstra = require_dijkstra();
-    function getStringByteLength(str) {
-      return unescape(encodeURIComponent(str)).length;
-    }
-    function getSegments(regex, mode, str) {
-      const segments = [];
-      let result;
-      while ((result = regex.exec(str)) !== null) {
-        segments.push({
-          data: result[0],
-          index: result.index,
-          mode,
-          length: result[0].length
-        });
-      }
-      return segments;
-    }
-    function getSegmentsFromString(dataStr) {
-      const numSegs = getSegments(Regex.NUMERIC, Mode.NUMERIC, dataStr);
-      const alphaNumSegs = getSegments(Regex.ALPHANUMERIC, Mode.ALPHANUMERIC, dataStr);
-      let byteSegs;
-      let kanjiSegs;
-      if (Utils.isKanjiModeEnabled()) {
-        byteSegs = getSegments(Regex.BYTE, Mode.BYTE, dataStr);
-        kanjiSegs = getSegments(Regex.KANJI, Mode.KANJI, dataStr);
-      } else {
-        byteSegs = getSegments(Regex.BYTE_KANJI, Mode.BYTE, dataStr);
-        kanjiSegs = [];
-      }
-      const segs = numSegs.concat(alphaNumSegs, byteSegs, kanjiSegs);
-      return segs.sort(function(s1, s2) {
-        return s1.index - s2.index;
-      }).map(function(obj) {
-        return {
-          data: obj.data,
-          mode: obj.mode,
-          length: obj.length
-        };
-      });
-    }
-    function getSegmentBitsLength(length, mode) {
-      switch (mode) {
-        case Mode.NUMERIC:
-          return NumericData.getBitsLength(length);
-        case Mode.ALPHANUMERIC:
-          return AlphanumericData.getBitsLength(length);
-        case Mode.KANJI:
-          return KanjiData.getBitsLength(length);
-        case Mode.BYTE:
-          return ByteData.getBitsLength(length);
-      }
-    }
-    function mergeSegments(segs) {
-      return segs.reduce(function(acc, curr) {
-        const prevSeg = acc.length - 1 >= 0 ? acc[acc.length - 1] : null;
-        if (prevSeg && prevSeg.mode === curr.mode) {
-          acc[acc.length - 1].data += curr.data;
-          return acc;
-        }
-        acc.push(curr);
-        return acc;
-      }, []);
-    }
-    function buildNodes(segs) {
-      const nodes = [];
-      for (let i = 0; i < segs.length; i++) {
-        const seg = segs[i];
-        switch (seg.mode) {
-          case Mode.NUMERIC:
-            nodes.push([
-              seg,
-              { data: seg.data, mode: Mode.ALPHANUMERIC, length: seg.length },
-              { data: seg.data, mode: Mode.BYTE, length: seg.length }
-            ]);
-            break;
-          case Mode.ALPHANUMERIC:
-            nodes.push([
-              seg,
-              { data: seg.data, mode: Mode.BYTE, length: seg.length }
-            ]);
-            break;
-          case Mode.KANJI:
-            nodes.push([
-              seg,
-              { data: seg.data, mode: Mode.BYTE, length: getStringByteLength(seg.data) }
-            ]);
-            break;
-          case Mode.BYTE:
-            nodes.push([
-              { data: seg.data, mode: Mode.BYTE, length: getStringByteLength(seg.data) }
-            ]);
-        }
-      }
-      return nodes;
-    }
-    function buildGraph(nodes, version) {
-      const table = {};
-      const graph = { start: {} };
-      let prevNodeIds = ["start"];
-      for (let i = 0; i < nodes.length; i++) {
-        const nodeGroup = nodes[i];
-        const currentNodeIds = [];
-        for (let j = 0; j < nodeGroup.length; j++) {
-          const node = nodeGroup[j];
-          const key = "" + i + j;
-          currentNodeIds.push(key);
-          table[key] = { node, lastCount: 0 };
-          graph[key] = {};
-          for (let n = 0; n < prevNodeIds.length; n++) {
-            const prevNodeId = prevNodeIds[n];
-            if (table[prevNodeId] && table[prevNodeId].node.mode === node.mode) {
-              graph[prevNodeId][key] = getSegmentBitsLength(table[prevNodeId].lastCount + node.length, node.mode) - getSegmentBitsLength(table[prevNodeId].lastCount, node.mode);
-              table[prevNodeId].lastCount += node.length;
-            } else {
-              if (table[prevNodeId]) table[prevNodeId].lastCount = node.length;
-              graph[prevNodeId][key] = getSegmentBitsLength(node.length, node.mode) + 4 + Mode.getCharCountIndicator(node.mode, version);
-            }
-          }
-        }
-        prevNodeIds = currentNodeIds;
-      }
-      for (let n = 0; n < prevNodeIds.length; n++) {
-        graph[prevNodeIds[n]].end = 0;
-      }
-      return { map: graph, table };
-    }
-    function buildSingleSegment(data, modesHint) {
-      let mode;
-      const bestMode = Mode.getBestModeForData(data);
-      mode = Mode.from(modesHint, bestMode);
-      if (mode !== Mode.BYTE && mode.bit < bestMode.bit) {
-        throw new Error('"' + data + '" cannot be encoded with mode ' + Mode.toString(mode) + ".\n Suggested mode is: " + Mode.toString(bestMode));
-      }
-      if (mode === Mode.KANJI && !Utils.isKanjiModeEnabled()) {
-        mode = Mode.BYTE;
-      }
-      switch (mode) {
-        case Mode.NUMERIC:
-          return new NumericData(data);
-        case Mode.ALPHANUMERIC:
-          return new AlphanumericData(data);
-        case Mode.KANJI:
-          return new KanjiData(data);
-        case Mode.BYTE:
-          return new ByteData(data);
-      }
-    }
-    exports.fromArray = function fromArray(array) {
-      return array.reduce(function(acc, seg) {
-        if (typeof seg === "string") {
-          acc.push(buildSingleSegment(seg, null));
-        } else if (seg.data) {
-          acc.push(buildSingleSegment(seg.data, seg.mode));
-        }
-        return acc;
-      }, []);
-    };
-    exports.fromString = function fromString(data, version) {
-      const segs = getSegmentsFromString(data, Utils.isKanjiModeEnabled());
-      const nodes = buildNodes(segs);
-      const graph = buildGraph(nodes, version);
-      const path = dijkstra.find_path(graph.map, "start", "end");
-      const optimizedSegs = [];
-      for (let i = 1; i < path.length - 1; i++) {
-        optimizedSegs.push(graph.table[path[i]].node);
-      }
-      return exports.fromArray(mergeSegments(optimizedSegs));
-    };
-    exports.rawSplit = function rawSplit(data) {
-      return exports.fromArray(
-        getSegmentsFromString(data, Utils.isKanjiModeEnabled())
-      );
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/qrcode.js
-var require_qrcode = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/qrcode.js"(exports) {
-    var Utils = require_utils();
-    var ECLevel = require_error_correction_level();
-    var BitBuffer = require_bit_buffer();
-    var BitMatrix = require_bit_matrix();
-    var AlignmentPattern = require_alignment_pattern();
-    var FinderPattern = require_finder_pattern();
-    var MaskPattern = require_mask_pattern();
-    var ECCode = require_error_correction_code();
-    var ReedSolomonEncoder = require_reed_solomon_encoder();
-    var Version = require_version();
-    var FormatInfo = require_format_info();
-    var Mode = require_mode();
-    var Segments = require_segments();
-    function setupFinderPattern(matrix, version) {
-      const size = matrix.size;
-      const pos = FinderPattern.getPositions(version);
-      for (let i = 0; i < pos.length; i++) {
-        const row = pos[i][0];
-        const col = pos[i][1];
-        for (let r = -1; r <= 7; r++) {
-          if (row + r <= -1 || size <= row + r) continue;
-          for (let c = -1; c <= 7; c++) {
-            if (col + c <= -1 || size <= col + c) continue;
-            if (r >= 0 && r <= 6 && (c === 0 || c === 6) || c >= 0 && c <= 6 && (r === 0 || r === 6) || r >= 2 && r <= 4 && c >= 2 && c <= 4) {
-              matrix.set(row + r, col + c, true, true);
-            } else {
-              matrix.set(row + r, col + c, false, true);
-            }
-          }
-        }
-      }
-    }
-    function setupTimingPattern(matrix) {
-      const size = matrix.size;
-      for (let r = 8; r < size - 8; r++) {
-        const value = r % 2 === 0;
-        matrix.set(r, 6, value, true);
-        matrix.set(6, r, value, true);
-      }
-    }
-    function setupAlignmentPattern(matrix, version) {
-      const pos = AlignmentPattern.getPositions(version);
-      for (let i = 0; i < pos.length; i++) {
-        const row = pos[i][0];
-        const col = pos[i][1];
-        for (let r = -2; r <= 2; r++) {
-          for (let c = -2; c <= 2; c++) {
-            if (r === -2 || r === 2 || c === -2 || c === 2 || r === 0 && c === 0) {
-              matrix.set(row + r, col + c, true, true);
-            } else {
-              matrix.set(row + r, col + c, false, true);
-            }
-          }
-        }
-      }
-    }
-    function setupVersionInfo(matrix, version) {
-      const size = matrix.size;
-      const bits = Version.getEncodedBits(version);
-      let row, col, mod;
-      for (let i = 0; i < 18; i++) {
-        row = Math.floor(i / 3);
-        col = i % 3 + size - 8 - 3;
-        mod = (bits >> i & 1) === 1;
-        matrix.set(row, col, mod, true);
-        matrix.set(col, row, mod, true);
-      }
-    }
-    function setupFormatInfo(matrix, errorCorrectionLevel, maskPattern) {
-      const size = matrix.size;
-      const bits = FormatInfo.getEncodedBits(errorCorrectionLevel, maskPattern);
-      let i, mod;
-      for (i = 0; i < 15; i++) {
-        mod = (bits >> i & 1) === 1;
-        if (i < 6) {
-          matrix.set(i, 8, mod, true);
-        } else if (i < 8) {
-          matrix.set(i + 1, 8, mod, true);
-        } else {
-          matrix.set(size - 15 + i, 8, mod, true);
-        }
-        if (i < 8) {
-          matrix.set(8, size - i - 1, mod, true);
-        } else if (i < 9) {
-          matrix.set(8, 15 - i - 1 + 1, mod, true);
-        } else {
-          matrix.set(8, 15 - i - 1, mod, true);
-        }
-      }
-      matrix.set(size - 8, 8, 1, true);
-    }
-    function setupData(matrix, data) {
-      const size = matrix.size;
-      let inc = -1;
-      let row = size - 1;
-      let bitIndex = 7;
-      let byteIndex = 0;
-      for (let col = size - 1; col > 0; col -= 2) {
-        if (col === 6) col--;
-        while (true) {
-          for (let c = 0; c < 2; c++) {
-            if (!matrix.isReserved(row, col - c)) {
-              let dark = false;
-              if (byteIndex < data.length) {
-                dark = (data[byteIndex] >>> bitIndex & 1) === 1;
-              }
-              matrix.set(row, col - c, dark);
-              bitIndex--;
-              if (bitIndex === -1) {
-                byteIndex++;
-                bitIndex = 7;
-              }
-            }
-          }
-          row += inc;
-          if (row < 0 || size <= row) {
-            row -= inc;
-            inc = -inc;
-            break;
-          }
-        }
-      }
-    }
-    function createData(version, errorCorrectionLevel, segments) {
-      const buffer = new BitBuffer();
-      segments.forEach(function(data) {
-        buffer.put(data.mode.bit, 4);
-        buffer.put(data.getLength(), Mode.getCharCountIndicator(data.mode, version));
-        data.write(buffer);
-      });
-      const totalCodewords = Utils.getSymbolTotalCodewords(version);
-      const ecTotalCodewords = ECCode.getTotalCodewordsCount(version, errorCorrectionLevel);
-      const dataTotalCodewordsBits = (totalCodewords - ecTotalCodewords) * 8;
-      if (buffer.getLengthInBits() + 4 <= dataTotalCodewordsBits) {
-        buffer.put(0, 4);
-      }
-      while (buffer.getLengthInBits() % 8 !== 0) {
-        buffer.putBit(0);
-      }
-      const remainingByte = (dataTotalCodewordsBits - buffer.getLengthInBits()) / 8;
-      for (let i = 0; i < remainingByte; i++) {
-        buffer.put(i % 2 ? 17 : 236, 8);
-      }
-      return createCodewords(buffer, version, errorCorrectionLevel);
-    }
-    function createCodewords(bitBuffer, version, errorCorrectionLevel) {
-      const totalCodewords = Utils.getSymbolTotalCodewords(version);
-      const ecTotalCodewords = ECCode.getTotalCodewordsCount(version, errorCorrectionLevel);
-      const dataTotalCodewords = totalCodewords - ecTotalCodewords;
-      const ecTotalBlocks = ECCode.getBlocksCount(version, errorCorrectionLevel);
-      const blocksInGroup2 = totalCodewords % ecTotalBlocks;
-      const blocksInGroup1 = ecTotalBlocks - blocksInGroup2;
-      const totalCodewordsInGroup1 = Math.floor(totalCodewords / ecTotalBlocks);
-      const dataCodewordsInGroup1 = Math.floor(dataTotalCodewords / ecTotalBlocks);
-      const dataCodewordsInGroup2 = dataCodewordsInGroup1 + 1;
-      const ecCount = totalCodewordsInGroup1 - dataCodewordsInGroup1;
-      const rs = new ReedSolomonEncoder(ecCount);
-      let offset = 0;
-      const dcData = new Array(ecTotalBlocks);
-      const ecData = new Array(ecTotalBlocks);
-      let maxDataSize = 0;
-      const buffer = new Uint8Array(bitBuffer.buffer);
-      for (let b = 0; b < ecTotalBlocks; b++) {
-        const dataSize = b < blocksInGroup1 ? dataCodewordsInGroup1 : dataCodewordsInGroup2;
-        dcData[b] = buffer.slice(offset, offset + dataSize);
-        ecData[b] = rs.encode(dcData[b]);
-        offset += dataSize;
-        maxDataSize = Math.max(maxDataSize, dataSize);
-      }
-      const data = new Uint8Array(totalCodewords);
-      let index = 0;
-      let i, r;
-      for (i = 0; i < maxDataSize; i++) {
-        for (r = 0; r < ecTotalBlocks; r++) {
-          if (i < dcData[r].length) {
-            data[index++] = dcData[r][i];
-          }
-        }
-      }
-      for (i = 0; i < ecCount; i++) {
-        for (r = 0; r < ecTotalBlocks; r++) {
-          data[index++] = ecData[r][i];
-        }
-      }
-      return data;
-    }
-    function createSymbol(data, version, errorCorrectionLevel, maskPattern) {
-      let segments;
-      if (Array.isArray(data)) {
-        segments = Segments.fromArray(data);
-      } else if (typeof data === "string") {
-        let estimatedVersion = version;
-        if (!estimatedVersion) {
-          const rawSegments = Segments.rawSplit(data);
-          estimatedVersion = Version.getBestVersionForData(rawSegments, errorCorrectionLevel);
-        }
-        segments = Segments.fromString(data, estimatedVersion || 40);
-      } else {
-        throw new Error("Invalid data");
-      }
-      const bestVersion = Version.getBestVersionForData(segments, errorCorrectionLevel);
-      if (!bestVersion) {
-        throw new Error("The amount of data is too big to be stored in a QR Code");
-      }
-      if (!version) {
-        version = bestVersion;
-      } else if (version < bestVersion) {
-        throw new Error(
-          "\nThe chosen QR Code version cannot contain this amount of data.\nMinimum version required to store current data is: " + bestVersion + ".\n"
-        );
-      }
-      const dataBits = createData(version, errorCorrectionLevel, segments);
-      const moduleCount = Utils.getSymbolSize(version);
-      const modules = new BitMatrix(moduleCount);
-      setupFinderPattern(modules, version);
-      setupTimingPattern(modules);
-      setupAlignmentPattern(modules, version);
-      setupFormatInfo(modules, errorCorrectionLevel, 0);
-      if (version >= 7) {
-        setupVersionInfo(modules, version);
-      }
-      setupData(modules, dataBits);
-      if (isNaN(maskPattern)) {
-        maskPattern = MaskPattern.getBestMask(
-          modules,
-          setupFormatInfo.bind(null, modules, errorCorrectionLevel)
-        );
-      }
-      MaskPattern.applyMask(maskPattern, modules);
-      setupFormatInfo(modules, errorCorrectionLevel, maskPattern);
-      return {
-        modules,
-        version,
-        errorCorrectionLevel,
-        maskPattern,
-        segments
-      };
-    }
-    exports.create = function create(data, options) {
-      if (typeof data === "undefined" || data === "") {
-        throw new Error("No input text");
-      }
-      let errorCorrectionLevel = ECLevel.M;
-      let version;
-      let mask;
-      if (typeof options !== "undefined") {
-        errorCorrectionLevel = ECLevel.from(options.errorCorrectionLevel, ECLevel.M);
-        version = Version.from(options.version);
-        mask = MaskPattern.from(options.maskPattern);
-        if (options.toSJISFunc) {
-          Utils.setToSJISFunction(options.toSJISFunc);
-        }
-      }
-      return createSymbol(data, version, errorCorrectionLevel, mask);
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/chunkstream.js
-var require_chunkstream = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/chunkstream.js"(exports, module) {
-    "use strict";
-    var util = __require("util");
-    var Stream = __require("stream");
-    var ChunkStream = module.exports = function() {
-      Stream.call(this);
-      this._buffers = [];
-      this._buffered = 0;
-      this._reads = [];
-      this._paused = false;
-      this._encoding = "utf8";
-      this.writable = true;
-    };
-    util.inherits(ChunkStream, Stream);
-    ChunkStream.prototype.read = function(length, callback) {
-      this._reads.push({
-        length: Math.abs(length),
-        // if length < 0 then at most this length
-        allowLess: length < 0,
-        func: callback
-      });
-      process.nextTick(
-        function() {
-          this._process();
-          if (this._paused && this._reads && this._reads.length > 0) {
-            this._paused = false;
-            this.emit("drain");
-          }
-        }.bind(this)
-      );
-    };
-    ChunkStream.prototype.write = function(data, encoding) {
-      if (!this.writable) {
-        this.emit("error", new Error("Stream not writable"));
-        return false;
-      }
-      let dataBuffer;
-      if (Buffer.isBuffer(data)) {
-        dataBuffer = data;
-      } else {
-        dataBuffer = Buffer.from(data, encoding || this._encoding);
-      }
-      this._buffers.push(dataBuffer);
-      this._buffered += dataBuffer.length;
-      this._process();
-      if (this._reads && this._reads.length === 0) {
-        this._paused = true;
-      }
-      return this.writable && !this._paused;
-    };
-    ChunkStream.prototype.end = function(data, encoding) {
-      if (data) {
-        this.write(data, encoding);
-      }
-      this.writable = false;
-      if (!this._buffers) {
-        return;
-      }
-      if (this._buffers.length === 0) {
-        this._end();
-      } else {
-        this._buffers.push(null);
-        this._process();
-      }
-    };
-    ChunkStream.prototype.destroySoon = ChunkStream.prototype.end;
-    ChunkStream.prototype._end = function() {
-      if (this._reads.length > 0) {
-        this.emit("error", new Error("Unexpected end of input"));
-      }
-      this.destroy();
-    };
-    ChunkStream.prototype.destroy = function() {
-      if (!this._buffers) {
-        return;
-      }
-      this.writable = false;
-      this._reads = null;
-      this._buffers = null;
-      this.emit("close");
-    };
-    ChunkStream.prototype._processReadAllowingLess = function(read) {
-      this._reads.shift();
-      let smallerBuf = this._buffers[0];
-      if (smallerBuf.length > read.length) {
-        this._buffered -= read.length;
-        this._buffers[0] = smallerBuf.slice(read.length);
-        read.func.call(this, smallerBuf.slice(0, read.length));
-      } else {
-        this._buffered -= smallerBuf.length;
-        this._buffers.shift();
-        read.func.call(this, smallerBuf);
-      }
-    };
-    ChunkStream.prototype._processRead = function(read) {
-      this._reads.shift();
-      let pos = 0;
-      let count = 0;
-      let data = Buffer.alloc(read.length);
-      while (pos < read.length) {
-        let buf = this._buffers[count++];
-        let len = Math.min(buf.length, read.length - pos);
-        buf.copy(data, pos, 0, len);
-        pos += len;
-        if (len !== buf.length) {
-          this._buffers[--count] = buf.slice(len);
-        }
-      }
-      if (count > 0) {
-        this._buffers.splice(0, count);
-      }
-      this._buffered -= read.length;
-      read.func.call(this, data);
-    };
-    ChunkStream.prototype._process = function() {
-      try {
-        while (this._buffered > 0 && this._reads && this._reads.length > 0) {
-          let read = this._reads[0];
-          if (read.allowLess) {
-            this._processReadAllowingLess(read);
-          } else if (this._buffered >= read.length) {
-            this._processRead(read);
-          } else {
-            break;
-          }
-        }
-        if (this._buffers && !this.writable) {
-          this._end();
-        }
-      } catch (ex) {
-        this.emit("error", ex);
-      }
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/interlace.js
-var require_interlace = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/interlace.js"(exports) {
-    "use strict";
-    var imagePasses = [
-      {
-        // pass 1 - 1px
-        x: [0],
-        y: [0]
-      },
-      {
-        // pass 2 - 1px
-        x: [4],
-        y: [0]
-      },
-      {
-        // pass 3 - 2px
-        x: [0, 4],
-        y: [4]
-      },
-      {
-        // pass 4 - 4px
-        x: [2, 6],
-        y: [0, 4]
-      },
-      {
-        // pass 5 - 8px
-        x: [0, 2, 4, 6],
-        y: [2, 6]
-      },
-      {
-        // pass 6 - 16px
-        x: [1, 3, 5, 7],
-        y: [0, 2, 4, 6]
-      },
-      {
-        // pass 7 - 32px
-        x: [0, 1, 2, 3, 4, 5, 6, 7],
-        y: [1, 3, 5, 7]
-      }
-    ];
-    exports.getImagePasses = function(width, height) {
-      let images = [];
-      let xLeftOver = width % 8;
-      let yLeftOver = height % 8;
-      let xRepeats = (width - xLeftOver) / 8;
-      let yRepeats = (height - yLeftOver) / 8;
-      for (let i = 0; i < imagePasses.length; i++) {
-        let pass = imagePasses[i];
-        let passWidth = xRepeats * pass.x.length;
-        let passHeight = yRepeats * pass.y.length;
-        for (let j = 0; j < pass.x.length; j++) {
-          if (pass.x[j] < xLeftOver) {
-            passWidth++;
-          } else {
-            break;
-          }
-        }
-        for (let j = 0; j < pass.y.length; j++) {
-          if (pass.y[j] < yLeftOver) {
-            passHeight++;
-          } else {
-            break;
-          }
-        }
-        if (passWidth > 0 && passHeight > 0) {
-          images.push({ width: passWidth, height: passHeight, index: i });
-        }
-      }
-      return images;
-    };
-    exports.getInterlaceIterator = function(width) {
-      return function(x, y, pass) {
-        let outerXLeftOver = x % imagePasses[pass].x.length;
-        let outerX = (x - outerXLeftOver) / imagePasses[pass].x.length * 8 + imagePasses[pass].x[outerXLeftOver];
-        let outerYLeftOver = y % imagePasses[pass].y.length;
-        let outerY = (y - outerYLeftOver) / imagePasses[pass].y.length * 8 + imagePasses[pass].y[outerYLeftOver];
-        return outerX * 4 + outerY * width * 4;
-      };
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/paeth-predictor.js
-var require_paeth_predictor = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/paeth-predictor.js"(exports, module) {
-    "use strict";
-    module.exports = function paethPredictor(left, above, upLeft) {
-      let paeth = left + above - upLeft;
-      let pLeft = Math.abs(paeth - left);
-      let pAbove = Math.abs(paeth - above);
-      let pUpLeft = Math.abs(paeth - upLeft);
-      if (pLeft <= pAbove && pLeft <= pUpLeft) {
-        return left;
-      }
-      if (pAbove <= pUpLeft) {
-        return above;
-      }
-      return upLeft;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/filter-parse.js
-var require_filter_parse = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/filter-parse.js"(exports, module) {
-    "use strict";
-    var interlaceUtils = require_interlace();
-    var paethPredictor = require_paeth_predictor();
-    function getByteWidth(width, bpp, depth) {
-      let byteWidth = width * bpp;
-      if (depth !== 8) {
-        byteWidth = Math.ceil(byteWidth / (8 / depth));
-      }
-      return byteWidth;
-    }
-    var Filter = module.exports = function(bitmapInfo, dependencies) {
-      let width = bitmapInfo.width;
-      let height = bitmapInfo.height;
-      let interlace = bitmapInfo.interlace;
-      let bpp = bitmapInfo.bpp;
-      let depth = bitmapInfo.depth;
-      this.read = dependencies.read;
-      this.write = dependencies.write;
-      this.complete = dependencies.complete;
-      this._imageIndex = 0;
-      this._images = [];
-      if (interlace) {
-        let passes = interlaceUtils.getImagePasses(width, height);
-        for (let i = 0; i < passes.length; i++) {
-          this._images.push({
-            byteWidth: getByteWidth(passes[i].width, bpp, depth),
-            height: passes[i].height,
-            lineIndex: 0
-          });
-        }
-      } else {
-        this._images.push({
-          byteWidth: getByteWidth(width, bpp, depth),
-          height,
-          lineIndex: 0
-        });
-      }
-      if (depth === 8) {
-        this._xComparison = bpp;
-      } else if (depth === 16) {
-        this._xComparison = bpp * 2;
-      } else {
-        this._xComparison = 1;
-      }
-    };
-    Filter.prototype.start = function() {
-      this.read(
-        this._images[this._imageIndex].byteWidth + 1,
-        this._reverseFilterLine.bind(this)
-      );
-    };
-    Filter.prototype._unFilterType1 = function(rawData, unfilteredLine, byteWidth) {
-      let xComparison = this._xComparison;
-      let xBiggerThan = xComparison - 1;
-      for (let x = 0; x < byteWidth; x++) {
-        let rawByte = rawData[1 + x];
-        let f1Left = x > xBiggerThan ? unfilteredLine[x - xComparison] : 0;
-        unfilteredLine[x] = rawByte + f1Left;
-      }
-    };
-    Filter.prototype._unFilterType2 = function(rawData, unfilteredLine, byteWidth) {
-      let lastLine = this._lastLine;
-      for (let x = 0; x < byteWidth; x++) {
-        let rawByte = rawData[1 + x];
-        let f2Up = lastLine ? lastLine[x] : 0;
-        unfilteredLine[x] = rawByte + f2Up;
-      }
-    };
-    Filter.prototype._unFilterType3 = function(rawData, unfilteredLine, byteWidth) {
-      let xComparison = this._xComparison;
-      let xBiggerThan = xComparison - 1;
-      let lastLine = this._lastLine;
-      for (let x = 0; x < byteWidth; x++) {
-        let rawByte = rawData[1 + x];
-        let f3Up = lastLine ? lastLine[x] : 0;
-        let f3Left = x > xBiggerThan ? unfilteredLine[x - xComparison] : 0;
-        let f3Add = Math.floor((f3Left + f3Up) / 2);
-        unfilteredLine[x] = rawByte + f3Add;
-      }
-    };
-    Filter.prototype._unFilterType4 = function(rawData, unfilteredLine, byteWidth) {
-      let xComparison = this._xComparison;
-      let xBiggerThan = xComparison - 1;
-      let lastLine = this._lastLine;
-      for (let x = 0; x < byteWidth; x++) {
-        let rawByte = rawData[1 + x];
-        let f4Up = lastLine ? lastLine[x] : 0;
-        let f4Left = x > xBiggerThan ? unfilteredLine[x - xComparison] : 0;
-        let f4UpLeft = x > xBiggerThan && lastLine ? lastLine[x - xComparison] : 0;
-        let f4Add = paethPredictor(f4Left, f4Up, f4UpLeft);
-        unfilteredLine[x] = rawByte + f4Add;
-      }
-    };
-    Filter.prototype._reverseFilterLine = function(rawData) {
-      let filter = rawData[0];
-      let unfilteredLine;
-      let currentImage = this._images[this._imageIndex];
-      let byteWidth = currentImage.byteWidth;
-      if (filter === 0) {
-        unfilteredLine = rawData.slice(1, byteWidth + 1);
-      } else {
-        unfilteredLine = Buffer.alloc(byteWidth);
-        switch (filter) {
-          case 1:
-            this._unFilterType1(rawData, unfilteredLine, byteWidth);
-            break;
-          case 2:
-            this._unFilterType2(rawData, unfilteredLine, byteWidth);
-            break;
-          case 3:
-            this._unFilterType3(rawData, unfilteredLine, byteWidth);
-            break;
-          case 4:
-            this._unFilterType4(rawData, unfilteredLine, byteWidth);
-            break;
-          default:
-            throw new Error("Unrecognised filter type - " + filter);
-        }
-      }
-      this.write(unfilteredLine);
-      currentImage.lineIndex++;
-      if (currentImage.lineIndex >= currentImage.height) {
-        this._lastLine = null;
-        this._imageIndex++;
-        currentImage = this._images[this._imageIndex];
-      } else {
-        this._lastLine = unfilteredLine;
-      }
-      if (currentImage) {
-        this.read(currentImage.byteWidth + 1, this._reverseFilterLine.bind(this));
-      } else {
-        this._lastLine = null;
-        this.complete();
-      }
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/filter-parse-async.js
-var require_filter_parse_async = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/filter-parse-async.js"(exports, module) {
-    "use strict";
-    var util = __require("util");
-    var ChunkStream = require_chunkstream();
-    var Filter = require_filter_parse();
-    var FilterAsync = module.exports = function(bitmapInfo) {
-      ChunkStream.call(this);
-      let buffers = [];
-      let that = this;
-      this._filter = new Filter(bitmapInfo, {
-        read: this.read.bind(this),
-        write: function(buffer) {
-          buffers.push(buffer);
-        },
-        complete: function() {
-          that.emit("complete", Buffer.concat(buffers));
-        }
-      });
-      this._filter.start();
-    };
-    util.inherits(FilterAsync, ChunkStream);
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/constants.js
-var require_constants = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/constants.js"(exports, module) {
-    "use strict";
-    module.exports = {
-      PNG_SIGNATURE: [137, 80, 78, 71, 13, 10, 26, 10],
-      TYPE_IHDR: 1229472850,
-      TYPE_IEND: 1229278788,
-      TYPE_IDAT: 1229209940,
-      TYPE_PLTE: 1347179589,
-      TYPE_tRNS: 1951551059,
-      // eslint-disable-line camelcase
-      TYPE_gAMA: 1732332865,
-      // eslint-disable-line camelcase
-      // color-type bits
-      COLORTYPE_GRAYSCALE: 0,
-      COLORTYPE_PALETTE: 1,
-      COLORTYPE_COLOR: 2,
-      COLORTYPE_ALPHA: 4,
-      // e.g. grayscale and alpha
-      // color-type combinations
-      COLORTYPE_PALETTE_COLOR: 3,
-      COLORTYPE_COLOR_ALPHA: 6,
-      COLORTYPE_TO_BPP_MAP: {
-        0: 1,
-        2: 3,
-        3: 1,
-        4: 2,
-        6: 4
-      },
-      GAMMA_DIVISION: 1e5
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/crc.js
-var require_crc = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/crc.js"(exports, module) {
-    "use strict";
-    var crcTable = [];
-    (function() {
-      for (let i = 0; i < 256; i++) {
-        let currentCrc = i;
-        for (let j = 0; j < 8; j++) {
-          if (currentCrc & 1) {
-            currentCrc = 3988292384 ^ currentCrc >>> 1;
-          } else {
-            currentCrc = currentCrc >>> 1;
-          }
-        }
-        crcTable[i] = currentCrc;
-      }
-    })();
-    var CrcCalculator = module.exports = function() {
-      this._crc = -1;
-    };
-    CrcCalculator.prototype.write = function(data) {
-      for (let i = 0; i < data.length; i++) {
-        this._crc = crcTable[(this._crc ^ data[i]) & 255] ^ this._crc >>> 8;
-      }
-      return true;
-    };
-    CrcCalculator.prototype.crc32 = function() {
-      return this._crc ^ -1;
-    };
-    CrcCalculator.crc32 = function(buf) {
-      let crc = -1;
-      for (let i = 0; i < buf.length; i++) {
-        crc = crcTable[(crc ^ buf[i]) & 255] ^ crc >>> 8;
-      }
-      return crc ^ -1;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/parser.js
-var require_parser = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/parser.js"(exports, module) {
-    "use strict";
-    var constants = require_constants();
-    var CrcCalculator = require_crc();
-    var Parser = module.exports = function(options, dependencies) {
-      this._options = options;
-      options.checkCRC = options.checkCRC !== false;
-      this._hasIHDR = false;
-      this._hasIEND = false;
-      this._emittedHeadersFinished = false;
-      this._palette = [];
-      this._colorType = 0;
-      this._chunks = {};
-      this._chunks[constants.TYPE_IHDR] = this._handleIHDR.bind(this);
-      this._chunks[constants.TYPE_IEND] = this._handleIEND.bind(this);
-      this._chunks[constants.TYPE_IDAT] = this._handleIDAT.bind(this);
-      this._chunks[constants.TYPE_PLTE] = this._handlePLTE.bind(this);
-      this._chunks[constants.TYPE_tRNS] = this._handleTRNS.bind(this);
-      this._chunks[constants.TYPE_gAMA] = this._handleGAMA.bind(this);
-      this.read = dependencies.read;
-      this.error = dependencies.error;
-      this.metadata = dependencies.metadata;
-      this.gamma = dependencies.gamma;
-      this.transColor = dependencies.transColor;
-      this.palette = dependencies.palette;
-      this.parsed = dependencies.parsed;
-      this.inflateData = dependencies.inflateData;
-      this.finished = dependencies.finished;
-      this.simpleTransparency = dependencies.simpleTransparency;
-      this.headersFinished = dependencies.headersFinished || function() {
-      };
-    };
-    Parser.prototype.start = function() {
-      this.read(constants.PNG_SIGNATURE.length, this._parseSignature.bind(this));
-    };
-    Parser.prototype._parseSignature = function(data) {
-      let signature = constants.PNG_SIGNATURE;
-      for (let i = 0; i < signature.length; i++) {
-        if (data[i] !== signature[i]) {
-          this.error(new Error("Invalid file signature"));
-          return;
-        }
-      }
-      this.read(8, this._parseChunkBegin.bind(this));
-    };
-    Parser.prototype._parseChunkBegin = function(data) {
-      let length = data.readUInt32BE(0);
-      let type = data.readUInt32BE(4);
-      let name = "";
-      for (let i = 4; i < 8; i++) {
-        name += String.fromCharCode(data[i]);
-      }
-      let ancillary = Boolean(data[4] & 32);
-      if (!this._hasIHDR && type !== constants.TYPE_IHDR) {
-        this.error(new Error("Expected IHDR on beggining"));
-        return;
-      }
-      this._crc = new CrcCalculator();
-      this._crc.write(Buffer.from(name));
-      if (this._chunks[type]) {
-        return this._chunks[type](length);
-      }
-      if (!ancillary) {
-        this.error(new Error("Unsupported critical chunk type " + name));
-        return;
-      }
-      this.read(length + 4, this._skipChunk.bind(this));
-    };
-    Parser.prototype._skipChunk = function() {
-      this.read(8, this._parseChunkBegin.bind(this));
-    };
-    Parser.prototype._handleChunkEnd = function() {
-      this.read(4, this._parseChunkEnd.bind(this));
-    };
-    Parser.prototype._parseChunkEnd = function(data) {
-      let fileCrc = data.readInt32BE(0);
-      let calcCrc = this._crc.crc32();
-      if (this._options.checkCRC && calcCrc !== fileCrc) {
-        this.error(new Error("Crc error - " + fileCrc + " - " + calcCrc));
-        return;
-      }
-      if (!this._hasIEND) {
-        this.read(8, this._parseChunkBegin.bind(this));
-      }
-    };
-    Parser.prototype._handleIHDR = function(length) {
-      this.read(length, this._parseIHDR.bind(this));
-    };
-    Parser.prototype._parseIHDR = function(data) {
-      this._crc.write(data);
-      let width = data.readUInt32BE(0);
-      let height = data.readUInt32BE(4);
-      let depth = data[8];
-      let colorType = data[9];
-      let compr = data[10];
-      let filter = data[11];
-      let interlace = data[12];
-      if (depth !== 8 && depth !== 4 && depth !== 2 && depth !== 1 && depth !== 16) {
-        this.error(new Error("Unsupported bit depth " + depth));
-        return;
-      }
-      if (!(colorType in constants.COLORTYPE_TO_BPP_MAP)) {
-        this.error(new Error("Unsupported color type"));
-        return;
-      }
-      if (compr !== 0) {
-        this.error(new Error("Unsupported compression method"));
-        return;
-      }
-      if (filter !== 0) {
-        this.error(new Error("Unsupported filter method"));
-        return;
-      }
-      if (interlace !== 0 && interlace !== 1) {
-        this.error(new Error("Unsupported interlace method"));
-        return;
-      }
-      this._colorType = colorType;
-      let bpp = constants.COLORTYPE_TO_BPP_MAP[this._colorType];
-      this._hasIHDR = true;
-      this.metadata({
-        width,
-        height,
-        depth,
-        interlace: Boolean(interlace),
-        palette: Boolean(colorType & constants.COLORTYPE_PALETTE),
-        color: Boolean(colorType & constants.COLORTYPE_COLOR),
-        alpha: Boolean(colorType & constants.COLORTYPE_ALPHA),
-        bpp,
-        colorType
-      });
-      this._handleChunkEnd();
-    };
-    Parser.prototype._handlePLTE = function(length) {
-      this.read(length, this._parsePLTE.bind(this));
-    };
-    Parser.prototype._parsePLTE = function(data) {
-      this._crc.write(data);
-      let entries = Math.floor(data.length / 3);
-      for (let i = 0; i < entries; i++) {
-        this._palette.push([data[i * 3], data[i * 3 + 1], data[i * 3 + 2], 255]);
-      }
-      this.palette(this._palette);
-      this._handleChunkEnd();
-    };
-    Parser.prototype._handleTRNS = function(length) {
-      this.simpleTransparency();
-      this.read(length, this._parseTRNS.bind(this));
-    };
-    Parser.prototype._parseTRNS = function(data) {
-      this._crc.write(data);
-      if (this._colorType === constants.COLORTYPE_PALETTE_COLOR) {
-        if (this._palette.length === 0) {
-          this.error(new Error("Transparency chunk must be after palette"));
-          return;
-        }
-        if (data.length > this._palette.length) {
-          this.error(new Error("More transparent colors than palette size"));
-          return;
-        }
-        for (let i = 0; i < data.length; i++) {
-          this._palette[i][3] = data[i];
-        }
-        this.palette(this._palette);
-      }
-      if (this._colorType === constants.COLORTYPE_GRAYSCALE) {
-        this.transColor([data.readUInt16BE(0)]);
-      }
-      if (this._colorType === constants.COLORTYPE_COLOR) {
-        this.transColor([
-          data.readUInt16BE(0),
-          data.readUInt16BE(2),
-          data.readUInt16BE(4)
-        ]);
-      }
-      this._handleChunkEnd();
-    };
-    Parser.prototype._handleGAMA = function(length) {
-      this.read(length, this._parseGAMA.bind(this));
-    };
-    Parser.prototype._parseGAMA = function(data) {
-      this._crc.write(data);
-      this.gamma(data.readUInt32BE(0) / constants.GAMMA_DIVISION);
-      this._handleChunkEnd();
-    };
-    Parser.prototype._handleIDAT = function(length) {
-      if (!this._emittedHeadersFinished) {
-        this._emittedHeadersFinished = true;
-        this.headersFinished();
-      }
-      this.read(-length, this._parseIDAT.bind(this, length));
-    };
-    Parser.prototype._parseIDAT = function(length, data) {
-      this._crc.write(data);
-      if (this._colorType === constants.COLORTYPE_PALETTE_COLOR && this._palette.length === 0) {
-        throw new Error("Expected palette not found");
-      }
-      this.inflateData(data);
-      let leftOverLength = length - data.length;
-      if (leftOverLength > 0) {
-        this._handleIDAT(leftOverLength);
-      } else {
-        this._handleChunkEnd();
-      }
-    };
-    Parser.prototype._handleIEND = function(length) {
-      this.read(length, this._parseIEND.bind(this));
-    };
-    Parser.prototype._parseIEND = function(data) {
-      this._crc.write(data);
-      this._hasIEND = true;
-      this._handleChunkEnd();
-      if (this.finished) {
-        this.finished();
-      }
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/bitmapper.js
-var require_bitmapper = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/bitmapper.js"(exports) {
-    "use strict";
-    var interlaceUtils = require_interlace();
-    var pixelBppMapper = [
-      // 0 - dummy entry
-      function() {
-      },
-      // 1 - L
-      // 0: 0, 1: 0, 2: 0, 3: 0xff
-      function(pxData, data, pxPos, rawPos) {
-        if (rawPos === data.length) {
-          throw new Error("Ran out of data");
-        }
-        let pixel = data[rawPos];
-        pxData[pxPos] = pixel;
-        pxData[pxPos + 1] = pixel;
-        pxData[pxPos + 2] = pixel;
-        pxData[pxPos + 3] = 255;
-      },
-      // 2 - LA
-      // 0: 0, 1: 0, 2: 0, 3: 1
-      function(pxData, data, pxPos, rawPos) {
-        if (rawPos + 1 >= data.length) {
-          throw new Error("Ran out of data");
-        }
-        let pixel = data[rawPos];
-        pxData[pxPos] = pixel;
-        pxData[pxPos + 1] = pixel;
-        pxData[pxPos + 2] = pixel;
-        pxData[pxPos + 3] = data[rawPos + 1];
-      },
-      // 3 - RGB
-      // 0: 0, 1: 1, 2: 2, 3: 0xff
-      function(pxData, data, pxPos, rawPos) {
-        if (rawPos + 2 >= data.length) {
-          throw new Error("Ran out of data");
-        }
-        pxData[pxPos] = data[rawPos];
-        pxData[pxPos + 1] = data[rawPos + 1];
-        pxData[pxPos + 2] = data[rawPos + 2];
-        pxData[pxPos + 3] = 255;
-      },
-      // 4 - RGBA
-      // 0: 0, 1: 1, 2: 2, 3: 3
-      function(pxData, data, pxPos, rawPos) {
-        if (rawPos + 3 >= data.length) {
-          throw new Error("Ran out of data");
-        }
-        pxData[pxPos] = data[rawPos];
-        pxData[pxPos + 1] = data[rawPos + 1];
-        pxData[pxPos + 2] = data[rawPos + 2];
-        pxData[pxPos + 3] = data[rawPos + 3];
-      }
-    ];
-    var pixelBppCustomMapper = [
-      // 0 - dummy entry
-      function() {
-      },
-      // 1 - L
-      // 0: 0, 1: 0, 2: 0, 3: 0xff
-      function(pxData, pixelData, pxPos, maxBit) {
-        let pixel = pixelData[0];
-        pxData[pxPos] = pixel;
-        pxData[pxPos + 1] = pixel;
-        pxData[pxPos + 2] = pixel;
-        pxData[pxPos + 3] = maxBit;
-      },
-      // 2 - LA
-      // 0: 0, 1: 0, 2: 0, 3: 1
-      function(pxData, pixelData, pxPos) {
-        let pixel = pixelData[0];
-        pxData[pxPos] = pixel;
-        pxData[pxPos + 1] = pixel;
-        pxData[pxPos + 2] = pixel;
-        pxData[pxPos + 3] = pixelData[1];
-      },
-      // 3 - RGB
-      // 0: 0, 1: 1, 2: 2, 3: 0xff
-      function(pxData, pixelData, pxPos, maxBit) {
-        pxData[pxPos] = pixelData[0];
-        pxData[pxPos + 1] = pixelData[1];
-        pxData[pxPos + 2] = pixelData[2];
-        pxData[pxPos + 3] = maxBit;
-      },
-      // 4 - RGBA
-      // 0: 0, 1: 1, 2: 2, 3: 3
-      function(pxData, pixelData, pxPos) {
-        pxData[pxPos] = pixelData[0];
-        pxData[pxPos + 1] = pixelData[1];
-        pxData[pxPos + 2] = pixelData[2];
-        pxData[pxPos + 3] = pixelData[3];
-      }
-    ];
-    function bitRetriever(data, depth) {
-      let leftOver = [];
-      let i = 0;
-      function split() {
-        if (i === data.length) {
-          throw new Error("Ran out of data");
-        }
-        let byte = data[i];
-        i++;
-        let byte8, byte7, byte6, byte5, byte4, byte3, byte2, byte1;
-        switch (depth) {
-          default:
-            throw new Error("unrecognised depth");
-          case 16:
-            byte2 = data[i];
-            i++;
-            leftOver.push((byte << 8) + byte2);
-            break;
-          case 4:
-            byte2 = byte & 15;
-            byte1 = byte >> 4;
-            leftOver.push(byte1, byte2);
-            break;
-          case 2:
-            byte4 = byte & 3;
-            byte3 = byte >> 2 & 3;
-            byte2 = byte >> 4 & 3;
-            byte1 = byte >> 6 & 3;
-            leftOver.push(byte1, byte2, byte3, byte4);
-            break;
-          case 1:
-            byte8 = byte & 1;
-            byte7 = byte >> 1 & 1;
-            byte6 = byte >> 2 & 1;
-            byte5 = byte >> 3 & 1;
-            byte4 = byte >> 4 & 1;
-            byte3 = byte >> 5 & 1;
-            byte2 = byte >> 6 & 1;
-            byte1 = byte >> 7 & 1;
-            leftOver.push(byte1, byte2, byte3, byte4, byte5, byte6, byte7, byte8);
-            break;
-        }
-      }
-      return {
-        get: function(count) {
-          while (leftOver.length < count) {
-            split();
-          }
-          let returner = leftOver.slice(0, count);
-          leftOver = leftOver.slice(count);
-          return returner;
-        },
-        resetAfterLine: function() {
-          leftOver.length = 0;
-        },
-        end: function() {
-          if (i !== data.length) {
-            throw new Error("extra data found");
-          }
-        }
-      };
-    }
-    function mapImage8Bit(image, pxData, getPxPos, bpp, data, rawPos) {
-      let imageWidth = image.width;
-      let imageHeight = image.height;
-      let imagePass = image.index;
-      for (let y = 0; y < imageHeight; y++) {
-        for (let x = 0; x < imageWidth; x++) {
-          let pxPos = getPxPos(x, y, imagePass);
-          pixelBppMapper[bpp](pxData, data, pxPos, rawPos);
-          rawPos += bpp;
-        }
-      }
-      return rawPos;
-    }
-    function mapImageCustomBit(image, pxData, getPxPos, bpp, bits, maxBit) {
-      let imageWidth = image.width;
-      let imageHeight = image.height;
-      let imagePass = image.index;
-      for (let y = 0; y < imageHeight; y++) {
-        for (let x = 0; x < imageWidth; x++) {
-          let pixelData = bits.get(bpp);
-          let pxPos = getPxPos(x, y, imagePass);
-          pixelBppCustomMapper[bpp](pxData, pixelData, pxPos, maxBit);
-        }
-        bits.resetAfterLine();
-      }
-    }
-    exports.dataToBitMap = function(data, bitmapInfo) {
-      let width = bitmapInfo.width;
-      let height = bitmapInfo.height;
-      let depth = bitmapInfo.depth;
-      let bpp = bitmapInfo.bpp;
-      let interlace = bitmapInfo.interlace;
-      let bits;
-      if (depth !== 8) {
-        bits = bitRetriever(data, depth);
-      }
-      let pxData;
-      if (depth <= 8) {
-        pxData = Buffer.alloc(width * height * 4);
-      } else {
-        pxData = new Uint16Array(width * height * 4);
-      }
-      let maxBit = Math.pow(2, depth) - 1;
-      let rawPos = 0;
-      let images;
-      let getPxPos;
-      if (interlace) {
-        images = interlaceUtils.getImagePasses(width, height);
-        getPxPos = interlaceUtils.getInterlaceIterator(width, height);
-      } else {
-        let nonInterlacedPxPos = 0;
-        getPxPos = function() {
-          let returner = nonInterlacedPxPos;
-          nonInterlacedPxPos += 4;
-          return returner;
-        };
-        images = [{ width, height }];
-      }
-      for (let imageIndex = 0; imageIndex < images.length; imageIndex++) {
-        if (depth === 8) {
-          rawPos = mapImage8Bit(
-            images[imageIndex],
-            pxData,
-            getPxPos,
-            bpp,
-            data,
-            rawPos
-          );
-        } else {
-          mapImageCustomBit(
-            images[imageIndex],
-            pxData,
-            getPxPos,
-            bpp,
-            bits,
-            maxBit
-          );
-        }
-      }
-      if (depth === 8) {
-        if (rawPos !== data.length) {
-          throw new Error("extra data found");
-        }
-      } else {
-        bits.end();
-      }
-      return pxData;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/format-normaliser.js
-var require_format_normaliser = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/format-normaliser.js"(exports, module) {
-    "use strict";
-    function dePalette(indata, outdata, width, height, palette) {
-      let pxPos = 0;
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          let color = palette[indata[pxPos]];
-          if (!color) {
-            throw new Error("index " + indata[pxPos] + " not in palette");
-          }
-          for (let i = 0; i < 4; i++) {
-            outdata[pxPos + i] = color[i];
-          }
-          pxPos += 4;
-        }
-      }
-    }
-    function replaceTransparentColor(indata, outdata, width, height, transColor) {
-      let pxPos = 0;
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          let makeTrans = false;
-          if (transColor.length === 1) {
-            if (transColor[0] === indata[pxPos]) {
-              makeTrans = true;
-            }
-          } else if (transColor[0] === indata[pxPos] && transColor[1] === indata[pxPos + 1] && transColor[2] === indata[pxPos + 2]) {
-            makeTrans = true;
-          }
-          if (makeTrans) {
-            for (let i = 0; i < 4; i++) {
-              outdata[pxPos + i] = 0;
-            }
-          }
-          pxPos += 4;
-        }
-      }
-    }
-    function scaleDepth(indata, outdata, width, height, depth) {
-      let maxOutSample = 255;
-      let maxInSample = Math.pow(2, depth) - 1;
-      let pxPos = 0;
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          for (let i = 0; i < 4; i++) {
-            outdata[pxPos + i] = Math.floor(
-              indata[pxPos + i] * maxOutSample / maxInSample + 0.5
-            );
-          }
-          pxPos += 4;
-        }
-      }
-    }
-    module.exports = function(indata, imageData) {
-      let depth = imageData.depth;
-      let width = imageData.width;
-      let height = imageData.height;
-      let colorType = imageData.colorType;
-      let transColor = imageData.transColor;
-      let palette = imageData.palette;
-      let outdata = indata;
-      if (colorType === 3) {
-        dePalette(indata, outdata, width, height, palette);
-      } else {
-        if (transColor) {
-          replaceTransparentColor(indata, outdata, width, height, transColor);
-        }
-        if (depth !== 8) {
-          if (depth === 16) {
-            outdata = Buffer.alloc(width * height * 4);
-          }
-          scaleDepth(indata, outdata, width, height, depth);
-        }
-      }
-      return outdata;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/parser-async.js
-var require_parser_async = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/parser-async.js"(exports, module) {
-    "use strict";
-    var util = __require("util");
-    var zlib = __require("zlib");
-    var ChunkStream = require_chunkstream();
-    var FilterAsync = require_filter_parse_async();
-    var Parser = require_parser();
-    var bitmapper = require_bitmapper();
-    var formatNormaliser = require_format_normaliser();
-    var ParserAsync = module.exports = function(options) {
-      ChunkStream.call(this);
-      this._parser = new Parser(options, {
-        read: this.read.bind(this),
-        error: this._handleError.bind(this),
-        metadata: this._handleMetaData.bind(this),
-        gamma: this.emit.bind(this, "gamma"),
-        palette: this._handlePalette.bind(this),
-        transColor: this._handleTransColor.bind(this),
-        finished: this._finished.bind(this),
-        inflateData: this._inflateData.bind(this),
-        simpleTransparency: this._simpleTransparency.bind(this),
-        headersFinished: this._headersFinished.bind(this)
-      });
-      this._options = options;
-      this.writable = true;
-      this._parser.start();
-    };
-    util.inherits(ParserAsync, ChunkStream);
-    ParserAsync.prototype._handleError = function(err) {
-      this.emit("error", err);
-      this.writable = false;
-      this.destroy();
-      if (this._inflate && this._inflate.destroy) {
-        this._inflate.destroy();
-      }
-      if (this._filter) {
-        this._filter.destroy();
-        this._filter.on("error", function() {
-        });
-      }
-      this.errord = true;
-    };
-    ParserAsync.prototype._inflateData = function(data) {
-      if (!this._inflate) {
-        if (this._bitmapInfo.interlace) {
-          this._inflate = zlib.createInflate();
-          this._inflate.on("error", this.emit.bind(this, "error"));
-          this._filter.on("complete", this._complete.bind(this));
-          this._inflate.pipe(this._filter);
-        } else {
-          let rowSize = (this._bitmapInfo.width * this._bitmapInfo.bpp * this._bitmapInfo.depth + 7 >> 3) + 1;
-          let imageSize = rowSize * this._bitmapInfo.height;
-          let chunkSize = Math.max(imageSize, zlib.Z_MIN_CHUNK);
-          this._inflate = zlib.createInflate({ chunkSize });
-          let leftToInflate = imageSize;
-          let emitError = this.emit.bind(this, "error");
-          this._inflate.on("error", function(err) {
-            if (!leftToInflate) {
-              return;
-            }
-            emitError(err);
-          });
-          this._filter.on("complete", this._complete.bind(this));
-          let filterWrite = this._filter.write.bind(this._filter);
-          this._inflate.on("data", function(chunk) {
-            if (!leftToInflate) {
-              return;
-            }
-            if (chunk.length > leftToInflate) {
-              chunk = chunk.slice(0, leftToInflate);
-            }
-            leftToInflate -= chunk.length;
-            filterWrite(chunk);
-          });
-          this._inflate.on("end", this._filter.end.bind(this._filter));
-        }
-      }
-      this._inflate.write(data);
-    };
-    ParserAsync.prototype._handleMetaData = function(metaData) {
-      this._metaData = metaData;
-      this._bitmapInfo = Object.create(metaData);
-      this._filter = new FilterAsync(this._bitmapInfo);
-    };
-    ParserAsync.prototype._handleTransColor = function(transColor) {
-      this._bitmapInfo.transColor = transColor;
-    };
-    ParserAsync.prototype._handlePalette = function(palette) {
-      this._bitmapInfo.palette = palette;
-    };
-    ParserAsync.prototype._simpleTransparency = function() {
-      this._metaData.alpha = true;
-    };
-    ParserAsync.prototype._headersFinished = function() {
-      this.emit("metadata", this._metaData);
-    };
-    ParserAsync.prototype._finished = function() {
-      if (this.errord) {
-        return;
-      }
-      if (!this._inflate) {
-        this.emit("error", "No Inflate block");
-      } else {
-        this._inflate.end();
-      }
-    };
-    ParserAsync.prototype._complete = function(filteredData) {
-      if (this.errord) {
-        return;
-      }
-      let normalisedBitmapData;
-      try {
-        let bitmapData = bitmapper.dataToBitMap(filteredData, this._bitmapInfo);
-        normalisedBitmapData = formatNormaliser(bitmapData, this._bitmapInfo);
-        bitmapData = null;
-      } catch (ex) {
-        this._handleError(ex);
-        return;
-      }
-      this.emit("parsed", normalisedBitmapData);
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/bitpacker.js
-var require_bitpacker = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/bitpacker.js"(exports, module) {
-    "use strict";
-    var constants = require_constants();
-    module.exports = function(dataIn, width, height, options) {
-      let outHasAlpha = [constants.COLORTYPE_COLOR_ALPHA, constants.COLORTYPE_ALPHA].indexOf(
-        options.colorType
-      ) !== -1;
-      if (options.colorType === options.inputColorType) {
-        let bigEndian = (function() {
-          let buffer = new ArrayBuffer(2);
-          new DataView(buffer).setInt16(
-            0,
-            256,
-            true
-            /* littleEndian */
-          );
-          return new Int16Array(buffer)[0] !== 256;
-        })();
-        if (options.bitDepth === 8 || options.bitDepth === 16 && bigEndian) {
-          return dataIn;
-        }
-      }
-      let data = options.bitDepth !== 16 ? dataIn : new Uint16Array(dataIn.buffer);
-      let maxValue = 255;
-      let inBpp = constants.COLORTYPE_TO_BPP_MAP[options.inputColorType];
-      if (inBpp === 4 && !options.inputHasAlpha) {
-        inBpp = 3;
-      }
-      let outBpp = constants.COLORTYPE_TO_BPP_MAP[options.colorType];
-      if (options.bitDepth === 16) {
-        maxValue = 65535;
-        outBpp *= 2;
-      }
-      let outData = Buffer.alloc(width * height * outBpp);
-      let inIndex = 0;
-      let outIndex = 0;
-      let bgColor = options.bgColor || {};
-      if (bgColor.red === void 0) {
-        bgColor.red = maxValue;
-      }
-      if (bgColor.green === void 0) {
-        bgColor.green = maxValue;
-      }
-      if (bgColor.blue === void 0) {
-        bgColor.blue = maxValue;
-      }
-      function getRGBA() {
-        let red;
-        let green;
-        let blue;
-        let alpha = maxValue;
-        switch (options.inputColorType) {
-          case constants.COLORTYPE_COLOR_ALPHA:
-            alpha = data[inIndex + 3];
-            red = data[inIndex];
-            green = data[inIndex + 1];
-            blue = data[inIndex + 2];
-            break;
-          case constants.COLORTYPE_COLOR:
-            red = data[inIndex];
-            green = data[inIndex + 1];
-            blue = data[inIndex + 2];
-            break;
-          case constants.COLORTYPE_ALPHA:
-            alpha = data[inIndex + 1];
-            red = data[inIndex];
-            green = red;
-            blue = red;
-            break;
-          case constants.COLORTYPE_GRAYSCALE:
-            red = data[inIndex];
-            green = red;
-            blue = red;
-            break;
-          default:
-            throw new Error(
-              "input color type:" + options.inputColorType + " is not supported at present"
-            );
-        }
-        if (options.inputHasAlpha) {
-          if (!outHasAlpha) {
-            alpha /= maxValue;
-            red = Math.min(
-              Math.max(Math.round((1 - alpha) * bgColor.red + alpha * red), 0),
-              maxValue
-            );
-            green = Math.min(
-              Math.max(Math.round((1 - alpha) * bgColor.green + alpha * green), 0),
-              maxValue
-            );
-            blue = Math.min(
-              Math.max(Math.round((1 - alpha) * bgColor.blue + alpha * blue), 0),
-              maxValue
-            );
-          }
-        }
-        return { red, green, blue, alpha };
-      }
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          let rgba = getRGBA(data, inIndex);
-          switch (options.colorType) {
-            case constants.COLORTYPE_COLOR_ALPHA:
-            case constants.COLORTYPE_COLOR:
-              if (options.bitDepth === 8) {
-                outData[outIndex] = rgba.red;
-                outData[outIndex + 1] = rgba.green;
-                outData[outIndex + 2] = rgba.blue;
-                if (outHasAlpha) {
-                  outData[outIndex + 3] = rgba.alpha;
-                }
-              } else {
-                outData.writeUInt16BE(rgba.red, outIndex);
-                outData.writeUInt16BE(rgba.green, outIndex + 2);
-                outData.writeUInt16BE(rgba.blue, outIndex + 4);
-                if (outHasAlpha) {
-                  outData.writeUInt16BE(rgba.alpha, outIndex + 6);
-                }
-              }
-              break;
-            case constants.COLORTYPE_ALPHA:
-            case constants.COLORTYPE_GRAYSCALE: {
-              let grayscale = (rgba.red + rgba.green + rgba.blue) / 3;
-              if (options.bitDepth === 8) {
-                outData[outIndex] = grayscale;
-                if (outHasAlpha) {
-                  outData[outIndex + 1] = rgba.alpha;
-                }
-              } else {
-                outData.writeUInt16BE(grayscale, outIndex);
-                if (outHasAlpha) {
-                  outData.writeUInt16BE(rgba.alpha, outIndex + 2);
-                }
-              }
-              break;
-            }
-            default:
-              throw new Error("unrecognised color Type " + options.colorType);
-          }
-          inIndex += inBpp;
-          outIndex += outBpp;
-        }
-      }
-      return outData;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/filter-pack.js
-var require_filter_pack = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/filter-pack.js"(exports, module) {
-    "use strict";
-    var paethPredictor = require_paeth_predictor();
-    function filterNone(pxData, pxPos, byteWidth, rawData, rawPos) {
-      for (let x = 0; x < byteWidth; x++) {
-        rawData[rawPos + x] = pxData[pxPos + x];
-      }
-    }
-    function filterSumNone(pxData, pxPos, byteWidth) {
-      let sum = 0;
-      let length = pxPos + byteWidth;
-      for (let i = pxPos; i < length; i++) {
-        sum += Math.abs(pxData[i]);
-      }
-      return sum;
-    }
-    function filterSub(pxData, pxPos, byteWidth, rawData, rawPos, bpp) {
-      for (let x = 0; x < byteWidth; x++) {
-        let left = x >= bpp ? pxData[pxPos + x - bpp] : 0;
-        let val = pxData[pxPos + x] - left;
-        rawData[rawPos + x] = val;
-      }
-    }
-    function filterSumSub(pxData, pxPos, byteWidth, bpp) {
-      let sum = 0;
-      for (let x = 0; x < byteWidth; x++) {
-        let left = x >= bpp ? pxData[pxPos + x - bpp] : 0;
-        let val = pxData[pxPos + x] - left;
-        sum += Math.abs(val);
-      }
-      return sum;
-    }
-    function filterUp(pxData, pxPos, byteWidth, rawData, rawPos) {
-      for (let x = 0; x < byteWidth; x++) {
-        let up = pxPos > 0 ? pxData[pxPos + x - byteWidth] : 0;
-        let val = pxData[pxPos + x] - up;
-        rawData[rawPos + x] = val;
-      }
-    }
-    function filterSumUp(pxData, pxPos, byteWidth) {
-      let sum = 0;
-      let length = pxPos + byteWidth;
-      for (let x = pxPos; x < length; x++) {
-        let up = pxPos > 0 ? pxData[x - byteWidth] : 0;
-        let val = pxData[x] - up;
-        sum += Math.abs(val);
-      }
-      return sum;
-    }
-    function filterAvg(pxData, pxPos, byteWidth, rawData, rawPos, bpp) {
-      for (let x = 0; x < byteWidth; x++) {
-        let left = x >= bpp ? pxData[pxPos + x - bpp] : 0;
-        let up = pxPos > 0 ? pxData[pxPos + x - byteWidth] : 0;
-        let val = pxData[pxPos + x] - (left + up >> 1);
-        rawData[rawPos + x] = val;
-      }
-    }
-    function filterSumAvg(pxData, pxPos, byteWidth, bpp) {
-      let sum = 0;
-      for (let x = 0; x < byteWidth; x++) {
-        let left = x >= bpp ? pxData[pxPos + x - bpp] : 0;
-        let up = pxPos > 0 ? pxData[pxPos + x - byteWidth] : 0;
-        let val = pxData[pxPos + x] - (left + up >> 1);
-        sum += Math.abs(val);
-      }
-      return sum;
-    }
-    function filterPaeth(pxData, pxPos, byteWidth, rawData, rawPos, bpp) {
-      for (let x = 0; x < byteWidth; x++) {
-        let left = x >= bpp ? pxData[pxPos + x - bpp] : 0;
-        let up = pxPos > 0 ? pxData[pxPos + x - byteWidth] : 0;
-        let upleft = pxPos > 0 && x >= bpp ? pxData[pxPos + x - (byteWidth + bpp)] : 0;
-        let val = pxData[pxPos + x] - paethPredictor(left, up, upleft);
-        rawData[rawPos + x] = val;
-      }
-    }
-    function filterSumPaeth(pxData, pxPos, byteWidth, bpp) {
-      let sum = 0;
-      for (let x = 0; x < byteWidth; x++) {
-        let left = x >= bpp ? pxData[pxPos + x - bpp] : 0;
-        let up = pxPos > 0 ? pxData[pxPos + x - byteWidth] : 0;
-        let upleft = pxPos > 0 && x >= bpp ? pxData[pxPos + x - (byteWidth + bpp)] : 0;
-        let val = pxData[pxPos + x] - paethPredictor(left, up, upleft);
-        sum += Math.abs(val);
-      }
-      return sum;
-    }
-    var filters = {
-      0: filterNone,
-      1: filterSub,
-      2: filterUp,
-      3: filterAvg,
-      4: filterPaeth
-    };
-    var filterSums = {
-      0: filterSumNone,
-      1: filterSumSub,
-      2: filterSumUp,
-      3: filterSumAvg,
-      4: filterSumPaeth
-    };
-    module.exports = function(pxData, width, height, options, bpp) {
-      let filterTypes;
-      if (!("filterType" in options) || options.filterType === -1) {
-        filterTypes = [0, 1, 2, 3, 4];
-      } else if (typeof options.filterType === "number") {
-        filterTypes = [options.filterType];
-      } else {
-        throw new Error("unrecognised filter types");
-      }
-      if (options.bitDepth === 16) {
-        bpp *= 2;
-      }
-      let byteWidth = width * bpp;
-      let rawPos = 0;
-      let pxPos = 0;
-      let rawData = Buffer.alloc((byteWidth + 1) * height);
-      let sel = filterTypes[0];
-      for (let y = 0; y < height; y++) {
-        if (filterTypes.length > 1) {
-          let min = Infinity;
-          for (let i = 0; i < filterTypes.length; i++) {
-            let sum = filterSums[filterTypes[i]](pxData, pxPos, byteWidth, bpp);
-            if (sum < min) {
-              sel = filterTypes[i];
-              min = sum;
-            }
-          }
-        }
-        rawData[rawPos] = sel;
-        rawPos++;
-        filters[sel](pxData, pxPos, byteWidth, rawData, rawPos, bpp);
-        rawPos += byteWidth;
-        pxPos += byteWidth;
-      }
-      return rawData;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/packer.js
-var require_packer = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/packer.js"(exports, module) {
-    "use strict";
-    var constants = require_constants();
-    var CrcStream = require_crc();
-    var bitPacker = require_bitpacker();
-    var filter = require_filter_pack();
-    var zlib = __require("zlib");
-    var Packer = module.exports = function(options) {
-      this._options = options;
-      options.deflateChunkSize = options.deflateChunkSize || 32 * 1024;
-      options.deflateLevel = options.deflateLevel != null ? options.deflateLevel : 9;
-      options.deflateStrategy = options.deflateStrategy != null ? options.deflateStrategy : 3;
-      options.inputHasAlpha = options.inputHasAlpha != null ? options.inputHasAlpha : true;
-      options.deflateFactory = options.deflateFactory || zlib.createDeflate;
-      options.bitDepth = options.bitDepth || 8;
-      options.colorType = typeof options.colorType === "number" ? options.colorType : constants.COLORTYPE_COLOR_ALPHA;
-      options.inputColorType = typeof options.inputColorType === "number" ? options.inputColorType : constants.COLORTYPE_COLOR_ALPHA;
-      if ([
-        constants.COLORTYPE_GRAYSCALE,
-        constants.COLORTYPE_COLOR,
-        constants.COLORTYPE_COLOR_ALPHA,
-        constants.COLORTYPE_ALPHA
-      ].indexOf(options.colorType) === -1) {
-        throw new Error(
-          "option color type:" + options.colorType + " is not supported at present"
-        );
-      }
-      if ([
-        constants.COLORTYPE_GRAYSCALE,
-        constants.COLORTYPE_COLOR,
-        constants.COLORTYPE_COLOR_ALPHA,
-        constants.COLORTYPE_ALPHA
-      ].indexOf(options.inputColorType) === -1) {
-        throw new Error(
-          "option input color type:" + options.inputColorType + " is not supported at present"
-        );
-      }
-      if (options.bitDepth !== 8 && options.bitDepth !== 16) {
-        throw new Error(
-          "option bit depth:" + options.bitDepth + " is not supported at present"
-        );
-      }
-    };
-    Packer.prototype.getDeflateOptions = function() {
-      return {
-        chunkSize: this._options.deflateChunkSize,
-        level: this._options.deflateLevel,
-        strategy: this._options.deflateStrategy
-      };
-    };
-    Packer.prototype.createDeflate = function() {
-      return this._options.deflateFactory(this.getDeflateOptions());
-    };
-    Packer.prototype.filterData = function(data, width, height) {
-      let packedData = bitPacker(data, width, height, this._options);
-      let bpp = constants.COLORTYPE_TO_BPP_MAP[this._options.colorType];
-      let filteredData = filter(packedData, width, height, this._options, bpp);
-      return filteredData;
-    };
-    Packer.prototype._packChunk = function(type, data) {
-      let len = data ? data.length : 0;
-      let buf = Buffer.alloc(len + 12);
-      buf.writeUInt32BE(len, 0);
-      buf.writeUInt32BE(type, 4);
-      if (data) {
-        data.copy(buf, 8);
-      }
-      buf.writeInt32BE(
-        CrcStream.crc32(buf.slice(4, buf.length - 4)),
-        buf.length - 4
-      );
-      return buf;
-    };
-    Packer.prototype.packGAMA = function(gamma) {
-      let buf = Buffer.alloc(4);
-      buf.writeUInt32BE(Math.floor(gamma * constants.GAMMA_DIVISION), 0);
-      return this._packChunk(constants.TYPE_gAMA, buf);
-    };
-    Packer.prototype.packIHDR = function(width, height) {
-      let buf = Buffer.alloc(13);
-      buf.writeUInt32BE(width, 0);
-      buf.writeUInt32BE(height, 4);
-      buf[8] = this._options.bitDepth;
-      buf[9] = this._options.colorType;
-      buf[10] = 0;
-      buf[11] = 0;
-      buf[12] = 0;
-      return this._packChunk(constants.TYPE_IHDR, buf);
-    };
-    Packer.prototype.packIDAT = function(data) {
-      return this._packChunk(constants.TYPE_IDAT, data);
-    };
-    Packer.prototype.packIEND = function() {
-      return this._packChunk(constants.TYPE_IEND, null);
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/packer-async.js
-var require_packer_async = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/packer-async.js"(exports, module) {
-    "use strict";
-    var util = __require("util");
-    var Stream = __require("stream");
-    var constants = require_constants();
-    var Packer = require_packer();
-    var PackerAsync = module.exports = function(opt) {
-      Stream.call(this);
-      let options = opt || {};
-      this._packer = new Packer(options);
-      this._deflate = this._packer.createDeflate();
-      this.readable = true;
-    };
-    util.inherits(PackerAsync, Stream);
-    PackerAsync.prototype.pack = function(data, width, height, gamma) {
-      this.emit("data", Buffer.from(constants.PNG_SIGNATURE));
-      this.emit("data", this._packer.packIHDR(width, height));
-      if (gamma) {
-        this.emit("data", this._packer.packGAMA(gamma));
-      }
-      let filteredData = this._packer.filterData(data, width, height);
-      this._deflate.on("error", this.emit.bind(this, "error"));
-      this._deflate.on(
-        "data",
-        function(compressedData) {
-          this.emit("data", this._packer.packIDAT(compressedData));
-        }.bind(this)
-      );
-      this._deflate.on(
-        "end",
-        function() {
-          this.emit("data", this._packer.packIEND());
-          this.emit("end");
-        }.bind(this)
-      );
-      this._deflate.end(filteredData);
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/sync-inflate.js
-var require_sync_inflate = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/sync-inflate.js"(exports, module) {
-    "use strict";
-    var assert = __require("assert").ok;
-    var zlib = __require("zlib");
-    var util = __require("util");
-    var kMaxLength = __require("buffer").kMaxLength;
-    function Inflate(opts) {
-      if (!(this instanceof Inflate)) {
-        return new Inflate(opts);
-      }
-      if (opts && opts.chunkSize < zlib.Z_MIN_CHUNK) {
-        opts.chunkSize = zlib.Z_MIN_CHUNK;
-      }
-      zlib.Inflate.call(this, opts);
-      this._offset = this._offset === void 0 ? this._outOffset : this._offset;
-      this._buffer = this._buffer || this._outBuffer;
-      if (opts && opts.maxLength != null) {
-        this._maxLength = opts.maxLength;
-      }
-    }
-    function createInflate(opts) {
-      return new Inflate(opts);
-    }
-    function _close(engine, callback) {
-      if (callback) {
-        process.nextTick(callback);
-      }
-      if (!engine._handle) {
-        return;
-      }
-      engine._handle.close();
-      engine._handle = null;
-    }
-    Inflate.prototype._processChunk = function(chunk, flushFlag, asyncCb) {
-      if (typeof asyncCb === "function") {
-        return zlib.Inflate._processChunk.call(this, chunk, flushFlag, asyncCb);
-      }
-      let self2 = this;
-      let availInBefore = chunk && chunk.length;
-      let availOutBefore = this._chunkSize - this._offset;
-      let leftToInflate = this._maxLength;
-      let inOff = 0;
-      let buffers = [];
-      let nread = 0;
-      let error;
-      this.on("error", function(err) {
-        error = err;
-      });
-      function handleChunk(availInAfter, availOutAfter) {
-        if (self2._hadError) {
-          return;
-        }
-        let have = availOutBefore - availOutAfter;
-        assert(have >= 0, "have should not go down");
-        if (have > 0) {
-          let out = self2._buffer.slice(self2._offset, self2._offset + have);
-          self2._offset += have;
-          if (out.length > leftToInflate) {
-            out = out.slice(0, leftToInflate);
-          }
-          buffers.push(out);
-          nread += out.length;
-          leftToInflate -= out.length;
-          if (leftToInflate === 0) {
-            return false;
-          }
-        }
-        if (availOutAfter === 0 || self2._offset >= self2._chunkSize) {
-          availOutBefore = self2._chunkSize;
-          self2._offset = 0;
-          self2._buffer = Buffer.allocUnsafe(self2._chunkSize);
-        }
-        if (availOutAfter === 0) {
-          inOff += availInBefore - availInAfter;
-          availInBefore = availInAfter;
-          return true;
-        }
-        return false;
-      }
-      assert(this._handle, "zlib binding closed");
-      let res;
-      do {
-        res = this._handle.writeSync(
-          flushFlag,
-          chunk,
-          // in
-          inOff,
-          // in_off
-          availInBefore,
-          // in_len
-          this._buffer,
-          // out
-          this._offset,
-          //out_off
-          availOutBefore
-        );
-        res = res || this._writeState;
-      } while (!this._hadError && handleChunk(res[0], res[1]));
-      if (this._hadError) {
-        throw error;
-      }
-      if (nread >= kMaxLength) {
-        _close(this);
-        throw new RangeError(
-          "Cannot create final Buffer. It would be larger than 0x" + kMaxLength.toString(16) + " bytes"
-        );
-      }
-      let buf = Buffer.concat(buffers, nread);
-      _close(this);
-      return buf;
-    };
-    util.inherits(Inflate, zlib.Inflate);
-    function zlibBufferSync(engine, buffer) {
-      if (typeof buffer === "string") {
-        buffer = Buffer.from(buffer);
-      }
-      if (!(buffer instanceof Buffer)) {
-        throw new TypeError("Not a string or buffer");
-      }
-      let flushFlag = engine._finishFlushFlag;
-      if (flushFlag == null) {
-        flushFlag = zlib.Z_FINISH;
-      }
-      return engine._processChunk(buffer, flushFlag);
-    }
-    function inflateSync(buffer, opts) {
-      return zlibBufferSync(new Inflate(opts), buffer);
-    }
-    module.exports = exports = inflateSync;
-    exports.Inflate = Inflate;
-    exports.createInflate = createInflate;
-    exports.inflateSync = inflateSync;
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/sync-reader.js
-var require_sync_reader = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/sync-reader.js"(exports, module) {
-    "use strict";
-    var SyncReader = module.exports = function(buffer) {
-      this._buffer = buffer;
-      this._reads = [];
-    };
-    SyncReader.prototype.read = function(length, callback) {
-      this._reads.push({
-        length: Math.abs(length),
-        // if length < 0 then at most this length
-        allowLess: length < 0,
-        func: callback
-      });
-    };
-    SyncReader.prototype.process = function() {
-      while (this._reads.length > 0 && this._buffer.length) {
-        let read = this._reads[0];
-        if (this._buffer.length && (this._buffer.length >= read.length || read.allowLess)) {
-          this._reads.shift();
-          let buf = this._buffer;
-          this._buffer = buf.slice(read.length);
-          read.func.call(this, buf.slice(0, read.length));
-        } else {
-          break;
-        }
-      }
-      if (this._reads.length > 0) {
-        return new Error("There are some read requests waitng on finished stream");
-      }
-      if (this._buffer.length > 0) {
-        return new Error("unrecognised content at end of stream");
-      }
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/filter-parse-sync.js
-var require_filter_parse_sync = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/filter-parse-sync.js"(exports) {
-    "use strict";
-    var SyncReader = require_sync_reader();
-    var Filter = require_filter_parse();
-    exports.process = function(inBuffer, bitmapInfo) {
-      let outBuffers = [];
-      let reader = new SyncReader(inBuffer);
-      let filter = new Filter(bitmapInfo, {
-        read: reader.read.bind(reader),
-        write: function(bufferPart) {
-          outBuffers.push(bufferPart);
-        },
-        complete: function() {
-        }
-      });
-      filter.start();
-      reader.process();
-      return Buffer.concat(outBuffers);
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/parser-sync.js
-var require_parser_sync = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/parser-sync.js"(exports, module) {
-    "use strict";
-    var hasSyncZlib = true;
-    var zlib = __require("zlib");
-    var inflateSync = require_sync_inflate();
-    if (!zlib.deflateSync) {
-      hasSyncZlib = false;
-    }
-    var SyncReader = require_sync_reader();
-    var FilterSync = require_filter_parse_sync();
-    var Parser = require_parser();
-    var bitmapper = require_bitmapper();
-    var formatNormaliser = require_format_normaliser();
-    module.exports = function(buffer, options) {
-      if (!hasSyncZlib) {
-        throw new Error(
-          "To use the sync capability of this library in old node versions, please pin pngjs to v2.3.0"
-        );
-      }
-      let err;
-      function handleError(_err_) {
-        err = _err_;
-      }
-      let metaData;
-      function handleMetaData(_metaData_) {
-        metaData = _metaData_;
-      }
-      function handleTransColor(transColor) {
-        metaData.transColor = transColor;
-      }
-      function handlePalette(palette) {
-        metaData.palette = palette;
-      }
-      function handleSimpleTransparency() {
-        metaData.alpha = true;
-      }
-      let gamma;
-      function handleGamma(_gamma_) {
-        gamma = _gamma_;
-      }
-      let inflateDataList = [];
-      function handleInflateData(inflatedData2) {
-        inflateDataList.push(inflatedData2);
-      }
-      let reader = new SyncReader(buffer);
-      let parser = new Parser(options, {
-        read: reader.read.bind(reader),
-        error: handleError,
-        metadata: handleMetaData,
-        gamma: handleGamma,
-        palette: handlePalette,
-        transColor: handleTransColor,
-        inflateData: handleInflateData,
-        simpleTransparency: handleSimpleTransparency
-      });
-      parser.start();
-      reader.process();
-      if (err) {
-        throw err;
-      }
-      let inflateData = Buffer.concat(inflateDataList);
-      inflateDataList.length = 0;
-      let inflatedData;
-      if (metaData.interlace) {
-        inflatedData = zlib.inflateSync(inflateData);
-      } else {
-        let rowSize = (metaData.width * metaData.bpp * metaData.depth + 7 >> 3) + 1;
-        let imageSize = rowSize * metaData.height;
-        inflatedData = inflateSync(inflateData, {
-          chunkSize: imageSize,
-          maxLength: imageSize
-        });
-      }
-      inflateData = null;
-      if (!inflatedData || !inflatedData.length) {
-        throw new Error("bad png - invalid inflate data response");
-      }
-      let unfilteredData = FilterSync.process(inflatedData, metaData);
-      inflateData = null;
-      let bitmapData = bitmapper.dataToBitMap(unfilteredData, metaData);
-      unfilteredData = null;
-      let normalisedBitmapData = formatNormaliser(bitmapData, metaData);
-      metaData.data = normalisedBitmapData;
-      metaData.gamma = gamma || 0;
-      return metaData;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/packer-sync.js
-var require_packer_sync = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/packer-sync.js"(exports, module) {
-    "use strict";
-    var hasSyncZlib = true;
-    var zlib = __require("zlib");
-    if (!zlib.deflateSync) {
-      hasSyncZlib = false;
-    }
-    var constants = require_constants();
-    var Packer = require_packer();
-    module.exports = function(metaData, opt) {
-      if (!hasSyncZlib) {
-        throw new Error(
-          "To use the sync capability of this library in old node versions, please pin pngjs to v2.3.0"
-        );
-      }
-      let options = opt || {};
-      let packer = new Packer(options);
-      let chunks = [];
-      chunks.push(Buffer.from(constants.PNG_SIGNATURE));
-      chunks.push(packer.packIHDR(metaData.width, metaData.height));
-      if (metaData.gamma) {
-        chunks.push(packer.packGAMA(metaData.gamma));
-      }
-      let filteredData = packer.filterData(
-        metaData.data,
-        metaData.width,
-        metaData.height
-      );
-      let compressedData = zlib.deflateSync(
-        filteredData,
-        packer.getDeflateOptions()
-      );
-      filteredData = null;
-      if (!compressedData || !compressedData.length) {
-        throw new Error("bad png - invalid compressed data response");
-      }
-      chunks.push(packer.packIDAT(compressedData));
-      chunks.push(packer.packIEND());
-      return Buffer.concat(chunks);
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/png-sync.js
-var require_png_sync = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/png-sync.js"(exports) {
-    "use strict";
-    var parse = require_parser_sync();
-    var pack = require_packer_sync();
-    exports.read = function(buffer, options) {
-      return parse(buffer, options || {});
-    };
-    exports.write = function(png, options) {
-      return pack(png, options);
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/png.js
-var require_png = __commonJS({
-  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/png.js"(exports) {
-    "use strict";
-    var util = __require("util");
-    var Stream = __require("stream");
-    var Parser = require_parser_async();
-    var Packer = require_packer_async();
-    var PNGSync = require_png_sync();
-    var PNG = exports.PNG = function(options) {
-      Stream.call(this);
-      options = options || {};
-      this.width = options.width | 0;
-      this.height = options.height | 0;
-      this.data = this.width > 0 && this.height > 0 ? Buffer.alloc(4 * this.width * this.height) : null;
-      if (options.fill && this.data) {
-        this.data.fill(0);
-      }
-      this.gamma = 0;
-      this.readable = this.writable = true;
-      this._parser = new Parser(options);
-      this._parser.on("error", this.emit.bind(this, "error"));
-      this._parser.on("close", this._handleClose.bind(this));
-      this._parser.on("metadata", this._metadata.bind(this));
-      this._parser.on("gamma", this._gamma.bind(this));
-      this._parser.on(
-        "parsed",
-        function(data) {
-          this.data = data;
-          this.emit("parsed", data);
-        }.bind(this)
-      );
-      this._packer = new Packer(options);
-      this._packer.on("data", this.emit.bind(this, "data"));
-      this._packer.on("end", this.emit.bind(this, "end"));
-      this._parser.on("close", this._handleClose.bind(this));
-      this._packer.on("error", this.emit.bind(this, "error"));
-    };
-    util.inherits(PNG, Stream);
-    PNG.sync = PNGSync;
-    PNG.prototype.pack = function() {
-      if (!this.data || !this.data.length) {
-        this.emit("error", "No data provided");
-        return this;
-      }
-      process.nextTick(
-        function() {
-          this._packer.pack(this.data, this.width, this.height, this.gamma);
-        }.bind(this)
-      );
-      return this;
-    };
-    PNG.prototype.parse = function(data, callback) {
-      if (callback) {
-        let onParsed, onError;
-        onParsed = function(parsedData) {
-          this.removeListener("error", onError);
-          this.data = parsedData;
-          callback(null, this);
-        }.bind(this);
-        onError = function(err) {
-          this.removeListener("parsed", onParsed);
-          callback(err, null);
-        }.bind(this);
-        this.once("parsed", onParsed);
-        this.once("error", onError);
-      }
-      this.end(data);
-      return this;
-    };
-    PNG.prototype.write = function(data) {
-      this._parser.write(data);
-      return true;
-    };
-    PNG.prototype.end = function(data) {
-      this._parser.end(data);
-    };
-    PNG.prototype._metadata = function(metadata) {
-      this.width = metadata.width;
-      this.height = metadata.height;
-      this.emit("metadata", metadata);
-    };
-    PNG.prototype._gamma = function(gamma) {
-      this.gamma = gamma;
-    };
-    PNG.prototype._handleClose = function() {
-      if (!this._parser.writable && !this._packer.readable) {
-        this.emit("close");
-      }
-    };
-    PNG.bitblt = function(src, dst, srcX, srcY, width, height, deltaX, deltaY) {
-      srcX |= 0;
-      srcY |= 0;
-      width |= 0;
-      height |= 0;
-      deltaX |= 0;
-      deltaY |= 0;
-      if (srcX > src.width || srcY > src.height || srcX + width > src.width || srcY + height > src.height) {
-        throw new Error("bitblt reading outside image");
-      }
-      if (deltaX > dst.width || deltaY > dst.height || deltaX + width > dst.width || deltaY + height > dst.height) {
-        throw new Error("bitblt writing outside image");
-      }
-      for (let y = 0; y < height; y++) {
-        src.data.copy(
-          dst.data,
-          (deltaY + y) * dst.width + deltaX << 2,
-          (srcY + y) * src.width + srcX << 2,
-          (srcY + y) * src.width + srcX + width << 2
-        );
-      }
-    };
-    PNG.prototype.bitblt = function(dst, srcX, srcY, width, height, deltaX, deltaY) {
-      PNG.bitblt(this, dst, srcX, srcY, width, height, deltaX, deltaY);
-      return this;
-    };
-    PNG.adjustGamma = function(src) {
-      if (src.gamma) {
-        for (let y = 0; y < src.height; y++) {
-          for (let x = 0; x < src.width; x++) {
-            let idx = src.width * y + x << 2;
-            for (let i = 0; i < 3; i++) {
-              let sample = src.data[idx + i] / 255;
-              sample = Math.pow(sample, 1 / 2.2 / src.gamma);
-              src.data[idx + i] = Math.round(sample * 255);
-            }
-          }
-        }
-        src.gamma = 0;
-      }
-    };
-    PNG.prototype.adjustGamma = function() {
-      PNG.adjustGamma(this);
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/utils.js
-var require_utils2 = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/utils.js"(exports) {
-    function hex2rgba(hex) {
-      if (typeof hex === "number") {
-        hex = hex.toString();
-      }
-      if (typeof hex !== "string") {
-        throw new Error("Color should be defined as hex string");
-      }
-      let hexCode = hex.slice().replace("#", "").split("");
-      if (hexCode.length < 3 || hexCode.length === 5 || hexCode.length > 8) {
-        throw new Error("Invalid hex color: " + hex);
-      }
-      if (hexCode.length === 3 || hexCode.length === 4) {
-        hexCode = Array.prototype.concat.apply([], hexCode.map(function(c) {
-          return [c, c];
-        }));
-      }
-      if (hexCode.length === 6) hexCode.push("F", "F");
-      const hexValue = parseInt(hexCode.join(""), 16);
-      return {
-        r: hexValue >> 24 & 255,
-        g: hexValue >> 16 & 255,
-        b: hexValue >> 8 & 255,
-        a: hexValue & 255,
-        hex: "#" + hexCode.slice(0, 6).join("")
-      };
-    }
-    exports.getOptions = function getOptions(options) {
-      if (!options) options = {};
-      if (!options.color) options.color = {};
-      const margin = typeof options.margin === "undefined" || options.margin === null || options.margin < 0 ? 4 : options.margin;
-      const width = options.width && options.width >= 21 ? options.width : void 0;
-      const scale = options.scale || 4;
-      return {
-        width,
-        scale: width ? 4 : scale,
-        margin,
-        color: {
-          dark: hex2rgba(options.color.dark || "#000000ff"),
-          light: hex2rgba(options.color.light || "#ffffffff")
-        },
-        type: options.type,
-        rendererOpts: options.rendererOpts || {}
-      };
-    };
-    exports.getScale = function getScale(qrSize, opts) {
-      return opts.width && opts.width >= qrSize + opts.margin * 2 ? opts.width / (qrSize + opts.margin * 2) : opts.scale;
-    };
-    exports.getImageWidth = function getImageWidth(qrSize, opts) {
-      const scale = exports.getScale(qrSize, opts);
-      return Math.floor((qrSize + opts.margin * 2) * scale);
-    };
-    exports.qrToImageData = function qrToImageData(imgData, qr, opts) {
-      const size = qr.modules.size;
-      const data = qr.modules.data;
-      const scale = exports.getScale(size, opts);
-      const symbolSize = Math.floor((size + opts.margin * 2) * scale);
-      const scaledMargin = opts.margin * scale;
-      const palette = [opts.color.light, opts.color.dark];
-      for (let i = 0; i < symbolSize; i++) {
-        for (let j = 0; j < symbolSize; j++) {
-          let posDst = (i * symbolSize + j) * 4;
-          let pxColor = opts.color.light;
-          if (i >= scaledMargin && j >= scaledMargin && i < symbolSize - scaledMargin && j < symbolSize - scaledMargin) {
-            const iSrc = Math.floor((i - scaledMargin) / scale);
-            const jSrc = Math.floor((j - scaledMargin) / scale);
-            pxColor = palette[data[iSrc * size + jSrc] ? 1 : 0];
-          }
-          imgData[posDst++] = pxColor.r;
-          imgData[posDst++] = pxColor.g;
-          imgData[posDst++] = pxColor.b;
-          imgData[posDst] = pxColor.a;
-        }
-      }
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/png.js
-var require_png2 = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/png.js"(exports) {
-    var fs = __require("fs");
-    var PNG = require_png().PNG;
-    var Utils = require_utils2();
-    exports.render = function render(qrData, options) {
-      const opts = Utils.getOptions(options);
-      const pngOpts = opts.rendererOpts;
-      const size = Utils.getImageWidth(qrData.modules.size, opts);
-      pngOpts.width = size;
-      pngOpts.height = size;
-      const pngImage = new PNG(pngOpts);
-      Utils.qrToImageData(pngImage.data, qrData, opts);
-      return pngImage;
-    };
-    exports.renderToDataURL = function renderToDataURL(qrData, options, cb) {
-      if (typeof cb === "undefined") {
-        cb = options;
-        options = void 0;
-      }
-      exports.renderToBuffer(qrData, options, function(err, output) {
-        if (err) cb(err);
-        let url = "data:image/png;base64,";
-        url += output.toString("base64");
-        cb(null, url);
-      });
-    };
-    exports.renderToBuffer = function renderToBuffer(qrData, options, cb) {
-      if (typeof cb === "undefined") {
-        cb = options;
-        options = void 0;
-      }
-      const png = exports.render(qrData, options);
-      const buffer = [];
-      png.on("error", cb);
-      png.on("data", function(data) {
-        buffer.push(data);
-      });
-      png.on("end", function() {
-        cb(null, Buffer.concat(buffer));
-      });
-      png.pack();
-    };
-    exports.renderToFile = function renderToFile(path, qrData, options, cb) {
-      if (typeof cb === "undefined") {
-        cb = options;
-        options = void 0;
-      }
-      let called = false;
-      const done = (...args) => {
-        if (called) return;
-        called = true;
-        cb.apply(null, args);
-      };
-      const stream = fs.createWriteStream(path);
-      stream.on("error", done);
-      stream.on("close", done);
-      exports.renderToFileStream(stream, qrData, options);
-    };
-    exports.renderToFileStream = function renderToFileStream(stream, qrData, options) {
-      const png = exports.render(qrData, options);
-      png.pack().pipe(stream);
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/utf8.js
-var require_utf8 = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/utf8.js"(exports) {
-    var Utils = require_utils2();
-    var BLOCK_CHAR = {
-      WW: " ",
-      WB: "\u2584",
-      BB: "\u2588",
-      BW: "\u2580"
-    };
-    var INVERTED_BLOCK_CHAR = {
-      BB: " ",
-      BW: "\u2584",
-      WW: "\u2588",
-      WB: "\u2580"
-    };
-    function getBlockChar(top, bottom, blocks) {
-      if (top && bottom) return blocks.BB;
-      if (top && !bottom) return blocks.BW;
-      if (!top && bottom) return blocks.WB;
-      return blocks.WW;
-    }
-    exports.render = function(qrData, options, cb) {
-      const opts = Utils.getOptions(options);
-      let blocks = BLOCK_CHAR;
-      if (opts.color.dark.hex === "#ffffff" || opts.color.light.hex === "#000000") {
-        blocks = INVERTED_BLOCK_CHAR;
-      }
-      const size = qrData.modules.size;
-      const data = qrData.modules.data;
-      let output = "";
-      let hMargin = Array(size + opts.margin * 2 + 1).join(blocks.WW);
-      hMargin = Array(opts.margin / 2 + 1).join(hMargin + "\n");
-      const vMargin = Array(opts.margin + 1).join(blocks.WW);
-      output += hMargin;
-      for (let i = 0; i < size; i += 2) {
-        output += vMargin;
-        for (let j = 0; j < size; j++) {
-          const topModule = data[i * size + j];
-          const bottomModule = data[(i + 1) * size + j];
-          output += getBlockChar(topModule, bottomModule, blocks);
-        }
-        output += vMargin + "\n";
-      }
-      output += hMargin.slice(0, -1);
-      if (typeof cb === "function") {
-        cb(null, output);
-      }
-      return output;
-    };
-    exports.renderToFile = function renderToFile(path, qrData, options, cb) {
-      if (typeof cb === "undefined") {
-        cb = options;
-        options = void 0;
-      }
-      const fs = __require("fs");
-      const utf8 = exports.render(qrData, options);
-      fs.writeFile(path, utf8, cb);
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/terminal/terminal.js
-var require_terminal = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/terminal/terminal.js"(exports) {
-    exports.render = function(qrData, options, cb) {
-      const size = qrData.modules.size;
-      const data = qrData.modules.data;
-      const black = "\x1B[40m  \x1B[0m";
-      const white = "\x1B[47m  \x1B[0m";
-      let output = "";
-      const hMargin = Array(size + 3).join(white);
-      const vMargin = Array(2).join(white);
-      output += hMargin + "\n";
-      for (let i = 0; i < size; ++i) {
-        output += white;
-        for (let j = 0; j < size; j++) {
-          output += data[i * size + j] ? black : white;
-        }
-        output += vMargin + "\n";
-      }
-      output += hMargin + "\n";
-      if (typeof cb === "function") {
-        cb(null, output);
-      }
-      return output;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/terminal/terminal-small.js
-var require_terminal_small = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/terminal/terminal-small.js"(exports) {
-    var backgroundWhite = "\x1B[47m";
-    var backgroundBlack = "\x1B[40m";
-    var foregroundWhite = "\x1B[37m";
-    var foregroundBlack = "\x1B[30m";
-    var reset = "\x1B[0m";
-    var lineSetupNormal = backgroundWhite + foregroundBlack;
-    var lineSetupInverse = backgroundBlack + foregroundWhite;
-    var createPalette = function(lineSetup, foregroundWhite2, foregroundBlack2) {
-      return {
-        // 1 ... white, 2 ... black, 0 ... transparent (default)
-        "00": reset + " " + lineSetup,
-        "01": reset + foregroundWhite2 + "\u2584" + lineSetup,
-        "02": reset + foregroundBlack2 + "\u2584" + lineSetup,
-        10: reset + foregroundWhite2 + "\u2580" + lineSetup,
-        11: " ",
-        12: "\u2584",
-        20: reset + foregroundBlack2 + "\u2580" + lineSetup,
-        21: "\u2580",
-        22: "\u2588"
-      };
-    };
-    var mkCodePixel = function(modules, size, x, y) {
-      const sizePlus = size + 1;
-      if (x >= sizePlus || y >= sizePlus || y < -1 || x < -1) return "0";
-      if (x >= size || y >= size || y < 0 || x < 0) return "1";
-      const idx = y * size + x;
-      return modules[idx] ? "2" : "1";
-    };
-    var mkCode = function(modules, size, x, y) {
-      return mkCodePixel(modules, size, x, y) + mkCodePixel(modules, size, x, y + 1);
-    };
-    exports.render = function(qrData, options, cb) {
-      const size = qrData.modules.size;
-      const data = qrData.modules.data;
-      const inverse = !!(options && options.inverse);
-      const lineSetup = options && options.inverse ? lineSetupInverse : lineSetupNormal;
-      const white = inverse ? foregroundBlack : foregroundWhite;
-      const black = inverse ? foregroundWhite : foregroundBlack;
-      const palette = createPalette(lineSetup, white, black);
-      const newLine = reset + "\n" + lineSetup;
-      let output = lineSetup;
-      for (let y = -1; y < size + 1; y += 2) {
-        for (let x = -1; x < size; x++) {
-          output += palette[mkCode(data, size, x, y)];
-        }
-        output += palette[mkCode(data, size, size, y)] + newLine;
-      }
-      output += reset;
-      if (typeof cb === "function") {
-        cb(null, output);
-      }
-      return output;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/terminal.js
-var require_terminal2 = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/terminal.js"(exports) {
-    var big = require_terminal();
-    var small = require_terminal_small();
-    exports.render = function(qrData, options, cb) {
-      if (options && options.small) {
-        return small.render(qrData, options, cb);
-      }
-      return big.render(qrData, options, cb);
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/svg-tag.js
-var require_svg_tag = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/svg-tag.js"(exports) {
-    var Utils = require_utils2();
-    function getColorAttrib(color, attrib) {
-      const alpha = color.a / 255;
-      const str = attrib + '="' + color.hex + '"';
-      return alpha < 1 ? str + " " + attrib + '-opacity="' + alpha.toFixed(2).slice(1) + '"' : str;
-    }
-    function svgCmd(cmd, x, y) {
-      let str = cmd + x;
-      if (typeof y !== "undefined") str += " " + y;
-      return str;
-    }
-    function qrToPath(data, size, margin) {
-      let path = "";
-      let moveBy = 0;
-      let newRow = false;
-      let lineLength = 0;
-      for (let i = 0; i < data.length; i++) {
-        const col = Math.floor(i % size);
-        const row = Math.floor(i / size);
-        if (!col && !newRow) newRow = true;
-        if (data[i]) {
-          lineLength++;
-          if (!(i > 0 && col > 0 && data[i - 1])) {
-            path += newRow ? svgCmd("M", col + margin, 0.5 + row + margin) : svgCmd("m", moveBy, 0);
-            moveBy = 0;
-            newRow = false;
-          }
-          if (!(col + 1 < size && data[i + 1])) {
-            path += svgCmd("h", lineLength);
-            lineLength = 0;
-          }
-        } else {
-          moveBy++;
-        }
-      }
-      return path;
-    }
-    exports.render = function render(qrData, options, cb) {
-      const opts = Utils.getOptions(options);
-      const size = qrData.modules.size;
-      const data = qrData.modules.data;
-      const qrcodesize = size + opts.margin * 2;
-      const bg = !opts.color.light.a ? "" : "<path " + getColorAttrib(opts.color.light, "fill") + ' d="M0 0h' + qrcodesize + "v" + qrcodesize + 'H0z"/>';
-      const path = "<path " + getColorAttrib(opts.color.dark, "stroke") + ' d="' + qrToPath(data, size, opts.margin) + '"/>';
-      const viewBox = 'viewBox="0 0 ' + qrcodesize + " " + qrcodesize + '"';
-      const width = !opts.width ? "" : 'width="' + opts.width + '" height="' + opts.width + '" ';
-      const svgTag = '<svg xmlns="http://www.w3.org/2000/svg" ' + width + viewBox + ' shape-rendering="crispEdges">' + bg + path + "</svg>\n";
-      if (typeof cb === "function") {
-        cb(null, svgTag);
-      }
-      return svgTag;
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/svg.js
-var require_svg = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/svg.js"(exports) {
-    var svgTagRenderer = require_svg_tag();
-    exports.render = svgTagRenderer.render;
-    exports.renderToFile = function renderToFile(path, qrData, options, cb) {
-      if (typeof cb === "undefined") {
-        cb = options;
-        options = void 0;
-      }
-      const fs = __require("fs");
-      const svgTag = exports.render(qrData, options);
-      const xmlStr = '<?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">' + svgTag;
-      fs.writeFile(path, xmlStr, cb);
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/canvas.js
-var require_canvas = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/canvas.js"(exports) {
-    var Utils = require_utils2();
-    function clearCanvas(ctx, canvas, size) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (!canvas.style) canvas.style = {};
-      canvas.height = size;
-      canvas.width = size;
-      canvas.style.height = size + "px";
-      canvas.style.width = size + "px";
-    }
-    function getCanvasElement() {
-      try {
-        return document.createElement("canvas");
-      } catch (e) {
-        throw new Error("You need to specify a canvas element");
-      }
-    }
-    exports.render = function render(qrData, canvas, options) {
-      let opts = options;
-      let canvasEl = canvas;
-      if (typeof opts === "undefined" && (!canvas || !canvas.getContext)) {
-        opts = canvas;
-        canvas = void 0;
-      }
-      if (!canvas) {
-        canvasEl = getCanvasElement();
-      }
-      opts = Utils.getOptions(opts);
-      const size = Utils.getImageWidth(qrData.modules.size, opts);
-      const ctx = canvasEl.getContext("2d");
-      const image = ctx.createImageData(size, size);
-      Utils.qrToImageData(image.data, qrData, opts);
-      clearCanvas(ctx, canvasEl, size);
-      ctx.putImageData(image, 0, 0);
-      return canvasEl;
-    };
-    exports.renderToDataURL = function renderToDataURL(qrData, canvas, options) {
-      let opts = options;
-      if (typeof opts === "undefined" && (!canvas || !canvas.getContext)) {
-        opts = canvas;
-        canvas = void 0;
-      }
-      if (!opts) opts = {};
-      const canvasEl = exports.render(qrData, canvas, opts);
-      const type = opts.type || "image/png";
-      const rendererOpts = opts.rendererOpts || {};
-      return canvasEl.toDataURL(type, rendererOpts.quality);
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/browser.js
-var require_browser = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/browser.js"(exports) {
-    var canPromise = require_can_promise();
-    var QRCode2 = require_qrcode();
-    var CanvasRenderer = require_canvas();
-    var SvgRenderer = require_svg_tag();
-    function renderCanvas(renderFunc, canvas, text, opts, cb) {
-      const args = [].slice.call(arguments, 1);
-      const argsNum = args.length;
-      const isLastArgCb = typeof args[argsNum - 1] === "function";
-      if (!isLastArgCb && !canPromise()) {
-        throw new Error("Callback required as last argument");
-      }
-      if (isLastArgCb) {
-        if (argsNum < 2) {
-          throw new Error("Too few arguments provided");
-        }
-        if (argsNum === 2) {
-          cb = text;
-          text = canvas;
-          canvas = opts = void 0;
-        } else if (argsNum === 3) {
-          if (canvas.getContext && typeof cb === "undefined") {
-            cb = opts;
-            opts = void 0;
-          } else {
-            cb = opts;
-            opts = text;
-            text = canvas;
-            canvas = void 0;
-          }
-        }
-      } else {
-        if (argsNum < 1) {
-          throw new Error("Too few arguments provided");
-        }
-        if (argsNum === 1) {
-          text = canvas;
-          canvas = opts = void 0;
-        } else if (argsNum === 2 && !canvas.getContext) {
-          opts = text;
-          text = canvas;
-          canvas = void 0;
-        }
-        return new Promise(function(resolve, reject) {
-          try {
-            const data = QRCode2.create(text, opts);
-            resolve(renderFunc(data, canvas, opts));
-          } catch (e) {
-            reject(e);
-          }
-        });
-      }
-      try {
-        const data = QRCode2.create(text, opts);
-        cb(null, renderFunc(data, canvas, opts));
-      } catch (e) {
-        cb(e);
-      }
-    }
-    exports.create = QRCode2.create;
-    exports.toCanvas = renderCanvas.bind(null, CanvasRenderer.render);
-    exports.toDataURL = renderCanvas.bind(null, CanvasRenderer.renderToDataURL);
-    exports.toString = renderCanvas.bind(null, function(data, _, opts) {
-      return SvgRenderer.render(data, opts);
-    });
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/server.js
-var require_server = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/server.js"(exports) {
-    var canPromise = require_can_promise();
-    var QRCode2 = require_qrcode();
-    var PngRenderer = require_png2();
-    var Utf8Renderer = require_utf8();
-    var TerminalRenderer = require_terminal2();
-    var SvgRenderer = require_svg();
-    function checkParams(text, opts, cb) {
-      if (typeof text === "undefined") {
-        throw new Error("String required as first argument");
-      }
-      if (typeof cb === "undefined") {
-        cb = opts;
-        opts = {};
-      }
-      if (typeof cb !== "function") {
-        if (!canPromise()) {
-          throw new Error("Callback required as last argument");
-        } else {
-          opts = cb || {};
-          cb = null;
-        }
-      }
-      return {
-        opts,
-        cb
-      };
-    }
-    function getTypeFromFilename(path) {
-      return path.slice((path.lastIndexOf(".") - 1 >>> 0) + 2).toLowerCase();
-    }
-    function getRendererFromType(type) {
-      switch (type) {
-        case "svg":
-          return SvgRenderer;
-        case "txt":
-        case "utf8":
-          return Utf8Renderer;
-        case "png":
-        case "image/png":
-        default:
-          return PngRenderer;
-      }
-    }
-    function getStringRendererFromType(type) {
-      switch (type) {
-        case "svg":
-          return SvgRenderer;
-        case "terminal":
-          return TerminalRenderer;
-        case "utf8":
-        default:
-          return Utf8Renderer;
-      }
-    }
-    function render(renderFunc, text, params) {
-      if (!params.cb) {
-        return new Promise(function(resolve, reject) {
-          try {
-            const data = QRCode2.create(text, params.opts);
-            return renderFunc(data, params.opts, function(err, data2) {
-              return err ? reject(err) : resolve(data2);
-            });
-          } catch (e) {
-            reject(e);
-          }
-        });
-      }
-      try {
-        const data = QRCode2.create(text, params.opts);
-        return renderFunc(data, params.opts, params.cb);
-      } catch (e) {
-        params.cb(e);
-      }
-    }
-    exports.create = QRCode2.create;
-    exports.toCanvas = require_browser().toCanvas;
-    exports.toString = function toString(text, opts, cb) {
-      const params = checkParams(text, opts, cb);
-      const type = params.opts ? params.opts.type : void 0;
-      const renderer = getStringRendererFromType(type);
-      return render(renderer.render, text, params);
-    };
-    exports.toDataURL = function toDataURL(text, opts, cb) {
-      const params = checkParams(text, opts, cb);
-      const renderer = getRendererFromType(params.opts.type);
-      return render(renderer.renderToDataURL, text, params);
-    };
-    exports.toBuffer = function toBuffer(text, opts, cb) {
-      const params = checkParams(text, opts, cb);
-      const renderer = getRendererFromType(params.opts.type);
-      return render(renderer.renderToBuffer, text, params);
-    };
-    exports.toFile = function toFile(path, text, opts, cb) {
-      if (typeof path !== "string" || !(typeof text === "string" || typeof text === "object")) {
-        throw new Error("Invalid argument");
-      }
-      if (arguments.length < 3 && !canPromise()) {
-        throw new Error("Too few arguments provided");
-      }
-      const params = checkParams(text, opts, cb);
-      const type = params.opts.type || getTypeFromFilename(path);
-      const renderer = getRendererFromType(type);
-      const renderToFile = renderer.renderToFile.bind(null, path);
-      return render(renderToFile, text, params);
-    };
-    exports.toFileStream = function toFileStream(stream, text, opts) {
-      if (arguments.length < 2) {
-        throw new Error("Too few arguments provided");
-      }
-      const params = checkParams(text, opts, stream.emit.bind(stream, "error"));
-      const renderer = getRendererFromType("png");
-      const renderToFileStream = renderer.renderToFileStream.bind(null, stream);
-      render(renderToFileStream, text, params);
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/index.js
-var require_lib = __commonJS({
-  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/index.js"(exports, module) {
-    module.exports = require_server();
-  }
-});
-
 // ../../node_modules/.pnpm/jsqr@1.4.0/node_modules/jsqr/dist/jsQR.js
 var require_jsQR = __commonJS({
   "../../node_modules/.pnpm/jsqr@1.4.0/node_modules/jsqr/dist/jsQR.js"(exports, module) {
@@ -14583,6 +10050,4539 @@ var require_jsQR = __commonJS({
   }
 });
 
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/can-promise.js
+var require_can_promise = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/can-promise.js"(exports, module) {
+    module.exports = function() {
+      return typeof Promise === "function" && Promise.prototype && Promise.prototype.then;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/utils.js
+var require_utils = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/utils.js"(exports) {
+    var toSJISFunction;
+    var CODEWORDS_COUNT = [
+      0,
+      // Not used
+      26,
+      44,
+      70,
+      100,
+      134,
+      172,
+      196,
+      242,
+      292,
+      346,
+      404,
+      466,
+      532,
+      581,
+      655,
+      733,
+      815,
+      901,
+      991,
+      1085,
+      1156,
+      1258,
+      1364,
+      1474,
+      1588,
+      1706,
+      1828,
+      1921,
+      2051,
+      2185,
+      2323,
+      2465,
+      2611,
+      2761,
+      2876,
+      3034,
+      3196,
+      3362,
+      3532,
+      3706
+    ];
+    exports.getSymbolSize = function getSymbolSize(version) {
+      if (!version) throw new Error('"version" cannot be null or undefined');
+      if (version < 1 || version > 40) throw new Error('"version" should be in range from 1 to 40');
+      return version * 4 + 17;
+    };
+    exports.getSymbolTotalCodewords = function getSymbolTotalCodewords(version) {
+      return CODEWORDS_COUNT[version];
+    };
+    exports.getBCHDigit = function(data) {
+      let digit = 0;
+      while (data !== 0) {
+        digit++;
+        data >>>= 1;
+      }
+      return digit;
+    };
+    exports.setToSJISFunction = function setToSJISFunction(f) {
+      if (typeof f !== "function") {
+        throw new Error('"toSJISFunc" is not a valid function.');
+      }
+      toSJISFunction = f;
+    };
+    exports.isKanjiModeEnabled = function() {
+      return typeof toSJISFunction !== "undefined";
+    };
+    exports.toSJIS = function toSJIS(kanji) {
+      return toSJISFunction(kanji);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/error-correction-level.js
+var require_error_correction_level = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/error-correction-level.js"(exports) {
+    exports.L = { bit: 1 };
+    exports.M = { bit: 0 };
+    exports.Q = { bit: 3 };
+    exports.H = { bit: 2 };
+    function fromString(string) {
+      if (typeof string !== "string") {
+        throw new Error("Param is not a string");
+      }
+      const lcStr = string.toLowerCase();
+      switch (lcStr) {
+        case "l":
+        case "low":
+          return exports.L;
+        case "m":
+        case "medium":
+          return exports.M;
+        case "q":
+        case "quartile":
+          return exports.Q;
+        case "h":
+        case "high":
+          return exports.H;
+        default:
+          throw new Error("Unknown EC Level: " + string);
+      }
+    }
+    exports.isValid = function isValid(level) {
+      return level && typeof level.bit !== "undefined" && level.bit >= 0 && level.bit < 4;
+    };
+    exports.from = function from(value, defaultValue) {
+      if (exports.isValid(value)) {
+        return value;
+      }
+      try {
+        return fromString(value);
+      } catch (e) {
+        return defaultValue;
+      }
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/bit-buffer.js
+var require_bit_buffer = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/bit-buffer.js"(exports, module) {
+    function BitBuffer() {
+      this.buffer = [];
+      this.length = 0;
+    }
+    BitBuffer.prototype = {
+      get: function(index) {
+        const bufIndex = Math.floor(index / 8);
+        return (this.buffer[bufIndex] >>> 7 - index % 8 & 1) === 1;
+      },
+      put: function(num, length) {
+        for (let i = 0; i < length; i++) {
+          this.putBit((num >>> length - i - 1 & 1) === 1);
+        }
+      },
+      getLengthInBits: function() {
+        return this.length;
+      },
+      putBit: function(bit) {
+        const bufIndex = Math.floor(this.length / 8);
+        if (this.buffer.length <= bufIndex) {
+          this.buffer.push(0);
+        }
+        if (bit) {
+          this.buffer[bufIndex] |= 128 >>> this.length % 8;
+        }
+        this.length++;
+      }
+    };
+    module.exports = BitBuffer;
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/bit-matrix.js
+var require_bit_matrix = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/bit-matrix.js"(exports, module) {
+    function BitMatrix(size) {
+      if (!size || size < 1) {
+        throw new Error("BitMatrix size must be defined and greater than 0");
+      }
+      this.size = size;
+      this.data = new Uint8Array(size * size);
+      this.reservedBit = new Uint8Array(size * size);
+    }
+    BitMatrix.prototype.set = function(row, col, value, reserved) {
+      const index = row * this.size + col;
+      this.data[index] = value;
+      if (reserved) this.reservedBit[index] = true;
+    };
+    BitMatrix.prototype.get = function(row, col) {
+      return this.data[row * this.size + col];
+    };
+    BitMatrix.prototype.xor = function(row, col, value) {
+      this.data[row * this.size + col] ^= value;
+    };
+    BitMatrix.prototype.isReserved = function(row, col) {
+      return this.reservedBit[row * this.size + col];
+    };
+    module.exports = BitMatrix;
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/alignment-pattern.js
+var require_alignment_pattern = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/alignment-pattern.js"(exports) {
+    var getSymbolSize = require_utils().getSymbolSize;
+    exports.getRowColCoords = function getRowColCoords(version) {
+      if (version === 1) return [];
+      const posCount = Math.floor(version / 7) + 2;
+      const size = getSymbolSize(version);
+      const intervals = size === 145 ? 26 : Math.ceil((size - 13) / (2 * posCount - 2)) * 2;
+      const positions = [size - 7];
+      for (let i = 1; i < posCount - 1; i++) {
+        positions[i] = positions[i - 1] - intervals;
+      }
+      positions.push(6);
+      return positions.reverse();
+    };
+    exports.getPositions = function getPositions(version) {
+      const coords = [];
+      const pos = exports.getRowColCoords(version);
+      const posLength = pos.length;
+      for (let i = 0; i < posLength; i++) {
+        for (let j = 0; j < posLength; j++) {
+          if (i === 0 && j === 0 || // top-left
+          i === 0 && j === posLength - 1 || // bottom-left
+          i === posLength - 1 && j === 0) {
+            continue;
+          }
+          coords.push([pos[i], pos[j]]);
+        }
+      }
+      return coords;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/finder-pattern.js
+var require_finder_pattern = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/finder-pattern.js"(exports) {
+    var getSymbolSize = require_utils().getSymbolSize;
+    var FINDER_PATTERN_SIZE = 7;
+    exports.getPositions = function getPositions(version) {
+      const size = getSymbolSize(version);
+      return [
+        // top-left
+        [0, 0],
+        // top-right
+        [size - FINDER_PATTERN_SIZE, 0],
+        // bottom-left
+        [0, size - FINDER_PATTERN_SIZE]
+      ];
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/mask-pattern.js
+var require_mask_pattern = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/mask-pattern.js"(exports) {
+    exports.Patterns = {
+      PATTERN000: 0,
+      PATTERN001: 1,
+      PATTERN010: 2,
+      PATTERN011: 3,
+      PATTERN100: 4,
+      PATTERN101: 5,
+      PATTERN110: 6,
+      PATTERN111: 7
+    };
+    var PenaltyScores = {
+      N1: 3,
+      N2: 3,
+      N3: 40,
+      N4: 10
+    };
+    exports.isValid = function isValid(mask) {
+      return mask != null && mask !== "" && !isNaN(mask) && mask >= 0 && mask <= 7;
+    };
+    exports.from = function from(value) {
+      return exports.isValid(value) ? parseInt(value, 10) : void 0;
+    };
+    exports.getPenaltyN1 = function getPenaltyN1(data) {
+      const size = data.size;
+      let points = 0;
+      let sameCountCol = 0;
+      let sameCountRow = 0;
+      let lastCol = null;
+      let lastRow = null;
+      for (let row = 0; row < size; row++) {
+        sameCountCol = sameCountRow = 0;
+        lastCol = lastRow = null;
+        for (let col = 0; col < size; col++) {
+          let module2 = data.get(row, col);
+          if (module2 === lastCol) {
+            sameCountCol++;
+          } else {
+            if (sameCountCol >= 5) points += PenaltyScores.N1 + (sameCountCol - 5);
+            lastCol = module2;
+            sameCountCol = 1;
+          }
+          module2 = data.get(col, row);
+          if (module2 === lastRow) {
+            sameCountRow++;
+          } else {
+            if (sameCountRow >= 5) points += PenaltyScores.N1 + (sameCountRow - 5);
+            lastRow = module2;
+            sameCountRow = 1;
+          }
+        }
+        if (sameCountCol >= 5) points += PenaltyScores.N1 + (sameCountCol - 5);
+        if (sameCountRow >= 5) points += PenaltyScores.N1 + (sameCountRow - 5);
+      }
+      return points;
+    };
+    exports.getPenaltyN2 = function getPenaltyN2(data) {
+      const size = data.size;
+      let points = 0;
+      for (let row = 0; row < size - 1; row++) {
+        for (let col = 0; col < size - 1; col++) {
+          const last = data.get(row, col) + data.get(row, col + 1) + data.get(row + 1, col) + data.get(row + 1, col + 1);
+          if (last === 4 || last === 0) points++;
+        }
+      }
+      return points * PenaltyScores.N2;
+    };
+    exports.getPenaltyN3 = function getPenaltyN3(data) {
+      const size = data.size;
+      let points = 0;
+      let bitsCol = 0;
+      let bitsRow = 0;
+      for (let row = 0; row < size; row++) {
+        bitsCol = bitsRow = 0;
+        for (let col = 0; col < size; col++) {
+          bitsCol = bitsCol << 1 & 2047 | data.get(row, col);
+          if (col >= 10 && (bitsCol === 1488 || bitsCol === 93)) points++;
+          bitsRow = bitsRow << 1 & 2047 | data.get(col, row);
+          if (col >= 10 && (bitsRow === 1488 || bitsRow === 93)) points++;
+        }
+      }
+      return points * PenaltyScores.N3;
+    };
+    exports.getPenaltyN4 = function getPenaltyN4(data) {
+      let darkCount = 0;
+      const modulesCount = data.data.length;
+      for (let i = 0; i < modulesCount; i++) darkCount += data.data[i];
+      const k = Math.abs(Math.ceil(darkCount * 100 / modulesCount / 5) - 10);
+      return k * PenaltyScores.N4;
+    };
+    function getMaskAt(maskPattern, i, j) {
+      switch (maskPattern) {
+        case exports.Patterns.PATTERN000:
+          return (i + j) % 2 === 0;
+        case exports.Patterns.PATTERN001:
+          return i % 2 === 0;
+        case exports.Patterns.PATTERN010:
+          return j % 3 === 0;
+        case exports.Patterns.PATTERN011:
+          return (i + j) % 3 === 0;
+        case exports.Patterns.PATTERN100:
+          return (Math.floor(i / 2) + Math.floor(j / 3)) % 2 === 0;
+        case exports.Patterns.PATTERN101:
+          return i * j % 2 + i * j % 3 === 0;
+        case exports.Patterns.PATTERN110:
+          return (i * j % 2 + i * j % 3) % 2 === 0;
+        case exports.Patterns.PATTERN111:
+          return (i * j % 3 + (i + j) % 2) % 2 === 0;
+        default:
+          throw new Error("bad maskPattern:" + maskPattern);
+      }
+    }
+    exports.applyMask = function applyMask(pattern, data) {
+      const size = data.size;
+      for (let col = 0; col < size; col++) {
+        for (let row = 0; row < size; row++) {
+          if (data.isReserved(row, col)) continue;
+          data.xor(row, col, getMaskAt(pattern, row, col));
+        }
+      }
+    };
+    exports.getBestMask = function getBestMask(data, setupFormatFunc) {
+      const numPatterns = Object.keys(exports.Patterns).length;
+      let bestPattern = 0;
+      let lowerPenalty = Infinity;
+      for (let p = 0; p < numPatterns; p++) {
+        setupFormatFunc(p);
+        exports.applyMask(p, data);
+        const penalty = exports.getPenaltyN1(data) + exports.getPenaltyN2(data) + exports.getPenaltyN3(data) + exports.getPenaltyN4(data);
+        exports.applyMask(p, data);
+        if (penalty < lowerPenalty) {
+          lowerPenalty = penalty;
+          bestPattern = p;
+        }
+      }
+      return bestPattern;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/error-correction-code.js
+var require_error_correction_code = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/error-correction-code.js"(exports) {
+    var ECLevel = require_error_correction_level();
+    var EC_BLOCKS_TABLE = [
+      // L  M  Q  H
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      2,
+      2,
+      1,
+      2,
+      2,
+      4,
+      1,
+      2,
+      4,
+      4,
+      2,
+      4,
+      4,
+      4,
+      2,
+      4,
+      6,
+      5,
+      2,
+      4,
+      6,
+      6,
+      2,
+      5,
+      8,
+      8,
+      4,
+      5,
+      8,
+      8,
+      4,
+      5,
+      8,
+      11,
+      4,
+      8,
+      10,
+      11,
+      4,
+      9,
+      12,
+      16,
+      4,
+      9,
+      16,
+      16,
+      6,
+      10,
+      12,
+      18,
+      6,
+      10,
+      17,
+      16,
+      6,
+      11,
+      16,
+      19,
+      6,
+      13,
+      18,
+      21,
+      7,
+      14,
+      21,
+      25,
+      8,
+      16,
+      20,
+      25,
+      8,
+      17,
+      23,
+      25,
+      9,
+      17,
+      23,
+      34,
+      9,
+      18,
+      25,
+      30,
+      10,
+      20,
+      27,
+      32,
+      12,
+      21,
+      29,
+      35,
+      12,
+      23,
+      34,
+      37,
+      12,
+      25,
+      34,
+      40,
+      13,
+      26,
+      35,
+      42,
+      14,
+      28,
+      38,
+      45,
+      15,
+      29,
+      40,
+      48,
+      16,
+      31,
+      43,
+      51,
+      17,
+      33,
+      45,
+      54,
+      18,
+      35,
+      48,
+      57,
+      19,
+      37,
+      51,
+      60,
+      19,
+      38,
+      53,
+      63,
+      20,
+      40,
+      56,
+      66,
+      21,
+      43,
+      59,
+      70,
+      22,
+      45,
+      62,
+      74,
+      24,
+      47,
+      65,
+      77,
+      25,
+      49,
+      68,
+      81
+    ];
+    var EC_CODEWORDS_TABLE = [
+      // L  M  Q  H
+      7,
+      10,
+      13,
+      17,
+      10,
+      16,
+      22,
+      28,
+      15,
+      26,
+      36,
+      44,
+      20,
+      36,
+      52,
+      64,
+      26,
+      48,
+      72,
+      88,
+      36,
+      64,
+      96,
+      112,
+      40,
+      72,
+      108,
+      130,
+      48,
+      88,
+      132,
+      156,
+      60,
+      110,
+      160,
+      192,
+      72,
+      130,
+      192,
+      224,
+      80,
+      150,
+      224,
+      264,
+      96,
+      176,
+      260,
+      308,
+      104,
+      198,
+      288,
+      352,
+      120,
+      216,
+      320,
+      384,
+      132,
+      240,
+      360,
+      432,
+      144,
+      280,
+      408,
+      480,
+      168,
+      308,
+      448,
+      532,
+      180,
+      338,
+      504,
+      588,
+      196,
+      364,
+      546,
+      650,
+      224,
+      416,
+      600,
+      700,
+      224,
+      442,
+      644,
+      750,
+      252,
+      476,
+      690,
+      816,
+      270,
+      504,
+      750,
+      900,
+      300,
+      560,
+      810,
+      960,
+      312,
+      588,
+      870,
+      1050,
+      336,
+      644,
+      952,
+      1110,
+      360,
+      700,
+      1020,
+      1200,
+      390,
+      728,
+      1050,
+      1260,
+      420,
+      784,
+      1140,
+      1350,
+      450,
+      812,
+      1200,
+      1440,
+      480,
+      868,
+      1290,
+      1530,
+      510,
+      924,
+      1350,
+      1620,
+      540,
+      980,
+      1440,
+      1710,
+      570,
+      1036,
+      1530,
+      1800,
+      570,
+      1064,
+      1590,
+      1890,
+      600,
+      1120,
+      1680,
+      1980,
+      630,
+      1204,
+      1770,
+      2100,
+      660,
+      1260,
+      1860,
+      2220,
+      720,
+      1316,
+      1950,
+      2310,
+      750,
+      1372,
+      2040,
+      2430
+    ];
+    exports.getBlocksCount = function getBlocksCount(version, errorCorrectionLevel) {
+      switch (errorCorrectionLevel) {
+        case ECLevel.L:
+          return EC_BLOCKS_TABLE[(version - 1) * 4 + 0];
+        case ECLevel.M:
+          return EC_BLOCKS_TABLE[(version - 1) * 4 + 1];
+        case ECLevel.Q:
+          return EC_BLOCKS_TABLE[(version - 1) * 4 + 2];
+        case ECLevel.H:
+          return EC_BLOCKS_TABLE[(version - 1) * 4 + 3];
+        default:
+          return void 0;
+      }
+    };
+    exports.getTotalCodewordsCount = function getTotalCodewordsCount(version, errorCorrectionLevel) {
+      switch (errorCorrectionLevel) {
+        case ECLevel.L:
+          return EC_CODEWORDS_TABLE[(version - 1) * 4 + 0];
+        case ECLevel.M:
+          return EC_CODEWORDS_TABLE[(version - 1) * 4 + 1];
+        case ECLevel.Q:
+          return EC_CODEWORDS_TABLE[(version - 1) * 4 + 2];
+        case ECLevel.H:
+          return EC_CODEWORDS_TABLE[(version - 1) * 4 + 3];
+        default:
+          return void 0;
+      }
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/galois-field.js
+var require_galois_field = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/galois-field.js"(exports) {
+    var EXP_TABLE = new Uint8Array(512);
+    var LOG_TABLE = new Uint8Array(256);
+    (function initTables() {
+      let x = 1;
+      for (let i = 0; i < 255; i++) {
+        EXP_TABLE[i] = x;
+        LOG_TABLE[x] = i;
+        x <<= 1;
+        if (x & 256) {
+          x ^= 285;
+        }
+      }
+      for (let i = 255; i < 512; i++) {
+        EXP_TABLE[i] = EXP_TABLE[i - 255];
+      }
+    })();
+    exports.log = function log(n) {
+      if (n < 1) throw new Error("log(" + n + ")");
+      return LOG_TABLE[n];
+    };
+    exports.exp = function exp(n) {
+      return EXP_TABLE[n];
+    };
+    exports.mul = function mul(x, y) {
+      if (x === 0 || y === 0) return 0;
+      return EXP_TABLE[LOG_TABLE[x] + LOG_TABLE[y]];
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/polynomial.js
+var require_polynomial = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/polynomial.js"(exports) {
+    var GF = require_galois_field();
+    exports.mul = function mul(p1, p2) {
+      const coeff = new Uint8Array(p1.length + p2.length - 1);
+      for (let i = 0; i < p1.length; i++) {
+        for (let j = 0; j < p2.length; j++) {
+          coeff[i + j] ^= GF.mul(p1[i], p2[j]);
+        }
+      }
+      return coeff;
+    };
+    exports.mod = function mod(divident, divisor) {
+      let result = new Uint8Array(divident);
+      while (result.length - divisor.length >= 0) {
+        const coeff = result[0];
+        for (let i = 0; i < divisor.length; i++) {
+          result[i] ^= GF.mul(divisor[i], coeff);
+        }
+        let offset = 0;
+        while (offset < result.length && result[offset] === 0) offset++;
+        result = result.slice(offset);
+      }
+      return result;
+    };
+    exports.generateECPolynomial = function generateECPolynomial(degree) {
+      let poly = new Uint8Array([1]);
+      for (let i = 0; i < degree; i++) {
+        poly = exports.mul(poly, new Uint8Array([1, GF.exp(i)]));
+      }
+      return poly;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/reed-solomon-encoder.js
+var require_reed_solomon_encoder = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/reed-solomon-encoder.js"(exports, module) {
+    var Polynomial = require_polynomial();
+    function ReedSolomonEncoder(degree) {
+      this.genPoly = void 0;
+      this.degree = degree;
+      if (this.degree) this.initialize(this.degree);
+    }
+    ReedSolomonEncoder.prototype.initialize = function initialize(degree) {
+      this.degree = degree;
+      this.genPoly = Polynomial.generateECPolynomial(this.degree);
+    };
+    ReedSolomonEncoder.prototype.encode = function encode(data) {
+      if (!this.genPoly) {
+        throw new Error("Encoder not initialized");
+      }
+      const paddedData = new Uint8Array(data.length + this.degree);
+      paddedData.set(data);
+      const remainder = Polynomial.mod(paddedData, this.genPoly);
+      const start = this.degree - remainder.length;
+      if (start > 0) {
+        const buff = new Uint8Array(this.degree);
+        buff.set(remainder, start);
+        return buff;
+      }
+      return remainder;
+    };
+    module.exports = ReedSolomonEncoder;
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/version-check.js
+var require_version_check = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/version-check.js"(exports) {
+    exports.isValid = function isValid(version) {
+      return !isNaN(version) && version >= 1 && version <= 40;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/regex.js
+var require_regex = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/regex.js"(exports) {
+    var numeric = "[0-9]+";
+    var alphanumeric = "[A-Z $%*+\\-./:]+";
+    var kanji = "(?:[u3000-u303F]|[u3040-u309F]|[u30A0-u30FF]|[uFF00-uFFEF]|[u4E00-u9FAF]|[u2605-u2606]|[u2190-u2195]|u203B|[u2010u2015u2018u2019u2025u2026u201Cu201Du2225u2260]|[u0391-u0451]|[u00A7u00A8u00B1u00B4u00D7u00F7])+";
+    kanji = kanji.replace(/u/g, "\\u");
+    var byte = "(?:(?![A-Z0-9 $%*+\\-./:]|" + kanji + ")(?:.|[\r\n]))+";
+    exports.KANJI = new RegExp(kanji, "g");
+    exports.BYTE_KANJI = new RegExp("[^A-Z0-9 $%*+\\-./:]+", "g");
+    exports.BYTE = new RegExp(byte, "g");
+    exports.NUMERIC = new RegExp(numeric, "g");
+    exports.ALPHANUMERIC = new RegExp(alphanumeric, "g");
+    var TEST_KANJI = new RegExp("^" + kanji + "$");
+    var TEST_NUMERIC = new RegExp("^" + numeric + "$");
+    var TEST_ALPHANUMERIC = new RegExp("^[A-Z0-9 $%*+\\-./:]+$");
+    exports.testKanji = function testKanji(str) {
+      return TEST_KANJI.test(str);
+    };
+    exports.testNumeric = function testNumeric(str) {
+      return TEST_NUMERIC.test(str);
+    };
+    exports.testAlphanumeric = function testAlphanumeric(str) {
+      return TEST_ALPHANUMERIC.test(str);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/mode.js
+var require_mode = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/mode.js"(exports) {
+    var VersionCheck = require_version_check();
+    var Regex = require_regex();
+    exports.NUMERIC = {
+      id: "Numeric",
+      bit: 1 << 0,
+      ccBits: [10, 12, 14]
+    };
+    exports.ALPHANUMERIC = {
+      id: "Alphanumeric",
+      bit: 1 << 1,
+      ccBits: [9, 11, 13]
+    };
+    exports.BYTE = {
+      id: "Byte",
+      bit: 1 << 2,
+      ccBits: [8, 16, 16]
+    };
+    exports.KANJI = {
+      id: "Kanji",
+      bit: 1 << 3,
+      ccBits: [8, 10, 12]
+    };
+    exports.MIXED = {
+      bit: -1
+    };
+    exports.getCharCountIndicator = function getCharCountIndicator(mode, version) {
+      if (!mode.ccBits) throw new Error("Invalid mode: " + mode);
+      if (!VersionCheck.isValid(version)) {
+        throw new Error("Invalid version: " + version);
+      }
+      if (version >= 1 && version < 10) return mode.ccBits[0];
+      else if (version < 27) return mode.ccBits[1];
+      return mode.ccBits[2];
+    };
+    exports.getBestModeForData = function getBestModeForData(dataStr) {
+      if (Regex.testNumeric(dataStr)) return exports.NUMERIC;
+      else if (Regex.testAlphanumeric(dataStr)) return exports.ALPHANUMERIC;
+      else if (Regex.testKanji(dataStr)) return exports.KANJI;
+      else return exports.BYTE;
+    };
+    exports.toString = function toString(mode) {
+      if (mode && mode.id) return mode.id;
+      throw new Error("Invalid mode");
+    };
+    exports.isValid = function isValid(mode) {
+      return mode && mode.bit && mode.ccBits;
+    };
+    function fromString(string) {
+      if (typeof string !== "string") {
+        throw new Error("Param is not a string");
+      }
+      const lcStr = string.toLowerCase();
+      switch (lcStr) {
+        case "numeric":
+          return exports.NUMERIC;
+        case "alphanumeric":
+          return exports.ALPHANUMERIC;
+        case "kanji":
+          return exports.KANJI;
+        case "byte":
+          return exports.BYTE;
+        default:
+          throw new Error("Unknown mode: " + string);
+      }
+    }
+    exports.from = function from(value, defaultValue) {
+      if (exports.isValid(value)) {
+        return value;
+      }
+      try {
+        return fromString(value);
+      } catch (e) {
+        return defaultValue;
+      }
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/version.js
+var require_version = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/version.js"(exports) {
+    var Utils = require_utils();
+    var ECCode = require_error_correction_code();
+    var ECLevel = require_error_correction_level();
+    var Mode = require_mode();
+    var VersionCheck = require_version_check();
+    var G18 = 1 << 12 | 1 << 11 | 1 << 10 | 1 << 9 | 1 << 8 | 1 << 5 | 1 << 2 | 1 << 0;
+    var G18_BCH = Utils.getBCHDigit(G18);
+    function getBestVersionForDataLength(mode, length, errorCorrectionLevel) {
+      for (let currentVersion = 1; currentVersion <= 40; currentVersion++) {
+        if (length <= exports.getCapacity(currentVersion, errorCorrectionLevel, mode)) {
+          return currentVersion;
+        }
+      }
+      return void 0;
+    }
+    function getReservedBitsCount(mode, version) {
+      return Mode.getCharCountIndicator(mode, version) + 4;
+    }
+    function getTotalBitsFromDataArray(segments, version) {
+      let totalBits = 0;
+      segments.forEach(function(data) {
+        const reservedBits = getReservedBitsCount(data.mode, version);
+        totalBits += reservedBits + data.getBitsLength();
+      });
+      return totalBits;
+    }
+    function getBestVersionForMixedData(segments, errorCorrectionLevel) {
+      for (let currentVersion = 1; currentVersion <= 40; currentVersion++) {
+        const length = getTotalBitsFromDataArray(segments, currentVersion);
+        if (length <= exports.getCapacity(currentVersion, errorCorrectionLevel, Mode.MIXED)) {
+          return currentVersion;
+        }
+      }
+      return void 0;
+    }
+    exports.from = function from(value, defaultValue) {
+      if (VersionCheck.isValid(value)) {
+        return parseInt(value, 10);
+      }
+      return defaultValue;
+    };
+    exports.getCapacity = function getCapacity(version, errorCorrectionLevel, mode) {
+      if (!VersionCheck.isValid(version)) {
+        throw new Error("Invalid QR Code version");
+      }
+      if (typeof mode === "undefined") mode = Mode.BYTE;
+      const totalCodewords = Utils.getSymbolTotalCodewords(version);
+      const ecTotalCodewords = ECCode.getTotalCodewordsCount(version, errorCorrectionLevel);
+      const dataTotalCodewordsBits = (totalCodewords - ecTotalCodewords) * 8;
+      if (mode === Mode.MIXED) return dataTotalCodewordsBits;
+      const usableBits = dataTotalCodewordsBits - getReservedBitsCount(mode, version);
+      switch (mode) {
+        case Mode.NUMERIC:
+          return Math.floor(usableBits / 10 * 3);
+        case Mode.ALPHANUMERIC:
+          return Math.floor(usableBits / 11 * 2);
+        case Mode.KANJI:
+          return Math.floor(usableBits / 13);
+        case Mode.BYTE:
+        default:
+          return Math.floor(usableBits / 8);
+      }
+    };
+    exports.getBestVersionForData = function getBestVersionForData(data, errorCorrectionLevel) {
+      let seg;
+      const ecl = ECLevel.from(errorCorrectionLevel, ECLevel.M);
+      if (Array.isArray(data)) {
+        if (data.length > 1) {
+          return getBestVersionForMixedData(data, ecl);
+        }
+        if (data.length === 0) {
+          return 1;
+        }
+        seg = data[0];
+      } else {
+        seg = data;
+      }
+      return getBestVersionForDataLength(seg.mode, seg.getLength(), ecl);
+    };
+    exports.getEncodedBits = function getEncodedBits(version) {
+      if (!VersionCheck.isValid(version) || version < 7) {
+        throw new Error("Invalid QR Code version");
+      }
+      let d = version << 12;
+      while (Utils.getBCHDigit(d) - G18_BCH >= 0) {
+        d ^= G18 << Utils.getBCHDigit(d) - G18_BCH;
+      }
+      return version << 12 | d;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/format-info.js
+var require_format_info = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/format-info.js"(exports) {
+    var Utils = require_utils();
+    var G15 = 1 << 10 | 1 << 8 | 1 << 5 | 1 << 4 | 1 << 2 | 1 << 1 | 1 << 0;
+    var G15_MASK = 1 << 14 | 1 << 12 | 1 << 10 | 1 << 4 | 1 << 1;
+    var G15_BCH = Utils.getBCHDigit(G15);
+    exports.getEncodedBits = function getEncodedBits(errorCorrectionLevel, mask) {
+      const data = errorCorrectionLevel.bit << 3 | mask;
+      let d = data << 10;
+      while (Utils.getBCHDigit(d) - G15_BCH >= 0) {
+        d ^= G15 << Utils.getBCHDigit(d) - G15_BCH;
+      }
+      return (data << 10 | d) ^ G15_MASK;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/numeric-data.js
+var require_numeric_data = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/numeric-data.js"(exports, module) {
+    var Mode = require_mode();
+    function NumericData(data) {
+      this.mode = Mode.NUMERIC;
+      this.data = data.toString();
+    }
+    NumericData.getBitsLength = function getBitsLength(length) {
+      return 10 * Math.floor(length / 3) + (length % 3 ? length % 3 * 3 + 1 : 0);
+    };
+    NumericData.prototype.getLength = function getLength() {
+      return this.data.length;
+    };
+    NumericData.prototype.getBitsLength = function getBitsLength() {
+      return NumericData.getBitsLength(this.data.length);
+    };
+    NumericData.prototype.write = function write(bitBuffer) {
+      let i, group, value;
+      for (i = 0; i + 3 <= this.data.length; i += 3) {
+        group = this.data.substr(i, 3);
+        value = parseInt(group, 10);
+        bitBuffer.put(value, 10);
+      }
+      const remainingNum = this.data.length - i;
+      if (remainingNum > 0) {
+        group = this.data.substr(i);
+        value = parseInt(group, 10);
+        bitBuffer.put(value, remainingNum * 3 + 1);
+      }
+    };
+    module.exports = NumericData;
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/alphanumeric-data.js
+var require_alphanumeric_data = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/alphanumeric-data.js"(exports, module) {
+    var Mode = require_mode();
+    var ALPHA_NUM_CHARS = [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R",
+      "S",
+      "T",
+      "U",
+      "V",
+      "W",
+      "X",
+      "Y",
+      "Z",
+      " ",
+      "$",
+      "%",
+      "*",
+      "+",
+      "-",
+      ".",
+      "/",
+      ":"
+    ];
+    function AlphanumericData(data) {
+      this.mode = Mode.ALPHANUMERIC;
+      this.data = data;
+    }
+    AlphanumericData.getBitsLength = function getBitsLength(length) {
+      return 11 * Math.floor(length / 2) + 6 * (length % 2);
+    };
+    AlphanumericData.prototype.getLength = function getLength() {
+      return this.data.length;
+    };
+    AlphanumericData.prototype.getBitsLength = function getBitsLength() {
+      return AlphanumericData.getBitsLength(this.data.length);
+    };
+    AlphanumericData.prototype.write = function write(bitBuffer) {
+      let i;
+      for (i = 0; i + 2 <= this.data.length; i += 2) {
+        let value = ALPHA_NUM_CHARS.indexOf(this.data[i]) * 45;
+        value += ALPHA_NUM_CHARS.indexOf(this.data[i + 1]);
+        bitBuffer.put(value, 11);
+      }
+      if (this.data.length % 2) {
+        bitBuffer.put(ALPHA_NUM_CHARS.indexOf(this.data[i]), 6);
+      }
+    };
+    module.exports = AlphanumericData;
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/byte-data.js
+var require_byte_data = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/byte-data.js"(exports, module) {
+    var Mode = require_mode();
+    function ByteData(data) {
+      this.mode = Mode.BYTE;
+      if (typeof data === "string") {
+        this.data = new TextEncoder().encode(data);
+      } else {
+        this.data = new Uint8Array(data);
+      }
+    }
+    ByteData.getBitsLength = function getBitsLength(length) {
+      return length * 8;
+    };
+    ByteData.prototype.getLength = function getLength() {
+      return this.data.length;
+    };
+    ByteData.prototype.getBitsLength = function getBitsLength() {
+      return ByteData.getBitsLength(this.data.length);
+    };
+    ByteData.prototype.write = function(bitBuffer) {
+      for (let i = 0, l = this.data.length; i < l; i++) {
+        bitBuffer.put(this.data[i], 8);
+      }
+    };
+    module.exports = ByteData;
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/kanji-data.js
+var require_kanji_data = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/kanji-data.js"(exports, module) {
+    var Mode = require_mode();
+    var Utils = require_utils();
+    function KanjiData(data) {
+      this.mode = Mode.KANJI;
+      this.data = data;
+    }
+    KanjiData.getBitsLength = function getBitsLength(length) {
+      return length * 13;
+    };
+    KanjiData.prototype.getLength = function getLength() {
+      return this.data.length;
+    };
+    KanjiData.prototype.getBitsLength = function getBitsLength() {
+      return KanjiData.getBitsLength(this.data.length);
+    };
+    KanjiData.prototype.write = function(bitBuffer) {
+      let i;
+      for (i = 0; i < this.data.length; i++) {
+        let value = Utils.toSJIS(this.data[i]);
+        if (value >= 33088 && value <= 40956) {
+          value -= 33088;
+        } else if (value >= 57408 && value <= 60351) {
+          value -= 49472;
+        } else {
+          throw new Error(
+            "Invalid SJIS character: " + this.data[i] + "\nMake sure your charset is UTF-8"
+          );
+        }
+        value = (value >>> 8 & 255) * 192 + (value & 255);
+        bitBuffer.put(value, 13);
+      }
+    };
+    module.exports = KanjiData;
+  }
+});
+
+// ../../node_modules/.pnpm/dijkstrajs@1.0.3/node_modules/dijkstrajs/dijkstra.js
+var require_dijkstra = __commonJS({
+  "../../node_modules/.pnpm/dijkstrajs@1.0.3/node_modules/dijkstrajs/dijkstra.js"(exports, module) {
+    "use strict";
+    var dijkstra = {
+      single_source_shortest_paths: function(graph, s, d) {
+        var predecessors = {};
+        var costs = {};
+        costs[s] = 0;
+        var open = dijkstra.PriorityQueue.make();
+        open.push(s, 0);
+        var closest, u, v, cost_of_s_to_u, adjacent_nodes, cost_of_e, cost_of_s_to_u_plus_cost_of_e, cost_of_s_to_v, first_visit;
+        while (!open.empty()) {
+          closest = open.pop();
+          u = closest.value;
+          cost_of_s_to_u = closest.cost;
+          adjacent_nodes = graph[u] || {};
+          for (v in adjacent_nodes) {
+            if (adjacent_nodes.hasOwnProperty(v)) {
+              cost_of_e = adjacent_nodes[v];
+              cost_of_s_to_u_plus_cost_of_e = cost_of_s_to_u + cost_of_e;
+              cost_of_s_to_v = costs[v];
+              first_visit = typeof costs[v] === "undefined";
+              if (first_visit || cost_of_s_to_v > cost_of_s_to_u_plus_cost_of_e) {
+                costs[v] = cost_of_s_to_u_plus_cost_of_e;
+                open.push(v, cost_of_s_to_u_plus_cost_of_e);
+                predecessors[v] = u;
+              }
+            }
+          }
+        }
+        if (typeof d !== "undefined" && typeof costs[d] === "undefined") {
+          var msg = ["Could not find a path from ", s, " to ", d, "."].join("");
+          throw new Error(msg);
+        }
+        return predecessors;
+      },
+      extract_shortest_path_from_predecessor_list: function(predecessors, d) {
+        var nodes = [];
+        var u = d;
+        var predecessor;
+        while (u) {
+          nodes.push(u);
+          predecessor = predecessors[u];
+          u = predecessors[u];
+        }
+        nodes.reverse();
+        return nodes;
+      },
+      find_path: function(graph, s, d) {
+        var predecessors = dijkstra.single_source_shortest_paths(graph, s, d);
+        return dijkstra.extract_shortest_path_from_predecessor_list(
+          predecessors,
+          d
+        );
+      },
+      /**
+       * A very naive priority queue implementation.
+       */
+      PriorityQueue: {
+        make: function(opts) {
+          var T = dijkstra.PriorityQueue, t = {}, key;
+          opts = opts || {};
+          for (key in T) {
+            if (T.hasOwnProperty(key)) {
+              t[key] = T[key];
+            }
+          }
+          t.queue = [];
+          t.sorter = opts.sorter || T.default_sorter;
+          return t;
+        },
+        default_sorter: function(a, b) {
+          return a.cost - b.cost;
+        },
+        /**
+         * Add a new item to the queue and ensure the highest priority element
+         * is at the front of the queue.
+         */
+        push: function(value, cost) {
+          var item = { value, cost };
+          this.queue.push(item);
+          this.queue.sort(this.sorter);
+        },
+        /**
+         * Return the highest priority element in the queue.
+         */
+        pop: function() {
+          return this.queue.shift();
+        },
+        empty: function() {
+          return this.queue.length === 0;
+        }
+      }
+    };
+    if (typeof module !== "undefined") {
+      module.exports = dijkstra;
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/segments.js
+var require_segments = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/segments.js"(exports) {
+    var Mode = require_mode();
+    var NumericData = require_numeric_data();
+    var AlphanumericData = require_alphanumeric_data();
+    var ByteData = require_byte_data();
+    var KanjiData = require_kanji_data();
+    var Regex = require_regex();
+    var Utils = require_utils();
+    var dijkstra = require_dijkstra();
+    function getStringByteLength(str) {
+      return unescape(encodeURIComponent(str)).length;
+    }
+    function getSegments(regex, mode, str) {
+      const segments = [];
+      let result;
+      while ((result = regex.exec(str)) !== null) {
+        segments.push({
+          data: result[0],
+          index: result.index,
+          mode,
+          length: result[0].length
+        });
+      }
+      return segments;
+    }
+    function getSegmentsFromString(dataStr) {
+      const numSegs = getSegments(Regex.NUMERIC, Mode.NUMERIC, dataStr);
+      const alphaNumSegs = getSegments(Regex.ALPHANUMERIC, Mode.ALPHANUMERIC, dataStr);
+      let byteSegs;
+      let kanjiSegs;
+      if (Utils.isKanjiModeEnabled()) {
+        byteSegs = getSegments(Regex.BYTE, Mode.BYTE, dataStr);
+        kanjiSegs = getSegments(Regex.KANJI, Mode.KANJI, dataStr);
+      } else {
+        byteSegs = getSegments(Regex.BYTE_KANJI, Mode.BYTE, dataStr);
+        kanjiSegs = [];
+      }
+      const segs = numSegs.concat(alphaNumSegs, byteSegs, kanjiSegs);
+      return segs.sort(function(s1, s2) {
+        return s1.index - s2.index;
+      }).map(function(obj) {
+        return {
+          data: obj.data,
+          mode: obj.mode,
+          length: obj.length
+        };
+      });
+    }
+    function getSegmentBitsLength(length, mode) {
+      switch (mode) {
+        case Mode.NUMERIC:
+          return NumericData.getBitsLength(length);
+        case Mode.ALPHANUMERIC:
+          return AlphanumericData.getBitsLength(length);
+        case Mode.KANJI:
+          return KanjiData.getBitsLength(length);
+        case Mode.BYTE:
+          return ByteData.getBitsLength(length);
+      }
+    }
+    function mergeSegments(segs) {
+      return segs.reduce(function(acc, curr) {
+        const prevSeg = acc.length - 1 >= 0 ? acc[acc.length - 1] : null;
+        if (prevSeg && prevSeg.mode === curr.mode) {
+          acc[acc.length - 1].data += curr.data;
+          return acc;
+        }
+        acc.push(curr);
+        return acc;
+      }, []);
+    }
+    function buildNodes(segs) {
+      const nodes = [];
+      for (let i = 0; i < segs.length; i++) {
+        const seg = segs[i];
+        switch (seg.mode) {
+          case Mode.NUMERIC:
+            nodes.push([
+              seg,
+              { data: seg.data, mode: Mode.ALPHANUMERIC, length: seg.length },
+              { data: seg.data, mode: Mode.BYTE, length: seg.length }
+            ]);
+            break;
+          case Mode.ALPHANUMERIC:
+            nodes.push([
+              seg,
+              { data: seg.data, mode: Mode.BYTE, length: seg.length }
+            ]);
+            break;
+          case Mode.KANJI:
+            nodes.push([
+              seg,
+              { data: seg.data, mode: Mode.BYTE, length: getStringByteLength(seg.data) }
+            ]);
+            break;
+          case Mode.BYTE:
+            nodes.push([
+              { data: seg.data, mode: Mode.BYTE, length: getStringByteLength(seg.data) }
+            ]);
+        }
+      }
+      return nodes;
+    }
+    function buildGraph(nodes, version) {
+      const table = {};
+      const graph = { start: {} };
+      let prevNodeIds = ["start"];
+      for (let i = 0; i < nodes.length; i++) {
+        const nodeGroup = nodes[i];
+        const currentNodeIds = [];
+        for (let j = 0; j < nodeGroup.length; j++) {
+          const node = nodeGroup[j];
+          const key = "" + i + j;
+          currentNodeIds.push(key);
+          table[key] = { node, lastCount: 0 };
+          graph[key] = {};
+          for (let n = 0; n < prevNodeIds.length; n++) {
+            const prevNodeId = prevNodeIds[n];
+            if (table[prevNodeId] && table[prevNodeId].node.mode === node.mode) {
+              graph[prevNodeId][key] = getSegmentBitsLength(table[prevNodeId].lastCount + node.length, node.mode) - getSegmentBitsLength(table[prevNodeId].lastCount, node.mode);
+              table[prevNodeId].lastCount += node.length;
+            } else {
+              if (table[prevNodeId]) table[prevNodeId].lastCount = node.length;
+              graph[prevNodeId][key] = getSegmentBitsLength(node.length, node.mode) + 4 + Mode.getCharCountIndicator(node.mode, version);
+            }
+          }
+        }
+        prevNodeIds = currentNodeIds;
+      }
+      for (let n = 0; n < prevNodeIds.length; n++) {
+        graph[prevNodeIds[n]].end = 0;
+      }
+      return { map: graph, table };
+    }
+    function buildSingleSegment(data, modesHint) {
+      let mode;
+      const bestMode = Mode.getBestModeForData(data);
+      mode = Mode.from(modesHint, bestMode);
+      if (mode !== Mode.BYTE && mode.bit < bestMode.bit) {
+        throw new Error('"' + data + '" cannot be encoded with mode ' + Mode.toString(mode) + ".\n Suggested mode is: " + Mode.toString(bestMode));
+      }
+      if (mode === Mode.KANJI && !Utils.isKanjiModeEnabled()) {
+        mode = Mode.BYTE;
+      }
+      switch (mode) {
+        case Mode.NUMERIC:
+          return new NumericData(data);
+        case Mode.ALPHANUMERIC:
+          return new AlphanumericData(data);
+        case Mode.KANJI:
+          return new KanjiData(data);
+        case Mode.BYTE:
+          return new ByteData(data);
+      }
+    }
+    exports.fromArray = function fromArray(array) {
+      return array.reduce(function(acc, seg) {
+        if (typeof seg === "string") {
+          acc.push(buildSingleSegment(seg, null));
+        } else if (seg.data) {
+          acc.push(buildSingleSegment(seg.data, seg.mode));
+        }
+        return acc;
+      }, []);
+    };
+    exports.fromString = function fromString(data, version) {
+      const segs = getSegmentsFromString(data, Utils.isKanjiModeEnabled());
+      const nodes = buildNodes(segs);
+      const graph = buildGraph(nodes, version);
+      const path = dijkstra.find_path(graph.map, "start", "end");
+      const optimizedSegs = [];
+      for (let i = 1; i < path.length - 1; i++) {
+        optimizedSegs.push(graph.table[path[i]].node);
+      }
+      return exports.fromArray(mergeSegments(optimizedSegs));
+    };
+    exports.rawSplit = function rawSplit(data) {
+      return exports.fromArray(
+        getSegmentsFromString(data, Utils.isKanjiModeEnabled())
+      );
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/qrcode.js
+var require_qrcode = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/core/qrcode.js"(exports) {
+    var Utils = require_utils();
+    var ECLevel = require_error_correction_level();
+    var BitBuffer = require_bit_buffer();
+    var BitMatrix = require_bit_matrix();
+    var AlignmentPattern = require_alignment_pattern();
+    var FinderPattern = require_finder_pattern();
+    var MaskPattern = require_mask_pattern();
+    var ECCode = require_error_correction_code();
+    var ReedSolomonEncoder = require_reed_solomon_encoder();
+    var Version = require_version();
+    var FormatInfo = require_format_info();
+    var Mode = require_mode();
+    var Segments = require_segments();
+    function setupFinderPattern(matrix, version) {
+      const size = matrix.size;
+      const pos = FinderPattern.getPositions(version);
+      for (let i = 0; i < pos.length; i++) {
+        const row = pos[i][0];
+        const col = pos[i][1];
+        for (let r = -1; r <= 7; r++) {
+          if (row + r <= -1 || size <= row + r) continue;
+          for (let c = -1; c <= 7; c++) {
+            if (col + c <= -1 || size <= col + c) continue;
+            if (r >= 0 && r <= 6 && (c === 0 || c === 6) || c >= 0 && c <= 6 && (r === 0 || r === 6) || r >= 2 && r <= 4 && c >= 2 && c <= 4) {
+              matrix.set(row + r, col + c, true, true);
+            } else {
+              matrix.set(row + r, col + c, false, true);
+            }
+          }
+        }
+      }
+    }
+    function setupTimingPattern(matrix) {
+      const size = matrix.size;
+      for (let r = 8; r < size - 8; r++) {
+        const value = r % 2 === 0;
+        matrix.set(r, 6, value, true);
+        matrix.set(6, r, value, true);
+      }
+    }
+    function setupAlignmentPattern(matrix, version) {
+      const pos = AlignmentPattern.getPositions(version);
+      for (let i = 0; i < pos.length; i++) {
+        const row = pos[i][0];
+        const col = pos[i][1];
+        for (let r = -2; r <= 2; r++) {
+          for (let c = -2; c <= 2; c++) {
+            if (r === -2 || r === 2 || c === -2 || c === 2 || r === 0 && c === 0) {
+              matrix.set(row + r, col + c, true, true);
+            } else {
+              matrix.set(row + r, col + c, false, true);
+            }
+          }
+        }
+      }
+    }
+    function setupVersionInfo(matrix, version) {
+      const size = matrix.size;
+      const bits = Version.getEncodedBits(version);
+      let row, col, mod;
+      for (let i = 0; i < 18; i++) {
+        row = Math.floor(i / 3);
+        col = i % 3 + size - 8 - 3;
+        mod = (bits >> i & 1) === 1;
+        matrix.set(row, col, mod, true);
+        matrix.set(col, row, mod, true);
+      }
+    }
+    function setupFormatInfo(matrix, errorCorrectionLevel, maskPattern) {
+      const size = matrix.size;
+      const bits = FormatInfo.getEncodedBits(errorCorrectionLevel, maskPattern);
+      let i, mod;
+      for (i = 0; i < 15; i++) {
+        mod = (bits >> i & 1) === 1;
+        if (i < 6) {
+          matrix.set(i, 8, mod, true);
+        } else if (i < 8) {
+          matrix.set(i + 1, 8, mod, true);
+        } else {
+          matrix.set(size - 15 + i, 8, mod, true);
+        }
+        if (i < 8) {
+          matrix.set(8, size - i - 1, mod, true);
+        } else if (i < 9) {
+          matrix.set(8, 15 - i - 1 + 1, mod, true);
+        } else {
+          matrix.set(8, 15 - i - 1, mod, true);
+        }
+      }
+      matrix.set(size - 8, 8, 1, true);
+    }
+    function setupData(matrix, data) {
+      const size = matrix.size;
+      let inc = -1;
+      let row = size - 1;
+      let bitIndex = 7;
+      let byteIndex = 0;
+      for (let col = size - 1; col > 0; col -= 2) {
+        if (col === 6) col--;
+        while (true) {
+          for (let c = 0; c < 2; c++) {
+            if (!matrix.isReserved(row, col - c)) {
+              let dark = false;
+              if (byteIndex < data.length) {
+                dark = (data[byteIndex] >>> bitIndex & 1) === 1;
+              }
+              matrix.set(row, col - c, dark);
+              bitIndex--;
+              if (bitIndex === -1) {
+                byteIndex++;
+                bitIndex = 7;
+              }
+            }
+          }
+          row += inc;
+          if (row < 0 || size <= row) {
+            row -= inc;
+            inc = -inc;
+            break;
+          }
+        }
+      }
+    }
+    function createData(version, errorCorrectionLevel, segments) {
+      const buffer = new BitBuffer();
+      segments.forEach(function(data) {
+        buffer.put(data.mode.bit, 4);
+        buffer.put(data.getLength(), Mode.getCharCountIndicator(data.mode, version));
+        data.write(buffer);
+      });
+      const totalCodewords = Utils.getSymbolTotalCodewords(version);
+      const ecTotalCodewords = ECCode.getTotalCodewordsCount(version, errorCorrectionLevel);
+      const dataTotalCodewordsBits = (totalCodewords - ecTotalCodewords) * 8;
+      if (buffer.getLengthInBits() + 4 <= dataTotalCodewordsBits) {
+        buffer.put(0, 4);
+      }
+      while (buffer.getLengthInBits() % 8 !== 0) {
+        buffer.putBit(0);
+      }
+      const remainingByte = (dataTotalCodewordsBits - buffer.getLengthInBits()) / 8;
+      for (let i = 0; i < remainingByte; i++) {
+        buffer.put(i % 2 ? 17 : 236, 8);
+      }
+      return createCodewords(buffer, version, errorCorrectionLevel);
+    }
+    function createCodewords(bitBuffer, version, errorCorrectionLevel) {
+      const totalCodewords = Utils.getSymbolTotalCodewords(version);
+      const ecTotalCodewords = ECCode.getTotalCodewordsCount(version, errorCorrectionLevel);
+      const dataTotalCodewords = totalCodewords - ecTotalCodewords;
+      const ecTotalBlocks = ECCode.getBlocksCount(version, errorCorrectionLevel);
+      const blocksInGroup2 = totalCodewords % ecTotalBlocks;
+      const blocksInGroup1 = ecTotalBlocks - blocksInGroup2;
+      const totalCodewordsInGroup1 = Math.floor(totalCodewords / ecTotalBlocks);
+      const dataCodewordsInGroup1 = Math.floor(dataTotalCodewords / ecTotalBlocks);
+      const dataCodewordsInGroup2 = dataCodewordsInGroup1 + 1;
+      const ecCount = totalCodewordsInGroup1 - dataCodewordsInGroup1;
+      const rs = new ReedSolomonEncoder(ecCount);
+      let offset = 0;
+      const dcData = new Array(ecTotalBlocks);
+      const ecData = new Array(ecTotalBlocks);
+      let maxDataSize = 0;
+      const buffer = new Uint8Array(bitBuffer.buffer);
+      for (let b = 0; b < ecTotalBlocks; b++) {
+        const dataSize = b < blocksInGroup1 ? dataCodewordsInGroup1 : dataCodewordsInGroup2;
+        dcData[b] = buffer.slice(offset, offset + dataSize);
+        ecData[b] = rs.encode(dcData[b]);
+        offset += dataSize;
+        maxDataSize = Math.max(maxDataSize, dataSize);
+      }
+      const data = new Uint8Array(totalCodewords);
+      let index = 0;
+      let i, r;
+      for (i = 0; i < maxDataSize; i++) {
+        for (r = 0; r < ecTotalBlocks; r++) {
+          if (i < dcData[r].length) {
+            data[index++] = dcData[r][i];
+          }
+        }
+      }
+      for (i = 0; i < ecCount; i++) {
+        for (r = 0; r < ecTotalBlocks; r++) {
+          data[index++] = ecData[r][i];
+        }
+      }
+      return data;
+    }
+    function createSymbol(data, version, errorCorrectionLevel, maskPattern) {
+      let segments;
+      if (Array.isArray(data)) {
+        segments = Segments.fromArray(data);
+      } else if (typeof data === "string") {
+        let estimatedVersion = version;
+        if (!estimatedVersion) {
+          const rawSegments = Segments.rawSplit(data);
+          estimatedVersion = Version.getBestVersionForData(rawSegments, errorCorrectionLevel);
+        }
+        segments = Segments.fromString(data, estimatedVersion || 40);
+      } else {
+        throw new Error("Invalid data");
+      }
+      const bestVersion = Version.getBestVersionForData(segments, errorCorrectionLevel);
+      if (!bestVersion) {
+        throw new Error("The amount of data is too big to be stored in a QR Code");
+      }
+      if (!version) {
+        version = bestVersion;
+      } else if (version < bestVersion) {
+        throw new Error(
+          "\nThe chosen QR Code version cannot contain this amount of data.\nMinimum version required to store current data is: " + bestVersion + ".\n"
+        );
+      }
+      const dataBits = createData(version, errorCorrectionLevel, segments);
+      const moduleCount = Utils.getSymbolSize(version);
+      const modules = new BitMatrix(moduleCount);
+      setupFinderPattern(modules, version);
+      setupTimingPattern(modules);
+      setupAlignmentPattern(modules, version);
+      setupFormatInfo(modules, errorCorrectionLevel, 0);
+      if (version >= 7) {
+        setupVersionInfo(modules, version);
+      }
+      setupData(modules, dataBits);
+      if (isNaN(maskPattern)) {
+        maskPattern = MaskPattern.getBestMask(
+          modules,
+          setupFormatInfo.bind(null, modules, errorCorrectionLevel)
+        );
+      }
+      MaskPattern.applyMask(maskPattern, modules);
+      setupFormatInfo(modules, errorCorrectionLevel, maskPattern);
+      return {
+        modules,
+        version,
+        errorCorrectionLevel,
+        maskPattern,
+        segments
+      };
+    }
+    exports.create = function create(data, options) {
+      if (typeof data === "undefined" || data === "") {
+        throw new Error("No input text");
+      }
+      let errorCorrectionLevel = ECLevel.M;
+      let version;
+      let mask;
+      if (typeof options !== "undefined") {
+        errorCorrectionLevel = ECLevel.from(options.errorCorrectionLevel, ECLevel.M);
+        version = Version.from(options.version);
+        mask = MaskPattern.from(options.maskPattern);
+        if (options.toSJISFunc) {
+          Utils.setToSJISFunction(options.toSJISFunc);
+        }
+      }
+      return createSymbol(data, version, errorCorrectionLevel, mask);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/chunkstream.js
+var require_chunkstream = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/chunkstream.js"(exports, module) {
+    "use strict";
+    var util = __require("util");
+    var Stream = __require("stream");
+    var ChunkStream = module.exports = function() {
+      Stream.call(this);
+      this._buffers = [];
+      this._buffered = 0;
+      this._reads = [];
+      this._paused = false;
+      this._encoding = "utf8";
+      this.writable = true;
+    };
+    util.inherits(ChunkStream, Stream);
+    ChunkStream.prototype.read = function(length, callback) {
+      this._reads.push({
+        length: Math.abs(length),
+        // if length < 0 then at most this length
+        allowLess: length < 0,
+        func: callback
+      });
+      process.nextTick(
+        function() {
+          this._process();
+          if (this._paused && this._reads && this._reads.length > 0) {
+            this._paused = false;
+            this.emit("drain");
+          }
+        }.bind(this)
+      );
+    };
+    ChunkStream.prototype.write = function(data, encoding) {
+      if (!this.writable) {
+        this.emit("error", new Error("Stream not writable"));
+        return false;
+      }
+      let dataBuffer;
+      if (Buffer.isBuffer(data)) {
+        dataBuffer = data;
+      } else {
+        dataBuffer = Buffer.from(data, encoding || this._encoding);
+      }
+      this._buffers.push(dataBuffer);
+      this._buffered += dataBuffer.length;
+      this._process();
+      if (this._reads && this._reads.length === 0) {
+        this._paused = true;
+      }
+      return this.writable && !this._paused;
+    };
+    ChunkStream.prototype.end = function(data, encoding) {
+      if (data) {
+        this.write(data, encoding);
+      }
+      this.writable = false;
+      if (!this._buffers) {
+        return;
+      }
+      if (this._buffers.length === 0) {
+        this._end();
+      } else {
+        this._buffers.push(null);
+        this._process();
+      }
+    };
+    ChunkStream.prototype.destroySoon = ChunkStream.prototype.end;
+    ChunkStream.prototype._end = function() {
+      if (this._reads.length > 0) {
+        this.emit("error", new Error("Unexpected end of input"));
+      }
+      this.destroy();
+    };
+    ChunkStream.prototype.destroy = function() {
+      if (!this._buffers) {
+        return;
+      }
+      this.writable = false;
+      this._reads = null;
+      this._buffers = null;
+      this.emit("close");
+    };
+    ChunkStream.prototype._processReadAllowingLess = function(read) {
+      this._reads.shift();
+      let smallerBuf = this._buffers[0];
+      if (smallerBuf.length > read.length) {
+        this._buffered -= read.length;
+        this._buffers[0] = smallerBuf.slice(read.length);
+        read.func.call(this, smallerBuf.slice(0, read.length));
+      } else {
+        this._buffered -= smallerBuf.length;
+        this._buffers.shift();
+        read.func.call(this, smallerBuf);
+      }
+    };
+    ChunkStream.prototype._processRead = function(read) {
+      this._reads.shift();
+      let pos = 0;
+      let count = 0;
+      let data = Buffer.alloc(read.length);
+      while (pos < read.length) {
+        let buf = this._buffers[count++];
+        let len = Math.min(buf.length, read.length - pos);
+        buf.copy(data, pos, 0, len);
+        pos += len;
+        if (len !== buf.length) {
+          this._buffers[--count] = buf.slice(len);
+        }
+      }
+      if (count > 0) {
+        this._buffers.splice(0, count);
+      }
+      this._buffered -= read.length;
+      read.func.call(this, data);
+    };
+    ChunkStream.prototype._process = function() {
+      try {
+        while (this._buffered > 0 && this._reads && this._reads.length > 0) {
+          let read = this._reads[0];
+          if (read.allowLess) {
+            this._processReadAllowingLess(read);
+          } else if (this._buffered >= read.length) {
+            this._processRead(read);
+          } else {
+            break;
+          }
+        }
+        if (this._buffers && !this.writable) {
+          this._end();
+        }
+      } catch (ex) {
+        this.emit("error", ex);
+      }
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/interlace.js
+var require_interlace = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/interlace.js"(exports) {
+    "use strict";
+    var imagePasses = [
+      {
+        // pass 1 - 1px
+        x: [0],
+        y: [0]
+      },
+      {
+        // pass 2 - 1px
+        x: [4],
+        y: [0]
+      },
+      {
+        // pass 3 - 2px
+        x: [0, 4],
+        y: [4]
+      },
+      {
+        // pass 4 - 4px
+        x: [2, 6],
+        y: [0, 4]
+      },
+      {
+        // pass 5 - 8px
+        x: [0, 2, 4, 6],
+        y: [2, 6]
+      },
+      {
+        // pass 6 - 16px
+        x: [1, 3, 5, 7],
+        y: [0, 2, 4, 6]
+      },
+      {
+        // pass 7 - 32px
+        x: [0, 1, 2, 3, 4, 5, 6, 7],
+        y: [1, 3, 5, 7]
+      }
+    ];
+    exports.getImagePasses = function(width, height) {
+      let images = [];
+      let xLeftOver = width % 8;
+      let yLeftOver = height % 8;
+      let xRepeats = (width - xLeftOver) / 8;
+      let yRepeats = (height - yLeftOver) / 8;
+      for (let i = 0; i < imagePasses.length; i++) {
+        let pass = imagePasses[i];
+        let passWidth = xRepeats * pass.x.length;
+        let passHeight = yRepeats * pass.y.length;
+        for (let j = 0; j < pass.x.length; j++) {
+          if (pass.x[j] < xLeftOver) {
+            passWidth++;
+          } else {
+            break;
+          }
+        }
+        for (let j = 0; j < pass.y.length; j++) {
+          if (pass.y[j] < yLeftOver) {
+            passHeight++;
+          } else {
+            break;
+          }
+        }
+        if (passWidth > 0 && passHeight > 0) {
+          images.push({ width: passWidth, height: passHeight, index: i });
+        }
+      }
+      return images;
+    };
+    exports.getInterlaceIterator = function(width) {
+      return function(x, y, pass) {
+        let outerXLeftOver = x % imagePasses[pass].x.length;
+        let outerX = (x - outerXLeftOver) / imagePasses[pass].x.length * 8 + imagePasses[pass].x[outerXLeftOver];
+        let outerYLeftOver = y % imagePasses[pass].y.length;
+        let outerY = (y - outerYLeftOver) / imagePasses[pass].y.length * 8 + imagePasses[pass].y[outerYLeftOver];
+        return outerX * 4 + outerY * width * 4;
+      };
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/paeth-predictor.js
+var require_paeth_predictor = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/paeth-predictor.js"(exports, module) {
+    "use strict";
+    module.exports = function paethPredictor(left, above, upLeft) {
+      let paeth = left + above - upLeft;
+      let pLeft = Math.abs(paeth - left);
+      let pAbove = Math.abs(paeth - above);
+      let pUpLeft = Math.abs(paeth - upLeft);
+      if (pLeft <= pAbove && pLeft <= pUpLeft) {
+        return left;
+      }
+      if (pAbove <= pUpLeft) {
+        return above;
+      }
+      return upLeft;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/filter-parse.js
+var require_filter_parse = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/filter-parse.js"(exports, module) {
+    "use strict";
+    var interlaceUtils = require_interlace();
+    var paethPredictor = require_paeth_predictor();
+    function getByteWidth(width, bpp, depth) {
+      let byteWidth = width * bpp;
+      if (depth !== 8) {
+        byteWidth = Math.ceil(byteWidth / (8 / depth));
+      }
+      return byteWidth;
+    }
+    var Filter = module.exports = function(bitmapInfo, dependencies) {
+      let width = bitmapInfo.width;
+      let height = bitmapInfo.height;
+      let interlace = bitmapInfo.interlace;
+      let bpp = bitmapInfo.bpp;
+      let depth = bitmapInfo.depth;
+      this.read = dependencies.read;
+      this.write = dependencies.write;
+      this.complete = dependencies.complete;
+      this._imageIndex = 0;
+      this._images = [];
+      if (interlace) {
+        let passes = interlaceUtils.getImagePasses(width, height);
+        for (let i = 0; i < passes.length; i++) {
+          this._images.push({
+            byteWidth: getByteWidth(passes[i].width, bpp, depth),
+            height: passes[i].height,
+            lineIndex: 0
+          });
+        }
+      } else {
+        this._images.push({
+          byteWidth: getByteWidth(width, bpp, depth),
+          height,
+          lineIndex: 0
+        });
+      }
+      if (depth === 8) {
+        this._xComparison = bpp;
+      } else if (depth === 16) {
+        this._xComparison = bpp * 2;
+      } else {
+        this._xComparison = 1;
+      }
+    };
+    Filter.prototype.start = function() {
+      this.read(
+        this._images[this._imageIndex].byteWidth + 1,
+        this._reverseFilterLine.bind(this)
+      );
+    };
+    Filter.prototype._unFilterType1 = function(rawData, unfilteredLine, byteWidth) {
+      let xComparison = this._xComparison;
+      let xBiggerThan = xComparison - 1;
+      for (let x = 0; x < byteWidth; x++) {
+        let rawByte = rawData[1 + x];
+        let f1Left = x > xBiggerThan ? unfilteredLine[x - xComparison] : 0;
+        unfilteredLine[x] = rawByte + f1Left;
+      }
+    };
+    Filter.prototype._unFilterType2 = function(rawData, unfilteredLine, byteWidth) {
+      let lastLine = this._lastLine;
+      for (let x = 0; x < byteWidth; x++) {
+        let rawByte = rawData[1 + x];
+        let f2Up = lastLine ? lastLine[x] : 0;
+        unfilteredLine[x] = rawByte + f2Up;
+      }
+    };
+    Filter.prototype._unFilterType3 = function(rawData, unfilteredLine, byteWidth) {
+      let xComparison = this._xComparison;
+      let xBiggerThan = xComparison - 1;
+      let lastLine = this._lastLine;
+      for (let x = 0; x < byteWidth; x++) {
+        let rawByte = rawData[1 + x];
+        let f3Up = lastLine ? lastLine[x] : 0;
+        let f3Left = x > xBiggerThan ? unfilteredLine[x - xComparison] : 0;
+        let f3Add = Math.floor((f3Left + f3Up) / 2);
+        unfilteredLine[x] = rawByte + f3Add;
+      }
+    };
+    Filter.prototype._unFilterType4 = function(rawData, unfilteredLine, byteWidth) {
+      let xComparison = this._xComparison;
+      let xBiggerThan = xComparison - 1;
+      let lastLine = this._lastLine;
+      for (let x = 0; x < byteWidth; x++) {
+        let rawByte = rawData[1 + x];
+        let f4Up = lastLine ? lastLine[x] : 0;
+        let f4Left = x > xBiggerThan ? unfilteredLine[x - xComparison] : 0;
+        let f4UpLeft = x > xBiggerThan && lastLine ? lastLine[x - xComparison] : 0;
+        let f4Add = paethPredictor(f4Left, f4Up, f4UpLeft);
+        unfilteredLine[x] = rawByte + f4Add;
+      }
+    };
+    Filter.prototype._reverseFilterLine = function(rawData) {
+      let filter = rawData[0];
+      let unfilteredLine;
+      let currentImage = this._images[this._imageIndex];
+      let byteWidth = currentImage.byteWidth;
+      if (filter === 0) {
+        unfilteredLine = rawData.slice(1, byteWidth + 1);
+      } else {
+        unfilteredLine = Buffer.alloc(byteWidth);
+        switch (filter) {
+          case 1:
+            this._unFilterType1(rawData, unfilteredLine, byteWidth);
+            break;
+          case 2:
+            this._unFilterType2(rawData, unfilteredLine, byteWidth);
+            break;
+          case 3:
+            this._unFilterType3(rawData, unfilteredLine, byteWidth);
+            break;
+          case 4:
+            this._unFilterType4(rawData, unfilteredLine, byteWidth);
+            break;
+          default:
+            throw new Error("Unrecognised filter type - " + filter);
+        }
+      }
+      this.write(unfilteredLine);
+      currentImage.lineIndex++;
+      if (currentImage.lineIndex >= currentImage.height) {
+        this._lastLine = null;
+        this._imageIndex++;
+        currentImage = this._images[this._imageIndex];
+      } else {
+        this._lastLine = unfilteredLine;
+      }
+      if (currentImage) {
+        this.read(currentImage.byteWidth + 1, this._reverseFilterLine.bind(this));
+      } else {
+        this._lastLine = null;
+        this.complete();
+      }
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/filter-parse-async.js
+var require_filter_parse_async = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/filter-parse-async.js"(exports, module) {
+    "use strict";
+    var util = __require("util");
+    var ChunkStream = require_chunkstream();
+    var Filter = require_filter_parse();
+    var FilterAsync = module.exports = function(bitmapInfo) {
+      ChunkStream.call(this);
+      let buffers = [];
+      let that = this;
+      this._filter = new Filter(bitmapInfo, {
+        read: this.read.bind(this),
+        write: function(buffer) {
+          buffers.push(buffer);
+        },
+        complete: function() {
+          that.emit("complete", Buffer.concat(buffers));
+        }
+      });
+      this._filter.start();
+    };
+    util.inherits(FilterAsync, ChunkStream);
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/constants.js
+var require_constants = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/constants.js"(exports, module) {
+    "use strict";
+    module.exports = {
+      PNG_SIGNATURE: [137, 80, 78, 71, 13, 10, 26, 10],
+      TYPE_IHDR: 1229472850,
+      TYPE_IEND: 1229278788,
+      TYPE_IDAT: 1229209940,
+      TYPE_PLTE: 1347179589,
+      TYPE_tRNS: 1951551059,
+      // eslint-disable-line camelcase
+      TYPE_gAMA: 1732332865,
+      // eslint-disable-line camelcase
+      // color-type bits
+      COLORTYPE_GRAYSCALE: 0,
+      COLORTYPE_PALETTE: 1,
+      COLORTYPE_COLOR: 2,
+      COLORTYPE_ALPHA: 4,
+      // e.g. grayscale and alpha
+      // color-type combinations
+      COLORTYPE_PALETTE_COLOR: 3,
+      COLORTYPE_COLOR_ALPHA: 6,
+      COLORTYPE_TO_BPP_MAP: {
+        0: 1,
+        2: 3,
+        3: 1,
+        4: 2,
+        6: 4
+      },
+      GAMMA_DIVISION: 1e5
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/crc.js
+var require_crc = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/crc.js"(exports, module) {
+    "use strict";
+    var crcTable = [];
+    (function() {
+      for (let i = 0; i < 256; i++) {
+        let currentCrc = i;
+        for (let j = 0; j < 8; j++) {
+          if (currentCrc & 1) {
+            currentCrc = 3988292384 ^ currentCrc >>> 1;
+          } else {
+            currentCrc = currentCrc >>> 1;
+          }
+        }
+        crcTable[i] = currentCrc;
+      }
+    })();
+    var CrcCalculator = module.exports = function() {
+      this._crc = -1;
+    };
+    CrcCalculator.prototype.write = function(data) {
+      for (let i = 0; i < data.length; i++) {
+        this._crc = crcTable[(this._crc ^ data[i]) & 255] ^ this._crc >>> 8;
+      }
+      return true;
+    };
+    CrcCalculator.prototype.crc32 = function() {
+      return this._crc ^ -1;
+    };
+    CrcCalculator.crc32 = function(buf) {
+      let crc = -1;
+      for (let i = 0; i < buf.length; i++) {
+        crc = crcTable[(crc ^ buf[i]) & 255] ^ crc >>> 8;
+      }
+      return crc ^ -1;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/parser.js
+var require_parser = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/parser.js"(exports, module) {
+    "use strict";
+    var constants = require_constants();
+    var CrcCalculator = require_crc();
+    var Parser = module.exports = function(options, dependencies) {
+      this._options = options;
+      options.checkCRC = options.checkCRC !== false;
+      this._hasIHDR = false;
+      this._hasIEND = false;
+      this._emittedHeadersFinished = false;
+      this._palette = [];
+      this._colorType = 0;
+      this._chunks = {};
+      this._chunks[constants.TYPE_IHDR] = this._handleIHDR.bind(this);
+      this._chunks[constants.TYPE_IEND] = this._handleIEND.bind(this);
+      this._chunks[constants.TYPE_IDAT] = this._handleIDAT.bind(this);
+      this._chunks[constants.TYPE_PLTE] = this._handlePLTE.bind(this);
+      this._chunks[constants.TYPE_tRNS] = this._handleTRNS.bind(this);
+      this._chunks[constants.TYPE_gAMA] = this._handleGAMA.bind(this);
+      this.read = dependencies.read;
+      this.error = dependencies.error;
+      this.metadata = dependencies.metadata;
+      this.gamma = dependencies.gamma;
+      this.transColor = dependencies.transColor;
+      this.palette = dependencies.palette;
+      this.parsed = dependencies.parsed;
+      this.inflateData = dependencies.inflateData;
+      this.finished = dependencies.finished;
+      this.simpleTransparency = dependencies.simpleTransparency;
+      this.headersFinished = dependencies.headersFinished || function() {
+      };
+    };
+    Parser.prototype.start = function() {
+      this.read(constants.PNG_SIGNATURE.length, this._parseSignature.bind(this));
+    };
+    Parser.prototype._parseSignature = function(data) {
+      let signature = constants.PNG_SIGNATURE;
+      for (let i = 0; i < signature.length; i++) {
+        if (data[i] !== signature[i]) {
+          this.error(new Error("Invalid file signature"));
+          return;
+        }
+      }
+      this.read(8, this._parseChunkBegin.bind(this));
+    };
+    Parser.prototype._parseChunkBegin = function(data) {
+      let length = data.readUInt32BE(0);
+      let type = data.readUInt32BE(4);
+      let name = "";
+      for (let i = 4; i < 8; i++) {
+        name += String.fromCharCode(data[i]);
+      }
+      let ancillary = Boolean(data[4] & 32);
+      if (!this._hasIHDR && type !== constants.TYPE_IHDR) {
+        this.error(new Error("Expected IHDR on beggining"));
+        return;
+      }
+      this._crc = new CrcCalculator();
+      this._crc.write(Buffer.from(name));
+      if (this._chunks[type]) {
+        return this._chunks[type](length);
+      }
+      if (!ancillary) {
+        this.error(new Error("Unsupported critical chunk type " + name));
+        return;
+      }
+      this.read(length + 4, this._skipChunk.bind(this));
+    };
+    Parser.prototype._skipChunk = function() {
+      this.read(8, this._parseChunkBegin.bind(this));
+    };
+    Parser.prototype._handleChunkEnd = function() {
+      this.read(4, this._parseChunkEnd.bind(this));
+    };
+    Parser.prototype._parseChunkEnd = function(data) {
+      let fileCrc = data.readInt32BE(0);
+      let calcCrc = this._crc.crc32();
+      if (this._options.checkCRC && calcCrc !== fileCrc) {
+        this.error(new Error("Crc error - " + fileCrc + " - " + calcCrc));
+        return;
+      }
+      if (!this._hasIEND) {
+        this.read(8, this._parseChunkBegin.bind(this));
+      }
+    };
+    Parser.prototype._handleIHDR = function(length) {
+      this.read(length, this._parseIHDR.bind(this));
+    };
+    Parser.prototype._parseIHDR = function(data) {
+      this._crc.write(data);
+      let width = data.readUInt32BE(0);
+      let height = data.readUInt32BE(4);
+      let depth = data[8];
+      let colorType = data[9];
+      let compr = data[10];
+      let filter = data[11];
+      let interlace = data[12];
+      if (depth !== 8 && depth !== 4 && depth !== 2 && depth !== 1 && depth !== 16) {
+        this.error(new Error("Unsupported bit depth " + depth));
+        return;
+      }
+      if (!(colorType in constants.COLORTYPE_TO_BPP_MAP)) {
+        this.error(new Error("Unsupported color type"));
+        return;
+      }
+      if (compr !== 0) {
+        this.error(new Error("Unsupported compression method"));
+        return;
+      }
+      if (filter !== 0) {
+        this.error(new Error("Unsupported filter method"));
+        return;
+      }
+      if (interlace !== 0 && interlace !== 1) {
+        this.error(new Error("Unsupported interlace method"));
+        return;
+      }
+      this._colorType = colorType;
+      let bpp = constants.COLORTYPE_TO_BPP_MAP[this._colorType];
+      this._hasIHDR = true;
+      this.metadata({
+        width,
+        height,
+        depth,
+        interlace: Boolean(interlace),
+        palette: Boolean(colorType & constants.COLORTYPE_PALETTE),
+        color: Boolean(colorType & constants.COLORTYPE_COLOR),
+        alpha: Boolean(colorType & constants.COLORTYPE_ALPHA),
+        bpp,
+        colorType
+      });
+      this._handleChunkEnd();
+    };
+    Parser.prototype._handlePLTE = function(length) {
+      this.read(length, this._parsePLTE.bind(this));
+    };
+    Parser.prototype._parsePLTE = function(data) {
+      this._crc.write(data);
+      let entries = Math.floor(data.length / 3);
+      for (let i = 0; i < entries; i++) {
+        this._palette.push([data[i * 3], data[i * 3 + 1], data[i * 3 + 2], 255]);
+      }
+      this.palette(this._palette);
+      this._handleChunkEnd();
+    };
+    Parser.prototype._handleTRNS = function(length) {
+      this.simpleTransparency();
+      this.read(length, this._parseTRNS.bind(this));
+    };
+    Parser.prototype._parseTRNS = function(data) {
+      this._crc.write(data);
+      if (this._colorType === constants.COLORTYPE_PALETTE_COLOR) {
+        if (this._palette.length === 0) {
+          this.error(new Error("Transparency chunk must be after palette"));
+          return;
+        }
+        if (data.length > this._palette.length) {
+          this.error(new Error("More transparent colors than palette size"));
+          return;
+        }
+        for (let i = 0; i < data.length; i++) {
+          this._palette[i][3] = data[i];
+        }
+        this.palette(this._palette);
+      }
+      if (this._colorType === constants.COLORTYPE_GRAYSCALE) {
+        this.transColor([data.readUInt16BE(0)]);
+      }
+      if (this._colorType === constants.COLORTYPE_COLOR) {
+        this.transColor([
+          data.readUInt16BE(0),
+          data.readUInt16BE(2),
+          data.readUInt16BE(4)
+        ]);
+      }
+      this._handleChunkEnd();
+    };
+    Parser.prototype._handleGAMA = function(length) {
+      this.read(length, this._parseGAMA.bind(this));
+    };
+    Parser.prototype._parseGAMA = function(data) {
+      this._crc.write(data);
+      this.gamma(data.readUInt32BE(0) / constants.GAMMA_DIVISION);
+      this._handleChunkEnd();
+    };
+    Parser.prototype._handleIDAT = function(length) {
+      if (!this._emittedHeadersFinished) {
+        this._emittedHeadersFinished = true;
+        this.headersFinished();
+      }
+      this.read(-length, this._parseIDAT.bind(this, length));
+    };
+    Parser.prototype._parseIDAT = function(length, data) {
+      this._crc.write(data);
+      if (this._colorType === constants.COLORTYPE_PALETTE_COLOR && this._palette.length === 0) {
+        throw new Error("Expected palette not found");
+      }
+      this.inflateData(data);
+      let leftOverLength = length - data.length;
+      if (leftOverLength > 0) {
+        this._handleIDAT(leftOverLength);
+      } else {
+        this._handleChunkEnd();
+      }
+    };
+    Parser.prototype._handleIEND = function(length) {
+      this.read(length, this._parseIEND.bind(this));
+    };
+    Parser.prototype._parseIEND = function(data) {
+      this._crc.write(data);
+      this._hasIEND = true;
+      this._handleChunkEnd();
+      if (this.finished) {
+        this.finished();
+      }
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/bitmapper.js
+var require_bitmapper = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/bitmapper.js"(exports) {
+    "use strict";
+    var interlaceUtils = require_interlace();
+    var pixelBppMapper = [
+      // 0 - dummy entry
+      function() {
+      },
+      // 1 - L
+      // 0: 0, 1: 0, 2: 0, 3: 0xff
+      function(pxData, data, pxPos, rawPos) {
+        if (rawPos === data.length) {
+          throw new Error("Ran out of data");
+        }
+        let pixel = data[rawPos];
+        pxData[pxPos] = pixel;
+        pxData[pxPos + 1] = pixel;
+        pxData[pxPos + 2] = pixel;
+        pxData[pxPos + 3] = 255;
+      },
+      // 2 - LA
+      // 0: 0, 1: 0, 2: 0, 3: 1
+      function(pxData, data, pxPos, rawPos) {
+        if (rawPos + 1 >= data.length) {
+          throw new Error("Ran out of data");
+        }
+        let pixel = data[rawPos];
+        pxData[pxPos] = pixel;
+        pxData[pxPos + 1] = pixel;
+        pxData[pxPos + 2] = pixel;
+        pxData[pxPos + 3] = data[rawPos + 1];
+      },
+      // 3 - RGB
+      // 0: 0, 1: 1, 2: 2, 3: 0xff
+      function(pxData, data, pxPos, rawPos) {
+        if (rawPos + 2 >= data.length) {
+          throw new Error("Ran out of data");
+        }
+        pxData[pxPos] = data[rawPos];
+        pxData[pxPos + 1] = data[rawPos + 1];
+        pxData[pxPos + 2] = data[rawPos + 2];
+        pxData[pxPos + 3] = 255;
+      },
+      // 4 - RGBA
+      // 0: 0, 1: 1, 2: 2, 3: 3
+      function(pxData, data, pxPos, rawPos) {
+        if (rawPos + 3 >= data.length) {
+          throw new Error("Ran out of data");
+        }
+        pxData[pxPos] = data[rawPos];
+        pxData[pxPos + 1] = data[rawPos + 1];
+        pxData[pxPos + 2] = data[rawPos + 2];
+        pxData[pxPos + 3] = data[rawPos + 3];
+      }
+    ];
+    var pixelBppCustomMapper = [
+      // 0 - dummy entry
+      function() {
+      },
+      // 1 - L
+      // 0: 0, 1: 0, 2: 0, 3: 0xff
+      function(pxData, pixelData, pxPos, maxBit) {
+        let pixel = pixelData[0];
+        pxData[pxPos] = pixel;
+        pxData[pxPos + 1] = pixel;
+        pxData[pxPos + 2] = pixel;
+        pxData[pxPos + 3] = maxBit;
+      },
+      // 2 - LA
+      // 0: 0, 1: 0, 2: 0, 3: 1
+      function(pxData, pixelData, pxPos) {
+        let pixel = pixelData[0];
+        pxData[pxPos] = pixel;
+        pxData[pxPos + 1] = pixel;
+        pxData[pxPos + 2] = pixel;
+        pxData[pxPos + 3] = pixelData[1];
+      },
+      // 3 - RGB
+      // 0: 0, 1: 1, 2: 2, 3: 0xff
+      function(pxData, pixelData, pxPos, maxBit) {
+        pxData[pxPos] = pixelData[0];
+        pxData[pxPos + 1] = pixelData[1];
+        pxData[pxPos + 2] = pixelData[2];
+        pxData[pxPos + 3] = maxBit;
+      },
+      // 4 - RGBA
+      // 0: 0, 1: 1, 2: 2, 3: 3
+      function(pxData, pixelData, pxPos) {
+        pxData[pxPos] = pixelData[0];
+        pxData[pxPos + 1] = pixelData[1];
+        pxData[pxPos + 2] = pixelData[2];
+        pxData[pxPos + 3] = pixelData[3];
+      }
+    ];
+    function bitRetriever(data, depth) {
+      let leftOver = [];
+      let i = 0;
+      function split() {
+        if (i === data.length) {
+          throw new Error("Ran out of data");
+        }
+        let byte = data[i];
+        i++;
+        let byte8, byte7, byte6, byte5, byte4, byte3, byte2, byte1;
+        switch (depth) {
+          default:
+            throw new Error("unrecognised depth");
+          case 16:
+            byte2 = data[i];
+            i++;
+            leftOver.push((byte << 8) + byte2);
+            break;
+          case 4:
+            byte2 = byte & 15;
+            byte1 = byte >> 4;
+            leftOver.push(byte1, byte2);
+            break;
+          case 2:
+            byte4 = byte & 3;
+            byte3 = byte >> 2 & 3;
+            byte2 = byte >> 4 & 3;
+            byte1 = byte >> 6 & 3;
+            leftOver.push(byte1, byte2, byte3, byte4);
+            break;
+          case 1:
+            byte8 = byte & 1;
+            byte7 = byte >> 1 & 1;
+            byte6 = byte >> 2 & 1;
+            byte5 = byte >> 3 & 1;
+            byte4 = byte >> 4 & 1;
+            byte3 = byte >> 5 & 1;
+            byte2 = byte >> 6 & 1;
+            byte1 = byte >> 7 & 1;
+            leftOver.push(byte1, byte2, byte3, byte4, byte5, byte6, byte7, byte8);
+            break;
+        }
+      }
+      return {
+        get: function(count) {
+          while (leftOver.length < count) {
+            split();
+          }
+          let returner = leftOver.slice(0, count);
+          leftOver = leftOver.slice(count);
+          return returner;
+        },
+        resetAfterLine: function() {
+          leftOver.length = 0;
+        },
+        end: function() {
+          if (i !== data.length) {
+            throw new Error("extra data found");
+          }
+        }
+      };
+    }
+    function mapImage8Bit(image, pxData, getPxPos, bpp, data, rawPos) {
+      let imageWidth = image.width;
+      let imageHeight = image.height;
+      let imagePass = image.index;
+      for (let y = 0; y < imageHeight; y++) {
+        for (let x = 0; x < imageWidth; x++) {
+          let pxPos = getPxPos(x, y, imagePass);
+          pixelBppMapper[bpp](pxData, data, pxPos, rawPos);
+          rawPos += bpp;
+        }
+      }
+      return rawPos;
+    }
+    function mapImageCustomBit(image, pxData, getPxPos, bpp, bits, maxBit) {
+      let imageWidth = image.width;
+      let imageHeight = image.height;
+      let imagePass = image.index;
+      for (let y = 0; y < imageHeight; y++) {
+        for (let x = 0; x < imageWidth; x++) {
+          let pixelData = bits.get(bpp);
+          let pxPos = getPxPos(x, y, imagePass);
+          pixelBppCustomMapper[bpp](pxData, pixelData, pxPos, maxBit);
+        }
+        bits.resetAfterLine();
+      }
+    }
+    exports.dataToBitMap = function(data, bitmapInfo) {
+      let width = bitmapInfo.width;
+      let height = bitmapInfo.height;
+      let depth = bitmapInfo.depth;
+      let bpp = bitmapInfo.bpp;
+      let interlace = bitmapInfo.interlace;
+      let bits;
+      if (depth !== 8) {
+        bits = bitRetriever(data, depth);
+      }
+      let pxData;
+      if (depth <= 8) {
+        pxData = Buffer.alloc(width * height * 4);
+      } else {
+        pxData = new Uint16Array(width * height * 4);
+      }
+      let maxBit = Math.pow(2, depth) - 1;
+      let rawPos = 0;
+      let images;
+      let getPxPos;
+      if (interlace) {
+        images = interlaceUtils.getImagePasses(width, height);
+        getPxPos = interlaceUtils.getInterlaceIterator(width, height);
+      } else {
+        let nonInterlacedPxPos = 0;
+        getPxPos = function() {
+          let returner = nonInterlacedPxPos;
+          nonInterlacedPxPos += 4;
+          return returner;
+        };
+        images = [{ width, height }];
+      }
+      for (let imageIndex = 0; imageIndex < images.length; imageIndex++) {
+        if (depth === 8) {
+          rawPos = mapImage8Bit(
+            images[imageIndex],
+            pxData,
+            getPxPos,
+            bpp,
+            data,
+            rawPos
+          );
+        } else {
+          mapImageCustomBit(
+            images[imageIndex],
+            pxData,
+            getPxPos,
+            bpp,
+            bits,
+            maxBit
+          );
+        }
+      }
+      if (depth === 8) {
+        if (rawPos !== data.length) {
+          throw new Error("extra data found");
+        }
+      } else {
+        bits.end();
+      }
+      return pxData;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/format-normaliser.js
+var require_format_normaliser = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/format-normaliser.js"(exports, module) {
+    "use strict";
+    function dePalette(indata, outdata, width, height, palette) {
+      let pxPos = 0;
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          let color = palette[indata[pxPos]];
+          if (!color) {
+            throw new Error("index " + indata[pxPos] + " not in palette");
+          }
+          for (let i = 0; i < 4; i++) {
+            outdata[pxPos + i] = color[i];
+          }
+          pxPos += 4;
+        }
+      }
+    }
+    function replaceTransparentColor(indata, outdata, width, height, transColor) {
+      let pxPos = 0;
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          let makeTrans = false;
+          if (transColor.length === 1) {
+            if (transColor[0] === indata[pxPos]) {
+              makeTrans = true;
+            }
+          } else if (transColor[0] === indata[pxPos] && transColor[1] === indata[pxPos + 1] && transColor[2] === indata[pxPos + 2]) {
+            makeTrans = true;
+          }
+          if (makeTrans) {
+            for (let i = 0; i < 4; i++) {
+              outdata[pxPos + i] = 0;
+            }
+          }
+          pxPos += 4;
+        }
+      }
+    }
+    function scaleDepth(indata, outdata, width, height, depth) {
+      let maxOutSample = 255;
+      let maxInSample = Math.pow(2, depth) - 1;
+      let pxPos = 0;
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          for (let i = 0; i < 4; i++) {
+            outdata[pxPos + i] = Math.floor(
+              indata[pxPos + i] * maxOutSample / maxInSample + 0.5
+            );
+          }
+          pxPos += 4;
+        }
+      }
+    }
+    module.exports = function(indata, imageData) {
+      let depth = imageData.depth;
+      let width = imageData.width;
+      let height = imageData.height;
+      let colorType = imageData.colorType;
+      let transColor = imageData.transColor;
+      let palette = imageData.palette;
+      let outdata = indata;
+      if (colorType === 3) {
+        dePalette(indata, outdata, width, height, palette);
+      } else {
+        if (transColor) {
+          replaceTransparentColor(indata, outdata, width, height, transColor);
+        }
+        if (depth !== 8) {
+          if (depth === 16) {
+            outdata = Buffer.alloc(width * height * 4);
+          }
+          scaleDepth(indata, outdata, width, height, depth);
+        }
+      }
+      return outdata;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/parser-async.js
+var require_parser_async = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/parser-async.js"(exports, module) {
+    "use strict";
+    var util = __require("util");
+    var zlib = __require("zlib");
+    var ChunkStream = require_chunkstream();
+    var FilterAsync = require_filter_parse_async();
+    var Parser = require_parser();
+    var bitmapper = require_bitmapper();
+    var formatNormaliser = require_format_normaliser();
+    var ParserAsync = module.exports = function(options) {
+      ChunkStream.call(this);
+      this._parser = new Parser(options, {
+        read: this.read.bind(this),
+        error: this._handleError.bind(this),
+        metadata: this._handleMetaData.bind(this),
+        gamma: this.emit.bind(this, "gamma"),
+        palette: this._handlePalette.bind(this),
+        transColor: this._handleTransColor.bind(this),
+        finished: this._finished.bind(this),
+        inflateData: this._inflateData.bind(this),
+        simpleTransparency: this._simpleTransparency.bind(this),
+        headersFinished: this._headersFinished.bind(this)
+      });
+      this._options = options;
+      this.writable = true;
+      this._parser.start();
+    };
+    util.inherits(ParserAsync, ChunkStream);
+    ParserAsync.prototype._handleError = function(err) {
+      this.emit("error", err);
+      this.writable = false;
+      this.destroy();
+      if (this._inflate && this._inflate.destroy) {
+        this._inflate.destroy();
+      }
+      if (this._filter) {
+        this._filter.destroy();
+        this._filter.on("error", function() {
+        });
+      }
+      this.errord = true;
+    };
+    ParserAsync.prototype._inflateData = function(data) {
+      if (!this._inflate) {
+        if (this._bitmapInfo.interlace) {
+          this._inflate = zlib.createInflate();
+          this._inflate.on("error", this.emit.bind(this, "error"));
+          this._filter.on("complete", this._complete.bind(this));
+          this._inflate.pipe(this._filter);
+        } else {
+          let rowSize = (this._bitmapInfo.width * this._bitmapInfo.bpp * this._bitmapInfo.depth + 7 >> 3) + 1;
+          let imageSize = rowSize * this._bitmapInfo.height;
+          let chunkSize = Math.max(imageSize, zlib.Z_MIN_CHUNK);
+          this._inflate = zlib.createInflate({ chunkSize });
+          let leftToInflate = imageSize;
+          let emitError = this.emit.bind(this, "error");
+          this._inflate.on("error", function(err) {
+            if (!leftToInflate) {
+              return;
+            }
+            emitError(err);
+          });
+          this._filter.on("complete", this._complete.bind(this));
+          let filterWrite = this._filter.write.bind(this._filter);
+          this._inflate.on("data", function(chunk) {
+            if (!leftToInflate) {
+              return;
+            }
+            if (chunk.length > leftToInflate) {
+              chunk = chunk.slice(0, leftToInflate);
+            }
+            leftToInflate -= chunk.length;
+            filterWrite(chunk);
+          });
+          this._inflate.on("end", this._filter.end.bind(this._filter));
+        }
+      }
+      this._inflate.write(data);
+    };
+    ParserAsync.prototype._handleMetaData = function(metaData) {
+      this._metaData = metaData;
+      this._bitmapInfo = Object.create(metaData);
+      this._filter = new FilterAsync(this._bitmapInfo);
+    };
+    ParserAsync.prototype._handleTransColor = function(transColor) {
+      this._bitmapInfo.transColor = transColor;
+    };
+    ParserAsync.prototype._handlePalette = function(palette) {
+      this._bitmapInfo.palette = palette;
+    };
+    ParserAsync.prototype._simpleTransparency = function() {
+      this._metaData.alpha = true;
+    };
+    ParserAsync.prototype._headersFinished = function() {
+      this.emit("metadata", this._metaData);
+    };
+    ParserAsync.prototype._finished = function() {
+      if (this.errord) {
+        return;
+      }
+      if (!this._inflate) {
+        this.emit("error", "No Inflate block");
+      } else {
+        this._inflate.end();
+      }
+    };
+    ParserAsync.prototype._complete = function(filteredData) {
+      if (this.errord) {
+        return;
+      }
+      let normalisedBitmapData;
+      try {
+        let bitmapData = bitmapper.dataToBitMap(filteredData, this._bitmapInfo);
+        normalisedBitmapData = formatNormaliser(bitmapData, this._bitmapInfo);
+        bitmapData = null;
+      } catch (ex) {
+        this._handleError(ex);
+        return;
+      }
+      this.emit("parsed", normalisedBitmapData);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/bitpacker.js
+var require_bitpacker = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/bitpacker.js"(exports, module) {
+    "use strict";
+    var constants = require_constants();
+    module.exports = function(dataIn, width, height, options) {
+      let outHasAlpha = [constants.COLORTYPE_COLOR_ALPHA, constants.COLORTYPE_ALPHA].indexOf(
+        options.colorType
+      ) !== -1;
+      if (options.colorType === options.inputColorType) {
+        let bigEndian = (function() {
+          let buffer = new ArrayBuffer(2);
+          new DataView(buffer).setInt16(
+            0,
+            256,
+            true
+            /* littleEndian */
+          );
+          return new Int16Array(buffer)[0] !== 256;
+        })();
+        if (options.bitDepth === 8 || options.bitDepth === 16 && bigEndian) {
+          return dataIn;
+        }
+      }
+      let data = options.bitDepth !== 16 ? dataIn : new Uint16Array(dataIn.buffer);
+      let maxValue = 255;
+      let inBpp = constants.COLORTYPE_TO_BPP_MAP[options.inputColorType];
+      if (inBpp === 4 && !options.inputHasAlpha) {
+        inBpp = 3;
+      }
+      let outBpp = constants.COLORTYPE_TO_BPP_MAP[options.colorType];
+      if (options.bitDepth === 16) {
+        maxValue = 65535;
+        outBpp *= 2;
+      }
+      let outData = Buffer.alloc(width * height * outBpp);
+      let inIndex = 0;
+      let outIndex = 0;
+      let bgColor = options.bgColor || {};
+      if (bgColor.red === void 0) {
+        bgColor.red = maxValue;
+      }
+      if (bgColor.green === void 0) {
+        bgColor.green = maxValue;
+      }
+      if (bgColor.blue === void 0) {
+        bgColor.blue = maxValue;
+      }
+      function getRGBA() {
+        let red;
+        let green;
+        let blue;
+        let alpha = maxValue;
+        switch (options.inputColorType) {
+          case constants.COLORTYPE_COLOR_ALPHA:
+            alpha = data[inIndex + 3];
+            red = data[inIndex];
+            green = data[inIndex + 1];
+            blue = data[inIndex + 2];
+            break;
+          case constants.COLORTYPE_COLOR:
+            red = data[inIndex];
+            green = data[inIndex + 1];
+            blue = data[inIndex + 2];
+            break;
+          case constants.COLORTYPE_ALPHA:
+            alpha = data[inIndex + 1];
+            red = data[inIndex];
+            green = red;
+            blue = red;
+            break;
+          case constants.COLORTYPE_GRAYSCALE:
+            red = data[inIndex];
+            green = red;
+            blue = red;
+            break;
+          default:
+            throw new Error(
+              "input color type:" + options.inputColorType + " is not supported at present"
+            );
+        }
+        if (options.inputHasAlpha) {
+          if (!outHasAlpha) {
+            alpha /= maxValue;
+            red = Math.min(
+              Math.max(Math.round((1 - alpha) * bgColor.red + alpha * red), 0),
+              maxValue
+            );
+            green = Math.min(
+              Math.max(Math.round((1 - alpha) * bgColor.green + alpha * green), 0),
+              maxValue
+            );
+            blue = Math.min(
+              Math.max(Math.round((1 - alpha) * bgColor.blue + alpha * blue), 0),
+              maxValue
+            );
+          }
+        }
+        return { red, green, blue, alpha };
+      }
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          let rgba = getRGBA(data, inIndex);
+          switch (options.colorType) {
+            case constants.COLORTYPE_COLOR_ALPHA:
+            case constants.COLORTYPE_COLOR:
+              if (options.bitDepth === 8) {
+                outData[outIndex] = rgba.red;
+                outData[outIndex + 1] = rgba.green;
+                outData[outIndex + 2] = rgba.blue;
+                if (outHasAlpha) {
+                  outData[outIndex + 3] = rgba.alpha;
+                }
+              } else {
+                outData.writeUInt16BE(rgba.red, outIndex);
+                outData.writeUInt16BE(rgba.green, outIndex + 2);
+                outData.writeUInt16BE(rgba.blue, outIndex + 4);
+                if (outHasAlpha) {
+                  outData.writeUInt16BE(rgba.alpha, outIndex + 6);
+                }
+              }
+              break;
+            case constants.COLORTYPE_ALPHA:
+            case constants.COLORTYPE_GRAYSCALE: {
+              let grayscale = (rgba.red + rgba.green + rgba.blue) / 3;
+              if (options.bitDepth === 8) {
+                outData[outIndex] = grayscale;
+                if (outHasAlpha) {
+                  outData[outIndex + 1] = rgba.alpha;
+                }
+              } else {
+                outData.writeUInt16BE(grayscale, outIndex);
+                if (outHasAlpha) {
+                  outData.writeUInt16BE(rgba.alpha, outIndex + 2);
+                }
+              }
+              break;
+            }
+            default:
+              throw new Error("unrecognised color Type " + options.colorType);
+          }
+          inIndex += inBpp;
+          outIndex += outBpp;
+        }
+      }
+      return outData;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/filter-pack.js
+var require_filter_pack = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/filter-pack.js"(exports, module) {
+    "use strict";
+    var paethPredictor = require_paeth_predictor();
+    function filterNone(pxData, pxPos, byteWidth, rawData, rawPos) {
+      for (let x = 0; x < byteWidth; x++) {
+        rawData[rawPos + x] = pxData[pxPos + x];
+      }
+    }
+    function filterSumNone(pxData, pxPos, byteWidth) {
+      let sum = 0;
+      let length = pxPos + byteWidth;
+      for (let i = pxPos; i < length; i++) {
+        sum += Math.abs(pxData[i]);
+      }
+      return sum;
+    }
+    function filterSub(pxData, pxPos, byteWidth, rawData, rawPos, bpp) {
+      for (let x = 0; x < byteWidth; x++) {
+        let left = x >= bpp ? pxData[pxPos + x - bpp] : 0;
+        let val = pxData[pxPos + x] - left;
+        rawData[rawPos + x] = val;
+      }
+    }
+    function filterSumSub(pxData, pxPos, byteWidth, bpp) {
+      let sum = 0;
+      for (let x = 0; x < byteWidth; x++) {
+        let left = x >= bpp ? pxData[pxPos + x - bpp] : 0;
+        let val = pxData[pxPos + x] - left;
+        sum += Math.abs(val);
+      }
+      return sum;
+    }
+    function filterUp(pxData, pxPos, byteWidth, rawData, rawPos) {
+      for (let x = 0; x < byteWidth; x++) {
+        let up = pxPos > 0 ? pxData[pxPos + x - byteWidth] : 0;
+        let val = pxData[pxPos + x] - up;
+        rawData[rawPos + x] = val;
+      }
+    }
+    function filterSumUp(pxData, pxPos, byteWidth) {
+      let sum = 0;
+      let length = pxPos + byteWidth;
+      for (let x = pxPos; x < length; x++) {
+        let up = pxPos > 0 ? pxData[x - byteWidth] : 0;
+        let val = pxData[x] - up;
+        sum += Math.abs(val);
+      }
+      return sum;
+    }
+    function filterAvg(pxData, pxPos, byteWidth, rawData, rawPos, bpp) {
+      for (let x = 0; x < byteWidth; x++) {
+        let left = x >= bpp ? pxData[pxPos + x - bpp] : 0;
+        let up = pxPos > 0 ? pxData[pxPos + x - byteWidth] : 0;
+        let val = pxData[pxPos + x] - (left + up >> 1);
+        rawData[rawPos + x] = val;
+      }
+    }
+    function filterSumAvg(pxData, pxPos, byteWidth, bpp) {
+      let sum = 0;
+      for (let x = 0; x < byteWidth; x++) {
+        let left = x >= bpp ? pxData[pxPos + x - bpp] : 0;
+        let up = pxPos > 0 ? pxData[pxPos + x - byteWidth] : 0;
+        let val = pxData[pxPos + x] - (left + up >> 1);
+        sum += Math.abs(val);
+      }
+      return sum;
+    }
+    function filterPaeth(pxData, pxPos, byteWidth, rawData, rawPos, bpp) {
+      for (let x = 0; x < byteWidth; x++) {
+        let left = x >= bpp ? pxData[pxPos + x - bpp] : 0;
+        let up = pxPos > 0 ? pxData[pxPos + x - byteWidth] : 0;
+        let upleft = pxPos > 0 && x >= bpp ? pxData[pxPos + x - (byteWidth + bpp)] : 0;
+        let val = pxData[pxPos + x] - paethPredictor(left, up, upleft);
+        rawData[rawPos + x] = val;
+      }
+    }
+    function filterSumPaeth(pxData, pxPos, byteWidth, bpp) {
+      let sum = 0;
+      for (let x = 0; x < byteWidth; x++) {
+        let left = x >= bpp ? pxData[pxPos + x - bpp] : 0;
+        let up = pxPos > 0 ? pxData[pxPos + x - byteWidth] : 0;
+        let upleft = pxPos > 0 && x >= bpp ? pxData[pxPos + x - (byteWidth + bpp)] : 0;
+        let val = pxData[pxPos + x] - paethPredictor(left, up, upleft);
+        sum += Math.abs(val);
+      }
+      return sum;
+    }
+    var filters = {
+      0: filterNone,
+      1: filterSub,
+      2: filterUp,
+      3: filterAvg,
+      4: filterPaeth
+    };
+    var filterSums = {
+      0: filterSumNone,
+      1: filterSumSub,
+      2: filterSumUp,
+      3: filterSumAvg,
+      4: filterSumPaeth
+    };
+    module.exports = function(pxData, width, height, options, bpp) {
+      let filterTypes;
+      if (!("filterType" in options) || options.filterType === -1) {
+        filterTypes = [0, 1, 2, 3, 4];
+      } else if (typeof options.filterType === "number") {
+        filterTypes = [options.filterType];
+      } else {
+        throw new Error("unrecognised filter types");
+      }
+      if (options.bitDepth === 16) {
+        bpp *= 2;
+      }
+      let byteWidth = width * bpp;
+      let rawPos = 0;
+      let pxPos = 0;
+      let rawData = Buffer.alloc((byteWidth + 1) * height);
+      let sel = filterTypes[0];
+      for (let y = 0; y < height; y++) {
+        if (filterTypes.length > 1) {
+          let min = Infinity;
+          for (let i = 0; i < filterTypes.length; i++) {
+            let sum = filterSums[filterTypes[i]](pxData, pxPos, byteWidth, bpp);
+            if (sum < min) {
+              sel = filterTypes[i];
+              min = sum;
+            }
+          }
+        }
+        rawData[rawPos] = sel;
+        rawPos++;
+        filters[sel](pxData, pxPos, byteWidth, rawData, rawPos, bpp);
+        rawPos += byteWidth;
+        pxPos += byteWidth;
+      }
+      return rawData;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/packer.js
+var require_packer = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/packer.js"(exports, module) {
+    "use strict";
+    var constants = require_constants();
+    var CrcStream = require_crc();
+    var bitPacker = require_bitpacker();
+    var filter = require_filter_pack();
+    var zlib = __require("zlib");
+    var Packer = module.exports = function(options) {
+      this._options = options;
+      options.deflateChunkSize = options.deflateChunkSize || 32 * 1024;
+      options.deflateLevel = options.deflateLevel != null ? options.deflateLevel : 9;
+      options.deflateStrategy = options.deflateStrategy != null ? options.deflateStrategy : 3;
+      options.inputHasAlpha = options.inputHasAlpha != null ? options.inputHasAlpha : true;
+      options.deflateFactory = options.deflateFactory || zlib.createDeflate;
+      options.bitDepth = options.bitDepth || 8;
+      options.colorType = typeof options.colorType === "number" ? options.colorType : constants.COLORTYPE_COLOR_ALPHA;
+      options.inputColorType = typeof options.inputColorType === "number" ? options.inputColorType : constants.COLORTYPE_COLOR_ALPHA;
+      if ([
+        constants.COLORTYPE_GRAYSCALE,
+        constants.COLORTYPE_COLOR,
+        constants.COLORTYPE_COLOR_ALPHA,
+        constants.COLORTYPE_ALPHA
+      ].indexOf(options.colorType) === -1) {
+        throw new Error(
+          "option color type:" + options.colorType + " is not supported at present"
+        );
+      }
+      if ([
+        constants.COLORTYPE_GRAYSCALE,
+        constants.COLORTYPE_COLOR,
+        constants.COLORTYPE_COLOR_ALPHA,
+        constants.COLORTYPE_ALPHA
+      ].indexOf(options.inputColorType) === -1) {
+        throw new Error(
+          "option input color type:" + options.inputColorType + " is not supported at present"
+        );
+      }
+      if (options.bitDepth !== 8 && options.bitDepth !== 16) {
+        throw new Error(
+          "option bit depth:" + options.bitDepth + " is not supported at present"
+        );
+      }
+    };
+    Packer.prototype.getDeflateOptions = function() {
+      return {
+        chunkSize: this._options.deflateChunkSize,
+        level: this._options.deflateLevel,
+        strategy: this._options.deflateStrategy
+      };
+    };
+    Packer.prototype.createDeflate = function() {
+      return this._options.deflateFactory(this.getDeflateOptions());
+    };
+    Packer.prototype.filterData = function(data, width, height) {
+      let packedData = bitPacker(data, width, height, this._options);
+      let bpp = constants.COLORTYPE_TO_BPP_MAP[this._options.colorType];
+      let filteredData = filter(packedData, width, height, this._options, bpp);
+      return filteredData;
+    };
+    Packer.prototype._packChunk = function(type, data) {
+      let len = data ? data.length : 0;
+      let buf = Buffer.alloc(len + 12);
+      buf.writeUInt32BE(len, 0);
+      buf.writeUInt32BE(type, 4);
+      if (data) {
+        data.copy(buf, 8);
+      }
+      buf.writeInt32BE(
+        CrcStream.crc32(buf.slice(4, buf.length - 4)),
+        buf.length - 4
+      );
+      return buf;
+    };
+    Packer.prototype.packGAMA = function(gamma) {
+      let buf = Buffer.alloc(4);
+      buf.writeUInt32BE(Math.floor(gamma * constants.GAMMA_DIVISION), 0);
+      return this._packChunk(constants.TYPE_gAMA, buf);
+    };
+    Packer.prototype.packIHDR = function(width, height) {
+      let buf = Buffer.alloc(13);
+      buf.writeUInt32BE(width, 0);
+      buf.writeUInt32BE(height, 4);
+      buf[8] = this._options.bitDepth;
+      buf[9] = this._options.colorType;
+      buf[10] = 0;
+      buf[11] = 0;
+      buf[12] = 0;
+      return this._packChunk(constants.TYPE_IHDR, buf);
+    };
+    Packer.prototype.packIDAT = function(data) {
+      return this._packChunk(constants.TYPE_IDAT, data);
+    };
+    Packer.prototype.packIEND = function() {
+      return this._packChunk(constants.TYPE_IEND, null);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/packer-async.js
+var require_packer_async = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/packer-async.js"(exports, module) {
+    "use strict";
+    var util = __require("util");
+    var Stream = __require("stream");
+    var constants = require_constants();
+    var Packer = require_packer();
+    var PackerAsync = module.exports = function(opt) {
+      Stream.call(this);
+      let options = opt || {};
+      this._packer = new Packer(options);
+      this._deflate = this._packer.createDeflate();
+      this.readable = true;
+    };
+    util.inherits(PackerAsync, Stream);
+    PackerAsync.prototype.pack = function(data, width, height, gamma) {
+      this.emit("data", Buffer.from(constants.PNG_SIGNATURE));
+      this.emit("data", this._packer.packIHDR(width, height));
+      if (gamma) {
+        this.emit("data", this._packer.packGAMA(gamma));
+      }
+      let filteredData = this._packer.filterData(data, width, height);
+      this._deflate.on("error", this.emit.bind(this, "error"));
+      this._deflate.on(
+        "data",
+        function(compressedData) {
+          this.emit("data", this._packer.packIDAT(compressedData));
+        }.bind(this)
+      );
+      this._deflate.on(
+        "end",
+        function() {
+          this.emit("data", this._packer.packIEND());
+          this.emit("end");
+        }.bind(this)
+      );
+      this._deflate.end(filteredData);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/sync-inflate.js
+var require_sync_inflate = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/sync-inflate.js"(exports, module) {
+    "use strict";
+    var assert = __require("assert").ok;
+    var zlib = __require("zlib");
+    var util = __require("util");
+    var kMaxLength = __require("buffer").kMaxLength;
+    function Inflate(opts) {
+      if (!(this instanceof Inflate)) {
+        return new Inflate(opts);
+      }
+      if (opts && opts.chunkSize < zlib.Z_MIN_CHUNK) {
+        opts.chunkSize = zlib.Z_MIN_CHUNK;
+      }
+      zlib.Inflate.call(this, opts);
+      this._offset = this._offset === void 0 ? this._outOffset : this._offset;
+      this._buffer = this._buffer || this._outBuffer;
+      if (opts && opts.maxLength != null) {
+        this._maxLength = opts.maxLength;
+      }
+    }
+    function createInflate(opts) {
+      return new Inflate(opts);
+    }
+    function _close(engine, callback) {
+      if (callback) {
+        process.nextTick(callback);
+      }
+      if (!engine._handle) {
+        return;
+      }
+      engine._handle.close();
+      engine._handle = null;
+    }
+    Inflate.prototype._processChunk = function(chunk, flushFlag, asyncCb) {
+      if (typeof asyncCb === "function") {
+        return zlib.Inflate._processChunk.call(this, chunk, flushFlag, asyncCb);
+      }
+      let self2 = this;
+      let availInBefore = chunk && chunk.length;
+      let availOutBefore = this._chunkSize - this._offset;
+      let leftToInflate = this._maxLength;
+      let inOff = 0;
+      let buffers = [];
+      let nread = 0;
+      let error;
+      this.on("error", function(err) {
+        error = err;
+      });
+      function handleChunk(availInAfter, availOutAfter) {
+        if (self2._hadError) {
+          return;
+        }
+        let have = availOutBefore - availOutAfter;
+        assert(have >= 0, "have should not go down");
+        if (have > 0) {
+          let out = self2._buffer.slice(self2._offset, self2._offset + have);
+          self2._offset += have;
+          if (out.length > leftToInflate) {
+            out = out.slice(0, leftToInflate);
+          }
+          buffers.push(out);
+          nread += out.length;
+          leftToInflate -= out.length;
+          if (leftToInflate === 0) {
+            return false;
+          }
+        }
+        if (availOutAfter === 0 || self2._offset >= self2._chunkSize) {
+          availOutBefore = self2._chunkSize;
+          self2._offset = 0;
+          self2._buffer = Buffer.allocUnsafe(self2._chunkSize);
+        }
+        if (availOutAfter === 0) {
+          inOff += availInBefore - availInAfter;
+          availInBefore = availInAfter;
+          return true;
+        }
+        return false;
+      }
+      assert(this._handle, "zlib binding closed");
+      let res;
+      do {
+        res = this._handle.writeSync(
+          flushFlag,
+          chunk,
+          // in
+          inOff,
+          // in_off
+          availInBefore,
+          // in_len
+          this._buffer,
+          // out
+          this._offset,
+          //out_off
+          availOutBefore
+        );
+        res = res || this._writeState;
+      } while (!this._hadError && handleChunk(res[0], res[1]));
+      if (this._hadError) {
+        throw error;
+      }
+      if (nread >= kMaxLength) {
+        _close(this);
+        throw new RangeError(
+          "Cannot create final Buffer. It would be larger than 0x" + kMaxLength.toString(16) + " bytes"
+        );
+      }
+      let buf = Buffer.concat(buffers, nread);
+      _close(this);
+      return buf;
+    };
+    util.inherits(Inflate, zlib.Inflate);
+    function zlibBufferSync(engine, buffer) {
+      if (typeof buffer === "string") {
+        buffer = Buffer.from(buffer);
+      }
+      if (!(buffer instanceof Buffer)) {
+        throw new TypeError("Not a string or buffer");
+      }
+      let flushFlag = engine._finishFlushFlag;
+      if (flushFlag == null) {
+        flushFlag = zlib.Z_FINISH;
+      }
+      return engine._processChunk(buffer, flushFlag);
+    }
+    function inflateSync(buffer, opts) {
+      return zlibBufferSync(new Inflate(opts), buffer);
+    }
+    module.exports = exports = inflateSync;
+    exports.Inflate = Inflate;
+    exports.createInflate = createInflate;
+    exports.inflateSync = inflateSync;
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/sync-reader.js
+var require_sync_reader = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/sync-reader.js"(exports, module) {
+    "use strict";
+    var SyncReader = module.exports = function(buffer) {
+      this._buffer = buffer;
+      this._reads = [];
+    };
+    SyncReader.prototype.read = function(length, callback) {
+      this._reads.push({
+        length: Math.abs(length),
+        // if length < 0 then at most this length
+        allowLess: length < 0,
+        func: callback
+      });
+    };
+    SyncReader.prototype.process = function() {
+      while (this._reads.length > 0 && this._buffer.length) {
+        let read = this._reads[0];
+        if (this._buffer.length && (this._buffer.length >= read.length || read.allowLess)) {
+          this._reads.shift();
+          let buf = this._buffer;
+          this._buffer = buf.slice(read.length);
+          read.func.call(this, buf.slice(0, read.length));
+        } else {
+          break;
+        }
+      }
+      if (this._reads.length > 0) {
+        return new Error("There are some read requests waitng on finished stream");
+      }
+      if (this._buffer.length > 0) {
+        return new Error("unrecognised content at end of stream");
+      }
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/filter-parse-sync.js
+var require_filter_parse_sync = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/filter-parse-sync.js"(exports) {
+    "use strict";
+    var SyncReader = require_sync_reader();
+    var Filter = require_filter_parse();
+    exports.process = function(inBuffer, bitmapInfo) {
+      let outBuffers = [];
+      let reader = new SyncReader(inBuffer);
+      let filter = new Filter(bitmapInfo, {
+        read: reader.read.bind(reader),
+        write: function(bufferPart) {
+          outBuffers.push(bufferPart);
+        },
+        complete: function() {
+        }
+      });
+      filter.start();
+      reader.process();
+      return Buffer.concat(outBuffers);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/parser-sync.js
+var require_parser_sync = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/parser-sync.js"(exports, module) {
+    "use strict";
+    var hasSyncZlib = true;
+    var zlib = __require("zlib");
+    var inflateSync = require_sync_inflate();
+    if (!zlib.deflateSync) {
+      hasSyncZlib = false;
+    }
+    var SyncReader = require_sync_reader();
+    var FilterSync = require_filter_parse_sync();
+    var Parser = require_parser();
+    var bitmapper = require_bitmapper();
+    var formatNormaliser = require_format_normaliser();
+    module.exports = function(buffer, options) {
+      if (!hasSyncZlib) {
+        throw new Error(
+          "To use the sync capability of this library in old node versions, please pin pngjs to v2.3.0"
+        );
+      }
+      let err;
+      function handleError(_err_) {
+        err = _err_;
+      }
+      let metaData;
+      function handleMetaData(_metaData_) {
+        metaData = _metaData_;
+      }
+      function handleTransColor(transColor) {
+        metaData.transColor = transColor;
+      }
+      function handlePalette(palette) {
+        metaData.palette = palette;
+      }
+      function handleSimpleTransparency() {
+        metaData.alpha = true;
+      }
+      let gamma;
+      function handleGamma(_gamma_) {
+        gamma = _gamma_;
+      }
+      let inflateDataList = [];
+      function handleInflateData(inflatedData2) {
+        inflateDataList.push(inflatedData2);
+      }
+      let reader = new SyncReader(buffer);
+      let parser = new Parser(options, {
+        read: reader.read.bind(reader),
+        error: handleError,
+        metadata: handleMetaData,
+        gamma: handleGamma,
+        palette: handlePalette,
+        transColor: handleTransColor,
+        inflateData: handleInflateData,
+        simpleTransparency: handleSimpleTransparency
+      });
+      parser.start();
+      reader.process();
+      if (err) {
+        throw err;
+      }
+      let inflateData = Buffer.concat(inflateDataList);
+      inflateDataList.length = 0;
+      let inflatedData;
+      if (metaData.interlace) {
+        inflatedData = zlib.inflateSync(inflateData);
+      } else {
+        let rowSize = (metaData.width * metaData.bpp * metaData.depth + 7 >> 3) + 1;
+        let imageSize = rowSize * metaData.height;
+        inflatedData = inflateSync(inflateData, {
+          chunkSize: imageSize,
+          maxLength: imageSize
+        });
+      }
+      inflateData = null;
+      if (!inflatedData || !inflatedData.length) {
+        throw new Error("bad png - invalid inflate data response");
+      }
+      let unfilteredData = FilterSync.process(inflatedData, metaData);
+      inflateData = null;
+      let bitmapData = bitmapper.dataToBitMap(unfilteredData, metaData);
+      unfilteredData = null;
+      let normalisedBitmapData = formatNormaliser(bitmapData, metaData);
+      metaData.data = normalisedBitmapData;
+      metaData.gamma = gamma || 0;
+      return metaData;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/packer-sync.js
+var require_packer_sync = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/packer-sync.js"(exports, module) {
+    "use strict";
+    var hasSyncZlib = true;
+    var zlib = __require("zlib");
+    if (!zlib.deflateSync) {
+      hasSyncZlib = false;
+    }
+    var constants = require_constants();
+    var Packer = require_packer();
+    module.exports = function(metaData, opt) {
+      if (!hasSyncZlib) {
+        throw new Error(
+          "To use the sync capability of this library in old node versions, please pin pngjs to v2.3.0"
+        );
+      }
+      let options = opt || {};
+      let packer = new Packer(options);
+      let chunks = [];
+      chunks.push(Buffer.from(constants.PNG_SIGNATURE));
+      chunks.push(packer.packIHDR(metaData.width, metaData.height));
+      if (metaData.gamma) {
+        chunks.push(packer.packGAMA(metaData.gamma));
+      }
+      let filteredData = packer.filterData(
+        metaData.data,
+        metaData.width,
+        metaData.height
+      );
+      let compressedData = zlib.deflateSync(
+        filteredData,
+        packer.getDeflateOptions()
+      );
+      filteredData = null;
+      if (!compressedData || !compressedData.length) {
+        throw new Error("bad png - invalid compressed data response");
+      }
+      chunks.push(packer.packIDAT(compressedData));
+      chunks.push(packer.packIEND());
+      return Buffer.concat(chunks);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/png-sync.js
+var require_png_sync = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/png-sync.js"(exports) {
+    "use strict";
+    var parse = require_parser_sync();
+    var pack = require_packer_sync();
+    exports.read = function(buffer, options) {
+      return parse(buffer, options || {});
+    };
+    exports.write = function(png, options) {
+      return pack(png, options);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/png.js
+var require_png = __commonJS({
+  "../../node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs/lib/png.js"(exports) {
+    "use strict";
+    var util = __require("util");
+    var Stream = __require("stream");
+    var Parser = require_parser_async();
+    var Packer = require_packer_async();
+    var PNGSync = require_png_sync();
+    var PNG = exports.PNG = function(options) {
+      Stream.call(this);
+      options = options || {};
+      this.width = options.width | 0;
+      this.height = options.height | 0;
+      this.data = this.width > 0 && this.height > 0 ? Buffer.alloc(4 * this.width * this.height) : null;
+      if (options.fill && this.data) {
+        this.data.fill(0);
+      }
+      this.gamma = 0;
+      this.readable = this.writable = true;
+      this._parser = new Parser(options);
+      this._parser.on("error", this.emit.bind(this, "error"));
+      this._parser.on("close", this._handleClose.bind(this));
+      this._parser.on("metadata", this._metadata.bind(this));
+      this._parser.on("gamma", this._gamma.bind(this));
+      this._parser.on(
+        "parsed",
+        function(data) {
+          this.data = data;
+          this.emit("parsed", data);
+        }.bind(this)
+      );
+      this._packer = new Packer(options);
+      this._packer.on("data", this.emit.bind(this, "data"));
+      this._packer.on("end", this.emit.bind(this, "end"));
+      this._parser.on("close", this._handleClose.bind(this));
+      this._packer.on("error", this.emit.bind(this, "error"));
+    };
+    util.inherits(PNG, Stream);
+    PNG.sync = PNGSync;
+    PNG.prototype.pack = function() {
+      if (!this.data || !this.data.length) {
+        this.emit("error", "No data provided");
+        return this;
+      }
+      process.nextTick(
+        function() {
+          this._packer.pack(this.data, this.width, this.height, this.gamma);
+        }.bind(this)
+      );
+      return this;
+    };
+    PNG.prototype.parse = function(data, callback) {
+      if (callback) {
+        let onParsed, onError;
+        onParsed = function(parsedData) {
+          this.removeListener("error", onError);
+          this.data = parsedData;
+          callback(null, this);
+        }.bind(this);
+        onError = function(err) {
+          this.removeListener("parsed", onParsed);
+          callback(err, null);
+        }.bind(this);
+        this.once("parsed", onParsed);
+        this.once("error", onError);
+      }
+      this.end(data);
+      return this;
+    };
+    PNG.prototype.write = function(data) {
+      this._parser.write(data);
+      return true;
+    };
+    PNG.prototype.end = function(data) {
+      this._parser.end(data);
+    };
+    PNG.prototype._metadata = function(metadata) {
+      this.width = metadata.width;
+      this.height = metadata.height;
+      this.emit("metadata", metadata);
+    };
+    PNG.prototype._gamma = function(gamma) {
+      this.gamma = gamma;
+    };
+    PNG.prototype._handleClose = function() {
+      if (!this._parser.writable && !this._packer.readable) {
+        this.emit("close");
+      }
+    };
+    PNG.bitblt = function(src, dst, srcX, srcY, width, height, deltaX, deltaY) {
+      srcX |= 0;
+      srcY |= 0;
+      width |= 0;
+      height |= 0;
+      deltaX |= 0;
+      deltaY |= 0;
+      if (srcX > src.width || srcY > src.height || srcX + width > src.width || srcY + height > src.height) {
+        throw new Error("bitblt reading outside image");
+      }
+      if (deltaX > dst.width || deltaY > dst.height || deltaX + width > dst.width || deltaY + height > dst.height) {
+        throw new Error("bitblt writing outside image");
+      }
+      for (let y = 0; y < height; y++) {
+        src.data.copy(
+          dst.data,
+          (deltaY + y) * dst.width + deltaX << 2,
+          (srcY + y) * src.width + srcX << 2,
+          (srcY + y) * src.width + srcX + width << 2
+        );
+      }
+    };
+    PNG.prototype.bitblt = function(dst, srcX, srcY, width, height, deltaX, deltaY) {
+      PNG.bitblt(this, dst, srcX, srcY, width, height, deltaX, deltaY);
+      return this;
+    };
+    PNG.adjustGamma = function(src) {
+      if (src.gamma) {
+        for (let y = 0; y < src.height; y++) {
+          for (let x = 0; x < src.width; x++) {
+            let idx = src.width * y + x << 2;
+            for (let i = 0; i < 3; i++) {
+              let sample = src.data[idx + i] / 255;
+              sample = Math.pow(sample, 1 / 2.2 / src.gamma);
+              src.data[idx + i] = Math.round(sample * 255);
+            }
+          }
+        }
+        src.gamma = 0;
+      }
+    };
+    PNG.prototype.adjustGamma = function() {
+      PNG.adjustGamma(this);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/utils.js
+var require_utils2 = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/utils.js"(exports) {
+    function hex2rgba(hex) {
+      if (typeof hex === "number") {
+        hex = hex.toString();
+      }
+      if (typeof hex !== "string") {
+        throw new Error("Color should be defined as hex string");
+      }
+      let hexCode = hex.slice().replace("#", "").split("");
+      if (hexCode.length < 3 || hexCode.length === 5 || hexCode.length > 8) {
+        throw new Error("Invalid hex color: " + hex);
+      }
+      if (hexCode.length === 3 || hexCode.length === 4) {
+        hexCode = Array.prototype.concat.apply([], hexCode.map(function(c) {
+          return [c, c];
+        }));
+      }
+      if (hexCode.length === 6) hexCode.push("F", "F");
+      const hexValue = parseInt(hexCode.join(""), 16);
+      return {
+        r: hexValue >> 24 & 255,
+        g: hexValue >> 16 & 255,
+        b: hexValue >> 8 & 255,
+        a: hexValue & 255,
+        hex: "#" + hexCode.slice(0, 6).join("")
+      };
+    }
+    exports.getOptions = function getOptions(options) {
+      if (!options) options = {};
+      if (!options.color) options.color = {};
+      const margin = typeof options.margin === "undefined" || options.margin === null || options.margin < 0 ? 4 : options.margin;
+      const width = options.width && options.width >= 21 ? options.width : void 0;
+      const scale = options.scale || 4;
+      return {
+        width,
+        scale: width ? 4 : scale,
+        margin,
+        color: {
+          dark: hex2rgba(options.color.dark || "#000000ff"),
+          light: hex2rgba(options.color.light || "#ffffffff")
+        },
+        type: options.type,
+        rendererOpts: options.rendererOpts || {}
+      };
+    };
+    exports.getScale = function getScale(qrSize, opts) {
+      return opts.width && opts.width >= qrSize + opts.margin * 2 ? opts.width / (qrSize + opts.margin * 2) : opts.scale;
+    };
+    exports.getImageWidth = function getImageWidth(qrSize, opts) {
+      const scale = exports.getScale(qrSize, opts);
+      return Math.floor((qrSize + opts.margin * 2) * scale);
+    };
+    exports.qrToImageData = function qrToImageData(imgData, qr, opts) {
+      const size = qr.modules.size;
+      const data = qr.modules.data;
+      const scale = exports.getScale(size, opts);
+      const symbolSize = Math.floor((size + opts.margin * 2) * scale);
+      const scaledMargin = opts.margin * scale;
+      const palette = [opts.color.light, opts.color.dark];
+      for (let i = 0; i < symbolSize; i++) {
+        for (let j = 0; j < symbolSize; j++) {
+          let posDst = (i * symbolSize + j) * 4;
+          let pxColor = opts.color.light;
+          if (i >= scaledMargin && j >= scaledMargin && i < symbolSize - scaledMargin && j < symbolSize - scaledMargin) {
+            const iSrc = Math.floor((i - scaledMargin) / scale);
+            const jSrc = Math.floor((j - scaledMargin) / scale);
+            pxColor = palette[data[iSrc * size + jSrc] ? 1 : 0];
+          }
+          imgData[posDst++] = pxColor.r;
+          imgData[posDst++] = pxColor.g;
+          imgData[posDst++] = pxColor.b;
+          imgData[posDst] = pxColor.a;
+        }
+      }
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/png.js
+var require_png2 = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/png.js"(exports) {
+    var fs = __require("fs");
+    var PNG = require_png().PNG;
+    var Utils = require_utils2();
+    exports.render = function render(qrData, options) {
+      const opts = Utils.getOptions(options);
+      const pngOpts = opts.rendererOpts;
+      const size = Utils.getImageWidth(qrData.modules.size, opts);
+      pngOpts.width = size;
+      pngOpts.height = size;
+      const pngImage = new PNG(pngOpts);
+      Utils.qrToImageData(pngImage.data, qrData, opts);
+      return pngImage;
+    };
+    exports.renderToDataURL = function renderToDataURL(qrData, options, cb) {
+      if (typeof cb === "undefined") {
+        cb = options;
+        options = void 0;
+      }
+      exports.renderToBuffer(qrData, options, function(err, output) {
+        if (err) cb(err);
+        let url = "data:image/png;base64,";
+        url += output.toString("base64");
+        cb(null, url);
+      });
+    };
+    exports.renderToBuffer = function renderToBuffer(qrData, options, cb) {
+      if (typeof cb === "undefined") {
+        cb = options;
+        options = void 0;
+      }
+      const png = exports.render(qrData, options);
+      const buffer = [];
+      png.on("error", cb);
+      png.on("data", function(data) {
+        buffer.push(data);
+      });
+      png.on("end", function() {
+        cb(null, Buffer.concat(buffer));
+      });
+      png.pack();
+    };
+    exports.renderToFile = function renderToFile(path, qrData, options, cb) {
+      if (typeof cb === "undefined") {
+        cb = options;
+        options = void 0;
+      }
+      let called = false;
+      const done = (...args) => {
+        if (called) return;
+        called = true;
+        cb.apply(null, args);
+      };
+      const stream = fs.createWriteStream(path);
+      stream.on("error", done);
+      stream.on("close", done);
+      exports.renderToFileStream(stream, qrData, options);
+    };
+    exports.renderToFileStream = function renderToFileStream(stream, qrData, options) {
+      const png = exports.render(qrData, options);
+      png.pack().pipe(stream);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/utf8.js
+var require_utf8 = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/utf8.js"(exports) {
+    var Utils = require_utils2();
+    var BLOCK_CHAR = {
+      WW: " ",
+      WB: "\u2584",
+      BB: "\u2588",
+      BW: "\u2580"
+    };
+    var INVERTED_BLOCK_CHAR = {
+      BB: " ",
+      BW: "\u2584",
+      WW: "\u2588",
+      WB: "\u2580"
+    };
+    function getBlockChar(top, bottom, blocks) {
+      if (top && bottom) return blocks.BB;
+      if (top && !bottom) return blocks.BW;
+      if (!top && bottom) return blocks.WB;
+      return blocks.WW;
+    }
+    exports.render = function(qrData, options, cb) {
+      const opts = Utils.getOptions(options);
+      let blocks = BLOCK_CHAR;
+      if (opts.color.dark.hex === "#ffffff" || opts.color.light.hex === "#000000") {
+        blocks = INVERTED_BLOCK_CHAR;
+      }
+      const size = qrData.modules.size;
+      const data = qrData.modules.data;
+      let output = "";
+      let hMargin = Array(size + opts.margin * 2 + 1).join(blocks.WW);
+      hMargin = Array(opts.margin / 2 + 1).join(hMargin + "\n");
+      const vMargin = Array(opts.margin + 1).join(blocks.WW);
+      output += hMargin;
+      for (let i = 0; i < size; i += 2) {
+        output += vMargin;
+        for (let j = 0; j < size; j++) {
+          const topModule = data[i * size + j];
+          const bottomModule = data[(i + 1) * size + j];
+          output += getBlockChar(topModule, bottomModule, blocks);
+        }
+        output += vMargin + "\n";
+      }
+      output += hMargin.slice(0, -1);
+      if (typeof cb === "function") {
+        cb(null, output);
+      }
+      return output;
+    };
+    exports.renderToFile = function renderToFile(path, qrData, options, cb) {
+      if (typeof cb === "undefined") {
+        cb = options;
+        options = void 0;
+      }
+      const fs = __require("fs");
+      const utf8 = exports.render(qrData, options);
+      fs.writeFile(path, utf8, cb);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/terminal/terminal.js
+var require_terminal = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/terminal/terminal.js"(exports) {
+    exports.render = function(qrData, options, cb) {
+      const size = qrData.modules.size;
+      const data = qrData.modules.data;
+      const black = "\x1B[40m  \x1B[0m";
+      const white = "\x1B[47m  \x1B[0m";
+      let output = "";
+      const hMargin = Array(size + 3).join(white);
+      const vMargin = Array(2).join(white);
+      output += hMargin + "\n";
+      for (let i = 0; i < size; ++i) {
+        output += white;
+        for (let j = 0; j < size; j++) {
+          output += data[i * size + j] ? black : white;
+        }
+        output += vMargin + "\n";
+      }
+      output += hMargin + "\n";
+      if (typeof cb === "function") {
+        cb(null, output);
+      }
+      return output;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/terminal/terminal-small.js
+var require_terminal_small = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/terminal/terminal-small.js"(exports) {
+    var backgroundWhite = "\x1B[47m";
+    var backgroundBlack = "\x1B[40m";
+    var foregroundWhite = "\x1B[37m";
+    var foregroundBlack = "\x1B[30m";
+    var reset = "\x1B[0m";
+    var lineSetupNormal = backgroundWhite + foregroundBlack;
+    var lineSetupInverse = backgroundBlack + foregroundWhite;
+    var createPalette = function(lineSetup, foregroundWhite2, foregroundBlack2) {
+      return {
+        // 1 ... white, 2 ... black, 0 ... transparent (default)
+        "00": reset + " " + lineSetup,
+        "01": reset + foregroundWhite2 + "\u2584" + lineSetup,
+        "02": reset + foregroundBlack2 + "\u2584" + lineSetup,
+        10: reset + foregroundWhite2 + "\u2580" + lineSetup,
+        11: " ",
+        12: "\u2584",
+        20: reset + foregroundBlack2 + "\u2580" + lineSetup,
+        21: "\u2580",
+        22: "\u2588"
+      };
+    };
+    var mkCodePixel = function(modules, size, x, y) {
+      const sizePlus = size + 1;
+      if (x >= sizePlus || y >= sizePlus || y < -1 || x < -1) return "0";
+      if (x >= size || y >= size || y < 0 || x < 0) return "1";
+      const idx = y * size + x;
+      return modules[idx] ? "2" : "1";
+    };
+    var mkCode = function(modules, size, x, y) {
+      return mkCodePixel(modules, size, x, y) + mkCodePixel(modules, size, x, y + 1);
+    };
+    exports.render = function(qrData, options, cb) {
+      const size = qrData.modules.size;
+      const data = qrData.modules.data;
+      const inverse = !!(options && options.inverse);
+      const lineSetup = options && options.inverse ? lineSetupInverse : lineSetupNormal;
+      const white = inverse ? foregroundBlack : foregroundWhite;
+      const black = inverse ? foregroundWhite : foregroundBlack;
+      const palette = createPalette(lineSetup, white, black);
+      const newLine = reset + "\n" + lineSetup;
+      let output = lineSetup;
+      for (let y = -1; y < size + 1; y += 2) {
+        for (let x = -1; x < size; x++) {
+          output += palette[mkCode(data, size, x, y)];
+        }
+        output += palette[mkCode(data, size, size, y)] + newLine;
+      }
+      output += reset;
+      if (typeof cb === "function") {
+        cb(null, output);
+      }
+      return output;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/terminal.js
+var require_terminal2 = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/terminal.js"(exports) {
+    var big = require_terminal();
+    var small = require_terminal_small();
+    exports.render = function(qrData, options, cb) {
+      if (options && options.small) {
+        return small.render(qrData, options, cb);
+      }
+      return big.render(qrData, options, cb);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/svg-tag.js
+var require_svg_tag = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/svg-tag.js"(exports) {
+    var Utils = require_utils2();
+    function getColorAttrib(color, attrib) {
+      const alpha = color.a / 255;
+      const str = attrib + '="' + color.hex + '"';
+      return alpha < 1 ? str + " " + attrib + '-opacity="' + alpha.toFixed(2).slice(1) + '"' : str;
+    }
+    function svgCmd(cmd, x, y) {
+      let str = cmd + x;
+      if (typeof y !== "undefined") str += " " + y;
+      return str;
+    }
+    function qrToPath(data, size, margin) {
+      let path = "";
+      let moveBy = 0;
+      let newRow = false;
+      let lineLength = 0;
+      for (let i = 0; i < data.length; i++) {
+        const col = Math.floor(i % size);
+        const row = Math.floor(i / size);
+        if (!col && !newRow) newRow = true;
+        if (data[i]) {
+          lineLength++;
+          if (!(i > 0 && col > 0 && data[i - 1])) {
+            path += newRow ? svgCmd("M", col + margin, 0.5 + row + margin) : svgCmd("m", moveBy, 0);
+            moveBy = 0;
+            newRow = false;
+          }
+          if (!(col + 1 < size && data[i + 1])) {
+            path += svgCmd("h", lineLength);
+            lineLength = 0;
+          }
+        } else {
+          moveBy++;
+        }
+      }
+      return path;
+    }
+    exports.render = function render(qrData, options, cb) {
+      const opts = Utils.getOptions(options);
+      const size = qrData.modules.size;
+      const data = qrData.modules.data;
+      const qrcodesize = size + opts.margin * 2;
+      const bg = !opts.color.light.a ? "" : "<path " + getColorAttrib(opts.color.light, "fill") + ' d="M0 0h' + qrcodesize + "v" + qrcodesize + 'H0z"/>';
+      const path = "<path " + getColorAttrib(opts.color.dark, "stroke") + ' d="' + qrToPath(data, size, opts.margin) + '"/>';
+      const viewBox = 'viewBox="0 0 ' + qrcodesize + " " + qrcodesize + '"';
+      const width = !opts.width ? "" : 'width="' + opts.width + '" height="' + opts.width + '" ';
+      const svgTag = '<svg xmlns="http://www.w3.org/2000/svg" ' + width + viewBox + ' shape-rendering="crispEdges">' + bg + path + "</svg>\n";
+      if (typeof cb === "function") {
+        cb(null, svgTag);
+      }
+      return svgTag;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/svg.js
+var require_svg = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/svg.js"(exports) {
+    var svgTagRenderer = require_svg_tag();
+    exports.render = svgTagRenderer.render;
+    exports.renderToFile = function renderToFile(path, qrData, options, cb) {
+      if (typeof cb === "undefined") {
+        cb = options;
+        options = void 0;
+      }
+      const fs = __require("fs");
+      const svgTag = exports.render(qrData, options);
+      const xmlStr = '<?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">' + svgTag;
+      fs.writeFile(path, xmlStr, cb);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/canvas.js
+var require_canvas = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/renderer/canvas.js"(exports) {
+    var Utils = require_utils2();
+    function clearCanvas(ctx, canvas, size) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!canvas.style) canvas.style = {};
+      canvas.height = size;
+      canvas.width = size;
+      canvas.style.height = size + "px";
+      canvas.style.width = size + "px";
+    }
+    function getCanvasElement() {
+      try {
+        return document.createElement("canvas");
+      } catch (e) {
+        throw new Error("You need to specify a canvas element");
+      }
+    }
+    exports.render = function render(qrData, canvas, options) {
+      let opts = options;
+      let canvasEl = canvas;
+      if (typeof opts === "undefined" && (!canvas || !canvas.getContext)) {
+        opts = canvas;
+        canvas = void 0;
+      }
+      if (!canvas) {
+        canvasEl = getCanvasElement();
+      }
+      opts = Utils.getOptions(opts);
+      const size = Utils.getImageWidth(qrData.modules.size, opts);
+      const ctx = canvasEl.getContext("2d");
+      const image = ctx.createImageData(size, size);
+      Utils.qrToImageData(image.data, qrData, opts);
+      clearCanvas(ctx, canvasEl, size);
+      ctx.putImageData(image, 0, 0);
+      return canvasEl;
+    };
+    exports.renderToDataURL = function renderToDataURL(qrData, canvas, options) {
+      let opts = options;
+      if (typeof opts === "undefined" && (!canvas || !canvas.getContext)) {
+        opts = canvas;
+        canvas = void 0;
+      }
+      if (!opts) opts = {};
+      const canvasEl = exports.render(qrData, canvas, opts);
+      const type = opts.type || "image/png";
+      const rendererOpts = opts.rendererOpts || {};
+      return canvasEl.toDataURL(type, rendererOpts.quality);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/browser.js
+var require_browser = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/browser.js"(exports) {
+    var canPromise = require_can_promise();
+    var QRCode2 = require_qrcode();
+    var CanvasRenderer = require_canvas();
+    var SvgRenderer = require_svg_tag();
+    function renderCanvas(renderFunc, canvas, text, opts, cb) {
+      const args = [].slice.call(arguments, 1);
+      const argsNum = args.length;
+      const isLastArgCb = typeof args[argsNum - 1] === "function";
+      if (!isLastArgCb && !canPromise()) {
+        throw new Error("Callback required as last argument");
+      }
+      if (isLastArgCb) {
+        if (argsNum < 2) {
+          throw new Error("Too few arguments provided");
+        }
+        if (argsNum === 2) {
+          cb = text;
+          text = canvas;
+          canvas = opts = void 0;
+        } else if (argsNum === 3) {
+          if (canvas.getContext && typeof cb === "undefined") {
+            cb = opts;
+            opts = void 0;
+          } else {
+            cb = opts;
+            opts = text;
+            text = canvas;
+            canvas = void 0;
+          }
+        }
+      } else {
+        if (argsNum < 1) {
+          throw new Error("Too few arguments provided");
+        }
+        if (argsNum === 1) {
+          text = canvas;
+          canvas = opts = void 0;
+        } else if (argsNum === 2 && !canvas.getContext) {
+          opts = text;
+          text = canvas;
+          canvas = void 0;
+        }
+        return new Promise(function(resolve, reject) {
+          try {
+            const data = QRCode2.create(text, opts);
+            resolve(renderFunc(data, canvas, opts));
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+      try {
+        const data = QRCode2.create(text, opts);
+        cb(null, renderFunc(data, canvas, opts));
+      } catch (e) {
+        cb(e);
+      }
+    }
+    exports.create = QRCode2.create;
+    exports.toCanvas = renderCanvas.bind(null, CanvasRenderer.render);
+    exports.toDataURL = renderCanvas.bind(null, CanvasRenderer.renderToDataURL);
+    exports.toString = renderCanvas.bind(null, function(data, _, opts) {
+      return SvgRenderer.render(data, opts);
+    });
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/server.js
+var require_server = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/server.js"(exports) {
+    var canPromise = require_can_promise();
+    var QRCode2 = require_qrcode();
+    var PngRenderer = require_png2();
+    var Utf8Renderer = require_utf8();
+    var TerminalRenderer = require_terminal2();
+    var SvgRenderer = require_svg();
+    function checkParams(text, opts, cb) {
+      if (typeof text === "undefined") {
+        throw new Error("String required as first argument");
+      }
+      if (typeof cb === "undefined") {
+        cb = opts;
+        opts = {};
+      }
+      if (typeof cb !== "function") {
+        if (!canPromise()) {
+          throw new Error("Callback required as last argument");
+        } else {
+          opts = cb || {};
+          cb = null;
+        }
+      }
+      return {
+        opts,
+        cb
+      };
+    }
+    function getTypeFromFilename(path) {
+      return path.slice((path.lastIndexOf(".") - 1 >>> 0) + 2).toLowerCase();
+    }
+    function getRendererFromType(type) {
+      switch (type) {
+        case "svg":
+          return SvgRenderer;
+        case "txt":
+        case "utf8":
+          return Utf8Renderer;
+        case "png":
+        case "image/png":
+        default:
+          return PngRenderer;
+      }
+    }
+    function getStringRendererFromType(type) {
+      switch (type) {
+        case "svg":
+          return SvgRenderer;
+        case "terminal":
+          return TerminalRenderer;
+        case "utf8":
+        default:
+          return Utf8Renderer;
+      }
+    }
+    function render(renderFunc, text, params) {
+      if (!params.cb) {
+        return new Promise(function(resolve, reject) {
+          try {
+            const data = QRCode2.create(text, params.opts);
+            return renderFunc(data, params.opts, function(err, data2) {
+              return err ? reject(err) : resolve(data2);
+            });
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+      try {
+        const data = QRCode2.create(text, params.opts);
+        return renderFunc(data, params.opts, params.cb);
+      } catch (e) {
+        params.cb(e);
+      }
+    }
+    exports.create = QRCode2.create;
+    exports.toCanvas = require_browser().toCanvas;
+    exports.toString = function toString(text, opts, cb) {
+      const params = checkParams(text, opts, cb);
+      const type = params.opts ? params.opts.type : void 0;
+      const renderer = getStringRendererFromType(type);
+      return render(renderer.render, text, params);
+    };
+    exports.toDataURL = function toDataURL(text, opts, cb) {
+      const params = checkParams(text, opts, cb);
+      const renderer = getRendererFromType(params.opts.type);
+      return render(renderer.renderToDataURL, text, params);
+    };
+    exports.toBuffer = function toBuffer(text, opts, cb) {
+      const params = checkParams(text, opts, cb);
+      const renderer = getRendererFromType(params.opts.type);
+      return render(renderer.renderToBuffer, text, params);
+    };
+    exports.toFile = function toFile(path, text, opts, cb) {
+      if (typeof path !== "string" || !(typeof text === "string" || typeof text === "object")) {
+        throw new Error("Invalid argument");
+      }
+      if (arguments.length < 3 && !canPromise()) {
+        throw new Error("Too few arguments provided");
+      }
+      const params = checkParams(text, opts, cb);
+      const type = params.opts.type || getTypeFromFilename(path);
+      const renderer = getRendererFromType(type);
+      const renderToFile = renderer.renderToFile.bind(null, path);
+      return render(renderToFile, text, params);
+    };
+    exports.toFileStream = function toFileStream(stream, text, opts) {
+      if (arguments.length < 2) {
+        throw new Error("Too few arguments provided");
+      }
+      const params = checkParams(text, opts, stream.emit.bind(stream, "error"));
+      const renderer = getRendererFromType("png");
+      const renderToFileStream = renderer.renderToFileStream.bind(null, stream);
+      render(renderToFileStream, text, params);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/index.js
+var require_lib = __commonJS({
+  "../../node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode/lib/index.js"(exports, module) {
+    module.exports = require_server();
+  }
+});
+
 // src/engine/codeNotice.ts
 function codeHeader(title, license) {
   const where = license.domain && license.domain !== "*" ? ` \xB7 \u0441\u0430\u0439\u0442 ${license.domain}` : "";
@@ -14598,835 +14598,6 @@ function codeHeader(title, license) {
   \u043D\u0430 gridika.ru \u0438 \u0432\u0441\u0442\u0430\u0432\u044C\u0442\u0435 \u043D\u043E\u0432\u044B\u0439 \u043A\u043E\u0434 \u0432\u043C\u0435\u0441\u0442\u043E \u044D\u0442\u043E\u0433\u043E.
 -->`;
 }
-
-// src/engine/qrMatrix.ts
-var import_qrcode = __toESM(require_lib(), 1);
-function generateQrMatrix(text, errorCorrectionLevel = "M") {
-  const qr = import_qrcode.default.create(text, {
-    errorCorrectionLevel
-  });
-  const size = qr.modules.size;
-  const modules = [];
-  for (let r = 0; r < size; r++) {
-    const row = [];
-    for (let c = 0; c < size; c++) {
-      row.push(Boolean(qr.modules.get(r, c)));
-    }
-    modules.push(row);
-  }
-  return { modules, size };
-}
-function isFinderPattern(r, c, size) {
-  if (r < 7 && c < 7) return true;
-  if (r < 7 && c >= size - 7) return true;
-  if (r >= size - 7 && c < 7) return true;
-  return false;
-}
-
-// src/engine/treeScene.ts
-function atLuminance(hex, target) {
-  const n = parseInt(hex.slice(1), 16);
-  const r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255;
-  const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-  const k = target / lum;
-  const ch = (v) => Math.max(0, Math.min(255, Math.round(v * k))).toString(16).padStart(2, "0");
-  return "#" + ch(r) + ch(g) + ch(b);
-}
-var LEAF_LUM = 108;
-var GRASS_LUM = 104;
-function seasonPalette(p) {
-  return {
-    ...p,
-    leaves: p.leaves.map((c) => atLuminance(c, LEAF_LUM)),
-    grass: p.grass.map((c) => atLuminance(c, GRASS_LUM))
-  };
-}
-var RAW_SEASONS = {
-  spring: {
-    // Sakura
-    leaves: ["#d0507f", "#c2386c", "#e0679a", "#b8416c", "#d95c8a", "#e0607a", "#c4508f", "#d46a8c", "#b84a86", "#e2708f"],
-    grass: ["#4f8a24", "#5a9a2a", "#467d1f", "#3f7019", "#6a9a1f", "#2f7a3a", "#5f8f30", "#3d8a2e", "#78a02a"],
-    bloom: ["#f9d3e2", "#f6c1d5", "#fce6ef", "#f2b3cb", "#fff2f7", "#eeaac4", "#f8cadb"],
-    blades: ["#6fbf3a", "#8fd14f", "#5aa02e", "#a6dc6a", "#4c8f26", "#7cc444"],
-    trunk: ["#8a4a2e", "#743b24"]
-  },
-  summer: {
-    // Jacaranda lilac
-    leaves: ["#8a5ccc", "#7646bd", "#9a6fd6", "#6538ab", "#a57fdc", "#9c5ac8", "#7f62d8", "#b06cc9", "#8e4fb8", "#6f5bd0"],
-    grass: ["#4f8a24", "#5a9a2a", "#467d1f", "#3f7019", "#6a9a1f", "#2f7a3a", "#5f8f30", "#3d8a2e", "#78a02a"],
-    bloom: ["#dcc8f5", "#cfb6f0", "#e9dcfa", "#c3a6ea", "#f3ecfd", "#d5bff3"],
-    blades: ["#6fbf3a", "#8fd14f", "#5aa02e", "#a6dc6a", "#4c8f26", "#7cc444"],
-    trunk: ["#7d4a32", "#683d28"]
-  },
-  autumn: {
-    leaves: ["#d2701a", "#c2581a", "#e08f1f", "#b04a12", "#e8971c", "#c9402a", "#d9a21f", "#b86a1a", "#a8541f", "#cf5a2e"],
-    grass: ["#8a6a1c", "#7a5c18", "#96741f", "#6e5215", "#9a7a1a", "#7f6a24", "#a0702a", "#86621a"],
-    bloom: ["#f7cf5a", "#f2b83c", "#f9dc7e", "#eea12e", "#fbe6a4", "#f4c24a"],
-    blades: ["#d9b44a", "#c9a13a", "#e6c868", "#b08a2e", "#efd27a"],
-    trunk: ["#7a3f26", "#66331e"]
-  }
-};
-var TREE_SEASONS = {
-  spring: seasonPalette(RAW_SEASONS.spring),
-  summer: seasonPalette(RAW_SEASONS.summer),
-  autumn: seasonPalette(RAW_SEASONS.autumn)
-};
-function rand(seed) {
-  const s = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
-  return s - Math.floor(s);
-}
-function treeGeometry(size) {
-  const half = size / 2;
-  const R = size * 0.47;
-  const trunkH = size * 0.34;
-  const canopyRy = size * 0.34;
-  return {
-    size,
-    half,
-    trunkH,
-    canopyCenterY: trunkH + canopyRy * 0.78,
-    canopyRy,
-    canopyFloor: trunkH * 0.82,
-    radiusAt: (theta) => R * (1 + 0.1 * Math.sin(3 * theta + 0.6) + 0.06 * Math.sin(5 * theta + 2.1) + 0.04 * Math.cos(7 * theta))
-  };
-}
-function moduleXZ(m, half) {
-  return { x: m.c - half + 0.5, z: m.r - half + 0.5 };
-}
-function canopyQ(g, x, z) {
-  const d = Math.hypot(x, z);
-  const theta = Math.atan2(z, x);
-  return d / g.radiusAt(theta);
-}
-function canopySpan(g, q) {
-  const k = Math.sqrt(Math.max(0, 1 - q * q));
-  const top = g.canopyCenterY + g.canopyRy * k;
-  const bottom = Math.max(g.canopyFloor, g.canopyCenterY - g.canopyRy * 0.85 * k);
-  return [bottom, top];
-}
-function isUnderCanopy(g, m) {
-  if (m.isFinder) return false;
-  const { x, z } = moduleXZ(m, g.half);
-  return canopyQ(g, x, z) < 1;
-}
-function treeVoxelTargets(modules, size) {
-  const g = treeGeometry(size);
-  return modules.map((m, i) => {
-    const { x, z } = moduleXZ(m, g.half);
-    if (isUnderCanopy(g, m)) {
-      const [bottom, top] = canopySpan(g, canopyQ(g, x, z));
-      const y = top - (top - bottom) * 0.35 * rand(i + 1);
-      const s = 1.13;
-      return { x, y, z, scaleX: s, scaleY: s, scaleZ: s, kind: "leaf" };
-    }
-    return { x, y: 0.18, z, scaleX: 1.14, scaleY: 0.4, scaleZ: 1.14, kind: "grass" };
-  });
-}
-
-// src/engine/cityScene.ts
-var FLOOR_H = 0.75;
-function cityLayout(modules, size) {
-  const half = size / 2;
-  const index = /* @__PURE__ */ new Map();
-  modules.forEach((m, i) => index.set(m.r * size + m.c, i));
-  const building = new Array(modules.length).fill(-1);
-  const buildings = [];
-  const maxFloors = Math.round(size * 0.62 / FLOOR_H);
-  const finderOrigins = [
-    [0, 0],
-    [0, size - 7],
-    [size - 7, 0]
-  ];
-  finderOrigins.forEach(([r0, c0], fi) => {
-    const ring = [];
-    const core = [];
-    for (let r = 0; r < 7; r++) {
-      for (let c = 0; c < 7; c++) {
-        const i = index.get((r0 + r) * size + (c0 + c));
-        if (i === void 0) continue;
-        if (r >= 2 && r <= 4 && c >= 2 && c <= 4) core.push(i);
-        else ring.push(i);
-      }
-    }
-    const ringB = { id: buildings.length, h: 3 * FLOOR_H, facadeIndex: (fi * 3 + 1) % 8, cells: ring, isTower: false };
-    buildings.push(ringB);
-    ring.forEach((i) => building[i] = ringB.id);
-    const towerFloors = Math.round(size * 0.5 / FLOOR_H) + fi * 2;
-    const tower = { id: buildings.length, h: towerFloors * FLOOR_H, facadeIndex: (fi * 3 + 3) % 8, cells: core, isTower: true };
-    buildings.push(tower);
-    core.forEach((i) => building[i] = tower.id);
-  });
-  const lotOf = (r, c) => Math.floor(r / 3) * 1e3 + Math.floor(c / 3);
-  modules.forEach((m, start) => {
-    if (building[start] !== -1) return;
-    const lot = lotOf(m.r, m.c);
-    const cells = [];
-    const stack = [start];
-    building[start] = -2;
-    while (stack.length) {
-      const i = stack.pop();
-      cells.push(i);
-      const { r, c } = modules[i];
-      for (const [dr, dc] of [
-        [1, 0],
-        [-1, 0],
-        [0, 1],
-        [0, -1]
-      ]) {
-        const rr = r + dr, cc = c + dc;
-        if (rr < 0 || cc < 0 || rr >= size || cc >= size) continue;
-        if (lotOf(rr, cc) !== lot) continue;
-        const j = index.get(rr * size + cc);
-        if (j === void 0 || building[j] !== -1) continue;
-        building[j] = -2;
-        stack.push(j);
-      }
-    }
-    let cx = 0, cz = 0;
-    cells.forEach((i) => {
-      cx += modules[i].c - half + 0.5;
-      cz += modules[i].r - half + 0.5;
-    });
-    cx /= cells.length;
-    cz /= cells.length;
-    const id = buildings.length;
-    const d = Math.min(1, Math.hypot(cx, cz) / (half * 1.1));
-    const profile = Math.pow(1 - d, 1.4);
-    let floors = 2 + Math.round(profile * maxFloors * (0.45 + 0.55 * rand(id * 7 + 3)));
-    if (rand(id * 13 + 5) < 0.07) floors += 5;
-    const b = { id, h: floors * FLOOR_H, facadeIndex: Math.floor(rand(id * 3 + 1) * 8), cells, isTower: false };
-    buildings.push(b);
-    cells.forEach((i) => building[i] = id);
-  });
-  const height = modules.map((_, i) => buildings[building[i]].h);
-  return { size, half, height, building, buildings, maxH: Math.max(...height) };
-}
-function cityVoxelTargets(modules, size) {
-  const L = cityLayout(modules, size);
-  return modules.map((m, i) => {
-    const h = L.height[i];
-    return {
-      x: m.c - L.half + 0.5,
-      y: h / 2,
-      z: m.r - L.half + 0.5,
-      scaleX: 1.13,
-      scaleY: h / 0.88,
-      scaleZ: 1.13
-    };
-  });
-}
-
-// src/engine/stageScene.ts
-function finderLocal(r, c, size) {
-  if (r < 7 && c < 7) return [r, c, 0];
-  if (r < 7 && c >= size - 7) return [r, c - (size - 7), 1];
-  if (r >= size - 7 && c < 7) return [r - (size - 7), c, 2];
-  return null;
-}
-
-// src/engine/islandScene.ts
-var STEP = 0.5;
-function valueNoise(x, z, cell, seed) {
-  const gx = x / cell, gz = z / cell;
-  const ix = Math.floor(gx), iz = Math.floor(gz);
-  const fx = gx - ix, fz = gz - iz;
-  const sx = fx * fx * (3 - 2 * fx), sz = fz * fz * (3 - 2 * fz);
-  const v = (a, b) => rand(a * 57.1 + b * 131.7 + seed);
-  const top = v(ix, iz) * (1 - sx) + v(ix + 1, iz) * sx;
-  const bot = v(ix, iz + 1) * (1 - sx) + v(ix + 1, iz + 1) * sx;
-  return top * (1 - sz) + bot * sz;
-}
-function islandLayout(modules, size, mode) {
-  const half = size / 2;
-  const maxH = size * 0.6;
-  const height = [];
-  const band = [];
-  const core = [];
-  const crater = [];
-  modules.forEach((m) => {
-    const x = m.c - half + 0.5;
-    const z = m.r - half + 0.5;
-    const local = finderLocal(m.r, m.c, size);
-    if (local) {
-      const [fr, fc, fi] = local;
-      const isCore = fr >= 2 && fr <= 4 && fc >= 2 && fc <= 4;
-      const h2 = isCore ? [2.5, 2, 1.5][fi] : 1;
-      height.push(h2);
-      band.push(isCore ? 1 : 0);
-      core.push(isCore ? fi : -1);
-      crater.push(false);
-      return;
-    }
-    const d = Math.hypot(x, z) / (half * 1.05);
-    const profile = Math.max(0, 1 - d);
-    const n = valueNoise(x + half, z + half, 5, 11) * 0.7 + valueNoise(x + half, z + half, 2.5, 23) * 0.3;
-    const hills = 0.4 + 2.2 * n * Math.pow(profile, 0.7);
-    const cone = Math.max(0, 1 - Math.hypot(x, z) / (half * 0.78));
-    const mountain = maxH * Math.pow(cone, 1.15) * (0.72 + 0.28 * n);
-    let h = Math.max(hills, mountain);
-    let isCrater = false;
-    if (mode === "volcano") {
-      h = 0.4 + maxH * 1.1 * Math.pow(profile, 1.6) * (0.75 + 0.25 * n);
-      const rc = Math.hypot(x, z);
-      if (rc < size * 0.09) {
-        h = maxH * 0.72;
-        isCrater = true;
-      }
-    }
-    h = Math.max(STEP, Math.round(h / STEP) * STEP);
-    height.push(h);
-    const t = h / maxH;
-    band.push(t < 0.07 ? 0 : t < 0.2 ? 1 : t < 0.38 ? 2 : t < 0.62 ? 3 : 4);
-    core.push(-1);
-    crater.push(isCrater);
-  });
-  return { size, half, height, band, core, maxH: Math.max(...height), crater };
-}
-function islandVoxelTargets(modules, size, mode = "summer") {
-  const L = islandLayout(modules, size, mode);
-  return modules.map((m, i) => {
-    const h = L.height[i];
-    return { x: m.c - L.half + 0.5, y: h / 2, z: m.r - L.half + 0.5, scaleX: 1.13, scaleY: h / 0.88, scaleZ: 1.13 };
-  });
-}
-
-// src/engine/mazeScene.ts
-var HEDGE_H = 1.2;
-function mazeLayout(modules, size) {
-  const half = size / 2;
-  const dark = new Set(modules.map((m) => m.r * size + m.c));
-  const isDark = (r, c) => r >= 0 && c >= 0 && r < size && c < size && dark.has(r * size + c);
-  const height = [];
-  const kind = [];
-  const pavilion = [];
-  modules.forEach((m, i) => {
-    const local = finderLocal(m.r, m.c, size);
-    if (local) {
-      const [fr, fc, fi] = local;
-      const core = fr >= 2 && fr <= 4 && fc >= 2 && fc <= 4;
-      pavilion.push(fi);
-      if (!core) {
-        kind.push("ring");
-        height.push(HEDGE_H + 0.3);
-      } else if (fr === 3 && fc === 3) {
-        kind.push("gazebo");
-        height.push(0.3);
-      } else {
-        kind.push("bed");
-        height.push(0.3);
-      }
-      return;
-    }
-    pavilion.push(-1);
-    const lonely = !isDark(m.r - 1, m.c) && !isDark(m.r + 1, m.c) && !isDark(m.r, m.c - 1) && !isDark(m.r, m.c + 1);
-    if (lonely) {
-      kind.push("topiary");
-      height.push(0.45);
-      return;
-    }
-    kind.push("hedge");
-    height.push(HEDGE_H + (rand(i * 7 + 3) < 0.12 ? 0.3 : 0));
-  });
-  return { size, half, height, kind, pavilion, maxH: Math.max(...height) };
-}
-function mazeVoxelTargets(modules, size) {
-  const L = mazeLayout(modules, size);
-  return modules.map((m, i) => {
-    const h = L.height[i];
-    return { x: m.c - L.half + 0.5, y: h / 2, z: m.r - L.half + 0.5, scaleX: 1.13, scaleY: h / 0.88, scaleZ: 1.13 };
-  });
-}
-
-// src/engine/equalizerScene.ts
-var CABINET_H = 2.4;
-function eqLayout(modules, size) {
-  const barH = size * 0.34;
-  const kind = [];
-  const height = [];
-  modules.forEach((m) => {
-    const local = finderLocal(m.r, m.c, size);
-    if (local) {
-      const [fr, fc] = local;
-      kind.push(fr >= 2 && fr <= 4 && fc >= 2 && fc <= 4 ? "core" : "cab");
-      height.push(CABINET_H);
-    } else {
-      kind.push("bar");
-      height.push(barH);
-    }
-  });
-  return { size, half: size / 2, kind, height, barH };
-}
-function eqVoxelTargets(modules, size) {
-  const L = eqLayout(modules, size);
-  return modules.map((m, i) => {
-    const h = L.height[i];
-    return { x: m.c - L.half + 0.5, y: h / 2, z: m.r - L.half + 0.5, scaleX: 1.13, scaleY: h / 0.88, scaleZ: 1.13 };
-  });
-}
-
-// src/engine/cakeScene.ts
-var TIER_H = [4.6, 4, 3.4];
-function cakeLayout(modules, size) {
-  const half = size / 2;
-  const centre = (size - 1) / 2;
-  const k2 = Math.max(2, Math.floor(centre - 7));
-  const k3 = Math.max(1, Math.round(k2 * 0.5));
-  const bounds = [
-    [0, size - 1],
-    [Math.round(centre - k2), Math.round(centre + k2)],
-    [Math.round(centre - k3), Math.round(centre + k3)]
-  ];
-  const tierTop = [TIER_H[0], TIER_H[0] + TIER_H[1], TIER_H[0] + TIER_H[1] + TIER_H[2]];
-  const tierOf = new Uint8Array(size * size);
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      let t = 0;
-      if (r >= bounds[1][0] && r <= bounds[1][1] && c >= bounds[1][0] && c <= bounds[1][1]) t = 1;
-      if (r >= bounds[2][0] && r <= bounds[2][1] && c >= bounds[2][0] && c <= bounds[2][1]) t = 2;
-      tierOf[r * size + c] = t;
-    }
-  }
-  const kind = modules.map((m, i) => {
-    const local = finderLocal(m.r, m.c, size);
-    if (local) {
-      const [fr, fc] = local;
-      if (fr === 3 && fc === 3) return "candle";
-      if (fr >= 2 && fr <= 4 && fc >= 2 && fc <= 4) return "rosette";
-      return "border";
-    }
-    const x = rand(i * 13 + 7);
-    return x < 0.45 ? "choc" : x < 0.75 ? "berry" : "macaron";
-  });
-  return { size, half, tierOf, tierTop, bounds, kind };
-}
-function cellTop(L, r, c) {
-  return L.tierTop[L.tierOf[r * L.size + c]];
-}
-function cakeVoxelTargets(modules, size) {
-  const L = cakeLayout(modules, size);
-  return modules.map((m) => {
-    const top = cellTop(L, m.r, m.c);
-    return { x: m.c - L.half + 0.5, y: top + 0.36, z: m.r - L.half + 0.5, scaleX: 1.13, scaleY: 0.82, scaleZ: 1.13 };
-  });
-}
-
-// src/engine/castleScene.ts
-var STEP2 = 0.4;
-function castleLayout(modules, size) {
-  const half = size / 2;
-  const dark = new Set(modules.map((m) => m.r * size + m.c));
-  const isDark = (r, c) => r >= 0 && c >= 0 && r < size && c < size && dark.has(r * size + c);
-  const kind = [];
-  const height = [];
-  const tower = [];
-  modules.forEach((m, i) => {
-    const local = finderLocal(m.r, m.c, size);
-    if (local) {
-      const [fr, fc, fi] = local;
-      tower.push(fi);
-      if (fr >= 2 && fr <= 4 && fc >= 2 && fc <= 4) {
-        kind.push(fr === 3 && fc === 3 ? "keepTop" : "keep");
-        height.push(5.2);
-      } else {
-        kind.push("ring");
-        height.push(3.2);
-      }
-      return;
-    }
-    tower.push(-1);
-    const lonely = !isDark(m.r - 1, m.c) && !isDark(m.r + 1, m.c) && !isDark(m.r, m.c - 1) && !isDark(m.r, m.c + 1);
-    if (lonely) {
-      kind.push("house");
-      height.push(1.2);
-      return;
-    }
-    kind.push("wall");
-    const d = Math.hypot(m.c - half + 0.5, m.r - half + 0.5) / (half * 0.95);
-    const profile = Math.pow(Math.max(0, 1 - d), 1.3);
-    const h = 1.6 + profile * 3.2 + (rand(i * 7 + 1) < 0.1 ? 0.8 : 0);
-    height.push(Math.round(h / STEP2) * STEP2);
-  });
-  return { size, half, kind, height, tower, maxH: Math.max(...height) };
-}
-function castleVoxelTargets(modules, size) {
-  const L = castleLayout(modules, size);
-  return modules.map((m, i) => {
-    const h = L.height[i];
-    return { x: m.c - L.half + 0.5, y: h / 2, z: m.r - L.half + 0.5, scaleX: 1.13, scaleY: h / 0.88, scaleZ: 1.13 };
-  });
-}
-
-// src/engine/shapes.ts
-function generateTargetShapePositions(shape, count, qrSize, modules) {
-  if (shape === "tree" && modules && modules.length === count) {
-    return treeVoxelTargets(modules, qrSize);
-  }
-  if (shape === "city" && modules && modules.length === count) {
-    return cityVoxelTargets(modules, qrSize);
-  }
-  if (shape === "island" && modules && modules.length === count) {
-    return islandVoxelTargets(modules, qrSize);
-  }
-  if (shape === "maze" && modules && modules.length === count) {
-    return mazeVoxelTargets(modules, qrSize);
-  }
-  if (shape === "equalizer" && modules && modules.length === count) {
-    return eqVoxelTargets(modules, qrSize);
-  }
-  if (shape === "cake" && modules && modules.length === count) {
-    return cakeVoxelTargets(modules, qrSize);
-  }
-  if (shape === "castle" && modules && modules.length === count) {
-    return castleVoxelTargets(modules, qrSize);
-  }
-  const targets = [];
-  const hoverGap = 1;
-  switch (shape) {
-    case "tree": {
-      const treeH = qrSize * 0.7;
-      const trunkH = treeH * 0.36;
-      const canopyH = treeH - trunkH;
-      const yMin = 0.5;
-      const trunkCount = Math.max(12, Math.floor(count * 0.16));
-      for (let i = 0; i < trunkCount; i++) {
-        const t = i / (trunkCount - 1 || 1);
-        const y = yMin + t * trunkH;
-        const flare = t < 0.28 ? 1.35 : Math.max(0.75, 1.05 - t * 0.3);
-        const angle = i * 2.39996;
-        const rad = i % 3 * 0.35 * flare;
-        const x = Math.cos(angle) * rad;
-        const z = Math.sin(angle) * rad;
-        targets.push({
-          x,
-          y,
-          z,
-          scaleX: 0.92,
-          scaleY: 0.92,
-          scaleZ: 0.92
-        });
-      }
-      const branchCount = Math.max(10, Math.floor(count * 0.12));
-      const bAngles = [0.1, Math.PI * 0.65, Math.PI * 1.32, Math.PI * 0.32];
-      for (let i = 0; i < branchCount; i++) {
-        const bIdx = i % bAngles.length;
-        const bAng = bAngles[bIdx] + Math.floor(i / bAngles.length) * 0.12;
-        const t = Math.floor(i / bAngles.length) / Math.max(1, Math.floor(branchCount / bAngles.length));
-        const y = yMin + trunkH * 0.72 + t * (trunkH * 0.55);
-        const reach = (t * 0.75 + 0.25) * (qrSize * 0.23);
-        const x = Math.cos(bAng) * reach;
-        const z = Math.sin(bAng) * reach;
-        targets.push({
-          x,
-          y,
-          z,
-          scaleX: 0.9,
-          scaleY: 0.9,
-          scaleZ: 0.9
-        });
-      }
-      const groundCount = Math.max(8, Math.floor(count * 0.08));
-      for (let i = 0; i < groundCount; i++) {
-        const ang = i * 1.37;
-        const rad = 1.4 + i % 5 * 1.4;
-        targets.push({
-          x: Math.cos(ang) * rad,
-          y: yMin + i % 2 * 0.2,
-          z: Math.sin(ang) * rad,
-          scaleX: 0.85,
-          scaleY: 0.6,
-          scaleZ: 0.85
-        });
-      }
-      const canopyCount = count - targets.length;
-      const clusters = [
-        { cx: 0, cy: yMin + trunkH + canopyH * 0.55, cz: 0, rx: qrSize * 0.35, ry: canopyH * 0.48, rz: qrSize * 0.35 },
-        { cx: 3.2, cy: yMin + trunkH + canopyH * 0.42, cz: 2.2, rx: qrSize * 0.25, ry: canopyH * 0.38, rz: qrSize * 0.25 },
-        { cx: -3.2, cy: yMin + trunkH + canopyH * 0.46, cz: 1.8, rx: qrSize * 0.26, ry: canopyH * 0.4, rz: qrSize * 0.26 },
-        { cx: 0.6, cy: yMin + trunkH + canopyH * 0.38, cz: -3.2, rx: qrSize * 0.27, ry: canopyH * 0.36, rz: qrSize * 0.27 }
-      ];
-      for (let i = 0; i < canopyCount; i++) {
-        const c = clusters[i % clusters.length];
-        const stepInCluster = Math.floor(i / clusters.length);
-        const totalInCluster = Math.max(1, Math.floor(canopyCount / clusters.length));
-        const phi = Math.acos(1 - 2 * (stepInCluster / totalInCluster));
-        const theta = i * 2.39996;
-        const rRand = 0.62 + 0.38 * (i * 23 % 100 / 100);
-        const x = c.cx + Math.sin(phi) * Math.cos(theta) * c.rx * rRand;
-        const y = c.cy + Math.cos(phi) * c.ry * rRand;
-        const z = c.cz + Math.sin(phi) * Math.sin(theta) * c.rz * rRand;
-        targets.push({
-          x,
-          y,
-          z,
-          scaleX: 0.95,
-          scaleY: 0.95,
-          scaleZ: 0.95
-        });
-      }
-      break;
-    }
-    case "phone": {
-      const phoneH = qrSize * 0.72;
-      const phoneW = phoneH * 0.52;
-      const halfW = phoneW / 2;
-      const halfH = phoneH / 2;
-      const yCenter = hoverGap + halfH;
-      const cols = Math.floor(phoneW / 0.88);
-      const rows = Math.floor(phoneH / 0.88);
-      let placed = 0;
-      for (let r = 0; r < rows && placed < count; r++) {
-        for (let c = 0; c < cols && placed < count; c++) {
-          const nx = (c / (cols - 1 || 1) - 0.5) * 2;
-          const ny = (r / (rows - 1 || 1) - 0.5) * 2;
-          const squircle = Math.pow(nx, 4) + Math.pow(ny, 4);
-          if (squircle <= 1) {
-            const x = nx * halfW;
-            const y = yCenter - ny * halfH;
-            const isDynamicIsland = Math.abs(nx) < 0.28 && Math.abs(ny - -0.72) < 0.08;
-            const z = isDynamicIsland ? 0.8 : 0;
-            targets.push({
-              x,
-              y,
-              z,
-              scaleX: isDynamicIsland ? 1.05 : 0.92,
-              scaleY: isDynamicIsland ? 1.05 : 0.92,
-              scaleZ: isDynamicIsland ? 1.2 : 0.85
-            });
-            placed++;
-          }
-        }
-      }
-      while (targets.length < count) {
-        const t = targets.length / count * Math.PI * 2;
-        targets.push({
-          x: Math.cos(t) * halfW * 0.92,
-          y: yCenter + Math.sin(t) * halfH * 0.92,
-          z: -0.6,
-          scaleX: 0.88,
-          scaleY: 0.88,
-          scaleZ: 1.1
-        });
-      }
-      break;
-    }
-    case "city": {
-      const gridSize = Math.ceil(Math.sqrt(count));
-      const step = qrSize * 0.8 / gridSize;
-      const offset = gridSize * step / 2;
-      const maxH = qrSize * 0.55;
-      for (let i = 0; i < count; i++) {
-        const row = Math.floor(i / gridSize);
-        const col = i % gridSize;
-        const seed = Math.sin(row * 12.9898 + col * 78.233) * 43758.5453;
-        const norm = seed - Math.floor(seed);
-        const distFromCenter = Math.hypot(col - gridSize / 2, row - gridSize / 2) / (gridSize / 2);
-        const centerBoost = Math.max(0, 1 - distFromCenter);
-        const heightMultiplier = (0.2 + norm * 0.8) * (1 + centerBoost * 2);
-        const x = col * step - offset;
-        const z = row * step - offset;
-        const h = Math.max(1.2, heightMultiplier * maxH);
-        const y = 0.88 * h / 2 + 0.05;
-        targets.push({
-          x,
-          y,
-          z,
-          scaleX: 0.88,
-          scaleY: h,
-          scaleZ: 0.88
-        });
-      }
-      break;
-    }
-    case "crystal": {
-      const crystalH = qrSize * 0.65;
-      const halfH = crystalH / 2;
-      const crystalRadius = qrSize * 0.35;
-      const yCenter = hoverGap + halfH;
-      for (let i = 0; i < count; i++) {
-        const phi = Math.acos(-1 + 2 * i / count);
-        const theta = Math.sqrt(count * Math.PI) * phi;
-        const facetMod = 0.84 + 0.22 * Math.cos(theta * 4);
-        const r = crystalRadius * Math.sin(phi) * facetMod;
-        const x = r * Math.cos(theta);
-        const z = r * Math.sin(theta);
-        const y = yCenter + Math.cos(phi) * halfH;
-        targets.push({
-          x,
-          y,
-          z,
-          scaleX: 0.95,
-          scaleY: 0.95,
-          scaleZ: 0.95
-        });
-      }
-      break;
-    }
-    case "pyramid": {
-      const levels = 8;
-      const stepHeight = qrSize * 0.42 / levels;
-      let placed = 0;
-      for (let lvl = 0; lvl < levels && placed < count; lvl++) {
-        const width = levels - lvl;
-        const y = (lvl + 0.5) * stepHeight + 0.05;
-        for (let r = -width; r <= width && placed < count; r++) {
-          for (let c = -width; c <= width && placed < count; c++) {
-            if (Math.abs(r) === width || Math.abs(c) === width || lvl === 0) {
-              const x = c * (qrSize * 0.048);
-              const z = r * (qrSize * 0.048);
-              targets.push({
-                x,
-                y,
-                z,
-                scaleX: 0.95,
-                scaleY: 0.95,
-                scaleZ: 0.95
-              });
-              placed++;
-            }
-          }
-        }
-      }
-      while (targets.length < count) {
-        const lvl = Math.floor(Math.random() * levels);
-        const width = Math.max(1, levels - lvl);
-        const r = (Math.random() * 2 - 1) * width;
-        const c = (Math.random() * 2 - 1) * width;
-        targets.push({
-          x: c * (qrSize * 0.048),
-          y: (lvl + 0.5) * stepHeight + 0.05,
-          z: r * (qrSize * 0.048),
-          scaleX: 0.95,
-          scaleY: 0.95,
-          scaleZ: 0.95
-        });
-      }
-      break;
-    }
-    case "heart": {
-      const heartH = qrSize * 0.62;
-      const heartW = heartH * 0.96;
-      const yMin = hoverGap;
-      for (let i = 0; i < count; i++) {
-        const t = i / count * Math.PI * 2;
-        const u = i * 7 % count / count;
-        const zDepth = (u - 0.5) * (qrSize * 0.22);
-        const hx = 16 * Math.pow(Math.sin(t), 3);
-        const hy = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
-        const normY = (hy + 17) / 34;
-        const y = yMin + normY * heartH;
-        const x = hx / 16 * (heartW / 2) * (1 - Math.abs(u - 0.5) * 0.4);
-        const z = zDepth;
-        targets.push({
-          x,
-          y,
-          z,
-          scaleX: 0.95,
-          scaleY: 0.95,
-          scaleZ: 0.95
-        });
-      }
-      break;
-    }
-    case "sphere":
-    default: {
-      const sphereRadius = qrSize * 0.35;
-      const yCenter = hoverGap + sphereRadius;
-      const phi = Math.PI * (Math.sqrt(5) - 1);
-      for (let i = 0; i < count; i++) {
-        const normY = 1 - i / (count - 1 || 1) * 2;
-        const radAtY = Math.sqrt(Math.max(0, 1 - normY * normY));
-        const theta = phi * i;
-        const x = Math.cos(theta) * radAtY * sphereRadius;
-        const y = yCenter + normY * sphereRadius;
-        const z = Math.sin(theta) * radAtY * sphereRadius;
-        targets.push({
-          x,
-          y,
-          z,
-          scaleX: 0.95,
-          scaleY: 0.95,
-          scaleZ: 0.95
-        });
-      }
-      break;
-    }
-  }
-  let minBottom = Infinity;
-  for (const t of targets) {
-    const halfH = 0.88 * (t.scaleY ?? 1) / 2;
-    const bottom = t.y - halfH;
-    if (bottom < minBottom) {
-      minBottom = bottom;
-    }
-  }
-  const clearanceThreshold = 0.25;
-  if (minBottom < clearanceThreshold) {
-    const lift = clearanceThreshold - minBottom;
-    for (const t of targets) {
-      t.y += lift;
-    }
-  }
-  return targets;
-}
-
-// src/engine/QrMorphViewer.ts
-var THEMES = {
-  "velvet-emerald": {
-    id: "velvet-emerald",
-    name: "Fresh Mint",
-    subtitle: "\u0421\u0432\u0435\u0436\u0430\u044F \u043C\u044F\u0442\u0430 \u0438 \u0441\u043E\u0441\u043D\u043E\u0432\u044B\u0439 \u0430\u043A\u0446\u0435\u043D\u0442",
-    bgColor: "#F0EBE9",
-    groundColor: "#fcfbf9",
-    voxelColor: "#19C37D",
-    accentColor: "#22d38e",
-    finderColor: "#132A22",
-    isDark: false
-  },
-  "terracotta-clay": {
-    id: "terracotta-clay",
-    name: "\u0422\u0435\u0440\u0440\u0430\u043A\u043E\u0442\u0430 \u0438 \u041A\u0440\u0435\u043C",
-    subtitle: "\u0422\u0435\u043F\u043B\u044B\u0439 \u0433\u043B\u0438\u043D\u044F\u043D\u044B\u0439 \u0430\u043A\u0446\u0435\u043D\u0442 \u0438 \u043A\u0430\u0440\u0430\u043C\u0435\u043B\u044C",
-    bgColor: "#F0EBE9",
-    groundColor: "#ffffff",
-    voxelColor: "#3d2516",
-    accentColor: "#ea580c",
-    finderColor: "#f97316",
-    isDark: false
-  },
-  "espresso-cream": {
-    id: "espresso-cream",
-    name: "\u042D\u0441\u043F\u0440\u0435\u0441\u0441\u043E \u0438 \u0424\u0430\u0440\u0444\u043E\u0440",
-    subtitle: "\u0413\u043B\u0443\u0431\u043E\u043A\u0438\u0439 \u0442\u0435\u043C\u043D\u044B\u0439 \u043A\u043E\u0444\u0435 \u043D\u0430 \u043C\u043E\u043B\u043E\u0447\u043D\u043E\u043C",
-    bgColor: "#F0EBE9",
-    groundColor: "#ffffff",
-    voxelColor: "#201e1c",
-    accentColor: "#57534e",
-    finderColor: "#292524",
-    isDark: false
-  },
-  "soft-indigo": {
-    id: "soft-indigo",
-    name: "\u041A\u043E\u0431\u0430\u043B\u044C\u0442 \u0438 \u041B\u0430\u0432\u0430\u043D\u0434\u0430",
-    subtitle: "\u041C\u044F\u0433\u043A\u0438\u0439 \u043F\u0430\u0441\u0442\u0435\u043B\u044C\u043D\u044B\u0439 \u0438\u043D\u0434\u0438\u0433\u043E",
-    bgColor: "#f4f4f8",
-    groundColor: "#ffffff",
-    voxelColor: "#1e1b4b",
-    accentColor: "#4f46e5",
-    finderColor: "#6366f1",
-    isDark: false
-  },
-  "dark-obsidian": {
-    id: "dark-obsidian",
-    name: "\u0413\u043B\u0443\u0431\u043E\u043A\u0438\u0439 \u041E\u0431\u0441\u0438\u0434\u0438\u0430\u043D",
-    subtitle: "\u041A\u043E\u043D\u0442\u0440\u0430\u0441\u0442\u043D\u044B\u0439 \u0442\u0435\u043C\u043D\u044B\u0439 \u0433\u0440\u0430\u0444\u0438\u0442",
-    bgColor: "#161514",
-    groundColor: "#23201d",
-    voxelColor: "#3f3a36",
-    accentColor: "#10b981",
-    finderColor: "#34d399",
-    isDark: true
-  }
-};
 
 // src/engine/domainLock.ts
 function domainLockJs(badgeId, domain) {
@@ -15448,248 +14619,127 @@ function domainLockJs(badgeId, domain) {
 })();`;
 }
 
-// src/engine/standaloneGenerator.ts
-function generateEmbedCode(options) {
-  const { text, shape, themeId, height = 480, license } = options;
-  const showBadge = license ? true : options.showBadge ?? true;
-  const theme = THEMES[themeId] || THEMES["velvet-emerald"];
-  const { modules, size } = generateQrMatrix(text);
-  const darkCoords = [];
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      if (modules[r][c]) {
-        darkCoords.push({
-          r,
-          c,
-          isFinder: isFinderPattern(r, c, size)
-        });
-      }
-    }
-  }
-  const targets = generateTargetShapePositions(shape, darkCoords.length, size, darkCoords);
-  const payload = {
-    s: size,
-    c: darkCoords.map((d) => [d.c, d.r, d.isFinder ? 1 : 0]),
-    t: targets.map((p) => [
-      Number(p.x.toFixed(2)),
-      Number(p.y.toFixed(2)),
-      Number(p.z.toFixed(2)),
-      Number((p.scaleY ?? 1).toFixed(2))
-    ]),
-    theme: {
-      bg: theme.bgColor,
-      ground: theme.groundColor,
-      voxel: theme.voxelColor,
-      accent: theme.accentColor,
-      finder: theme.finderColor,
-      dark: theme.isDark
-    }
-  };
-  const instanceId = "gridika-qr-" + Math.random().toString(36).substring(2, 8);
-  const badgeHtml = showBadge ? `
-  <a id="${instanceId}-badge" href="https://gridika.ru" target="_blank" rel="noopener" style="position:absolute; bottom:12px; right:12px; z-index:10; font-family:system-ui,-apple-system,sans-serif; font-size:11px; font-weight:600; color:${theme.isDark ? "#94a3b8" : "#64748b"}; text-decoration:none; background:${theme.isDark ? "rgba(15,23,42,0.7)" : "rgba(255,255,255,0.85)"}; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); padding:4px 9px; border-radius:6px; border:1px solid ${theme.isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}; box-shadow:0 2px 6px rgba(0,0,0,0.1); transition:opacity 0.2s;">Gridika</a>` : "";
-  const header = license ? codeHeader("3D \u0438\u043D\u0442\u0435\u0440\u0430\u043A\u0442\u0438\u0432\u043D\u044B\u0439 QR-\u043A\u043E\u0434", license) : `<!-- Gridika: 3D \u0438\u043D\u0442\u0435\u0440\u0430\u043A\u0442\u0438\u0432\u043D\u044B\u0439 QR-\u043A\u043E\u0434 -->`;
-  const licenseJs = license ? domainLockJs(`${instanceId}-badge`, license.domain) : "";
+// raw-file:E:\Programming\temka\apps\fx\src\embed\castleRuntime.iife.js
+var castleRuntime_iife_default = `"use strict";var GridikaCastleModule=(()=>{var An=Object.create;var yt=Object.defineProperty;var Pn=Object.getOwnPropertyDescriptor;var kn=Object.getOwnPropertyNames;var Ln=Object.getPrototypeOf,Nn=Object.prototype.hasOwnProperty;var b=(o,t)=>()=>(t||o((t={exports:{}}).exports,t),t.exports),Un=(o,t)=>{for(var e in t)yt(o,e,{get:t[e],enumerable:!0})},we=(o,t,e,n)=>{if(t&&typeof t=="object"||typeof t=="function")for(let r of kn(t))!Nn.call(o,r)&&r!==e&&yt(o,r,{get:()=>t[r],enumerable:!(n=Pn(t,r))||n.enumerable});return o};var ut=(o,t,e)=>(e=o!=null?An(Ln(o)):{},we(t||!o||!o.__esModule?yt(e,"default",{value:o,enumerable:!0}):e,o)),Vn=o=>we(yt({},"__esModule",{value:!0}),o);var ht=b((zo,be)=>{var L=typeof window<"u"?window.THREE||{}:{};L.MathUtils||(L.MathUtils=L.Math||{});L.MathUtils.degToRad||(L.MathUtils.degToRad=function(o){return o*(Math.PI/180)});L.MathUtils.lerp||(L.MathUtils.lerp=function(o,t,e){return o+(t-o)*e});L.MathUtils.clamp||(L.MathUtils.clamp=function(o,t,e){return Math.max(t,Math.min(e,o))});L.MathUtils.smoothstep||(L.MathUtils.smoothstep=function(o,t,e){if(o<=t)return 0;if(o>=e)return 1;var n=(o-t)/(e-t);return n*n*(3-2*n)});be.exports=L});var Te=b((Fo,Me)=>{Me.exports=function(){return typeof Promise=="function"&&Promise.prototype&&Promise.prototype.then}});var Y=b(Z=>{var zt,Gn=[0,26,44,70,100,134,172,196,242,292,346,404,466,532,581,655,733,815,901,991,1085,1156,1258,1364,1474,1588,1706,1828,1921,2051,2185,2323,2465,2611,2761,2876,3034,3196,3362,3532,3706];Z.getSymbolSize=function(t){if(!t)throw new Error('"version" cannot be null or undefined');if(t<1||t>40)throw new Error('"version" should be in range from 1 to 40');return t*4+17};Z.getSymbolTotalCodewords=function(t){return Gn[t]};Z.getBCHDigit=function(o){let t=0;for(;o!==0;)t++,o>>>=1;return t};Z.setToSJISFunction=function(t){if(typeof t!="function")throw new Error('"toSJISFunc" is not a valid function.');zt=t};Z.isKanjiModeEnabled=function(){return typeof zt<"u"};Z.toSJIS=function(t){return zt(t)}});var Rt=b(N=>{N.L={bit:1};N.M={bit:0};N.Q={bit:3};N.H={bit:2};function Dn(o){if(typeof o!="string")throw new Error("Param is not a string");switch(o.toLowerCase()){case"l":case"low":return N.L;case"m":case"medium":return N.M;case"q":case"quartile":return N.Q;case"h":case"high":return N.H;default:throw new Error("Unknown EC Level: "+o)}}N.isValid=function(t){return t&&typeof t.bit<"u"&&t.bit>=0&&t.bit<4};N.from=function(t,e){if(N.isValid(t))return t;try{return Dn(t)}catch{return e}}});var He=b((Qo,Re)=>{function ye(){this.buffer=[],this.length=0}ye.prototype={get:function(o){let t=Math.floor(o/8);return(this.buffer[t]>>>7-o%8&1)===1},put:function(o,t){for(let e=0;e<t;e++)this.putBit((o>>>t-e-1&1)===1)},getLengthInBits:function(){return this.length},putBit:function(o){let t=Math.floor(this.length/8);this.buffer.length<=t&&this.buffer.push(0),o&&(this.buffer[t]|=128>>>this.length%8),this.length++}};Re.exports=ye});var Ce=b((Ko,xe)=>{function ft(o){if(!o||o<1)throw new Error("BitMatrix size must be defined and greater than 0");this.size=o,this.data=new Uint8Array(o*o),this.reservedBit=new Uint8Array(o*o)}ft.prototype.set=function(o,t,e,n){let r=o*this.size+t;this.data[r]=e,n&&(this.reservedBit[r]=!0)};ft.prototype.get=function(o,t){return this.data[o*this.size+t]};ft.prototype.xor=function(o,t,e){this.data[o*this.size+t]^=e};ft.prototype.isReserved=function(o,t){return this.reservedBit[o*this.size+t]};xe.exports=ft});var Se=b(Ht=>{var qn=Y().getSymbolSize;Ht.getRowColCoords=function(t){if(t===1)return[];let e=Math.floor(t/7)+2,n=qn(t),r=n===145?26:Math.ceil((n-13)/(2*e-2))*2,s=[n-7];for(let i=1;i<e-1;i++)s[i]=s[i-1]-r;return s.push(6),s.reverse()};Ht.getPositions=function(t){let e=[],n=Ht.getRowColCoords(t),r=n.length;for(let s=0;s<r;s++)for(let i=0;i<r;i++)s===0&&i===0||s===0&&i===r-1||s===r-1&&i===0||e.push([n[s],n[i]]);return e}});var Ie=b(Be=>{var zn=Y().getSymbolSize,ve=7;Be.getPositions=function(t){let e=zn(t);return[[0,0],[e-ve,0],[0,e-ve]]}});var Ae=b(T=>{T.Patterns={PATTERN000:0,PATTERN001:1,PATTERN010:2,PATTERN011:3,PATTERN100:4,PATTERN101:5,PATTERN110:6,PATTERN111:7};var j={N1:3,N2:3,N3:40,N4:10};T.isValid=function(t){return t!=null&&t!==""&&!isNaN(t)&&t>=0&&t<=7};T.from=function(t){return T.isValid(t)?parseInt(t,10):void 0};T.getPenaltyN1=function(t){let e=t.size,n=0,r=0,s=0,i=null,a=null;for(let l=0;l<e;l++){r=s=0,i=a=null;for(let h=0;h<e;h++){let u=t.get(l,h);u===i?r++:(r>=5&&(n+=j.N1+(r-5)),i=u,r=1),u=t.get(h,l),u===a?s++:(s>=5&&(n+=j.N1+(s-5)),a=u,s=1)}r>=5&&(n+=j.N1+(r-5)),s>=5&&(n+=j.N1+(s-5))}return n};T.getPenaltyN2=function(t){let e=t.size,n=0;for(let r=0;r<e-1;r++)for(let s=0;s<e-1;s++){let i=t.get(r,s)+t.get(r,s+1)+t.get(r+1,s)+t.get(r+1,s+1);(i===4||i===0)&&n++}return n*j.N2};T.getPenaltyN3=function(t){let e=t.size,n=0,r=0,s=0;for(let i=0;i<e;i++){r=s=0;for(let a=0;a<e;a++)r=r<<1&2047|t.get(i,a),a>=10&&(r===1488||r===93)&&n++,s=s<<1&2047|t.get(a,i),a>=10&&(s===1488||s===93)&&n++}return n*j.N3};T.getPenaltyN4=function(t){let e=0,n=t.data.length;for(let s=0;s<n;s++)e+=t.data[s];return Math.abs(Math.ceil(e*100/n/5)-10)*j.N4};function Fn(o,t,e){switch(o){case T.Patterns.PATTERN000:return(t+e)%2===0;case T.Patterns.PATTERN001:return t%2===0;case T.Patterns.PATTERN010:return e%3===0;case T.Patterns.PATTERN011:return(t+e)%3===0;case T.Patterns.PATTERN100:return(Math.floor(t/2)+Math.floor(e/3))%2===0;case T.Patterns.PATTERN101:return t*e%2+t*e%3===0;case T.Patterns.PATTERN110:return(t*e%2+t*e%3)%2===0;case T.Patterns.PATTERN111:return(t*e%3+(t+e)%2)%2===0;default:throw new Error("bad maskPattern:"+o)}}T.applyMask=function(t,e){let n=e.size;for(let r=0;r<n;r++)for(let s=0;s<n;s++)e.isReserved(s,r)||e.xor(s,r,Fn(t,s,r))};T.getBestMask=function(t,e){let n=Object.keys(T.Patterns).length,r=0,s=1/0;for(let i=0;i<n;i++){e(i),T.applyMask(i,t);let a=T.getPenaltyN1(t)+T.getPenaltyN2(t)+T.getPenaltyN3(t)+T.getPenaltyN4(t);T.applyMask(i,t),a<s&&(s=a,r=i)}return r}});var _t=b(Ft=>{var Q=Rt(),xt=[1,1,1,1,1,1,1,1,1,1,2,2,1,2,2,4,1,2,4,4,2,4,4,4,2,4,6,5,2,4,6,6,2,5,8,8,4,5,8,8,4,5,8,11,4,8,10,11,4,9,12,16,4,9,16,16,6,10,12,18,6,10,17,16,6,11,16,19,6,13,18,21,7,14,21,25,8,16,20,25,8,17,23,25,9,17,23,34,9,18,25,30,10,20,27,32,12,21,29,35,12,23,34,37,12,25,34,40,13,26,35,42,14,28,38,45,15,29,40,48,16,31,43,51,17,33,45,54,18,35,48,57,19,37,51,60,19,38,53,63,20,40,56,66,21,43,59,70,22,45,62,74,24,47,65,77,25,49,68,81],Ct=[7,10,13,17,10,16,22,28,15,26,36,44,20,36,52,64,26,48,72,88,36,64,96,112,40,72,108,130,48,88,132,156,60,110,160,192,72,130,192,224,80,150,224,264,96,176,260,308,104,198,288,352,120,216,320,384,132,240,360,432,144,280,408,480,168,308,448,532,180,338,504,588,196,364,546,650,224,416,600,700,224,442,644,750,252,476,690,816,270,504,750,900,300,560,810,960,312,588,870,1050,336,644,952,1110,360,700,1020,1200,390,728,1050,1260,420,784,1140,1350,450,812,1200,1440,480,868,1290,1530,510,924,1350,1620,540,980,1440,1710,570,1036,1530,1800,570,1064,1590,1890,600,1120,1680,1980,630,1204,1770,2100,660,1260,1860,2220,720,1316,1950,2310,750,1372,2040,2430];Ft.getBlocksCount=function(t,e){switch(e){case Q.L:return xt[(t-1)*4+0];case Q.M:return xt[(t-1)*4+1];case Q.Q:return xt[(t-1)*4+2];case Q.H:return xt[(t-1)*4+3];default:return}};Ft.getTotalCodewordsCount=function(t,e){switch(e){case Q.L:return Ct[(t-1)*4+0];case Q.M:return Ct[(t-1)*4+1];case Q.Q:return Ct[(t-1)*4+2];case Q.H:return Ct[(t-1)*4+3];default:return}}});var Pe=b(vt=>{var dt=new Uint8Array(512),St=new Uint8Array(256);(function(){let t=1;for(let e=0;e<255;e++)dt[e]=t,St[t]=e,t<<=1,t&256&&(t^=285);for(let e=255;e<512;e++)dt[e]=dt[e-255]})();vt.log=function(t){if(t<1)throw new Error("log("+t+")");return St[t]};vt.exp=function(t){return dt[t]};vt.mul=function(t,e){return t===0||e===0?0:dt[St[t]+St[e]]}});var ke=b(pt=>{var Yt=Pe();pt.mul=function(t,e){let n=new Uint8Array(t.length+e.length-1);for(let r=0;r<t.length;r++)for(let s=0;s<e.length;s++)n[r+s]^=Yt.mul(t[r],e[s]);return n};pt.mod=function(t,e){let n=new Uint8Array(t);for(;n.length-e.length>=0;){let r=n[0];for(let i=0;i<e.length;i++)n[i]^=Yt.mul(e[i],r);let s=0;for(;s<n.length&&n[s]===0;)s++;n=n.slice(s)}return n};pt.generateECPolynomial=function(t){let e=new Uint8Array([1]);for(let n=0;n<t;n++)e=pt.mul(e,new Uint8Array([1,Yt.exp(n)]));return e}});var Ue=b(($o,Ne)=>{var Le=ke();function Qt(o){this.genPoly=void 0,this.degree=o,this.degree&&this.initialize(this.degree)}Qt.prototype.initialize=function(t){this.degree=t,this.genPoly=Le.generateECPolynomial(this.degree)};Qt.prototype.encode=function(t){if(!this.genPoly)throw new Error("Encoder not initialized");let e=new Uint8Array(t.length+this.degree);e.set(t);let n=Le.mod(e,this.genPoly),r=this.degree-n.length;if(r>0){let s=new Uint8Array(this.degree);return s.set(n,r),s}return n};Ne.exports=Qt});var Kt=b(Ve=>{Ve.isValid=function(t){return!isNaN(t)&&t>=1&&t<=40}});var Ot=b(z=>{var Ge="[0-9]+",_n="[A-Z $%*+\\\\-./:]+",Et="(?:[u3000-u303F]|[u3040-u309F]|[u30A0-u30FF]|[uFF00-uFFEF]|[u4E00-u9FAF]|[u2605-u2606]|[u2190-u2195]|u203B|[u2010u2015u2018u2019u2025u2026u201Cu201Du2225u2260]|[u0391-u0451]|[u00A7u00A8u00B1u00B4u00D7u00F7])+";Et=Et.replace(/u/g,"\\\\u");var Yn="(?:(?![A-Z0-9 $%*+\\\\-./:]|"+Et+\`)(?:.|[\\r
+]))+\`;z.KANJI=new RegExp(Et,"g");z.BYTE_KANJI=new RegExp("[^A-Z0-9 $%*+\\\\-./:]+","g");z.BYTE=new RegExp(Yn,"g");z.NUMERIC=new RegExp(Ge,"g");z.ALPHANUMERIC=new RegExp(_n,"g");var Qn=new RegExp("^"+Et+"$"),Kn=new RegExp("^"+Ge+"$"),On=new RegExp("^[A-Z0-9 $%*+\\\\-./:]+$");z.testKanji=function(t){return Qn.test(t)};z.testNumeric=function(t){return Kn.test(t)};z.testAlphanumeric=function(t){return On.test(t)}});var K=b(x=>{var Xn=Kt(),Xt=Ot();x.NUMERIC={id:"Numeric",bit:1,ccBits:[10,12,14]};x.ALPHANUMERIC={id:"Alphanumeric",bit:2,ccBits:[9,11,13]};x.BYTE={id:"Byte",bit:4,ccBits:[8,16,16]};x.KANJI={id:"Kanji",bit:8,ccBits:[8,10,12]};x.MIXED={bit:-1};x.getCharCountIndicator=function(t,e){if(!t.ccBits)throw new Error("Invalid mode: "+t);if(!Xn.isValid(e))throw new Error("Invalid version: "+e);return e>=1&&e<10?t.ccBits[0]:e<27?t.ccBits[1]:t.ccBits[2]};x.getBestModeForData=function(t){return Xt.testNumeric(t)?x.NUMERIC:Xt.testAlphanumeric(t)?x.ALPHANUMERIC:Xt.testKanji(t)?x.KANJI:x.BYTE};x.toString=function(t){if(t&&t.id)return t.id;throw new Error("Invalid mode")};x.isValid=function(t){return t&&t.bit&&t.ccBits};function Jn(o){if(typeof o!="string")throw new Error("Param is not a string");switch(o.toLowerCase()){case"numeric":return x.NUMERIC;case"alphanumeric":return x.ALPHANUMERIC;case"kanji":return x.KANJI;case"byte":return x.BYTE;default:throw new Error("Unknown mode: "+o)}}x.from=function(t,e){if(x.isValid(t))return t;try{return Jn(t)}catch{return e}}});var _e=b(W=>{var Bt=Y(),Zn=_t(),De=Rt(),O=K(),Jt=Kt(),ze=7973,qe=Bt.getBCHDigit(ze);function jn(o,t,e){for(let n=1;n<=40;n++)if(t<=W.getCapacity(n,e,o))return n}function Fe(o,t){return O.getCharCountIndicator(o,t)+4}function Wn(o,t){let e=0;return o.forEach(function(n){let r=Fe(n.mode,t);e+=r+n.getBitsLength()}),e}function $n(o,t){for(let e=1;e<=40;e++)if(Wn(o,e)<=W.getCapacity(e,t,O.MIXED))return e}W.from=function(t,e){return Jt.isValid(t)?parseInt(t,10):e};W.getCapacity=function(t,e,n){if(!Jt.isValid(t))throw new Error("Invalid QR Code version");typeof n>"u"&&(n=O.BYTE);let r=Bt.getSymbolTotalCodewords(t),s=Zn.getTotalCodewordsCount(t,e),i=(r-s)*8;if(n===O.MIXED)return i;let a=i-Fe(n,t);switch(n){case O.NUMERIC:return Math.floor(a/10*3);case O.ALPHANUMERIC:return Math.floor(a/11*2);case O.KANJI:return Math.floor(a/13);case O.BYTE:default:return Math.floor(a/8)}};W.getBestVersionForData=function(t,e){let n,r=De.from(e,De.M);if(Array.isArray(t)){if(t.length>1)return $n(t,r);if(t.length===0)return 1;n=t[0]}else n=t;return jn(n.mode,n.getLength(),r)};W.getEncodedBits=function(t){if(!Jt.isValid(t)||t<7)throw new Error("Invalid QR Code version");let e=t<<12;for(;Bt.getBCHDigit(e)-qe>=0;)e^=ze<<Bt.getBCHDigit(e)-qe;return t<<12|e}});var Oe=b(Ke=>{var Zt=Y(),Qe=1335,to=21522,Ye=Zt.getBCHDigit(Qe);Ke.getEncodedBits=function(t,e){let n=t.bit<<3|e,r=n<<10;for(;Zt.getBCHDigit(r)-Ye>=0;)r^=Qe<<Zt.getBCHDigit(r)-Ye;return(n<<10|r)^to}});var Je=b((sr,Xe)=>{var eo=K();function nt(o){this.mode=eo.NUMERIC,this.data=o.toString()}nt.getBitsLength=function(t){return 10*Math.floor(t/3)+(t%3?t%3*3+1:0)};nt.prototype.getLength=function(){return this.data.length};nt.prototype.getBitsLength=function(){return nt.getBitsLength(this.data.length)};nt.prototype.write=function(t){let e,n,r;for(e=0;e+3<=this.data.length;e+=3)n=this.data.substr(e,3),r=parseInt(n,10),t.put(r,10);let s=this.data.length-e;s>0&&(n=this.data.substr(e),r=parseInt(n,10),t.put(r,s*3+1))};Xe.exports=nt});var je=b((ir,Ze)=>{var no=K(),jt=["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"," ","$","%","*","+","-",".","/",":"];function ot(o){this.mode=no.ALPHANUMERIC,this.data=o}ot.getBitsLength=function(t){return 11*Math.floor(t/2)+6*(t%2)};ot.prototype.getLength=function(){return this.data.length};ot.prototype.getBitsLength=function(){return ot.getBitsLength(this.data.length)};ot.prototype.write=function(t){let e;for(e=0;e+2<=this.data.length;e+=2){let n=jt.indexOf(this.data[e])*45;n+=jt.indexOf(this.data[e+1]),t.put(n,11)}this.data.length%2&&t.put(jt.indexOf(this.data[e]),6)};Ze.exports=ot});var $e=b((ar,We)=>{var oo=K();function rt(o){this.mode=oo.BYTE,typeof o=="string"?this.data=new TextEncoder().encode(o):this.data=new Uint8Array(o)}rt.getBitsLength=function(t){return t*8};rt.prototype.getLength=function(){return this.data.length};rt.prototype.getBitsLength=function(){return rt.getBitsLength(this.data.length)};rt.prototype.write=function(o){for(let t=0,e=this.data.length;t<e;t++)o.put(this.data[t],8)};We.exports=rt});var en=b((lr,tn)=>{var ro=K(),so=Y();function st(o){this.mode=ro.KANJI,this.data=o}st.getBitsLength=function(t){return t*13};st.prototype.getLength=function(){return this.data.length};st.prototype.getBitsLength=function(){return st.getBitsLength(this.data.length)};st.prototype.write=function(o){let t;for(t=0;t<this.data.length;t++){let e=so.toSJIS(this.data[t]);if(e>=33088&&e<=40956)e-=33088;else if(e>=57408&&e<=60351)e-=49472;else throw new Error("Invalid SJIS character: "+this.data[t]+\`
+Make sure your charset is UTF-8\`);e=(e>>>8&255)*192+(e&255),o.put(e,13)}};tn.exports=st});var nn=b((cr,Wt)=>{"use strict";var gt={single_source_shortest_paths:function(o,t,e){var n={},r={};r[t]=0;var s=gt.PriorityQueue.make();s.push(t,0);for(var i,a,l,h,u,d,f,g,M;!s.empty();){i=s.pop(),a=i.value,h=i.cost,u=o[a]||{};for(l in u)u.hasOwnProperty(l)&&(d=u[l],f=h+d,g=r[l],M=typeof r[l]>"u",(M||g>f)&&(r[l]=f,s.push(l,f),n[l]=a))}if(typeof e<"u"&&typeof r[e]>"u"){var m=["Could not find a path from ",t," to ",e,"."].join("");throw new Error(m)}return n},extract_shortest_path_from_predecessor_list:function(o,t){for(var e=[],n=t,r;n;)e.push(n),r=o[n],n=o[n];return e.reverse(),e},find_path:function(o,t,e){var n=gt.single_source_shortest_paths(o,t,e);return gt.extract_shortest_path_from_predecessor_list(n,e)},PriorityQueue:{make:function(o){var t=gt.PriorityQueue,e={},n;o=o||{};for(n in t)t.hasOwnProperty(n)&&(e[n]=t[n]);return e.queue=[],e.sorter=o.sorter||t.default_sorter,e},default_sorter:function(o,t){return o.cost-t.cost},push:function(o,t){var e={value:o,cost:t};this.queue.push(e),this.queue.sort(this.sorter)},pop:function(){return this.queue.shift()},empty:function(){return this.queue.length===0}}};typeof Wt<"u"&&(Wt.exports=gt)});var hn=b(it=>{var w=K(),sn=Je(),an=je(),ln=$e(),cn=en(),mt=Ot(),It=Y(),io=nn();function on(o){return unescape(encodeURIComponent(o)).length}function wt(o,t,e){let n=[],r;for(;(r=o.exec(e))!==null;)n.push({data:r[0],index:r.index,mode:t,length:r[0].length});return n}function un(o){let t=wt(mt.NUMERIC,w.NUMERIC,o),e=wt(mt.ALPHANUMERIC,w.ALPHANUMERIC,o),n,r;return It.isKanjiModeEnabled()?(n=wt(mt.BYTE,w.BYTE,o),r=wt(mt.KANJI,w.KANJI,o)):(n=wt(mt.BYTE_KANJI,w.BYTE,o),r=[]),t.concat(e,n,r).sort(function(i,a){return i.index-a.index}).map(function(i){return{data:i.data,mode:i.mode,length:i.length}})}function $t(o,t){switch(t){case w.NUMERIC:return sn.getBitsLength(o);case w.ALPHANUMERIC:return an.getBitsLength(o);case w.KANJI:return cn.getBitsLength(o);case w.BYTE:return ln.getBitsLength(o)}}function ao(o){return o.reduce(function(t,e){let n=t.length-1>=0?t[t.length-1]:null;return n&&n.mode===e.mode?(t[t.length-1].data+=e.data,t):(t.push(e),t)},[])}function lo(o){let t=[];for(let e=0;e<o.length;e++){let n=o[e];switch(n.mode){case w.NUMERIC:t.push([n,{data:n.data,mode:w.ALPHANUMERIC,length:n.length},{data:n.data,mode:w.BYTE,length:n.length}]);break;case w.ALPHANUMERIC:t.push([n,{data:n.data,mode:w.BYTE,length:n.length}]);break;case w.KANJI:t.push([n,{data:n.data,mode:w.BYTE,length:on(n.data)}]);break;case w.BYTE:t.push([{data:n.data,mode:w.BYTE,length:on(n.data)}])}}return t}function co(o,t){let e={},n={start:{}},r=["start"];for(let s=0;s<o.length;s++){let i=o[s],a=[];for(let l=0;l<i.length;l++){let h=i[l],u=""+s+l;a.push(u),e[u]={node:h,lastCount:0},n[u]={};for(let d=0;d<r.length;d++){let f=r[d];e[f]&&e[f].node.mode===h.mode?(n[f][u]=$t(e[f].lastCount+h.length,h.mode)-$t(e[f].lastCount,h.mode),e[f].lastCount+=h.length):(e[f]&&(e[f].lastCount=h.length),n[f][u]=$t(h.length,h.mode)+4+w.getCharCountIndicator(h.mode,t))}}r=a}for(let s=0;s<r.length;s++)n[r[s]].end=0;return{map:n,table:e}}function rn(o,t){let e,n=w.getBestModeForData(o);if(e=w.from(t,n),e!==w.BYTE&&e.bit<n.bit)throw new Error('"'+o+'" cannot be encoded with mode '+w.toString(e)+\`.
+ Suggested mode is: \`+w.toString(n));switch(e===w.KANJI&&!It.isKanjiModeEnabled()&&(e=w.BYTE),e){case w.NUMERIC:return new sn(o);case w.ALPHANUMERIC:return new an(o);case w.KANJI:return new cn(o);case w.BYTE:return new ln(o)}}it.fromArray=function(t){return t.reduce(function(e,n){return typeof n=="string"?e.push(rn(n,null)):n.data&&e.push(rn(n.data,n.mode)),e},[])};it.fromString=function(t,e){let n=un(t,It.isKanjiModeEnabled()),r=lo(n),s=co(r,e),i=io.find_path(s.map,"start","end"),a=[];for(let l=1;l<i.length-1;l++)a.push(s.table[i[l]].node);return it.fromArray(ao(a))};it.rawSplit=function(t){return it.fromArray(un(t,It.isKanjiModeEnabled()))}});var dn=b(fn=>{var Pt=Y(),te=Rt(),uo=He(),ho=Ce(),fo=Se(),po=Ie(),oe=Ae(),re=_t(),Eo=Ue(),At=_e(),go=Oe(),mo=K(),ee=hn();function wo(o,t){let e=o.size,n=po.getPositions(t);for(let r=0;r<n.length;r++){let s=n[r][0],i=n[r][1];for(let a=-1;a<=7;a++)if(!(s+a<=-1||e<=s+a))for(let l=-1;l<=7;l++)i+l<=-1||e<=i+l||(a>=0&&a<=6&&(l===0||l===6)||l>=0&&l<=6&&(a===0||a===6)||a>=2&&a<=4&&l>=2&&l<=4?o.set(s+a,i+l,!0,!0):o.set(s+a,i+l,!1,!0))}}function bo(o){let t=o.size;for(let e=8;e<t-8;e++){let n=e%2===0;o.set(e,6,n,!0),o.set(6,e,n,!0)}}function Mo(o,t){let e=fo.getPositions(t);for(let n=0;n<e.length;n++){let r=e[n][0],s=e[n][1];for(let i=-2;i<=2;i++)for(let a=-2;a<=2;a++)i===-2||i===2||a===-2||a===2||i===0&&a===0?o.set(r+i,s+a,!0,!0):o.set(r+i,s+a,!1,!0)}}function To(o,t){let e=o.size,n=At.getEncodedBits(t),r,s,i;for(let a=0;a<18;a++)r=Math.floor(a/3),s=a%3+e-8-3,i=(n>>a&1)===1,o.set(r,s,i,!0),o.set(s,r,i,!0)}function ne(o,t,e){let n=o.size,r=go.getEncodedBits(t,e),s,i;for(s=0;s<15;s++)i=(r>>s&1)===1,s<6?o.set(s,8,i,!0):s<8?o.set(s+1,8,i,!0):o.set(n-15+s,8,i,!0),s<8?o.set(8,n-s-1,i,!0):s<9?o.set(8,15-s-1+1,i,!0):o.set(8,15-s-1,i,!0);o.set(n-8,8,1,!0)}function yo(o,t){let e=o.size,n=-1,r=e-1,s=7,i=0;for(let a=e-1;a>0;a-=2)for(a===6&&a--;;){for(let l=0;l<2;l++)if(!o.isReserved(r,a-l)){let h=!1;i<t.length&&(h=(t[i]>>>s&1)===1),o.set(r,a-l,h),s--,s===-1&&(i++,s=7)}if(r+=n,r<0||e<=r){r-=n,n=-n;break}}}function Ro(o,t,e){let n=new uo;e.forEach(function(l){n.put(l.mode.bit,4),n.put(l.getLength(),mo.getCharCountIndicator(l.mode,o)),l.write(n)});let r=Pt.getSymbolTotalCodewords(o),s=re.getTotalCodewordsCount(o,t),i=(r-s)*8;for(n.getLengthInBits()+4<=i&&n.put(0,4);n.getLengthInBits()%8!==0;)n.putBit(0);let a=(i-n.getLengthInBits())/8;for(let l=0;l<a;l++)n.put(l%2?17:236,8);return Ho(n,o,t)}function Ho(o,t,e){let n=Pt.getSymbolTotalCodewords(t),r=re.getTotalCodewordsCount(t,e),s=n-r,i=re.getBlocksCount(t,e),a=n%i,l=i-a,h=Math.floor(n/i),u=Math.floor(s/i),d=u+1,f=h-u,g=new Eo(f),M=0,m=new Array(i),S=new Array(i),R=0,J=new Uint8Array(o.buffer);for(let G=0;G<i;G++){let tt=G<l?u:d;m[G]=J.slice(M,M+tt),S[G]=g.encode(m[G]),M+=tt,R=Math.max(R,tt)}let at=new Uint8Array(n),I=0,U,P;for(U=0;U<R;U++)for(P=0;P<i;P++)U<m[P].length&&(at[I++]=m[P][U]);for(U=0;U<f;U++)for(P=0;P<i;P++)at[I++]=S[P][U];return at}function xo(o,t,e,n){let r;if(Array.isArray(o))r=ee.fromArray(o);else if(typeof o=="string"){let h=t;if(!h){let u=ee.rawSplit(o);h=At.getBestVersionForData(u,e)}r=ee.fromString(o,h||40)}else throw new Error("Invalid data");let s=At.getBestVersionForData(r,e);if(!s)throw new Error("The amount of data is too big to be stored in a QR Code");if(!t)t=s;else if(t<s)throw new Error(\`
+The chosen QR Code version cannot contain this amount of data.
+Minimum version required to store current data is: \`+s+\`.
+\`);let i=Ro(t,e,r),a=Pt.getSymbolSize(t),l=new ho(a);return wo(l,t),bo(l),Mo(l,t),ne(l,e,0),t>=7&&To(l,t),yo(l,i),isNaN(n)&&(n=oe.getBestMask(l,ne.bind(null,l,e))),oe.applyMask(n,l),ne(l,e,n),{modules:l,version:t,errorCorrectionLevel:e,maskPattern:n,segments:r}}fn.create=function(t,e){if(typeof t>"u"||t==="")throw new Error("No input text");let n=te.M,r,s;return typeof e<"u"&&(n=te.from(e.errorCorrectionLevel,te.M),r=At.from(e.version),s=oe.from(e.maskPattern),e.toSJISFunc&&Pt.setToSJISFunction(e.toSJISFunc)),xo(t,r,n,s)}});var se=b($=>{function pn(o){if(typeof o=="number"&&(o=o.toString()),typeof o!="string")throw new Error("Color should be defined as hex string");let t=o.slice().replace("#","").split("");if(t.length<3||t.length===5||t.length>8)throw new Error("Invalid hex color: "+o);(t.length===3||t.length===4)&&(t=Array.prototype.concat.apply([],t.map(function(n){return[n,n]}))),t.length===6&&t.push("F","F");let e=parseInt(t.join(""),16);return{r:e>>24&255,g:e>>16&255,b:e>>8&255,a:e&255,hex:"#"+t.slice(0,6).join("")}}$.getOptions=function(t){t||(t={}),t.color||(t.color={});let e=typeof t.margin>"u"||t.margin===null||t.margin<0?4:t.margin,n=t.width&&t.width>=21?t.width:void 0,r=t.scale||4;return{width:n,scale:n?4:r,margin:e,color:{dark:pn(t.color.dark||"#000000ff"),light:pn(t.color.light||"#ffffffff")},type:t.type,rendererOpts:t.rendererOpts||{}}};$.getScale=function(t,e){return e.width&&e.width>=t+e.margin*2?e.width/(t+e.margin*2):e.scale};$.getImageWidth=function(t,e){let n=$.getScale(t,e);return Math.floor((t+e.margin*2)*n)};$.qrToImageData=function(t,e,n){let r=e.modules.size,s=e.modules.data,i=$.getScale(r,n),a=Math.floor((r+n.margin*2)*i),l=n.margin*i,h=[n.color.light,n.color.dark];for(let u=0;u<a;u++)for(let d=0;d<a;d++){let f=(u*a+d)*4,g=n.color.light;if(u>=l&&d>=l&&u<a-l&&d<a-l){let M=Math.floor((u-l)/i),m=Math.floor((d-l)/i);g=h[s[M*r+m]?1:0]}t[f++]=g.r,t[f++]=g.g,t[f++]=g.b,t[f]=g.a}}});var En=b(kt=>{var ie=se();function Co(o,t,e){o.clearRect(0,0,t.width,t.height),t.style||(t.style={}),t.height=e,t.width=e,t.style.height=e+"px",t.style.width=e+"px"}function So(){try{return document.createElement("canvas")}catch{throw new Error("You need to specify a canvas element")}}kt.render=function(t,e,n){let r=n,s=e;typeof r>"u"&&(!e||!e.getContext)&&(r=e,e=void 0),e||(s=So()),r=ie.getOptions(r);let i=ie.getImageWidth(t.modules.size,r),a=s.getContext("2d"),l=a.createImageData(i,i);return ie.qrToImageData(l.data,t,r),Co(a,s,i),a.putImageData(l,0,0),s};kt.renderToDataURL=function(t,e,n){let r=n;typeof r>"u"&&(!e||!e.getContext)&&(r=e,e=void 0),r||(r={});let s=kt.render(t,e,r),i=r.type||"image/png",a=r.rendererOpts||{};return s.toDataURL(i,a.quality)}});var wn=b(mn=>{var vo=se();function gn(o,t){let e=o.a/255,n=t+'="'+o.hex+'"';return e<1?n+" "+t+'-opacity="'+e.toFixed(2).slice(1)+'"':n}function ae(o,t,e){let n=o+t;return typeof e<"u"&&(n+=" "+e),n}function Bo(o,t,e){let n="",r=0,s=!1,i=0;for(let a=0;a<o.length;a++){let l=Math.floor(a%t),h=Math.floor(a/t);!l&&!s&&(s=!0),o[a]?(i++,a>0&&l>0&&o[a-1]||(n+=s?ae("M",l+e,.5+h+e):ae("m",r,0),r=0,s=!1),l+1<t&&o[a+1]||(n+=ae("h",i),i=0)):r++}return n}mn.render=function(t,e,n){let r=vo.getOptions(e),s=t.modules.size,i=t.modules.data,a=s+r.margin*2,l=r.color.light.a?"<path "+gn(r.color.light,"fill")+' d="M0 0h'+a+"v"+a+'H0z"/>':"",h="<path "+gn(r.color.dark,"stroke")+' d="'+Bo(i,s,r.margin)+'"/>',u='viewBox="0 0 '+a+" "+a+'"',f='<svg xmlns="http://www.w3.org/2000/svg" '+(r.width?'width="'+r.width+'" height="'+r.width+'" ':"")+u+' shape-rendering="crispEdges">'+l+h+\`</svg>
+\`;return typeof n=="function"&&n(null,f),f}});var Mn=b(bt=>{var Io=Te(),le=dn(),bn=En(),Ao=wn();function ce(o,t,e,n,r){let s=[].slice.call(arguments,1),i=s.length,a=typeof s[i-1]=="function";if(!a&&!Io())throw new Error("Callback required as last argument");if(a){if(i<2)throw new Error("Too few arguments provided");i===2?(r=e,e=t,t=n=void 0):i===3&&(t.getContext&&typeof r>"u"?(r=n,n=void 0):(r=n,n=e,e=t,t=void 0))}else{if(i<1)throw new Error("Too few arguments provided");return i===1?(e=t,t=n=void 0):i===2&&!t.getContext&&(n=e,e=t,t=void 0),new Promise(function(l,h){try{let u=le.create(e,n);l(o(u,t,n))}catch(u){h(u)}})}try{let l=le.create(e,n);r(null,o(l,t,n))}catch(l){r(l)}}bt.create=le.create;bt.toCanvas=ce.bind(null,bn.render);bt.toDataURL=ce.bind(null,bn.renderToDataURL);bt.toString=ce.bind(null,function(o,t,e){return Ao.render(o,e)})});var Go={};Un(Go,{initCastleWidget:()=>Vo});var E=ut(ht(),1);var Tn=ut(Mn(),1);function yn(o,t="M"){let e=Tn.default.create(o,{errorCorrectionLevel:t}),n=e.modules.size,r=[];for(let s=0;s<n;s++){let i=[];for(let a=0;a<n;a++)i.push(!!e.modules.get(s,a));r.push(i)}return{modules:r,size:n}}function Rn(o,t,e){return o<7&&t<7||o<7&&t>=e-7||o>=e-7&&t<7}var c=ut(ht(),1);var A=ut(ht(),1);function Lt(o,t){let e=parseInt(o.slice(1),16),n=e>>16&255,r=e>>8&255,s=e&255,i=.299*n+.587*r+.114*s,a=t/i,l=h=>Math.max(0,Math.min(255,Math.round(h*a))).toString(16).padStart(2,"0");return"#"+l(n)+l(r)+l(s)}var Po=108,ko=104;function ue(o){return{...o,leaves:o.leaves.map(t=>Lt(t,Po)),grass:o.grass.map(t=>Lt(t,ko))}}var he={spring:{leaves:["#d0507f","#c2386c","#e0679a","#b8416c","#d95c8a","#e0607a","#c4508f","#d46a8c","#b84a86","#e2708f"],grass:["#4f8a24","#5a9a2a","#467d1f","#3f7019","#6a9a1f","#2f7a3a","#5f8f30","#3d8a2e","#78a02a"],bloom:["#f9d3e2","#f6c1d5","#fce6ef","#f2b3cb","#fff2f7","#eeaac4","#f8cadb"],blades:["#6fbf3a","#8fd14f","#5aa02e","#a6dc6a","#4c8f26","#7cc444"],trunk:["#8a4a2e","#743b24"]},summer:{leaves:["#8a5ccc","#7646bd","#9a6fd6","#6538ab","#a57fdc","#9c5ac8","#7f62d8","#b06cc9","#8e4fb8","#6f5bd0"],grass:["#4f8a24","#5a9a2a","#467d1f","#3f7019","#6a9a1f","#2f7a3a","#5f8f30","#3d8a2e","#78a02a"],bloom:["#dcc8f5","#cfb6f0","#e9dcfa","#c3a6ea","#f3ecfd","#d5bff3"],blades:["#6fbf3a","#8fd14f","#5aa02e","#a6dc6a","#4c8f26","#7cc444"],trunk:["#7d4a32","#683d28"]},autumn:{leaves:["#d2701a","#c2581a","#e08f1f","#b04a12","#e8971c","#c9402a","#d9a21f","#b86a1a","#a8541f","#cf5a2e"],grass:["#8a6a1c","#7a5c18","#96741f","#6e5215","#9a7a1a","#7f6a24","#a0702a","#86621a"],bloom:["#f7cf5a","#f2b83c","#f9dc7e","#eea12e","#fbe6a4","#f4c24a"],blades:["#d9b44a","#c9a13a","#e6c868","#b08a2e","#efd27a"],trunk:["#7a3f26","#66331e"]}},mr={spring:ue(he.spring),summer:ue(he.summer),autumn:ue(he.autumn)};function B(o){let t=Math.sin(o*127.1+311.7)*43758.5453;return t-Math.floor(t)}var C=ut(ht(),1),X={ambient:{color:"#ffffff",intensity:1.25},sun:{color:"#ffffff",intensity:2.5,position:[22,48,28]},slab:"#f3f1ec"};function Hn(o,t,e,n,r){e.color.set(X.ambient.color).lerp(new C.Color(t.ambient.color),o),e.intensity=C.MathUtils.lerp(X.ambient.intensity,t.ambient.intensity,o),n.color.set(X.sun.color).lerp(new C.Color(t.sun.color),o),n.intensity=C.MathUtils.lerp(X.sun.intensity,t.sun.intensity,o),n.position.copy(new C.Vector3(...X.sun.position).lerp(new C.Vector3(...t.sun.position),o)),r.intensity=0}var Nt=class{constructor(t,e){this.group=t;this.track=e}sets=[];add(t,e,n,r=!0){let s=new C.InstancedMesh(this.track(t),this.track(e),Math.max(1,n.length));s.count=n.length,s.castShadow=r,s.receiveShadow=!0;let i=new C.Color;return n.forEach((a,l)=>s.setColorAt(l,i.set(a.color))),s.instanceColor&&(s.instanceColor.needsUpdate=!0),this.group.add(s),this.sets.push({mesh:s,base:n.map(a=>a.matrix),delay:n.map(a=>a.delay),pivot:n.map(a=>a.pivot)}),s}update(t){let e=new C.Matrix4,n=new C.Matrix4,r=new C.Matrix4,s=new C.Matrix4;for(let i of this.sets){let a=!1;for(let l=0;l<i.base.length;l++){let h=C.MathUtils.clamp((t-i.delay[l])/(1-i.delay[l]),0,1),u=h<=0?0:h>=1?1:1-Math.pow(1-h,3);u>0&&(a=!0);let d=i.pivot[l];r.makeTranslation(-d.x,-d.y,-d.z),s.makeTranslation(d.x,d.y,d.z);let f=u||1e-4;n.makeScale(f,f,f),e.copy(s).multiply(n).multiply(r).multiply(i.base[l]),i.mesh.setMatrixAt(l,e)}i.mesh.visible=a,i.mesh.instanceMatrix.needsUpdate=!0}}};function xn(o,t,e){return o<7&&t<7?[o,t,0]:o<7&&t>=e-7?[o,t-(e-7),1]:o>=e-7&&t<7?[o-(e-7),t,2]:null}var Lo={day:{stone:["#b8ab94","#a89c86","#c4b8a2","#9e937e"],roof:"#b5453a",courtyard:"#cfc6b4",water:"#3f8fb0",slab:"#6f8a4a",banners:["#c0392b","#2f5fb0","#d8a92a"],snow:!1,night:0,mood:{ambient:{color:"#ffffff",intensity:1.2},sun:{color:"#fff2dc",intensity:2.6,position:[22,48,28]}}},night:{stone:["#8a90a4","#7e8498","#969cb0","#767c8e"],roof:"#6a2f3a",courtyard:"#666b7a",water:"#1f3550",slab:"#3a4a3a",banners:["#c0392b","#2f5fb0","#d8a92a"],snow:!1,night:1,mood:{ambient:{color:"#8a98d8",intensity:1.15},sun:{color:"#b8c4ff",intensity:1.3,position:[-20,40,10]}}},winter:{stone:["#a9adb5","#9a9fa8","#b5b9c0","#8f949e"],roof:"#8a3a3a",courtyard:"#eef2f6",water:"#a9c9da",slab:"#e6eef4",banners:["#c0392b","#2f5fb0","#d8a92a"],snow:!0,night:0,mood:{ambient:{color:"#e8f0ff",intensity:1.25},sun:{color:"#f0f4ff",intensity:2.3,position:[30,32,20]}}}},No=92,Cn=.4;function vn(o,t){let e=t/2,n=new Set(o.map(l=>l.r*t+l.c)),r=(l,h)=>l>=0&&h>=0&&l<t&&h<t&&n.has(l*t+h),s=[],i=[],a=[];return o.forEach((l,h)=>{let u=xn(l.r,l.c,t);if(u){let[m,S,R]=u;a.push(R),m>=2&&m<=4&&S>=2&&S<=4?(s.push(m===3&&S===3?"keepTop":"keep"),i.push(5.2)):(s.push("ring"),i.push(3.2));return}if(a.push(-1),!r(l.r-1,l.c)&&!r(l.r+1,l.c)&&!r(l.r,l.c-1)&&!r(l.r,l.c+1)){s.push("house"),i.push(1.2);return}s.push("wall");let f=Math.hypot(l.c-e+.5,l.r-e+.5)/(e*.95),M=1.6+Math.pow(Math.max(0,1-f),1.3)*3.2+(B(h*7+1)<.1?.8:0);i.push(Math.round(M/Cn)*Cn)}),{size:t,half:e,kind:s,height:i,tower:a,maxH:Math.max(...i)}}function Uo(o,t){let e=vn(o,t);return o.map((n,r)=>{let s=e.height[r];return{x:n.c-e.half+.5,y:s/2,z:n.r-e.half+.5,scaleX:1.13,scaleY:s/.88,scaleZ:1.13}})}function Sn(o){let t=o??{uSide:{value:0}},e=new c.MeshStandardMaterial({color:16777215,roughness:.92,metalness:0});return e.onBeforeCompile=n=>{Object.assign(n.uniforms,t),n.vertexShader=\`varying vec3 vStonePos;
+varying vec3 vStoneN;
+\`+n.vertexShader.replace("#include <project_vertex>",\`#include <project_vertex>
+        vec4 stoneWp = vec4(transformed, 1.0);
+        vec3 stoneN = objectNormal;
+        #ifdef USE_INSTANCING
+          stoneWp = instanceMatrix * stoneWp;
+          stoneN = mat3(instanceMatrix) * stoneN;
+        #endif
+        vStonePos = (modelMatrix * stoneWp).xyz;
+        vStoneN = normalize(mat3(modelMatrix) * stoneN);\`),n.fragmentShader=\`varying vec3 vStonePos;
+varying vec3 vStoneN;
+uniform float uSide;
+\`+n.fragmentShader.replace("#include <color_fragment>",\`#include <color_fragment>
+        float stSide = 1.0 - step(0.5, abs(vStoneN.y));
+        float stU = abs(vStoneN.x) > 0.5 ? vStonePos.z : vStonePos.x;
+        float row = floor(vStonePos.y / 0.22);
+        float brickU = stU * 2.4 + mod(row, 2.0) * 0.5;
+        float mortar = (1.0 - step(0.08, fract(vStonePos.y / 0.22))) + (1.0 - step(0.06, fract(brickU)));
+        float shade = 0.9 + 0.12 * fract(sin(dot(vec2(floor(brickU), row), vec2(12.9898, 78.233))) * 43758.5453);
+        vec3 brick = diffuseColor.rgb * shade * mix(1.0, 0.62, clamp(mortar, 0.0, 1.0));
+        diffuseColor.rgb = mix(diffuseColor.rgb, brick, stSide * uSide);\`)},e.customProgramCacheKey=()=>"qr-castle-stone",{material:e,uniforms:t}}var Ut=class{constructor(t,e,n,r){this.modules=t;this.matrix=e;this.size=n;this.layout=vn(t,n),this.pal=Lo[r];let s=Sn();this.voxelMaterial=s.material,this.stoneUniforms=s.uniforms,this.targets=Uo(t,n),this.grow=new Nt(this.group,i=>this.track(i)),this.build()}group=new c.Group;voxelMaterial;targets;voxelSideWindow=[.6,.9];stoneUniforms;layout;pal;disposables=[];grow;tiles=[];tileMesh;tileQr=[];tileSide=[];slabMat;glowMats=[];flags=[];snowfall=null;lastGrowth=-1;get maxHeight(){return this.layout.maxH+3.4}track(t){return this.disposables.push(t),t}stoneColor(t){let e=this.modules[t],n=Math.floor(e.r/4)*97+Math.floor(e.c/4)*31;return this.pal.stone[Math.floor(B(n+3)*this.pal.stone.length)]}voxelColor(t){let e=this.layout.kind[t],n=this.stoneColor(t),r=n;return e==="house"&&(r=this.pal.roof),(e==="keepTop"||e==="keep")&&(r=this.pal.banners[this.layout.tower[t]]),{qr:Lt(r,No+(B(t*5+17)-.5)*12),side:n}}growDelay(t){return .04+this.layout.height[t]/this.layout.maxH*.32+B(t*7+3)*.05}voxelSideScale(t){return this.layout.kind[t]==="house"?[0,0,0]:[1,1,1]}top(t){let e=this.modules[t];return new c.Vector3(e.c-this.layout.half+.5,this.layout.height[t],e.r-this.layout.half+.5)}detailDelay(t){return Math.min(.9,.58+B(t*11+5)*.12)}build(){let t=this.size,e=t/2,n=t+2.4;this.slabMat=this.track(new c.MeshStandardMaterial({color:X.slab,roughness:.9}));let r=new c.Mesh(this.track(new c.BoxGeometry(n,.9,n)),this.slabMat);r.position.y=-.45,r.receiveShadow=!0,this.group.add(r);for(let a=0;a<t;a++)for(let l=0;l<t;l++)this.matrix[a][l]||this.tiles.push({x:l-e+.5,z:a-e+.5,r:a,c:l});this.tileMesh=new c.InstancedMesh(this.track(new c.BoxGeometry(1,.06,1)),this.track(new c.MeshStandardMaterial({color:16777215,roughness:.95})),Math.max(1,this.tiles.length)),this.tileMesh.count=this.tiles.length,this.tileMesh.receiveShadow=!0;let s=["#ffffff","#f6f5f2","#eeece8","#e9e7e2","#f9f8f6"],i=new c.Matrix4;this.tiles.forEach((a,l)=>{i.makeTranslation(a.x,.03,a.z),this.tileMesh.setMatrixAt(l,i),this.tileQr.push(new c.Color(s[Math.floor(B(l*3+5)*s.length)])),this.tileSide.push(new c.Color(this.pal.courtyard).multiplyScalar(.9+B(l*7+2)*.14)),this.tileMesh.setColorAt(l,this.tileQr[l])}),this.group.add(this.tileMesh),this.buildBattlements(),this.buildHouses(),this.buildKeeps(),this.buildWindowsAndTorches(),this.buildMoat(),this.pal.snow&&this.buildSnow(),this.update(0,0)}buildBattlements(){let t=this.layout,e=this.size,n=new Map;this.modules.forEach((i,a)=>n.set(i.r*e+i.c,t.height[a]));let r=[],s=[];this.modules.forEach((i,a)=>{let l=t.kind[a];if(l!=="wall"&&l!=="ring")return;let h=this.top(a),u=t.height[a],d=this.detailDelay(a),f=this.stoneColor(a);this.pal.snow&&s.push({matrix:new c.Matrix4().compose(h.clone().setY(u+.04),new c.Quaternion,new c.Vector3(1,.08,1)),color:"#f6f9fc",delay:d,pivot:h.clone()});for(let[g,M]of[[0,1],[0,-1],[1,0],[-1,0]])if(!((n.get((i.r+g)*e+(i.c+M))??0)>=u))for(let S of[-.25,.25]){let R=new c.Vector3(h.x+(M!==0?M*.39:S),u+.16,h.z+(g!==0?g*.39:S));r.push({matrix:new c.Matrix4().compose(R,new c.Quaternion,new c.Vector3(M!==0?.2:.26,.32,g!==0?.2:.26)),color:f,delay:d,pivot:R.clone().setY(u)}),this.pal.snow&&s.push({matrix:new c.Matrix4().compose(R.clone().setY(u+.35),new c.Quaternion,new c.Vector3(M!==0?.22:.28,.06,g!==0?.22:.28)),color:"#f6f9fc",delay:d,pivot:R.clone().setY(u)})}}),this.grow.add(new c.BoxGeometry(1,1,1),Sn(this.stoneUniforms).material,r),s.length&&this.grow.add(new c.BoxGeometry(1,1,1),new c.MeshStandardMaterial({color:16777215,roughness:.9}),s,!1)}buildHouses(){let t=this.layout,e=[],n=[];this.modules.forEach((r,s)=>{if(t.kind[s]!=="house")return;let i=this.modules[s],a=new c.Vector3(i.c-t.half+.5,0,i.r-t.half+.5),l=Math.min(.8,this.growDelay(s)+.3);e.push({matrix:new c.Matrix4().compose(a.clone().setY(.45),new c.Quaternion,new c.Vector3(.82,.9,.82)),color:this.pal.snow?"#e4dccb":"#e8dcc2",delay:l,pivot:a.clone()}),e.push({matrix:new c.Matrix4().compose(a.clone().add(new c.Vector3(0,.25,.42)),new c.Quaternion,new c.Vector3(.24,.42,.04)),color:"#6a4a32",delay:l,pivot:a.clone()}),n.push({matrix:new c.Matrix4().compose(a.clone().setY(.9+.3),new c.Quaternion().setFromEuler(new c.Euler(0,Math.PI/4,0)),new c.Vector3(.7,.6,.7)),color:this.pal.snow?"#f4f8fb":this.pal.roof,delay:l+.05,pivot:a.clone()})}),this.grow.add(new c.BoxGeometry(1,1,1),new c.MeshStandardMaterial({color:16777215,roughness:.85}),e),this.grow.add(new c.CylinderGeometry(0,1,1,4),new c.MeshStandardMaterial({color:16777215,roughness:.8}),n)}buildKeeps(){let t=this.layout,e=t.half,n=[],r=this.size;[[0,0],[0,r-7],[r-7,0]].forEach(([a,l],h)=>{let u=l+3.5-e,d=a+3.5-e,f=5.2,g=new c.Vector3(u,f+1.1,d);n.push({matrix:new c.Matrix4().compose(g,new c.Quaternion().setFromEuler(new c.Euler(0,Math.PI/4,0)),new c.Vector3(1.5*Math.SQRT2,2.2,1.5*Math.SQRT2)),color:this.pal.banners[h],delay:.62+h*.03,pivot:new c.Vector3(u,f,d)}),this.addFlag(new c.Vector3(u,f+2.15,d),this.pal.banners[h],.7+h*.03)});let i=-1;this.modules.forEach((a,l)=>{t.kind[l]==="wall"&&(i<0||t.height[l]>t.height[i])&&(i=l)}),i>=0&&this.addFlag(this.top(i),this.pal.banners[0],.72),this.grow.add(new c.CylinderGeometry(0,1,1,4),new c.MeshStandardMaterial({color:16777215,roughness:.6}),n)}addFlag(t,e,n){let r=new c.Mesh(this.track(new c.CylinderGeometry(.04,.04,1.4,6)),this.track(new c.MeshStandardMaterial({color:"#4a4a52",roughness:.5}))),s=new c.Mesh(this.track(new c.BoxGeometry(.7,.42,.03)),this.track(new c.MeshStandardMaterial({color:e,roughness:.7,side:c.DoubleSide})));[r,s].forEach(i=>{i.visible=!1,i.castShadow=!0,this.group.add(i)}),this.flags.push({pole:r,cloth:s,base:t.clone(),delay:n})}buildWindowsAndTorches(){let t=this.layout,e=this.size,n=new Set(this.modules.map(h=>h.r*e+h.c)),r=this.track(new c.MeshStandardMaterial({color:"#2a2a32",emissive:"#ffb84a",emissiveIntensity:0,roughness:.4})),s=this.track(new c.MeshStandardMaterial({color:"#ffd27a",emissive:"#ff8a2a",emissiveIntensity:0}));this.glowMats.push(r,s);let i=[],a=[],l=[];this.modules.forEach((h,u)=>{let d=t.kind[u],f=t.height[u],g=this.top(u),M=this.detailDelay(u);if((d==="keep"||d==="ring"||d==="wall"&&f>=3)&&B(u*13+2)<.55)for(let[m,S]of[[0,1],[0,-1],[1,0],[-1,0]]){if(n.has((h.r+m)*e+(h.c+S)))continue;let R=Math.min(f-.6,1+B(u+m*3+S)*(f-1.6)),J=new c.Vector3(g.x+S*.5,R,g.z+m*.5);i.push({matrix:new c.Matrix4().compose(J,new c.Quaternion,new c.Vector3(S?.04:.18,.3,m?.04:.18)),color:"#ffffff",delay:M,pivot:J.clone()})}if((d==="wall"||d==="ring")&&B(u*19+7)<.12){let m=g.clone().setY(f+.25);a.push({matrix:new c.Matrix4().compose(m,new c.Quaternion,new c.Vector3(.06,.5,.06)),color:"#5a3d28",delay:M,pivot:g.clone()}),l.push({matrix:new c.Matrix4().compose(m.clone().setY(f+.58),new c.Quaternion,new c.Vector3(.14,.2,.14)),color:"#ffffff",delay:M+.03,pivot:g.clone()})}}),this.grow.add(new c.BoxGeometry(1,1,1),r,i,!1),this.pal.night&&(this.grow.add(new c.BoxGeometry(1,1,1),new c.MeshStandardMaterial({color:16777215,roughness:.8}),a,!1),this.grow.add(new c.ConeGeometry(.5,1,8),s,l,!1))}buildMoat(){let t=this.size,e=t/2,n=1.1,r=[],s=e+n/2+.02,i=t+2*n;[[0,-s,i,n],[0,s,i,n],[-s,0,n,t],[s,0,n,t]].forEach(([u,d,f,g])=>{let M=new c.Vector3(u,.02,d);r.push({matrix:new c.Matrix4().compose(M,new c.Quaternion,new c.Vector3(f,.05,g)),color:this.pal.water,delay:.55,pivot:M.clone()})});let l=[],h=new c.Vector3(0,.12,s);l.push({matrix:new c.Matrix4().compose(h,new c.Quaternion,new c.Vector3(1.6,.12,n+.4)),color:"#7a5634",delay:.68,pivot:h.clone()}),this.grow.add(new c.BoxGeometry(1,1,1),new c.MeshStandardMaterial({color:16777215,roughness:.2,metalness:.05}),r,!1),this.grow.add(new c.BoxGeometry(1,1,1),new c.MeshStandardMaterial({color:16777215,roughness:.85}),l)}buildSnow(){this.snowfall=new c.InstancedMesh(this.track(new c.BoxGeometry(.09,.09,.09)),this.track(new c.MeshStandardMaterial({color:"#ffffff"})),110),this.snowfall.visible=!1,this.group.add(this.snowfall)}applyLighting(t,e,n,r){Hn(t,this.pal.mood,e,n,r),this.slabMat.color.set(X.slab).lerp(new c.Color(this.pal.slab),t),this.stoneUniforms.uSide.value=c.MathUtils.smoothstep(t,.2,.8);let s=this.pal.night*c.MathUtils.smoothstep(t,.6,1);this.glowMats.forEach(i=>i.emissiveIntensity=2.4*s)}update(t,e){if(t!==this.lastGrowth){this.lastGrowth=t,this.grow.update(t);let n=c.MathUtils.smoothstep(t,.1,.65),r=new c.Color;for(let s=0;s<this.tiles.length;s++)r.copy(this.tileQr[s]).lerp(this.tileSide[s],n),this.tileMesh.setColorAt(s,r);this.tileMesh.instanceColor&&(this.tileMesh.instanceColor.needsUpdate=!0)}if(this.flags.forEach((n,r)=>{let s=c.MathUtils.clamp((t-n.delay)/(1-n.delay),0,1);n.pole.visible=n.cloth.visible=s>.01,n.pole.position.set(n.base.x,n.base.y+.7*s,n.base.z),n.pole.scale.set(1,Math.max(.001,s),1);let i=Math.sin(e*3+r)*.25;n.cloth.position.set(n.base.x+.36*s,n.base.y+1.2*s,n.base.z),n.cloth.rotation.set(0,i,Math.sin(e*5+r)*.05),n.cloth.scale.set(Math.max(.001,s),Math.max(.001,s),1)}),this.snowfall){let n=c.MathUtils.clamp((t-.85)/.15,0,1);if(this.snowfall.visible=n>0,n>0){let r=new c.Object3D,s=this.size+2,i=this.layout.maxH+6;for(let a=0;a<this.snowfall.count;a++){let l=i-(e*(.5+B(a)*.5)+B(a+50)*i)%i;r.position.set((B(a+1)-.5)*s+Math.sin(e+a)*.3,l,(B(a+2)-.5)*s),r.scale.setScalar(n),r.updateMatrix(),this.snowfall.setMatrixAt(a,r.matrix)}this.snowfall.instanceMatrix.needsUpdate=!0}}}dispose(){this.group.removeFromParent(),this.disposables.forEach(t=>t.dispose()),this.disposables=[]}};function Vo(o,t={}){let e=document.getElementById(o);if(!e)return;let n=t.url||"https://gridika.ru",r=t.height||480,s=t.mode||"day",{modules:i,size:a}=yn(n),l=[];for(let p=0;p<a;p++)for(let H=0;H<a;H++)i[p][H]&&l.push({r:p,c:H,isFinder:Rn(p,H,a)});let h=e.clientWidth||480,u=new E.Scene;u.background=new E.Color(794391);let d=h/r,f=new E.OrthographicCamera(-20*d,20*d,20,-20,.1,1e3),g=new E.WebGLRenderer({antialias:!0,alpha:!0,powerPreference:"high-performance"});g.setSize(h,r),g.setPixelRatio(Math.min(window.devicePixelRatio||1,2)),g.shadowMap.enabled=!0,g.shadowMap.type=E.PCFSoftShadowMap,e.appendChild(g.domElement);let M=new E.AmbientLight(16777215,1.2);u.add(M);let m=new E.DirectionalLight(16773852,2.6);m.position.set(22,48,28),m.castShadow=!0,m.shadow.mapSize.width=1024,m.shadow.mapSize.height=1024,m.shadow.camera.left=-22,m.shadow.camera.right=22,m.shadow.camera.top=22,m.shadow.camera.bottom=-22,u.add(m);let S=new E.PointLight(2282382,0,50);u.add(S);let R=new Ut(l,i,a,s);u.add(R.group);let J=l.length,at=new E.BoxGeometry(.88,.88,.88),I=new E.InstancedMesh(at,R.voxelMaterial,J);I.castShadow=!0,I.receiveShadow=!0;let U=R.targets,P=a/2,G=[],tt=new E.Color;for(let p=0;p<J;p++){let{r:H,c:V}=l[p],v=U[p]||{x:0,y:0,z:0,scaleX:1,scaleY:1,scaleZ:1},y=V-P+.5,k=H-P+.5,D=.5,ct=R.growDelay(p),q=R.voxelColor(p);G.push({qrX:y,qrY:D,qrZ:k,targetX:v.x,targetY:v.y,targetZ:v.z,targetScaleX:v.scaleX??1,targetScaleY:v.scaleY??1,targetScaleZ:v.scaleZ??1,waveDelay:ct,qrColor:new E.Color(q.qr),sideColor:new E.Color(q.side)}),tt.set(q.side),I.setColorAt(p,tt)}I.instanceColor&&(I.instanceColor.needsUpdate=!0),u.add(I);let F=1,_=1,Do=1,Mt=0,lt=!1,fe=0,de=0,Vt=0,pe=new E.Clock;function Ee(){let p=new E.Object3D,H=_,V=new E.Color;for(let v=0;v<G.length;v++){let y=G[v],k=E.MathUtils.clamp((H-y.waveDelay)/(1-y.waveDelay||.001),0,1),D=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2,ct=Math.sin(k*Math.PI)*4.5,q=y.qrX+(y.targetX-y.qrX)*D,Dt=y.qrY+(y.targetY-y.qrY)*D+ct,qt=y.qrZ+(y.targetZ-y.qrZ)*D,et=1.142+(y.targetScaleX-1.142)*D,Bn=1+(y.targetScaleY-1)*D,In=1.142+(y.targetScaleZ-1.142)*D;p.position.set(q,Dt,qt),p.scale.set(et,Bn,In),p.rotation.set(0,0,0),p.updateMatrix(),I.setMatrixAt(v,p.matrix),V.copy(y.qrColor).lerp(y.sideColor,H),I.setColorAt(v,V)}I.instanceMatrix.needsUpdate=!0,I.instanceColor&&(I.instanceColor.needsUpdate=!0),R.applyLighting(H,M,m,S),R.update(H,pe.getElapsedTime())}function Gt(){let p=_,H=R.maxHeight,V=E.MathUtils.lerp(Math.PI/2-1e-4,E.MathUtils.degToRad(32),p),v=E.MathUtils.lerp(0,Math.PI/4,p)+Mt,y=new E.Vector3(0,E.MathUtils.lerp(0,H*.4,p),0),k=200;f.position.set(y.x+k*Math.cos(V)*Math.sin(v),y.y+k*Math.sin(V),y.z+k*Math.cos(V)*Math.cos(v)),f.up.set(0,1,0),f.lookAt(y);let D=e.clientWidth||480,ct=e.clientHeight||r,q=D/ct,Dt=E.MathUtils.lerp((a+2.4)*1.56,a*1.62+4,p),qt=E.MathUtils.lerp((a+2.4)*1.56,H*1.18+4,p),et=Math.max(qt,Dt/q);f.left=-et*q/2,f.right=et*q/2,f.top=et/2,f.bottom=-et/2,f.updateProjectionMatrix()}Ee(),Gt();let Tt=g.domElement;Tt.style.cursor="grab",Tt.addEventListener("pointerdown",p=>{lt=!0,fe=Vt=p.clientX,de=p.clientY,Tt.style.cursor="grabbing"}),window.addEventListener("pointermove",p=>{if(!lt)return;let H=p.clientX-Vt;Mt+=H*.008,Vt=p.clientX}),window.addEventListener("pointerup",p=>{if(!lt)return;lt=!1,Tt.style.cursor="grab",Math.hypot(p.clientX-fe,p.clientY-de)<6&&(F=F===1?0:1,F===0&&(Mt=0))});let ge=performance.now()/1e3;function me(){requestAnimationFrame(me);let p=performance.now()/1e3,H=Math.min(.05,p-ge);if(ge=p,_!==F){let V=H/1.15;_=F>_?Math.min(F,_+V):Math.max(F,_-V),Ee()}else R.update(_,pe.getElapsedTime());F===1&&!lt&&(Mt+=.002),Gt(),g.render(u,f)}me(),window.addEventListener("resize",()=>{let p=e.clientWidth||480,H=e.clientHeight||r;g.setSize(p,H),Gt()})}return Vn(Go);})();
+`;
+
+// src/engine/castleEmbedGenerator.ts
+function generateCastleEmbedCode(o) {
+  const id = "gridika-castle-" + Math.random().toString(36).slice(2, 8);
+  const height = o.height ?? 480;
+  const url = o.text || "https://gridika.ru";
+  const mode = o.mode || "day";
+  const badgeHtml = `<a id="${id}-badge" href="https://gridika.ru" target="_blank" rel="noopener" style="position:absolute;bottom:14px;right:16px;z-index:10;font-family:system-ui,-apple-system,sans-serif;font-size:11px;font-weight:700;color:#8BF0C2;text-decoration:none;background:rgba(12,31,23,0.85);backdrop-filter:blur(6px);padding:5px 12px;border-radius:8px;border:1px solid rgba(25,195,125,0.3);box-shadow:0 2px 8px rgba(0,0,0,0.2);">Gridika.ru \u2197</a>`;
+  const header = o.license ? codeHeader("3D QR-\u0417\u0430\u043C\u043E\u043A", o.license) : "<!-- Gridika \xB7 3D \u0438\u043D\u0442\u0435\u0440\u0430\u043A\u0442\u0438\u0432\u043D\u044B\u0439 QR-\u043A\u043E\u0434 (\u0417\u0430\u043C\u043E\u043A) -->";
+  const licenseJs = o.license ? domainLockJs(`${id}-badge`, o.license.domain) : "";
   return `${header}
-<div id="${instanceId}" style="width:100%; height:${height}px; position:relative; overflow:hidden; border-radius:16px; background:${theme.bgColor};">${badgeHtml}
+<div id="${id}" style="width:100%;max-width:520px;height:${height}px;margin:0 auto;position:relative;border-radius:18px;overflow:hidden;background:#0c1f17;box-shadow:0 14px 36px rgba(0,0,0,0.45);">
+  <div style="position:absolute;top:14px;left:16px;z-index:10;font-family:system-ui,-apple-system,sans-serif;font-size:11px;font-weight:800;color:#19C37D;letter-spacing:0.05em;background:rgba(12,31,23,0.85);backdrop-filter:blur(6px);padding:4px 10px;border-radius:8px;border:1px solid rgba(25,195,125,0.25);pointer-events:none;">GRIDIKA 3D \xB7 \u0417\u0410\u041C\u041E\u041A</div>
+  <div style="position:absolute;bottom:14px;left:16px;z-index:10;font-family:system-ui,-apple-system,sans-serif;font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);background:rgba(0,0,0,0.5);backdrop-filter:blur(6px);padding:5px 12px;border-radius:8px;pointer-events:none;">\u041A\u043B\u0438\u043A \u2014 \u0442\u0440\u0430\u043D\u0441\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u044F \u0432 QR \u2022 \u0417\u0430\u0436\u043C\u0438\u0442\u0435 \u2014 \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u0435</div>
+  ${badgeHtml}
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function() {
-  var data = ${JSON.stringify(payload)};
-  var container = document.getElementById("${instanceId}");${licenseJs}
-  if (!container) return;
-
-  function loadThree(cb) {
-    if (window.THREE) return cb();
-    var s = document.createElement("script");
-    s.src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
-    s.crossOrigin = "anonymous";
-    s.onload = cb;
-    s.onerror = function() {
-      // Fallback mirror
-      var s2 = document.createElement("script");
-      s2.src = "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js";
-      s2.onload = cb;
-      document.head.appendChild(s2);
-    };
-    document.head.appendChild(s);
+  function start() {
+    ${castleRuntime_iife_default}
+    if (typeof GridikaCastleModule !== 'undefined' && GridikaCastleModule.initCastleWidget) {
+      GridikaCastleModule.initCastleWidget("${id}", { url: ${JSON.stringify(url)}, height: ${height}, mode: ${JSON.stringify(mode)} });
+    }
   }
+  ${licenseJs}
+  if (window.THREE) {
+    start();
+  } else {
+    var check = setInterval(function() {
+      if (window.THREE) {
+        clearInterval(check);
+        start();
+      }
+    }, 50);
+  }
+})();
+</script>`;
+}
 
-  loadThree(function() {
-    var T = window.THREE;
-    var w = container.clientWidth || 400;
-    var h = container.clientHeight || ${height};
+// raw-file:E:\Programming\temka\apps\fx\src\embed\qrMorphRuntime.iife.js
+var qrMorphRuntime_iife_default = '"use strict";var GridikaQrMorphModule=(()=>{var gr=Object.create;var ze=Object.defineProperty;var br=Object.getOwnPropertyDescriptor;var wr=Object.getOwnPropertyNames;var Mr=Object.getPrototypeOf,Tr=Object.prototype.hasOwnProperty;var D=(l,e)=>()=>(e||l((e={exports:{}}).exports,e),e.exports),yr=(l,e)=>{for(var t in e)ze(l,t,{get:e[t],enumerable:!0})},qt=(l,e,t,o)=>{if(e&&typeof e=="object"||typeof e=="function")for(let s of wr(e))!Tr.call(l,s)&&s!==t&&ze(l,s,{get:()=>e[s],enumerable:!(o=br(e,s))||o.enumerable});return l};var te=(l,e,t)=>(t=l!=null?gr(Mr(l)):{},qt(e||!l||!l.__esModule?ze(t,"default",{value:l,enumerable:!0}):t,l)),Hr=l=>qt(ze({},"__esModule",{value:!0}),l);var oe=D((Ns,Ft)=>{var X=typeof window<"u"?window.THREE||{}:{};X.MathUtils||(X.MathUtils=X.Math||{});X.MathUtils.degToRad||(X.MathUtils.degToRad=function(l){return l*(Math.PI/180)});X.MathUtils.lerp||(X.MathUtils.lerp=function(l,e,t){return l+(e-l)*t});X.MathUtils.clamp||(X.MathUtils.clamp=function(l,e,t){return Math.max(e,Math.min(t,l))});X.MathUtils.smoothstep||(X.MathUtils.smoothstep=function(l,e,t){if(l<=e)return 0;if(l>=t)return 1;var o=(l-e)/(t-e);return o*o*(3-2*o)});Ft.exports=X});var Qt=D((qs,Yt)=>{Yt.exports=function(){return typeof Promise=="function"&&Promise.prototype&&Promise.prototype.then}});var ie=D(pe=>{var it,Rr=[0,26,44,70,100,134,172,196,242,292,346,404,466,532,581,655,733,815,901,991,1085,1156,1258,1364,1474,1588,1706,1828,1921,2051,2185,2323,2465,2611,2761,2876,3034,3196,3362,3532,3706];pe.getSymbolSize=function(e){if(!e)throw new Error(\'"version" cannot be null or undefined\');if(e<1||e>40)throw new Error(\'"version" should be in range from 1 to 40\');return e*4+17};pe.getSymbolTotalCodewords=function(e){return Rr[e]};pe.getBCHDigit=function(l){let e=0;for(;l!==0;)e++,l>>>=1;return e};pe.setToSJISFunction=function(e){if(typeof e!="function")throw new Error(\'"toSJISFunc" is not a valid function.\');it=e};pe.isKanjiModeEnabled=function(){return typeof it<"u"};pe.toSJIS=function(e){return it(e)}});var De=D(Z=>{Z.L={bit:1};Z.M={bit:0};Z.Q={bit:3};Z.H={bit:2};function xr(l){if(typeof l!="string")throw new Error("Param is not a string");switch(l.toLowerCase()){case"l":case"low":return Z.L;case"m":case"medium":return Z.M;case"q":case"quartile":return Z.Q;case"h":case"high":return Z.H;default:throw new Error("Unknown EC Level: "+l)}}Z.isValid=function(e){return e&&typeof e.bit<"u"&&e.bit>=0&&e.bit<4};Z.from=function(e,t){if(Z.isValid(e))return e;try{return xr(e)}catch{return t}}});var Wt=D((Qs,Ot)=>{function _t(){this.buffer=[],this.length=0}_t.prototype={get:function(l){let e=Math.floor(l/8);return(this.buffer[e]>>>7-l%8&1)===1},put:function(l,e){for(let t=0;t<e;t++)this.putBit((l>>>e-t-1&1)===1)},getLengthInBits:function(){return this.length},putBit:function(l){let e=Math.floor(this.length/8);this.buffer.length<=e&&this.buffer.push(0),l&&(this.buffer[e]|=128>>>this.length%8),this.length++}};Ot.exports=_t});var Kt=D((_s,jt)=>{function Se(l){if(!l||l<1)throw new Error("BitMatrix size must be defined and greater than 0");this.size=l,this.data=new Uint8Array(l*l),this.reservedBit=new Uint8Array(l*l)}Se.prototype.set=function(l,e,t,o){let s=l*this.size+e;this.data[s]=t,o&&(this.reservedBit[s]=!0)};Se.prototype.get=function(l,e){return this.data[l*this.size+e]};Se.prototype.xor=function(l,e,t){this.data[l*this.size+e]^=t};Se.prototype.isReserved=function(l,e){return this.reservedBit[l*this.size+e]};jt.exports=Se});var Xt=D(Ue=>{var vr=ie().getSymbolSize;Ue.getRowColCoords=function(e){if(e===1)return[];let t=Math.floor(e/7)+2,o=vr(e),s=o===145?26:Math.ceil((o-13)/(2*t-2))*2,r=[o-7];for(let i=1;i<t-1;i++)r[i]=r[i-1]-s;return r.push(6),r.reverse()};Ue.getPositions=function(e){let t=[],o=Ue.getRowColCoords(e),s=o.length;for(let r=0;r<s;r++)for(let i=0;i<s;i++)r===0&&i===0||r===0&&i===s-1||r===s-1&&i===0||t.push([o[r],o[i]]);return t}});var $t=D(Jt=>{var Sr=ie().getSymbolSize,Zt=7;Jt.getPositions=function(e){let t=Sr(e);return[[0,0],[t-Zt,0],[0,t-Zt]]}});var eo=D(N=>{N.Patterns={PATTERN000:0,PATTERN001:1,PATTERN010:2,PATTERN011:3,PATTERN100:4,PATTERN101:5,PATTERN110:6,PATTERN111:7};var me={N1:3,N2:3,N3:40,N4:10};N.isValid=function(e){return e!=null&&e!==""&&!isNaN(e)&&e>=0&&e<=7};N.from=function(e){return N.isValid(e)?parseInt(e,10):void 0};N.getPenaltyN1=function(e){let t=e.size,o=0,s=0,r=0,i=null,n=null;for(let a=0;a<t;a++){s=r=0,i=n=null;for(let h=0;h<t;h++){let c=e.get(a,h);c===i?s++:(s>=5&&(o+=me.N1+(s-5)),i=c,s=1),c=e.get(h,a),c===n?r++:(r>=5&&(o+=me.N1+(r-5)),n=c,r=1)}s>=5&&(o+=me.N1+(s-5)),r>=5&&(o+=me.N1+(r-5))}return o};N.getPenaltyN2=function(e){let t=e.size,o=0;for(let s=0;s<t-1;s++)for(let r=0;r<t-1;r++){let i=e.get(s,r)+e.get(s,r+1)+e.get(s+1,r)+e.get(s+1,r+1);(i===4||i===0)&&o++}return o*me.N2};N.getPenaltyN3=function(e){let t=e.size,o=0,s=0,r=0;for(let i=0;i<t;i++){s=r=0;for(let n=0;n<t;n++)s=s<<1&2047|e.get(i,n),n>=10&&(s===1488||s===93)&&o++,r=r<<1&2047|e.get(n,i),n>=10&&(r===1488||r===93)&&o++}return o*me.N3};N.getPenaltyN4=function(e){let t=0,o=e.data.length;for(let r=0;r<o;r++)t+=e.data[r];return Math.abs(Math.ceil(t*100/o/5)-10)*me.N4};function Cr(l,e,t){switch(l){case N.Patterns.PATTERN000:return(e+t)%2===0;case N.Patterns.PATTERN001:return e%2===0;case N.Patterns.PATTERN010:return t%3===0;case N.Patterns.PATTERN011:return(e+t)%3===0;case N.Patterns.PATTERN100:return(Math.floor(e/2)+Math.floor(t/3))%2===0;case N.Patterns.PATTERN101:return e*t%2+e*t%3===0;case N.Patterns.PATTERN110:return(e*t%2+e*t%3)%2===0;case N.Patterns.PATTERN111:return(e*t%3+(e+t)%2)%2===0;default:throw new Error("bad maskPattern:"+l)}}N.applyMask=function(e,t){let o=t.size;for(let s=0;s<o;s++)for(let r=0;r<o;r++)t.isReserved(r,s)||t.xor(r,s,Cr(e,r,s))};N.getBestMask=function(e,t){let o=Object.keys(N.Patterns).length,s=0,r=1/0;for(let i=0;i<o;i++){t(i),N.applyMask(i,e);let n=N.getPenaltyN1(e)+N.getPenaltyN2(e)+N.getPenaltyN3(e)+N.getPenaltyN4(e);N.applyMask(i,e),n<r&&(r=n,s=i)}return s}});var ct=D(lt=>{var le=De(),Ne=[1,1,1,1,1,1,1,1,1,1,2,2,1,2,2,4,1,2,4,4,2,4,4,4,2,4,6,5,2,4,6,6,2,5,8,8,4,5,8,8,4,5,8,11,4,8,10,11,4,9,12,16,4,9,16,16,6,10,12,18,6,10,17,16,6,11,16,19,6,13,18,21,7,14,21,25,8,16,20,25,8,17,23,25,9,17,23,34,9,18,25,30,10,20,27,32,12,21,29,35,12,23,34,37,12,25,34,40,13,26,35,42,14,28,38,45,15,29,40,48,16,31,43,51,17,33,45,54,18,35,48,57,19,37,51,60,19,38,53,63,20,40,56,66,21,43,59,70,22,45,62,74,24,47,65,77,25,49,68,81],qe=[7,10,13,17,10,16,22,28,15,26,36,44,20,36,52,64,26,48,72,88,36,64,96,112,40,72,108,130,48,88,132,156,60,110,160,192,72,130,192,224,80,150,224,264,96,176,260,308,104,198,288,352,120,216,320,384,132,240,360,432,144,280,408,480,168,308,448,532,180,338,504,588,196,364,546,650,224,416,600,700,224,442,644,750,252,476,690,816,270,504,750,900,300,560,810,960,312,588,870,1050,336,644,952,1110,360,700,1020,1200,390,728,1050,1260,420,784,1140,1350,450,812,1200,1440,480,868,1290,1530,510,924,1350,1620,540,980,1440,1710,570,1036,1530,1800,570,1064,1590,1890,600,1120,1680,1980,630,1204,1770,2100,660,1260,1860,2220,720,1316,1950,2310,750,1372,2040,2430];lt.getBlocksCount=function(e,t){switch(t){case le.L:return Ne[(e-1)*4+0];case le.M:return Ne[(e-1)*4+1];case le.Q:return Ne[(e-1)*4+2];case le.H:return Ne[(e-1)*4+3];default:return}};lt.getTotalCodewordsCount=function(e,t){switch(t){case le.L:return qe[(e-1)*4+0];case le.M:return qe[(e-1)*4+1];case le.Q:return qe[(e-1)*4+2];case le.H:return qe[(e-1)*4+3];default:return}}});var to=D(Ye=>{var Ce=new Uint8Array(512),Fe=new Uint8Array(256);(function(){let e=1;for(let t=0;t<255;t++)Ce[t]=e,Fe[e]=t,e<<=1,e&256&&(e^=285);for(let t=255;t<512;t++)Ce[t]=Ce[t-255]})();Ye.log=function(e){if(e<1)throw new Error("log("+e+")");return Fe[e]};Ye.exp=function(e){return Ce[e]};Ye.mul=function(e,t){return e===0||t===0?0:Ce[Fe[e]+Fe[t]]}});var oo=D(ke=>{var ht=to();ke.mul=function(e,t){let o=new Uint8Array(e.length+t.length-1);for(let s=0;s<e.length;s++)for(let r=0;r<t.length;r++)o[s+r]^=ht.mul(e[s],t[r]);return o};ke.mod=function(e,t){let o=new Uint8Array(e);for(;o.length-t.length>=0;){let s=o[0];for(let i=0;i<t.length;i++)o[i]^=ht.mul(t[i],s);let r=0;for(;r<o.length&&o[r]===0;)r++;o=o.slice(r)}return o};ke.generateECPolynomial=function(e){let t=new Uint8Array([1]);for(let o=0;o<e;o++)t=ke.mul(t,new Uint8Array([1,ht.exp(o)]));return t}});var no=D((Js,so)=>{var ro=oo();function ft(l){this.genPoly=void 0,this.degree=l,this.degree&&this.initialize(this.degree)}ft.prototype.initialize=function(e){this.degree=e,this.genPoly=ro.generateECPolynomial(this.degree)};ft.prototype.encode=function(e){if(!this.genPoly)throw new Error("Encoder not initialized");let t=new Uint8Array(e.length+this.degree);t.set(e);let o=ro.mod(t,this.genPoly),s=this.degree-o.length;if(s>0){let r=new Uint8Array(this.degree);return r.set(o,s),r}return o};so.exports=ft});var ut=D(ao=>{ao.isValid=function(e){return!isNaN(e)&&e>=1&&e<=40}});var dt=D(ne=>{var io="[0-9]+",kr="[A-Z $%*+\\\\-./:]+",Ie="(?:[u3000-u303F]|[u3040-u309F]|[u30A0-u30FF]|[uFF00-uFFEF]|[u4E00-u9FAF]|[u2605-u2606]|[u2190-u2195]|u203B|[u2010u2015u2018u2019u2025u2026u201Cu201Du2225u2260]|[u0391-u0451]|[u00A7u00A8u00B1u00B4u00D7u00F7])+";Ie=Ie.replace(/u/g,"\\\\u");var Ir="(?:(?![A-Z0-9 $%*+\\\\-./:]|"+Ie+`)(?:.|[\\r\n]))+`;ne.KANJI=new RegExp(Ie,"g");ne.BYTE_KANJI=new RegExp("[^A-Z0-9 $%*+\\\\-./:]+","g");ne.BYTE=new RegExp(Ir,"g");ne.NUMERIC=new RegExp(io,"g");ne.ALPHANUMERIC=new RegExp(kr,"g");var Gr=new RegExp("^"+Ie+"$"),Lr=new RegExp("^"+io+"$"),Pr=new RegExp("^[A-Z0-9 $%*+\\\\-./:]+$");ne.testKanji=function(e){return Gr.test(e)};ne.testNumeric=function(e){return Lr.test(e)};ne.testAlphanumeric=function(e){return Pr.test(e)}});var ce=D(F=>{var Br=ut(),Et=dt();F.NUMERIC={id:"Numeric",bit:1,ccBits:[10,12,14]};F.ALPHANUMERIC={id:"Alphanumeric",bit:2,ccBits:[9,11,13]};F.BYTE={id:"Byte",bit:4,ccBits:[8,16,16]};F.KANJI={id:"Kanji",bit:8,ccBits:[8,10,12]};F.MIXED={bit:-1};F.getCharCountIndicator=function(e,t){if(!e.ccBits)throw new Error("Invalid mode: "+e);if(!Br.isValid(t))throw new Error("Invalid version: "+t);return t>=1&&t<10?e.ccBits[0]:t<27?e.ccBits[1]:e.ccBits[2]};F.getBestModeForData=function(e){return Et.testNumeric(e)?F.NUMERIC:Et.testAlphanumeric(e)?F.ALPHANUMERIC:Et.testKanji(e)?F.KANJI:F.BYTE};F.toString=function(e){if(e&&e.id)return e.id;throw new Error("Invalid mode")};F.isValid=function(e){return e&&e.bit&&e.ccBits};function Vr(l){if(typeof l!="string")throw new Error("Param is not a string");switch(l.toLowerCase()){case"numeric":return F.NUMERIC;case"alphanumeric":return F.ALPHANUMERIC;case"kanji":return F.KANJI;case"byte":return F.BYTE;default:throw new Error("Unknown mode: "+l)}}F.from=function(e,t){if(F.isValid(e))return e;try{return Vr(e)}catch{return t}}});var uo=D(ge=>{var Qe=ie(),Ar=ct(),lo=De(),he=ce(),pt=ut(),ho=7973,co=Qe.getBCHDigit(ho);function zr(l,e,t){for(let o=1;o<=40;o++)if(e<=ge.getCapacity(o,t,l))return o}function fo(l,e){return he.getCharCountIndicator(l,e)+4}function Dr(l,e){let t=0;return l.forEach(function(o){let s=fo(o.mode,e);t+=s+o.getBitsLength()}),t}function Ur(l,e){for(let t=1;t<=40;t++)if(Dr(l,t)<=ge.getCapacity(t,e,he.MIXED))return t}ge.from=function(e,t){return pt.isValid(e)?parseInt(e,10):t};ge.getCapacity=function(e,t,o){if(!pt.isValid(e))throw new Error("Invalid QR Code version");typeof o>"u"&&(o=he.BYTE);let s=Qe.getSymbolTotalCodewords(e),r=Ar.getTotalCodewordsCount(e,t),i=(s-r)*8;if(o===he.MIXED)return i;let n=i-fo(o,e);switch(o){case he.NUMERIC:return Math.floor(n/10*3);case he.ALPHANUMERIC:return Math.floor(n/11*2);case he.KANJI:return Math.floor(n/13);case he.BYTE:default:return Math.floor(n/8)}};ge.getBestVersionForData=function(e,t){let o,s=lo.from(t,lo.M);if(Array.isArray(e)){if(e.length>1)return Ur(e,s);if(e.length===0)return 1;o=e[0]}else o=e;return zr(o.mode,o.getLength(),s)};ge.getEncodedBits=function(e){if(!pt.isValid(e)||e<7)throw new Error("Invalid QR Code version");let t=e<<12;for(;Qe.getBCHDigit(t)-co>=0;)t^=ho<<Qe.getBCHDigit(t)-co;return e<<12|t}});var go=D(mo=>{var mt=ie(),po=1335,Nr=21522,Eo=mt.getBCHDigit(po);mo.getEncodedBits=function(e,t){let o=e.bit<<3|t,s=o<<10;for(;mt.getBCHDigit(s)-Eo>=0;)s^=po<<mt.getBCHDigit(s)-Eo;return(o<<10|s)^Nr}});var wo=D((sn,bo)=>{var qr=ce();function Te(l){this.mode=qr.NUMERIC,this.data=l.toString()}Te.getBitsLength=function(e){return 10*Math.floor(e/3)+(e%3?e%3*3+1:0)};Te.prototype.getLength=function(){return this.data.length};Te.prototype.getBitsLength=function(){return Te.getBitsLength(this.data.length)};Te.prototype.write=function(e){let t,o,s;for(t=0;t+3<=this.data.length;t+=3)o=this.data.substr(t,3),s=parseInt(o,10),e.put(s,10);let r=this.data.length-t;r>0&&(o=this.data.substr(t),s=parseInt(o,10),e.put(s,r*3+1))};bo.exports=Te});var To=D((nn,Mo)=>{var Fr=ce(),gt=["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"," ","$","%","*","+","-",".","/",":"];function ye(l){this.mode=Fr.ALPHANUMERIC,this.data=l}ye.getBitsLength=function(e){return 11*Math.floor(e/2)+6*(e%2)};ye.prototype.getLength=function(){return this.data.length};ye.prototype.getBitsLength=function(){return ye.getBitsLength(this.data.length)};ye.prototype.write=function(e){let t;for(t=0;t+2<=this.data.length;t+=2){let o=gt.indexOf(this.data[t])*45;o+=gt.indexOf(this.data[t+1]),e.put(o,11)}this.data.length%2&&e.put(gt.indexOf(this.data[t]),6)};Mo.exports=ye});var Ho=D((an,yo)=>{var Yr=ce();function He(l){this.mode=Yr.BYTE,typeof l=="string"?this.data=new TextEncoder().encode(l):this.data=new Uint8Array(l)}He.getBitsLength=function(e){return e*8};He.prototype.getLength=function(){return this.data.length};He.prototype.getBitsLength=function(){return He.getBitsLength(this.data.length)};He.prototype.write=function(l){for(let e=0,t=this.data.length;e<t;e++)l.put(this.data[e],8)};yo.exports=He});var xo=D((ln,Ro)=>{var Qr=ce(),_r=ie();function Re(l){this.mode=Qr.KANJI,this.data=l}Re.getBitsLength=function(e){return e*13};Re.prototype.getLength=function(){return this.data.length};Re.prototype.getBitsLength=function(){return Re.getBitsLength(this.data.length)};Re.prototype.write=function(l){let e;for(e=0;e<this.data.length;e++){let t=_r.toSJIS(this.data[e]);if(t>=33088&&t<=40956)t-=33088;else if(t>=57408&&t<=60351)t-=49472;else throw new Error("Invalid SJIS character: "+this.data[e]+`\nMake sure your charset is UTF-8`);t=(t>>>8&255)*192+(t&255),l.put(t,13)}};Ro.exports=Re});var vo=D((cn,bt)=>{"use strict";var Ge={single_source_shortest_paths:function(l,e,t){var o={},s={};s[e]=0;var r=Ge.PriorityQueue.make();r.push(e,0);for(var i,n,a,h,c,u,f,E,d;!r.empty();){i=r.pop(),n=i.value,h=i.cost,c=l[n]||{};for(a in c)c.hasOwnProperty(a)&&(u=c[a],f=h+u,E=s[a],d=typeof s[a]>"u",(d||E>f)&&(s[a]=f,r.push(a,f),o[a]=n))}if(typeof t<"u"&&typeof s[t]>"u"){var g=["Could not find a path from ",e," to ",t,"."].join("");throw new Error(g)}return o},extract_shortest_path_from_predecessor_list:function(l,e){for(var t=[],o=e,s;o;)t.push(o),s=l[o],o=l[o];return t.reverse(),t},find_path:function(l,e,t){var o=Ge.single_source_shortest_paths(l,e,t);return Ge.extract_shortest_path_from_predecessor_list(o,t)},PriorityQueue:{make:function(l){var e=Ge.PriorityQueue,t={},o;l=l||{};for(o in e)e.hasOwnProperty(o)&&(t[o]=e[o]);return t.queue=[],t.sorter=l.sorter||e.default_sorter,t},default_sorter:function(l,e){return l.cost-e.cost},push:function(l,e){var t={value:l,cost:e};this.queue.push(t),this.queue.sort(this.sorter)},pop:function(){return this.queue.shift()},empty:function(){return this.queue.length===0}}};typeof bt<"u"&&(bt.exports=Ge)});var Bo=D(xe=>{var z=ce(),ko=wo(),Io=To(),Go=Ho(),Lo=xo(),Le=dt(),_e=ie(),Or=vo();function So(l){return unescape(encodeURIComponent(l)).length}function Pe(l,e,t){let o=[],s;for(;(s=l.exec(t))!==null;)o.push({data:s[0],index:s.index,mode:e,length:s[0].length});return o}function Po(l){let e=Pe(Le.NUMERIC,z.NUMERIC,l),t=Pe(Le.ALPHANUMERIC,z.ALPHANUMERIC,l),o,s;return _e.isKanjiModeEnabled()?(o=Pe(Le.BYTE,z.BYTE,l),s=Pe(Le.KANJI,z.KANJI,l)):(o=Pe(Le.BYTE_KANJI,z.BYTE,l),s=[]),e.concat(t,o,s).sort(function(i,n){return i.index-n.index}).map(function(i){return{data:i.data,mode:i.mode,length:i.length}})}function wt(l,e){switch(e){case z.NUMERIC:return ko.getBitsLength(l);case z.ALPHANUMERIC:return Io.getBitsLength(l);case z.KANJI:return Lo.getBitsLength(l);case z.BYTE:return Go.getBitsLength(l)}}function Wr(l){return l.reduce(function(e,t){let o=e.length-1>=0?e[e.length-1]:null;return o&&o.mode===t.mode?(e[e.length-1].data+=t.data,e):(e.push(t),e)},[])}function jr(l){let e=[];for(let t=0;t<l.length;t++){let o=l[t];switch(o.mode){case z.NUMERIC:e.push([o,{data:o.data,mode:z.ALPHANUMERIC,length:o.length},{data:o.data,mode:z.BYTE,length:o.length}]);break;case z.ALPHANUMERIC:e.push([o,{data:o.data,mode:z.BYTE,length:o.length}]);break;case z.KANJI:e.push([o,{data:o.data,mode:z.BYTE,length:So(o.data)}]);break;case z.BYTE:e.push([{data:o.data,mode:z.BYTE,length:So(o.data)}])}}return e}function Kr(l,e){let t={},o={start:{}},s=["start"];for(let r=0;r<l.length;r++){let i=l[r],n=[];for(let a=0;a<i.length;a++){let h=i[a],c=""+r+a;n.push(c),t[c]={node:h,lastCount:0},o[c]={};for(let u=0;u<s.length;u++){let f=s[u];t[f]&&t[f].node.mode===h.mode?(o[f][c]=wt(t[f].lastCount+h.length,h.mode)-wt(t[f].lastCount,h.mode),t[f].lastCount+=h.length):(t[f]&&(t[f].lastCount=h.length),o[f][c]=wt(h.length,h.mode)+4+z.getCharCountIndicator(h.mode,e))}}s=n}for(let r=0;r<s.length;r++)o[s[r]].end=0;return{map:o,table:t}}function Co(l,e){let t,o=z.getBestModeForData(l);if(t=z.from(e,o),t!==z.BYTE&&t.bit<o.bit)throw new Error(\'"\'+l+\'" cannot be encoded with mode \'+z.toString(t)+`.\n Suggested mode is: `+z.toString(o));switch(t===z.KANJI&&!_e.isKanjiModeEnabled()&&(t=z.BYTE),t){case z.NUMERIC:return new ko(l);case z.ALPHANUMERIC:return new Io(l);case z.KANJI:return new Lo(l);case z.BYTE:return new Go(l)}}xe.fromArray=function(e){return e.reduce(function(t,o){return typeof o=="string"?t.push(Co(o,null)):o.data&&t.push(Co(o.data,o.mode)),t},[])};xe.fromString=function(e,t){let o=Po(e,_e.isKanjiModeEnabled()),s=jr(o),r=Kr(s,t),i=Or.find_path(r.map,"start","end"),n=[];for(let a=1;a<i.length-1;a++)n.push(r.table[i[a]].node);return xe.fromArray(Wr(n))};xe.rawSplit=function(e){return xe.fromArray(Po(e,_e.isKanjiModeEnabled()))}});var Ao=D(Vo=>{var We=ie(),Mt=De(),Xr=Wt(),Zr=Kt(),Jr=Xt(),$r=$t(),Ht=eo(),Rt=ct(),es=no(),Oe=uo(),ts=go(),os=ce(),Tt=Bo();function rs(l,e){let t=l.size,o=$r.getPositions(e);for(let s=0;s<o.length;s++){let r=o[s][0],i=o[s][1];for(let n=-1;n<=7;n++)if(!(r+n<=-1||t<=r+n))for(let a=-1;a<=7;a++)i+a<=-1||t<=i+a||(n>=0&&n<=6&&(a===0||a===6)||a>=0&&a<=6&&(n===0||n===6)||n>=2&&n<=4&&a>=2&&a<=4?l.set(r+n,i+a,!0,!0):l.set(r+n,i+a,!1,!0))}}function ss(l){let e=l.size;for(let t=8;t<e-8;t++){let o=t%2===0;l.set(t,6,o,!0),l.set(6,t,o,!0)}}function ns(l,e){let t=Jr.getPositions(e);for(let o=0;o<t.length;o++){let s=t[o][0],r=t[o][1];for(let i=-2;i<=2;i++)for(let n=-2;n<=2;n++)i===-2||i===2||n===-2||n===2||i===0&&n===0?l.set(s+i,r+n,!0,!0):l.set(s+i,r+n,!1,!0)}}function as(l,e){let t=l.size,o=Oe.getEncodedBits(e),s,r,i;for(let n=0;n<18;n++)s=Math.floor(n/3),r=n%3+t-8-3,i=(o>>n&1)===1,l.set(s,r,i,!0),l.set(r,s,i,!0)}function yt(l,e,t){let o=l.size,s=ts.getEncodedBits(e,t),r,i;for(r=0;r<15;r++)i=(s>>r&1)===1,r<6?l.set(r,8,i,!0):r<8?l.set(r+1,8,i,!0):l.set(o-15+r,8,i,!0),r<8?l.set(8,o-r-1,i,!0):r<9?l.set(8,15-r-1+1,i,!0):l.set(8,15-r-1,i,!0);l.set(o-8,8,1,!0)}function is(l,e){let t=l.size,o=-1,s=t-1,r=7,i=0;for(let n=t-1;n>0;n-=2)for(n===6&&n--;;){for(let a=0;a<2;a++)if(!l.isReserved(s,n-a)){let h=!1;i<e.length&&(h=(e[i]>>>r&1)===1),l.set(s,n-a,h),r--,r===-1&&(i++,r=7)}if(s+=o,s<0||t<=s){s-=o,o=-o;break}}}function ls(l,e,t){let o=new Xr;t.forEach(function(a){o.put(a.mode.bit,4),o.put(a.getLength(),os.getCharCountIndicator(a.mode,l)),a.write(o)});let s=We.getSymbolTotalCodewords(l),r=Rt.getTotalCodewordsCount(l,e),i=(s-r)*8;for(o.getLengthInBits()+4<=i&&o.put(0,4);o.getLengthInBits()%8!==0;)o.putBit(0);let n=(i-o.getLengthInBits())/8;for(let a=0;a<n;a++)o.put(a%2?17:236,8);return cs(o,l,e)}function cs(l,e,t){let o=We.getSymbolTotalCodewords(e),s=Rt.getTotalCodewordsCount(e,t),r=o-s,i=Rt.getBlocksCount(e,t),n=o%i,a=i-n,h=Math.floor(o/i),c=Math.floor(r/i),u=c+1,f=h-c,E=new es(f),d=0,g=new Array(i),m=new Array(i),y=0,T=new Uint8Array(l.buffer);for(let I=0;I<i;I++){let P=I<a?c:u;g[I]=T.slice(d,d+P),m[I]=E.encode(g[I]),d+=P,y=Math.max(y,P)}let x=new Uint8Array(o),k=0,L,v;for(L=0;L<y;L++)for(v=0;v<i;v++)L<g[v].length&&(x[k++]=g[v][L]);for(L=0;L<f;L++)for(v=0;v<i;v++)x[k++]=m[v][L];return x}function hs(l,e,t,o){let s;if(Array.isArray(l))s=Tt.fromArray(l);else if(typeof l=="string"){let h=e;if(!h){let c=Tt.rawSplit(l);h=Oe.getBestVersionForData(c,t)}s=Tt.fromString(l,h||40)}else throw new Error("Invalid data");let r=Oe.getBestVersionForData(s,t);if(!r)throw new Error("The amount of data is too big to be stored in a QR Code");if(!e)e=r;else if(e<r)throw new Error(`\nThe chosen QR Code version cannot contain this amount of data.\nMinimum version required to store current data is: `+r+`.\n`);let i=ls(e,t,s),n=We.getSymbolSize(e),a=new Zr(n);return rs(a,e),ss(a),ns(a,e),yt(a,t,0),e>=7&&as(a,e),is(a,i),isNaN(o)&&(o=Ht.getBestMask(a,yt.bind(null,a,t))),Ht.applyMask(o,a),yt(a,t,o),{modules:a,version:e,errorCorrectionLevel:t,maskPattern:o,segments:s}}Vo.create=function(e,t){if(typeof e>"u"||e==="")throw new Error("No input text");let o=Mt.M,s,r;return typeof t<"u"&&(o=Mt.from(t.errorCorrectionLevel,Mt.M),s=Oe.from(t.version),r=Ht.from(t.maskPattern),t.toSJISFunc&&We.setToSJISFunction(t.toSJISFunc)),hs(e,s,o,r)}});var xt=D(be=>{function zo(l){if(typeof l=="number"&&(l=l.toString()),typeof l!="string")throw new Error("Color should be defined as hex string");let e=l.slice().replace("#","").split("");if(e.length<3||e.length===5||e.length>8)throw new Error("Invalid hex color: "+l);(e.length===3||e.length===4)&&(e=Array.prototype.concat.apply([],e.map(function(o){return[o,o]}))),e.length===6&&e.push("F","F");let t=parseInt(e.join(""),16);return{r:t>>24&255,g:t>>16&255,b:t>>8&255,a:t&255,hex:"#"+e.slice(0,6).join("")}}be.getOptions=function(e){e||(e={}),e.color||(e.color={});let t=typeof e.margin>"u"||e.margin===null||e.margin<0?4:e.margin,o=e.width&&e.width>=21?e.width:void 0,s=e.scale||4;return{width:o,scale:o?4:s,margin:t,color:{dark:zo(e.color.dark||"#000000ff"),light:zo(e.color.light||"#ffffffff")},type:e.type,rendererOpts:e.rendererOpts||{}}};be.getScale=function(e,t){return t.width&&t.width>=e+t.margin*2?t.width/(e+t.margin*2):t.scale};be.getImageWidth=function(e,t){let o=be.getScale(e,t);return Math.floor((e+t.margin*2)*o)};be.qrToImageData=function(e,t,o){let s=t.modules.size,r=t.modules.data,i=be.getScale(s,o),n=Math.floor((s+o.margin*2)*i),a=o.margin*i,h=[o.color.light,o.color.dark];for(let c=0;c<n;c++)for(let u=0;u<n;u++){let f=(c*n+u)*4,E=o.color.light;if(c>=a&&u>=a&&c<n-a&&u<n-a){let d=Math.floor((c-a)/i),g=Math.floor((u-a)/i);E=h[r[d*s+g]?1:0]}e[f++]=E.r,e[f++]=E.g,e[f++]=E.b,e[f]=E.a}}});var Do=D(je=>{var vt=xt();function fs(l,e,t){l.clearRect(0,0,e.width,e.height),e.style||(e.style={}),e.height=t,e.width=t,e.style.height=t+"px",e.style.width=t+"px"}function us(){try{return document.createElement("canvas")}catch{throw new Error("You need to specify a canvas element")}}je.render=function(e,t,o){let s=o,r=t;typeof s>"u"&&(!t||!t.getContext)&&(s=t,t=void 0),t||(r=us()),s=vt.getOptions(s);let i=vt.getImageWidth(e.modules.size,s),n=r.getContext("2d"),a=n.createImageData(i,i);return vt.qrToImageData(a.data,e,s),fs(n,r,i),n.putImageData(a,0,0),r};je.renderToDataURL=function(e,t,o){let s=o;typeof s>"u"&&(!t||!t.getContext)&&(s=t,t=void 0),s||(s={});let r=je.render(e,t,s),i=s.type||"image/png",n=s.rendererOpts||{};return r.toDataURL(i,n.quality)}});var qo=D(No=>{var ds=xt();function Uo(l,e){let t=l.a/255,o=e+\'="\'+l.hex+\'"\';return t<1?o+" "+e+\'-opacity="\'+t.toFixed(2).slice(1)+\'"\':o}function St(l,e,t){let o=l+e;return typeof t<"u"&&(o+=" "+t),o}function Es(l,e,t){let o="",s=0,r=!1,i=0;for(let n=0;n<l.length;n++){let a=Math.floor(n%e),h=Math.floor(n/e);!a&&!r&&(r=!0),l[n]?(i++,n>0&&a>0&&l[n-1]||(o+=r?St("M",a+t,.5+h+t):St("m",s,0),s=0,r=!1),a+1<e&&l[n+1]||(o+=St("h",i),i=0)):s++}return o}No.render=function(e,t,o){let s=ds.getOptions(t),r=e.modules.size,i=e.modules.data,n=r+s.margin*2,a=s.color.light.a?"<path "+Uo(s.color.light,"fill")+\' d="M0 0h\'+n+"v"+n+\'H0z"/>\':"",h="<path "+Uo(s.color.dark,"stroke")+\' d="\'+Es(i,r,s.margin)+\'"/>\',c=\'viewBox="0 0 \'+n+" "+n+\'"\',f=\'<svg xmlns="http://www.w3.org/2000/svg" \'+(s.width?\'width="\'+s.width+\'" height="\'+s.width+\'" \':"")+c+\' shape-rendering="crispEdges">\'+a+h+`</svg>\n`;return typeof o=="function"&&o(null,f),f}});var Yo=D(Be=>{var ps=Qt(),Ct=Ao(),Fo=Do(),ms=qo();function kt(l,e,t,o,s){let r=[].slice.call(arguments,1),i=r.length,n=typeof r[i-1]=="function";if(!n&&!ps())throw new Error("Callback required as last argument");if(n){if(i<2)throw new Error("Too few arguments provided");i===2?(s=t,t=e,e=o=void 0):i===3&&(e.getContext&&typeof s>"u"?(s=o,o=void 0):(s=o,o=t,t=e,e=void 0))}else{if(i<1)throw new Error("Too few arguments provided");return i===1?(t=e,e=o=void 0):i===2&&!e.getContext&&(o=t,t=e,e=void 0),new Promise(function(a,h){try{let c=Ct.create(t,o);a(l(c,e,o))}catch(c){h(c)}})}try{let a=Ct.create(t,o);s(null,l(a,e,o))}catch(a){s(a)}}Be.create=Ct.create;Be.toCanvas=kt.bind(null,Fo.render);Be.toDataURL=kt.bind(null,Fo.renderToDataURL);Be.toString=kt.bind(null,function(l,e,t){return ms.render(l,t)})});var Ds={};yr(Ds,{initQrMorphWidget:()=>zs});var C=te(oe(),1);var Qo=te(Yo(),1);function _o(l,e="M"){let t=Qo.default.create(l,{errorCorrectionLevel:e}),o=t.modules.size,s=[];for(let r=0;r<o;r++){let i=[];for(let n=0;n<o;n++)i.push(!!t.modules.get(r,n));s.push(i)}return{modules:s,size:o}}function Oo(l,e,t){return l<7&&e<7||l<7&&e>=t-7||l>=t-7&&e<7}var S=te(oe(),1);function j(l,e){let t=parseInt(l.slice(1),16),o=t>>16&255,s=t>>8&255,r=t&255,i=.299*o+.587*s+.114*r,n=e/i,a=h=>Math.max(0,Math.min(255,Math.round(h*n))).toString(16).padStart(2,"0");return"#"+a(o)+a(s)+a(r)}var Wo=108,jo=104;function It(l){return{...l,leaves:l.leaves.map(e=>j(e,Wo)),grass:l.grass.map(e=>j(e,jo))}}var Gt={spring:{leaves:["#d0507f","#c2386c","#e0679a","#b8416c","#d95c8a","#e0607a","#c4508f","#d46a8c","#b84a86","#e2708f"],grass:["#4f8a24","#5a9a2a","#467d1f","#3f7019","#6a9a1f","#2f7a3a","#5f8f30","#3d8a2e","#78a02a"],bloom:["#f9d3e2","#f6c1d5","#fce6ef","#f2b3cb","#fff2f7","#eeaac4","#f8cadb"],blades:["#6fbf3a","#8fd14f","#5aa02e","#a6dc6a","#4c8f26","#7cc444"],trunk:["#8a4a2e","#743b24"]},summer:{leaves:["#8a5ccc","#7646bd","#9a6fd6","#6538ab","#a57fdc","#9c5ac8","#7f62d8","#b06cc9","#8e4fb8","#6f5bd0"],grass:["#4f8a24","#5a9a2a","#467d1f","#3f7019","#6a9a1f","#2f7a3a","#5f8f30","#3d8a2e","#78a02a"],bloom:["#dcc8f5","#cfb6f0","#e9dcfa","#c3a6ea","#f3ecfd","#d5bff3"],blades:["#6fbf3a","#8fd14f","#5aa02e","#a6dc6a","#4c8f26","#7cc444"],trunk:["#7d4a32","#683d28"]},autumn:{leaves:["#d2701a","#c2581a","#e08f1f","#b04a12","#e8971c","#c9402a","#d9a21f","#b86a1a","#a8541f","#cf5a2e"],grass:["#8a6a1c","#7a5c18","#96741f","#6e5215","#9a7a1a","#7f6a24","#a0702a","#86621a"],bloom:["#f7cf5a","#f2b83c","#f9dc7e","#eea12e","#fbe6a4","#f4c24a"],blades:["#d9b44a","#c9a13a","#e6c868","#b08a2e","#efd27a"],trunk:["#7a3f26","#66331e"]}},Lt={spring:It(Gt.spring),summer:It(Gt.summer),autumn:It(Gt.autumn)};function p(l){let e=Math.sin(l*127.1+311.7)*43758.5453;return e-Math.floor(e)}function Xe(l){let e=l/2,t=l*.47,o=l*.34,s=l*.34;return{size:l,half:e,trunkH:o,canopyCenterY:o+s*.78,canopyRy:s,canopyFloor:o*.82,radiusAt:r=>t*(1+.1*Math.sin(3*r+.6)+.06*Math.sin(5*r+2.1)+.04*Math.cos(7*r))}}function Ko(l,e){return{x:l.c-e+.5,z:l.r-e+.5}}function Pt(l,e,t){let o=Math.hypot(e,t),s=Math.atan2(t,e);return o/l.radiusAt(s)}function gs(l,e){let t=Math.sqrt(Math.max(0,1-e*e)),o=l.canopyCenterY+l.canopyRy*t;return[Math.max(l.canopyFloor,l.canopyCenterY-l.canopyRy*.85*t),o]}function Ve(l,e){if(e.isFinder)return!1;let{x:t,z:o}=Ko(e,l.half);return Pt(l,t,o)<1}function Bt(l,e){let t=Xe(e);return l.map((o,s)=>{let{x:r,z:i}=Ko(o,t.half);if(Ve(t,o)){let[n,a]=gs(t,Pt(t,r,i)),h=a-(a-n)*.35*p(s+1),c=1.13;return{x:r,y:h,z:i,scaleX:c,scaleY:c,scaleZ:c,kind:"leaf"}}return{x:r,y:.18,z:i,scaleX:1.14,scaleY:.4,scaleZ:1.14,kind:"grass"}})}function Vt(l,e,t,o){let s=Lt[o],r=Xe(t),i=Ve(r,l),n=i?s.leaves:s.grass,a=n[Math.floor(p(e+13)*n.length)];return j(a,(i?Wo:jo)+(p(e+71)-.5)*14)}function Xo(l,e,t,o){let s=Lt[o],r=Xe(t);return Ve(r,l)?{color:s.bloom[Math.floor(p(e+31)*s.bloom.length)],scale:0}:{color:s.blades[Math.floor(p(e+37)*s.blades.length)],scale:1}}var Ke=class{constructor(e,t,o,s){this.modules=e;this.matrix=t;this.size=o;this.season=s;this.geometry=Xe(o),this.build()}group=new S.Group;grown=[];petals=[];petalMesh;geometry;disposables=[];lightModules=[];lastGrowth=-1;bloom={home:[],pos:[],quat:[],size:[],qrColor:[],color:[],offset:[]};track(e){return this.disposables.push(e),e}build(){let e=this.geometry,t=Lt[this.season],o=this.size,s=new S.Color,r=o+2.4,i=new S.Mesh(this.track(new S.BoxGeometry(r,.9,r)),this.track(new S.MeshStandardMaterial({color:"#f3f1ec",roughness:.85})));i.position.y=-.45,i.receiveShadow=!0,i.castShadow=!0,this.group.add(i);for(let c=0;c<o;c++)for(let u=0;u<o;u++)this.matrix[c][u]||this.lightModules.push({x:u-e.half+.5,z:c-e.half+.5});let n=new S.InstancedMesh(this.track(new S.BoxGeometry(.98,.06,.98)),this.track(new S.MeshStandardMaterial({color:16777215,roughness:.9})),this.lightModules.length);n.receiveShadow=!0;let a=new S.Matrix4,h=["#ffffff","#f6f5f2","#eeece8","#e6e4df","#f9f8f6"];this.lightModules.forEach((c,u)=>{a.makeTranslation(c.x,.03,c.z),n.setMatrixAt(u,a),n.setColorAt(u,s.set(h[Math.floor(p(u*3+5)*h.length)]))}),this.group.add(n),this.buildTrunk(t),this.buildBranches(t),this.buildBloom(t),this.buildGrassBlades(t),this.buildGroundPetals(t),this.buildFallingPetals(t)}addGrown(e,t,o,s=!0){let r=new S.InstancedMesh(this.track(e),this.track(t),Math.max(1,o.length));r.count=o.length,r.castShadow=s,r.receiveShadow=!0;let i=new S.Color;o.forEach((n,a)=>r.setColorAt(a,i.set(n.color))),r.instanceColor&&(r.instanceColor.needsUpdate=!0),this.group.add(r),this.grown.push({mesh:r,base:o.map(n=>n.matrix),delay:o.map(n=>n.delay),pivot:o.map(n=>n.pivot)})}buildTrunk(e){let t=this.geometry,o=[],s=.45,r=t.canopyCenterY,i=Math.ceil(r/s);for(let n=0;n<i;n++){let a=n*s+s/2,h=a/r,c=h<.1?1+(.1-h)*4.5:1,u=(1-h*.42)*c,f=Math.sin(h*2.2)*.3,E=new S.Matrix4().compose(new S.Vector3(f,a,f*.35),new S.Quaternion,new S.Vector3(u,1,u));o.push({matrix:E,color:n%3===0?e.trunk[1]:e.trunk[0],delay:h*.22,pivot:new S.Vector3(0,0,0)})}this.addGrown(new S.CylinderGeometry(.98,1,s*1.02,18),new S.MeshStandardMaterial({color:16777215,roughness:.85}),o)}buildBranches(e){let t=this.geometry,o=[],s=new S.Vector3(0,1,0),r=(n,a,h,c,u)=>{let f=a.clone().sub(n),E=new S.Quaternion().setFromUnitVectors(s,f.clone().normalize()),d=n.clone().add(a).multiplyScalar(.5);o.push({matrix:new S.Matrix4().compose(d,E,new S.Vector3(h,f.length(),h)),color:e.trunk[u],delay:c,pivot:n.clone()})},i=8;for(let n=0;n<i;n++){let a=n/i*Math.PI*2+p(n+40)*.6,h=t.trunkH*(.6+p(n+41)*.45),c=t.radiusAt(a)*(.6+p(n+42)*.25),u=new S.Vector3(0,h,0),f=new S.Vector3(Math.cos(a)*c*.5,h+t.canopyRy*(.3+p(n+43)*.2),Math.sin(a)*c*.5),E=new S.Vector3(Math.cos(a)*c,f.y+t.canopyRy*(.2+p(n+44)*.25),Math.sin(a)*c);r(u,f,.38,.2,n%2),r(f,E,.22,.3,(n+1)%2);for(let d=0;d<2;d++){let g=a+(p(n*3+d+45)-.5)*1.8,m=d===0?f:E,y=new S.Vector3(m.x+Math.cos(g)*c*.3,m.y+t.canopyRy*(.18+p(n+d+46)*.15),m.z+Math.sin(g)*c*.3);r(m,y,.12,.38,1)}}r(new S.Vector3(0,t.trunkH,0),new S.Vector3(.4,t.canopyCenterY+t.canopyRy*.7,-.3),.32,.25,0),this.addGrown(new S.CylinderGeometry(1,1,1,8),new S.MeshStandardMaterial({color:16777215,roughness:.9}),o)}buildBloom(e){let t=this.geometry,o=this.size,s=Bt(this.modules,o),r=new Map,i=[];this.modules.forEach((E,d)=>{if(!Ve(t,E))return;let g=s[d],m={pos:new S.Vector3(g.x,g.y,g.z),color:new S.Color(Vt(E,d,o,this.season))};r.set(E.r*o+E.c,m),i.push(m)});let n=(E,d,g)=>{let m=Math.round(E+t.half-.5),y=Math.round(d+t.half-.5);for(let T=0;T<=3;T++)for(let x=-T;x<=T;x++)for(let k=-T;k<=T;k++){if(Math.max(Math.abs(x),Math.abs(k))!==T)continue;let L=y+x,v=m+k;if(L<0||v<0||L>=o||v>=o)continue;let I=r.get(L*o+v);if(I)return I}return i[Math.floor(p(g)*i.length)]},a=Math.round(o*o*.6),h=new S.Euler,c=new S.Color,u=1e3,f=this.bloom;for(let E=0;E<a;E++){let d=p(u++)*Math.PI*2,g=1-2*p(u++),m=Math.sqrt(1-g*g),y=.55+.45*Math.sqrt(p(u++)),T=t.radiusAt(d),x=Math.cos(d)*m*T*y,k=Math.sin(d)*m*T*y,L=t.canopyCenterY+g*t.canopyRy*y;L=Math.max(L,t.canopyFloor+.4+p(u++)*1.2);let v=8+Math.floor(p(u++)*8);for(let I=0;I<v;I++){let P=new S.Vector3(x+(p(u++)-.5)*2.2,L+(p(u++)-.5)*1.6,k+(p(u++)-.5)*2.2);P.y<t.canopyFloor-.3&&(P.y=t.canopyFloor-.3+p(u++)*.6),h.set((p(u++)-.5)*2.2,p(u++)*Math.PI,(p(u++)-.5)*2.2);let V=n(P.x,P.z,u++);if(!V)continue;let A=V.pos.clone().add(new S.Vector3((p(u++)-.5)*.5,(p(u++)-.5)*.4,(p(u++)-.5)*.5));f.home.push(A),f.pos.push(P),f.quat.push(new S.Quaternion().setFromEuler(h)),f.size.push(new S.Vector3(.36+p(u++)*.34,.1+p(u++)*.12,.36+p(u++)*.34)),f.qrColor.push(V.color),f.color.push(c.set(e.bloom[Math.floor(p(u++)*e.bloom.length)]).clone()),f.offset.push((p(u++)-.5)*.16)}}f.mesh=new S.InstancedMesh(this.track(new S.BoxGeometry(1,1,1)),this.track(new S.MeshStandardMaterial({color:16777215,roughness:.75})),Math.max(1,f.pos.length)),f.mesh.count=f.pos.length,f.mesh.castShadow=!0,f.mesh.receiveShadow=!0;for(let E=0;E<f.pos.length;E++)f.mesh.setColorAt(E,f.color[E]);this.group.add(f.mesh)}updateBloom(e){let t=this.bloom;if(!t.mesh)return;let o=new S.Vector3,s=new S.Quaternion,r=new S.Vector3,i=new S.Matrix4,n=new S.Color,a=new S.Quaternion,h=!1;for(let c=0;c<t.pos.length;c++){let u=t.offset[c],f=S.MathUtils.smoothstep(e,.06+u*.5,.92+u*.5);f>0&&(h=!0),o.copy(t.home[c]).lerp(t.pos[c],f),o.y+=Math.sin(f*Math.PI)*.6,s.copy(a).slerp(t.quat[c],f);let E=S.MathUtils.lerp(.04,1,f);r.copy(t.size[c]).multiplyScalar(E||1e-4),i.compose(o,s,r),t.mesh.setMatrixAt(c,i),n.copy(t.qrColor[c]).lerp(t.color[c],S.MathUtils.smoothstep(f,.15,.85)),t.mesh.setColorAt(c,n)}t.mesh.visible=h,t.mesh.instanceMatrix.needsUpdate=!0,t.mesh.instanceColor&&(t.mesh.instanceColor.needsUpdate=!0)}buildGrassBlades(e){let t=this.geometry,o=[];this.modules.forEach((s,r)=>{if(Ve(t,s))return;let i=s.c-t.half+.5,n=s.r-t.half+.5,a=s.isFinder?8:6;for(let h=0;h<a;h++){let c=(s.isFinder?.7:.5)+p(r*7+h*31)*(s.isFinder?1.2:.9),u=i+(p(r*3+h*5)-.5)*.85,f=n+(p(r*5+h*3)-.5)*.85,E=Math.atan2(f-n,u-i),d=.15+p(r+h*9)*.4,g=new S.Quaternion().setFromEuler(new S.Euler(Math.sin(E)*d,p(r+h)*Math.PI,-Math.cos(E)*d)),m=new S.Vector3(u,.34,f),y=m.clone().add(new S.Vector3(0,c/2,0).applyQuaternion(g));o.push({matrix:new S.Matrix4().compose(y,g,new S.Vector3(.09,c,.05)),color:e.blades[Math.floor(p(r*29+h)*e.blades.length)],delay:.05+p(r+h*17)*.3,pivot:m})}}),this.addGrown(new S.BoxGeometry(1,1,1),new S.MeshStandardMaterial({color:16777215,roughness:.8}),o,!1)}buildGroundPetals(e){let t=this.geometry,o=[];this.lightModules.forEach((s,r)=>{let i=Pt(t,s.x,s.z);if(i>1.25||p(r*7+1)>.2*(1.4-i))return;let n=.28+p(r+2)*.2,a=new S.Vector3(s.x+(p(r+3)-.5)*.5,.08,s.z+(p(r+4)-.5)*.5);o.push({matrix:new S.Matrix4().compose(a,new S.Quaternion().setFromEuler(new S.Euler(0,p(r)*Math.PI,0)),new S.Vector3(n,.05,n)),color:e.bloom[r%e.bloom.length],delay:.65,pivot:a.clone()})}),this.addGrown(new S.BoxGeometry(1,1,1),new S.MeshStandardMaterial({color:16777215,roughness:.7}),o,!1)}buildFallingPetals(e){let t=this.geometry,o=60;this.petalMesh=new S.InstancedMesh(this.track(new S.BoxGeometry(.34,.06,.34)),this.track(new S.MeshStandardMaterial({color:16777215,roughness:.6})),o);let s=new S.Color;for(let r=0;r<o;r++){let i=p(r+500)*Math.PI*2,n=Math.sqrt(p(r+600))*t.radiusAt(i)*1.15;this.petals.push({x:Math.cos(i)*n,z:Math.sin(i)*n,y0:t.canopyFloor+p(r+700)*t.canopyRy,speed:.6+p(r+800)*.8,phase:p(r+900)*10,spin:1+p(r+950)*2,floor:.1}),this.petalMesh.setColorAt(r,s.set(e.bloom[r%e.bloom.length]))}this.group.add(this.petalMesh)}update(e,t){if(e!==this.lastGrowth){this.lastGrowth=e,this.updateBloom(e);let r=new S.Matrix4,i=new S.Matrix4,n=new S.Matrix4,a=new S.Matrix4;for(let h of this.grown){let c=!1;for(let u=0;u<h.base.length;u++){let f=S.MathUtils.clamp((e-h.delay[u])/(1-h.delay[u]),0,1),E=f<=0?0:f>=1?1:1-Math.pow(1-f,3)+Math.sin(f*Math.PI)*.08;E>0&&(c=!0);let d=h.pivot[u];n.makeTranslation(-d.x,-d.y,-d.z),a.makeTranslation(d.x,d.y,d.z);let g=E||1e-4;i.makeScale(g,g,g),r.copy(a).multiply(i).multiply(n).multiply(h.base[u]),h.mesh.setMatrixAt(u,r)}h.mesh.visible=c,h.mesh.instanceMatrix.needsUpdate=!0}}let o=S.MathUtils.clamp((e-.85)/.15,0,1);if(this.petalMesh.visible=o>0,!this.petalMesh.visible)return;let s=new S.Object3D;for(let r=0;r<this.petals.length;r++){let i=this.petals[r],n=i.y0-i.floor,a=(t*i.speed+i.phase)%(n+2),h=i.y0-Math.min(a,n),c=Math.sin(t*1.3+i.phase)*.6;s.position.set(i.x+c,h,i.z+Math.cos(t*1.1+i.phase)*.4),s.rotation.set(Math.sin(t*i.spin+i.phase)*1.2,t*i.spin,Math.cos(t+i.phase)*.8);let u=o*(a>n?Math.max(0,1-(a-n)/2):1);s.scale.setScalar(u||1e-4),s.updateMatrix(),this.petalMesh.setMatrixAt(r,s.matrix)}this.petalMesh.instanceMatrix.needsUpdate=!0}dispose(){this.group.removeFromParent(),this.disposables.forEach(e=>e.dispose()),this.disposables=[]}};var w=te(oe(),1);var Ze={day:{facades:["#d9cfc1","#c9bba7","#b8735a","#9fb0c0","#e4e0d8","#8a9aa8","#c48a6a","#a7b5a0"],road:"#a3a5aa",park:["#7fb54a","#6ea842","#8cc05a"],slab:"#e6e2da",marking:"#ffffff",glass:"#a9c4d8",night:0,windowLit:"#ffd27a",ambient:{color:"#ffffff",intensity:1.2},sun:{color:"#fff6e8",intensity:2.6,position:[22,48,28]},car:["#e94f4f","#f2c14e","#4f8fe9","#f5f5f5","#2b2b2b","#5fbf8f"]},sunset:{facades:["#e0b48f","#c98a6a","#b0766a","#d9a27e","#a8707a","#e6c3a0","#bf8f80","#d0a090"],road:"#9a8a86",park:["#8fa24a","#7f9442","#9aab55"],slab:"#ead6c4",marking:"#fff0dc",glass:"#ffc890",night:.25,windowLit:"#ffcf80",ambient:{color:"#ffd2b8",intensity:.95},sun:{color:"#ffad6b",intensity:2.7,position:[46,16,-6]},car:["#e94f4f","#f2c14e","#4f8fe9","#f5f5f5","#2b2b2b","#5fbf8f"]},night:{facades:["#3a4150","#2f3542","#454c5c","#3d3a48","#2c3340","#4a4458","#36404c","#40485a"],road:"#363b46",park:["#2f4a35","#2a4230","#35523a"],slab:"#2a2e38",marking:"#8a8f9a",glass:"#1f2633",night:1,windowLit:"#ffd27a",ambient:{color:"#5b6aa8",intensity:.7},sun:{color:"#a8b8ff",intensity:.9,position:[-20,40,10]},car:["#c0392b","#d4a43a","#3a6fc0","#d8d8d8","#1e1e1e","#3f9f70"]}},fe={ambient:{color:"#ffffff",intensity:1.25},sun:{color:"#ffffff",intensity:2.5,position:[22,48,28]},slab:"#f3f1ec"},bs=100,re=.75;function ws(l,e,t){return l<7&&e<7?[l,e]:l<7&&e>=t-7?[l,e-(t-7)]:l>=t-7&&e<7?[l-(t-7),e]:null}function Jo(l,e){let t=e/2,o=new Map;l.forEach((c,u)=>o.set(c.r*e+c.c,u));let s=new Array(l.length).fill(-1),r=[],i=Math.round(e*.62/re);[[0,0],[0,e-7],[e-7,0]].forEach(([c,u],f)=>{let E=[],d=[];for(let T=0;T<7;T++)for(let x=0;x<7;x++){let k=o.get((c+T)*e+(u+x));k!==void 0&&(T>=2&&T<=4&&x>=2&&x<=4?d.push(k):E.push(k))}let g={id:r.length,h:3*re,facadeIndex:(f*3+1)%8,cells:E,isTower:!1};r.push(g),E.forEach(T=>s[T]=g.id);let m=Math.round(e*.5/re)+f*2,y={id:r.length,h:m*re,facadeIndex:(f*3+3)%8,cells:d,isTower:!0};r.push(y),d.forEach(T=>s[T]=y.id)});let a=(c,u)=>Math.floor(c/3)*1e3+Math.floor(u/3);l.forEach((c,u)=>{if(s[u]!==-1)return;let f=a(c.r,c.c),E=[],d=[u];for(s[u]=-2;d.length;){let v=d.pop();E.push(v);let{r:I,c:P}=l[v];for(let[V,A]of[[1,0],[-1,0],[0,1],[0,-1]]){let O=I+V,ee=P+A;if(O<0||ee<0||O>=e||ee>=e||a(O,ee)!==f)continue;let U=o.get(O*e+ee);U===void 0||s[U]!==-1||(s[U]=-2,d.push(U))}}let g=0,m=0;E.forEach(v=>{g+=l[v].c-t+.5,m+=l[v].r-t+.5}),g/=E.length,m/=E.length;let y=r.length,T=Math.min(1,Math.hypot(g,m)/(t*1.1)),x=Math.pow(1-T,1.4),k=2+Math.round(x*i*(.45+.55*p(y*7+3)));p(y*13+5)<.07&&(k+=5);let L={id:y,h:k*re,facadeIndex:Math.floor(p(y*3+1)*8),cells:E,isTower:!1};r.push(L),E.forEach(v=>s[v]=y)});let h=l.map((c,u)=>r[s[u]].h);return{size:e,half:t,height:h,building:s,buildings:r,maxH:Math.max(...h)}}function $o(l,e){let t=Jo(l,e);return l.map((o,s)=>{let r=t.height[s];return{x:o.c-t.half+.5,y:r/2,z:o.r-t.half+.5,scaleX:1.13,scaleY:r/.88,scaleZ:1.13}})}function Zo(l,e,t){let o=l.buildings[l.building[e]],s=Ze[t].facades[o.facadeIndex%Ze[t].facades.length];return{qr:j(s,bs+(p(e*5+11)-.5)*14),side:s}}function Ms(l,e){let t=l.buildings[l.building[e]];return .04+t.h/l.maxH*.32+p(t.id*17+2)*.06}function At(l,e){let t=Ze[l],o=e??{uSide:{value:0},uNight:{value:0},uTime:{value:0},uGlass:{value:new w.Color(t.glass)},uLit:{value:new w.Color(t.windowLit)}},s=new w.MeshStandardMaterial({color:16777215,roughness:.7,metalness:.05});return s.onBeforeCompile=r=>{Object.assign(r.uniforms,o),r.vertexShader=`varying vec3 vCityPos;\nvarying vec3 vCityN;\n`+r.vertexShader.replace("#include <project_vertex>",`#include <project_vertex>\n        vec4 cityWp = vec4(transformed, 1.0);\n        vec3 cityN = objectNormal;\n        #ifdef USE_INSTANCING\n          cityWp = instanceMatrix * cityWp;\n          cityN = mat3(instanceMatrix) * cityN;\n        #endif\n        cityWp = modelMatrix * cityWp;\n        vCityPos = cityWp.xyz;\n        vCityN = normalize(mat3(modelMatrix) * cityN);`),r.fragmentShader=`varying vec3 vCityPos;\n      varying vec3 vCityN;\n      uniform float uSide;\n      uniform float uNight;\n      uniform float uTime;\n      uniform vec3 uGlass;\n      uniform vec3 uLit;\n      float cityHash(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }\n      `+r.fragmentShader.replace("#include <color_fragment>",`#include <color_fragment>\n          float citySideFace = 1.0 - step(0.5, abs(vCityN.y));\n          float cityTopFace = step(0.5, vCityN.y);\n          bool cityAlongZ = abs(vCityN.x) > 0.5;\n          float cityU = cityAlongZ ? vCityPos.z : vCityPos.x;\n          float cityW = cityAlongZ ? vCityPos.x : vCityPos.z;\n          vec2 cityCell = vec2(cityU * 2.0, vCityPos.y / ${re.toFixed(2)});\n          vec2 cityF = fract(cityCell);\n          float cityWin = step(0.2, cityF.x) * step(cityF.x, 0.8) * step(0.25, cityF.y) * step(cityF.y, 0.8);\n          cityWin *= citySideFace * step(0.6, vCityPos.y) * uSide;\n          float cityH = cityHash(vec3(floor(cityCell), floor(cityW * 2.0)));\n          // lit windows change now and then\n          float cityOn = step(0.42, fract(cityH + floor(uTime * 0.07 + cityH * 13.0) * 0.37));\n          vec3 cityGlass = mix(uGlass, uGlass * 0.45, uNight);\n          diffuseColor.rgb = mix(diffuseColor.rgb, cityGlass, cityWin * 0.85);\n          // roofs a touch darker than facades in the side view\n          diffuseColor.rgb *= mix(1.0, 0.86, cityTopFace * uSide);\n          float cityGlow = cityWin * cityOn * uNight;`).replace("#include <emissivemap_fragment>",`#include <emissivemap_fragment>\n          totalEmissiveRadiance += uLit * cityGlow * (0.75 + 0.5 * cityH);`)},s.customProgramCacheKey=()=>"qr-city-facade",{material:s,uniforms:o}}var Je=class{constructor(e,t,o,s){this.modules=e;this.matrix=t;this.size=o;this.modeName=s,this.layout=Jo(e,o),this.cfg=Ze[s];let r=At(s);this.voxelMaterial=r.material,this.uniforms=r.uniforms,this.build()}group=new w.Group;voxelMaterial;uniforms;layout;cfg;grown=[];disposables=[];tiles=[];tileMesh;tileQr=[];tileSide=[];slabMat;lampMat;headMat;tailMat;cars=[];carBody;carCabin;carHead;carTail;lastGrowth=-1;growth=0;modeName;get maxHeight(){return this.layout.maxH+2.5}voxelColor(e){return Zo(this.layout,e,this.modeName)}growDelay(e){return Ms(this.layout,e)}voxelSideWindow=[.45,.8];voxelSideScale(){return[0,0,0]}get cityLayout(){return this.layout}track(e){return this.disposables.push(e),e}isLight(e,t){return e<0||t<0||e>=this.size||t>=this.size?!0:!this.matrix[e][t]}build(){let e=this.size,t=e/2,o=this.cfg,s=e+2.4;this.slabMat=this.track(new w.MeshStandardMaterial({color:fe.slab,roughness:.85}));let r=new w.Mesh(this.track(new w.BoxGeometry(s,.9,s)),this.slabMat);r.position.y=-.45,r.receiveShadow=!0,r.castShadow=!0,this.group.add(r);for(let a=0;a<e;a++)for(let h=0;h<e;h++){if(this.matrix[a][h])continue;let c=ws(a,h,e),u="road";if(c){let[f,E]=c;f>=1&&f<=5&&E>=1&&E<=5&&(u="park")}else{let f=!0;for(let E=-1;E<=1&&f;E++)for(let d=-1;d<=1;d++)if(!this.isLight(a+E,h+d)){f=!1;break}f&&p(Math.floor(a/4)*97+Math.floor(h/4)*31+7)<.45&&(u="park")}this.tiles.push({x:h-t+.5,z:a-t+.5,r:a,c:h,kind:u})}this.tileMesh=new w.InstancedMesh(this.track(new w.BoxGeometry(1,.06,1)),this.track(new w.MeshStandardMaterial({color:16777215,roughness:.9})),Math.max(1,this.tiles.length)),this.tileMesh.count=this.tiles.length,this.tileMesh.receiveShadow=!0;let i=["#ffffff","#f6f5f2","#eeece8","#e9e7e2","#f9f8f6"],n=new w.Matrix4;this.tiles.forEach((a,h)=>{n.makeTranslation(a.x,.03,a.z),this.tileMesh.setMatrixAt(h,n),this.tileQr.push(new w.Color(i[Math.floor(p(h*3+5)*i.length)]));let c=a.kind==="park"?o.park[Math.floor(p(h*7+2)*o.park.length)]:o.road,u=new w.Color(c).multiplyScalar(.94+p(h*11+9)*.1);this.tileSide.push(u),this.tileMesh.setColorAt(h,this.tileQr[h])}),this.group.add(this.tileMesh),this.buildDetailedBuildings(),this.buildMarkings(),this.buildTrees(),this.buildLamps(),this.buildRooftops(),this.buildCars()}addGrown(e,t,o,s=!0){let r=new w.InstancedMesh(this.track(e),this.track(t),Math.max(1,o.length));r.count=o.length,r.castShadow=s,r.receiveShadow=!0;let i=new w.Color;o.forEach((n,a)=>r.setColorAt(a,i.set(n.color))),r.instanceColor&&(r.instanceColor.needsUpdate=!0),this.group.add(r),this.grown.push({mesh:r,base:o.map(n=>n.matrix),delay:o.map(n=>n.delay),pivot:o.map(n=>n.pivot)})}buildDetailedBuildings(){let e=this.layout,t=this.size,o=e.half,s=new Map;this.modules.forEach((d,g)=>s.set(d.r*t+d.c,e.building[g]));let r=new Set(this.tiles.filter(d=>d.kind==="road").map(d=>d.r*t+d.c)),i=[],n=[],a=[],h=[],c=[],u=["#d94a3a","#2f8f6a","#f2c14e","#3a6fc0","#e07a3a"],f=(d,g,m,y,T,x)=>new w.Matrix4().compose(new w.Vector3((d+g)/2,(m+y)/2,(T+x)/2),new w.Quaternion,new w.Vector3(g-d,y-m,x-T));this.modules.forEach((d,g)=>{let m=e.building[g],y=e.buildings[m],T=y.h,x=Math.round(T/re),k=d.c-o+.5,L=d.r-o+.5,v={l:s.get(d.r*t+d.c-1)!==m||d.c===0,r:s.get(d.r*t+d.c+1)!==m||d.c===t-1,u:s.get((d.r-1)*t+d.c)!==m||d.r===0,d:s.get((d.r+1)*t+d.c)!==m||d.r===t-1},I=Zo(e,g,this.modeName).side,P="#"+new w.Color(I).lerp(new w.Color("#f4f1ea"),.45).getHexString(),V=Math.min(.7,this.growDelay(g)+.04),A=new w.Vector3(k,0,L),O=B=>({x0:k-.5+(v.l?B:0),x1:k+.5-(v.r?B:0),z0:L-.5+(v.u?B:0),z1:L+.5-(v.d?B:0)}),U=(x>=9&&!y.isTower?!0:y.isTower)?Math.round(x*.62)*re:T,W=O(.05);if(i.push({matrix:f(W.x0,W.x1,0,U,W.z0,W.z1),color:I,delay:V,pivot:A}),U<T){let B=O(.2);i.push({matrix:f(B.x0,B.x1,U,T,B.z0,B.z1),color:I,delay:V+.04,pivot:A})}let ue=O(.01);a.push({matrix:f(ue.x0,ue.x1,0,.72,ue.z0,ue.z1),color:"#"+new w.Color(I).multiplyScalar(.62).getHexString(),delay:V,pivot:A});let ae=(B,K,Y,Ee,we,Me)=>{let Q=O(Ee);v.l&&n.push({matrix:f(Q.x0-Y,Q.x0+.08,B,B+K,Q.z0-(v.u?Y:0),Q.z1+(v.d?Y:0)),color:we,delay:V+Me,pivot:A}),v.r&&n.push({matrix:f(Q.x1-.08,Q.x1+Y,B,B+K,Q.z0-(v.u?Y:0),Q.z1+(v.d?Y:0)),color:we,delay:V+Me,pivot:A}),v.u&&n.push({matrix:f(Q.x0-(v.l?Y:0),Q.x1+(v.r?Y:0),B,B+K,Q.z0-Y,Q.z0+.08),color:we,delay:V+Me,pivot:A}),v.d&&n.push({matrix:f(Q.x0-(v.l?Y:0),Q.x1+(v.r?Y:0),B,B+K,Q.z1-.08,Q.z1+Y),color:we,delay:V+Me,pivot:A})};ae(.72,.06,.05,.05,P,.02);for(let B=6;B*re<U-.2;B+=6)ae(B*re-.03,.06,.04,.05,P,.05);if(U<T&&ae(U-.02,.1,.06,.05,P,.06),x<=3&&y.cells.length<=3&&!y.isTower){let B=O(.05);c.push({matrix:new w.Matrix4().compose(new w.Vector3((B.x0+B.x1)/2,T+.27,(B.z0+B.z1)/2),new w.Quaternion().setFromEuler(new w.Euler(0,Math.PI/4,0)),new w.Vector3((B.x1-B.x0)*.74,.54,(B.z1-B.z0)*.74)),color:this.modeName==="night"?"#5a3a34":"#b5533a",delay:V+.08,pivot:A})}else ae(T,.2,0,U<T?.2:.05,P,.08);[[v.l,0,-1],[v.r,0,1],[v.u,-1,0],[v.d,1,0]].forEach(([B,K,Y],Ee)=>{if(!B||!r.has((d.r+K)*t+(d.c+Y))||p(g*7+Ee)>.45)return;let we=u[Math.floor(p(g*3+Ee)*u.length)],Me=new w.Quaternion().setFromEuler(new w.Euler(K*.5,0,-Y*.5)),Q=new w.Vector3(k+Y*.6,.62,L+K*.6);h.push({matrix:new w.Matrix4().compose(Q,Me,new w.Vector3(Y!==0?.24:.8,.04,K!==0?.24:.8)),color:we,delay:V+.1,pivot:A})})});let E=At(this.modeName,this.uniforms).material;this.addGrown(new w.BoxGeometry(1,1,1),E,i),this.addGrown(new w.BoxGeometry(1,1,1),new w.MeshStandardMaterial({color:16777215,roughness:.6}),n),this.addGrown(new w.BoxGeometry(1,1,1),At(this.modeName,this.uniforms).material,a),this.addGrown(new w.BoxGeometry(1,1,1),new w.MeshStandardMaterial({color:16777215,roughness:.7}),h,!1),this.addGrown(new w.CylinderGeometry(0,.72,1,4),new w.MeshStandardMaterial({color:16777215,roughness:.8}),c)}buildMarkings(){let e=[];this.tiles.forEach((t,o)=>{if(t.kind!=="road")return;let s=this.isLight(t.r,t.c-1)&&this.isLight(t.r,t.c+1),r=this.isLight(t.r-1,t.c)&&this.isLight(t.r+1,t.c);if(s===r)return;let i=new w.Vector3(t.x,.065,t.z),n=s?new w.Vector3(.42,.01,.07):new w.Vector3(.07,.01,.42);e.push({matrix:new w.Matrix4().compose(i,new w.Quaternion,n),color:this.cfg.marking,delay:.45+p(o+3)*.1,pivot:i.clone()})}),this.addGrown(new w.BoxGeometry(1,1,1),new w.MeshStandardMaterial({color:16777215,roughness:.6}),e,!1)}buildTrees(){let e=[],t=[];this.tiles.forEach((o,s)=>{if(o.kind!=="park"||p(s*13+1)>.62)return;let r=(p(s+21)-.5)*.3,i=(p(s+22)-.5)*.3,n=.35+p(s+23)*.25,a=new w.Vector3(o.x+r,.06,o.z+i);e.push({matrix:new w.Matrix4().compose(a.clone().setY(.06+n/2),new w.Quaternion,new w.Vector3(.1,n,.1)),color:"#6b4a32",delay:.35+p(s+4)*.2,pivot:a});let h=.45+p(s+24)*.25,c=this.cfg.park[Math.floor(p(s+25)*this.cfg.park.length)];t.push({matrix:new w.Matrix4().compose(a.clone().setY(.06+n+h*.45),new w.Quaternion().setFromEuler(new w.Euler(0,p(s+26)*Math.PI,0)),new w.Vector3(h,h*.9,h)),color:"#"+new w.Color(c).multiplyScalar(.85).getHexString(),delay:.45+p(s+5)*.25,pivot:a})}),this.addGrown(new w.BoxGeometry(1,1,1),new w.MeshStandardMaterial({color:16777215,roughness:.9}),e),this.addGrown(new w.BoxGeometry(1,1,1),new w.MeshStandardMaterial({color:16777215,roughness:.8}),t)}buildLamps(){let e=[],t=[];this.tiles.forEach((o,s)=>{if(o.kind!=="road"||p(s*19+4)>.12)return;let r=[[0,-1],[0,1],[-1,0],[1,0]].find(([n,a])=>!this.isLight(o.r+n,o.c+a));if(!r)return;let i=new w.Vector3(o.x+r[1]*.36,.06,o.z+r[0]*.36);e.push({matrix:new w.Matrix4().compose(i.clone().setY(.06+.45),new w.Quaternion,new w.Vector3(.06,.9,.06)),color:"#4a4f58",delay:.5+p(s+6)*.15,pivot:i}),t.push({matrix:new w.Matrix4().compose(i.clone().setY(.98),new w.Quaternion,new w.Vector3(.16,.1,.16)),color:"#ffffff",delay:.55+p(s+7)*.15,pivot:i})}),this.addGrown(new w.BoxGeometry(1,1,1),new w.MeshStandardMaterial({color:16777215,roughness:.6}),e,!1),this.lampMat=new w.MeshStandardMaterial({color:"#fff2cc",emissive:this.cfg.windowLit,emissiveIntensity:0}),this.addGrown(new w.BoxGeometry(1,1,1),this.lampMat,t,!1)}buildRooftops(){let e=this.layout,t=e.half,o=[],s=[],r=[],i=[...e.buildings].filter(n=>!n.isTower).sort((n,a)=>a.h-n.h).slice(0,5).map(n=>n.id);for(let n of e.buildings){let a=Math.min(.85,.08+n.h/e.maxH*.32+.3),h=c=>{let u=this.modules[n.cells[c%n.cells.length]];return new w.Vector3(u.c-t+.5,n.h,u.r-t+.5)};if(n.isTower){let c=0,u=0;n.cells.forEach(E=>{c+=this.modules[E].c-t+.5,u+=this.modules[E].r-t+.5}),c/=n.cells.length,u/=n.cells.length;let f=new w.Vector3(c,n.h,u);o.push({matrix:new w.Matrix4().compose(f.clone().setY(n.h+.35),new w.Quaternion,new w.Vector3(1.8,.7,1.8)),color:"#8a9099",delay:a,pivot:f.clone()}),r.push({matrix:new w.Matrix4().compose(f.clone().setY(n.h+.7+1.6),new w.Quaternion,new w.Vector3(.12,3.2,.12)),color:"#c9ccd2",delay:Math.min(.9,a+.05),pivot:f.clone().setY(n.h+.7)});continue}if(n.cells.length>=2&&p(n.id*5+1)<.6){let c=h(Math.floor(p(n.id+2)*n.cells.length));c.x+=(p(n.id+3)-.5)*.3,c.z+=(p(n.id+4)-.5)*.3,o.push({matrix:new w.Matrix4().compose(c.clone().setY(n.h+.13),new w.Quaternion,new w.Vector3(.45,.26,.32)),color:"#9aa0a8",delay:a,pivot:c.clone()})}if(n.cells.length>=4&&p(n.id*7+2)<.4){let c=h(Math.floor(p(n.id+5)*n.cells.length));s.push({matrix:new w.Matrix4().compose(c.clone().setY(n.h+.4),new w.Quaternion,new w.Vector3(.32,.55,.32)),color:"#8a6a4a",delay:a,pivot:c.clone()})}if(i.includes(n.id)){let c=h(0),u=1.2+p(n.id+6)*1.4;r.push({matrix:new w.Matrix4().compose(c.clone().setY(n.h+u/2),new w.Quaternion,new w.Vector3(.06,u,.06)),color:"#c9ccd2",delay:a,pivot:c.clone()})}}this.addGrown(new w.BoxGeometry(1,1,1),new w.MeshStandardMaterial({color:16777215,roughness:.7}),o),this.addGrown(new w.CylinderGeometry(1,1,1,12),new w.MeshStandardMaterial({color:16777215,roughness:.8}),s),this.addGrown(new w.BoxGeometry(1,1,1),new w.MeshStandardMaterial({color:16777215,roughness:.5}),r)}buildCars(){let e=this.size,t=new Set(this.tiles.filter(n=>n.kind==="road").map(n=>n.r*e+n.c)),o=[];for(let n=0;n<e;n++)for(let a of[!0,!1]){let h=-1;for(let c=0;c<=e;c++){let u=c<e&&t.has(a?n*e+c:c*e+n);u&&h<0&&(h=c),!u&&h>=0&&(c-h>=4&&o.push({horizontal:a,line:n,from:h,to:c-1}),h=-1)}}o.sort((n,a)=>p(n.line*31+n.from+(n.horizontal?7:0))-p(a.line*31+a.from+(a.horizontal?7:0))),o.slice(0,Math.min(18,o.length)).forEach((n,a)=>{let h=n.to-n.from+1>=10?2:1;for(let c=0;c<h;c++)this.cars.push({...n,dir:p(a*3+c)<.5?1:-1,speed:.9+p(a*5+c)*.9,phase:p(a*7+c*3)})});let r=Math.max(1,this.cars.length);this.carBody=new w.InstancedMesh(this.track(new w.BoxGeometry(.62,.2,.3)),this.track(new w.MeshStandardMaterial({color:16777215,roughness:.4,metalness:.2})),r),this.carCabin=new w.InstancedMesh(this.track(new w.BoxGeometry(.32,.15,.26)),this.track(new w.MeshStandardMaterial({color:"#2a3340",roughness:.3})),r),this.headMat=this.track(new w.MeshBasicMaterial({color:"#fff3c4"})),this.tailMat=this.track(new w.MeshBasicMaterial({color:"#ff3b3b"})),this.carHead=new w.InstancedMesh(this.track(new w.BoxGeometry(.04,.06,.24)),this.headMat,r),this.carTail=new w.InstancedMesh(this.track(new w.BoxGeometry(.04,.06,.24)),this.tailMat,r),[this.carBody,this.carCabin,this.carHead,this.carTail].forEach(n=>{n.count=this.cars.length,n.castShadow=n===this.carBody,this.group.add(n)});let i=new w.Color;this.cars.forEach((n,a)=>this.carBody.setColorAt(a,i.set(this.cfg.car[Math.floor(p(a*9+4)*this.cfg.car.length)])))}applyLighting(e,t,o,s){let r=this.cfg;t.color.set(fe.ambient.color).lerp(new w.Color(r.ambient.color),e),t.intensity=w.MathUtils.lerp(fe.ambient.intensity,r.ambient.intensity,e),o.color.set(fe.sun.color).lerp(new w.Color(r.sun.color),e),o.intensity=w.MathUtils.lerp(fe.sun.intensity,r.sun.intensity,e);let i=new w.Vector3(...fe.sun.position);o.position.copy(i.lerp(new w.Vector3(...r.sun.position),e)),s.intensity=0,this.slabMat.color.set(fe.slab).lerp(new w.Color(r.slab),e),this.uniforms.uSide.value=e,this.uniforms.uNight.value=r.night*w.MathUtils.smoothstep(e,.4,1),this.lampMat.emissiveIntensity=2.2*this.uniforms.uNight.value;let n=this.uniforms.uNight.value;this.headMat.color.set("#fff3c4").multiplyScalar(.35+.65*n),this.tailMat.color.set("#ff3b3b").multiplyScalar(.35+.65*n)}update(e,t){if(this.growth=e,this.uniforms.uTime.value=t,e!==this.lastGrowth){this.lastGrowth=e;let o=new w.Color;for(let a=0;a<this.tiles.length;a++)o.copy(this.tileQr[a]).lerp(this.tileSide[a],w.MathUtils.smoothstep(e,.1,.7)),this.tileMesh.setColorAt(a,o);this.tileMesh.instanceColor&&(this.tileMesh.instanceColor.needsUpdate=!0);let s=new w.Matrix4,r=new w.Matrix4,i=new w.Matrix4,n=new w.Matrix4;for(let a of this.grown){let h=!1;for(let c=0;c<a.base.length;c++){let u=w.MathUtils.clamp((e-a.delay[c])/(1-a.delay[c]),0,1),f=u<=0?0:u>=1?1:1-Math.pow(1-u,3);f>0&&(h=!0);let E=a.pivot[c];i.makeTranslation(-E.x,-E.y,-E.z),n.makeTranslation(E.x,E.y,E.z);let d=f||1e-4;r.makeScale(d,d,d),s.copy(n).multiply(r).multiply(i).multiply(a.base[c]),a.mesh.setMatrixAt(c,s)}a.mesh.visible=h,a.mesh.instanceMatrix.needsUpdate=!0}}this.updateCars(t)}updateCars(e){let t=w.MathUtils.clamp((this.growth-.8)/.2,0,1),o=[this.carBody,this.carCabin,this.carHead,this.carTail];if(o.forEach(n=>n.visible=t>0&&this.cars.length>0),t<=0)return;let s=this.size/2,r=new w.Object3D,i=(n,a,h,c,u,f)=>{r.position.copy(u).applyAxisAngle(new w.Vector3(0,1,0),c).add(h),r.rotation.set(0,c,0),r.scale.setScalar(f||1e-4),r.updateMatrix(),n.setMatrixAt(a,r.matrix)};this.cars.forEach((n,a)=>{let h=n.to-n.from+1,c=(e*n.speed/h+n.phase)%1,u=n.dir>0?c:1-c,f=n.from-s+.5-.5+.3+u*(h-.6),E=n.dir*.2,d=n.line-s+.5+E,g=n.horizontal?new w.Vector3(f,.17,d):new w.Vector3(d,.17,f),m=n.horizontal?n.dir>0?0:Math.PI:n.dir>0?-Math.PI/2:Math.PI/2,y=Math.min(1,c*10,(1-c)*10)*t;i(this.carBody,a,g,m,new w.Vector3(0,0,0),y),i(this.carCabin,a,g,m,new w.Vector3(-.04,.16,0),y),i(this.carHead,a,g,m,new w.Vector3(.31,.02,0),y),i(this.carTail,a,g,m,new w.Vector3(-.31,.02,0),y)}),o.forEach(n=>n.instanceMatrix.needsUpdate=!0),this.carBody.instanceColor&&(this.carBody.instanceColor.needsUpdate=!0)}static resetLighting(e,t){e.color.set("#ffffff"),t.color.set("#ffffff"),t.position.set(...fe.sun.position)}dispose(){this.group.removeFromParent(),this.disposables.forEach(e=>e.dispose()),this.disposables=[]}};var b=te(oe(),1);var _=te(oe(),1),q={ambient:{color:"#ffffff",intensity:1.25},sun:{color:"#ffffff",intensity:2.5,position:[22,48,28]},slab:"#f3f1ec"};function er(l,e){l.color.set(q.ambient.color),e.color.set(q.sun.color),e.position.set(...q.sun.position)}function se(l,e,t,o,s){t.color.set(q.ambient.color).lerp(new _.Color(e.ambient.color),l),t.intensity=_.MathUtils.lerp(q.ambient.intensity,e.ambient.intensity,l),o.color.set(q.sun.color).lerp(new _.Color(e.sun.color),l),o.intensity=_.MathUtils.lerp(q.sun.intensity,e.sun.intensity,l),o.position.copy(new _.Vector3(...q.sun.position).lerp(new _.Vector3(...e.sun.position),l)),s.intensity=0}var J=class{constructor(e,t){this.group=e;this.track=t}sets=[];add(e,t,o,s=!0){let r=new _.InstancedMesh(this.track(e),this.track(t),Math.max(1,o.length));r.count=o.length,r.castShadow=s,r.receiveShadow=!0;let i=new _.Color;return o.forEach((n,a)=>r.setColorAt(a,i.set(n.color))),r.instanceColor&&(r.instanceColor.needsUpdate=!0),this.group.add(r),this.sets.push({mesh:r,base:o.map(n=>n.matrix),delay:o.map(n=>n.delay),pivot:o.map(n=>n.pivot)}),r}update(e){let t=new _.Matrix4,o=new _.Matrix4,s=new _.Matrix4,r=new _.Matrix4;for(let i of this.sets){let n=!1;for(let a=0;a<i.base.length;a++){let h=_.MathUtils.clamp((e-i.delay[a])/(1-i.delay[a]),0,1),c=h<=0?0:h>=1?1:1-Math.pow(1-h,3);c>0&&(n=!0);let u=i.pivot[a];s.makeTranslation(-u.x,-u.y,-u.z),r.makeTranslation(u.x,u.y,u.z);let f=c||1e-4;o.makeScale(f,f,f),t.copy(r).multiply(o).multiply(s).multiply(i.base[a]),i.mesh.setMatrixAt(a,t)}i.mesh.visible=n,i.mesh.instanceMatrix.needsUpdate=!0}}};function tr(l,e,t){let o=[];for(let s=0;s<e;s++)for(let r of[!0,!1]){let i=-1;for(let n=0;n<=e;n++){let a=n<e&&(r?l(s,n):l(n,s));a&&i<0&&(i=n),!a&&i>=0&&(n-i>=t&&o.push({horizontal:r,line:s,from:i,to:n-1}),i=-1)}}return o}function $(l,e,t){return l<7&&e<7?[l,e,0]:l<7&&e>=t-7?[l,e-(t-7),1]:l>=t-7&&e<7?[l-(t-7),e,2]:null}var Ts={summer:{bands:["#d9c27e","#7fb54a","#5a9a3a","#8a8378","#f2f4f6"],qrBands:["#c9a25a","#5fa83a","#3f8f3a","#8a7058","#7fa6c8"],waterDeep:"#2f9fc7",waterShallow:"#6fd6dc",slab:"#1f6f8f",foliage:["#3f8f3a","#4fa043","#357c33","#5aaa48"],trunk:"#7a5634",waterfall:"#bfeefa",mood:{ambient:{color:"#ffffff",intensity:1.2},sun:{color:"#fff4dc",intensity:2.6,position:[22,48,28]}}},winter:{bands:["#cfd8de","#eef3f7","#dfe7ee","#aab3bc","#ffffff"],qrBands:["#8fa8bc","#9db8cc","#7f9fb8","#7a8796","#a9c2d8"],waterDeep:"#3d6f8f",waterShallow:"#a9c9da",slab:"#2c4f66",foliage:["#2f5a3c","#36654a","#2a5036"],trunk:"#5e4632",waterfall:"#e4f6ff",mood:{ambient:{color:"#dfe9ff",intensity:1.25},sun:{color:"#e8f0ff",intensity:2.2,position:[30,30,20]}}},volcano:{bands:["#2b2b2b","#5f8a34","#476f2c","#3d3733","#2a2523"],qrBands:["#5a4a40","#5f8a34","#476f2c","#6a4a3a","#5a3530"],waterDeep:"#246f8f",waterShallow:"#4fb3c0",slab:"#1a4f66",foliage:["#3f7a2a","#4b8a30","#356a24"],trunk:"#5a3d28",waterfall:"#9fdcef",mood:{ambient:{color:"#ffd9c4",intensity:.85},sun:{color:"#ffb27a",intensity:2.3,position:[-30,35,20]}}}},ys=100,or=[[2,2],[3,4],[4,2]],zt=.5;function rr(l,e,t,o){let s=l/t,r=e/t,i=Math.floor(s),n=Math.floor(r),a=s-i,h=r-n,c=a*a*(3-2*a),u=h*h*(3-2*h),f=(g,m)=>p(g*57.1+m*131.7+o),E=f(i,n)*(1-c)+f(i+1,n)*c,d=f(i,n+1)*(1-c)+f(i+1,n+1)*c;return E*(1-u)+d*u}function sr(l,e,t){let o=e/2,s=e*.6,r=[],i=[],n=[],a=[];return l.forEach(h=>{let c=h.c-o+.5,u=h.r-o+.5,f=$(h.r,h.c,e);if(f){let[v,I,P]=f,V=v>=2&&v<=4&&I>=2&&I<=4,A=V?[2.5,2,1.5][P]:1;r.push(A),i.push(V?1:0),n.push(V?P:-1),a.push(!1);return}let E=Math.hypot(c,u)/(o*1.05),d=Math.max(0,1-E),g=rr(c+o,u+o,5,11)*.7+rr(c+o,u+o,2.5,23)*.3,m=.4+2.2*g*Math.pow(d,.7),y=Math.max(0,1-Math.hypot(c,u)/(o*.78)),T=s*Math.pow(y,1.15)*(.72+.28*g),x=Math.max(m,T),k=!1;t==="volcano"&&(x=.4+s*1.1*Math.pow(d,1.6)*(.75+.25*g),Math.hypot(c,u)<e*.09&&(x=s*.72,k=!0)),x=Math.max(zt,Math.round(x/zt)*zt),r.push(x);let L=x/s;i.push(L<.07?0:L<.2?1:L<.38?2:L<.62?3:4),n.push(-1),a.push(k)}),{size:e,half:o,height:r,band:i,core:n,maxH:Math.max(...r),crater:a}}function nr(l,e,t="summer"){let o=sr(l,e,t);return l.map((s,r)=>{let i=o.height[r];return{x:s.c-o.half+.5,y:i/2,z:s.r-o.half+.5,scaleX:1.13,scaleY:i/.88,scaleZ:1.13}})}function Hs(){let l={uSide:{value:0}},e=new b.MeshStandardMaterial({color:16777215,roughness:.92,metalness:0});return e.onBeforeCompile=t=>{Object.assign(t.uniforms,l),t.vertexShader=`varying vec3 vRockPos;\nvarying vec3 vRockN;\n`+t.vertexShader.replace("#include <project_vertex>",`#include <project_vertex>\n        vec4 rockWp = vec4(transformed, 1.0);\n        vec3 rockN = objectNormal;\n        #ifdef USE_INSTANCING\n          rockWp = instanceMatrix * rockWp;\n          rockN = mat3(instanceMatrix) * rockN;\n        #endif\n        vRockPos = (modelMatrix * rockWp).xyz;\n        vRockN = normalize(mat3(modelMatrix) * rockN);`),t.fragmentShader=`varying vec3 vRockPos;\nvarying vec3 vRockN;\nuniform float uSide;\n`+t.fragmentShader.replace("#include <color_fragment>",`#include <color_fragment>\n        float rockSide = 1.0 - step(0.5, abs(vRockN.y));\n        float strata = 0.86 + 0.14 * step(0.5, fract(vRockPos.y * 2.0));\n        float grain = 0.95 + 0.05 * fract(sin(dot(floor(vRockPos * 4.0), vec3(12.9898, 78.233, 37.719))) * 43758.5453);\n        diffuseColor.rgb *= mix(1.0, strata * grain * 0.9, rockSide * uSide);`)},e.customProgramCacheKey=()=>"qr-island-rock",{material:e,uniforms:l}}var $e=class{constructor(e,t,o,s){this.modules=e;this.matrix=t;this.size=o;this.mode=s;this.layout=sr(e,o,s),this.pal=Ts[s];let r=Hs();this.voxelMaterial=r.material,this.rockUniforms=r.uniforms,this.targets=e.map((i,n)=>{let a=this.layout.height[n];return{x:i.c-this.layout.half+.5,y:a/2,z:i.r-this.layout.half+.5,scaleX:1.13,scaleY:a/.88,scaleZ:1.13}}),this.grow=new J(this.group,i=>this.track(i)),this.build()}group=new b.Group;voxelMaterial;targets;rockUniforms;layout;pal;disposables=[];grow;water=[];waterMesh;waterQr=[];waterSide=[];slabMat;boats=[];boatHull;boatSail;particles;particleKind="none";lavaMat=null;lampMat;lastGrowth=-1;terrainTop=0;growth=0;get maxHeight(){return this.layout.maxH+3}track(e){return this.disposables.push(e),e}isWater(e,t){return e<0||t<0||e>=this.size||t>=this.size?!0:!this.matrix[e][t]}moduleIndex=new Map;qrHue=new Map;voxelColor(e){let t=this.layout,o=this.pal.bands[t.band[e]];t.crater[e]&&(o="#3a2a22");let s=t.crater[e]?"#ff5a1f":this.qrHue.get(e)??this.pal.qrBands[t.band[e]];return{qr:j(s,ys+(p(e*5+17)-.5)*14),side:o}}growDelay(e){return .04+this.layout.height[e]/this.layout.maxH*.34+p(e*7+3)*.06}build(){let e=this.size,t=e/2;this.modules.forEach((i,n)=>this.moduleIndex.set(i.r*e+i.c,n));let o=e+2.4;this.slabMat=this.track(new b.MeshStandardMaterial({color:q.slab,roughness:.6}));let s=new b.Mesh(this.track(new b.BoxGeometry(o,.9,o)),this.slabMat);s.position.y=-.45,s.receiveShadow=!0,this.group.add(s),this.slab=s;for(let i=0;i<e;i++)for(let n=0;n<e;n++){if(this.matrix[i][n])continue;let a=!this.isWater(i-1,n)||!this.isWater(i+1,n)||!this.isWater(i,n-1)||!this.isWater(i,n+1);this.water.push({x:n-t+.5,z:i-t+.5,r:i,c:n,shallow:a})}this.waterMesh=new b.InstancedMesh(this.track(new b.BoxGeometry(1,.06,1)),this.track(new b.MeshStandardMaterial({color:16777215,roughness:.25,metalness:.05})),Math.max(1,this.water.length)),this.waterMesh.count=this.water.length,this.waterMesh.receiveShadow=!0;let r=["#ffffff","#f6f5f2","#eeece8","#e9e7e2","#f9f8f6"];this.water.forEach((i,n)=>{this.waterQr.push(new b.Color(r[Math.floor(p(n*3+5)*r.length)]));let a=new b.Color(i.shallow?this.pal.waterShallow:this.pal.waterDeep);this.waterSide.push(a.multiplyScalar(.95+p(n*11+1)*.08)),this.waterMesh.setColorAt(n,this.waterQr[n])}),this.group.add(this.waterMesh),this.computeHeightField(),this.buildTerrain(),this.buildTrees(),this.buildLandmarks(),this.buildFoam(),this.mode==="volcano"&&this.buildLava(),this.buildRiver(),this.buildBoats(),this.buildParticles(),this.update(0,0)}top(e){let t=this.modules[e],o=t.c-this.layout.half+.5,s=t.r-this.layout.half+.5;return new b.Vector3(o,this.surfaceAt(o,s),s)}voxelSideWindow=[.3,.72];voxelSideScale(){return[0,0,0]}H;terrain;craterCentre=null;slab;seaLevel=0;sea;seaMat;computeHeightField(){let e=this.size,t=this.layout,o=new Float32Array(e*e).fill(-.4);this.modules.forEach((r,i)=>o[r.r*e+r.c]=t.height[i]);let s=new Uint8Array(e*e);this.modules.forEach(r=>s[r.r*e+r.c]=1);for(let r=0;r<2;r++){let i=new Float32Array(e*e);for(let n=0;n<e;n++)for(let a=0;a<e;a++){let h=0,c=0;for(let u=-1;u<=1;u++)for(let f=-1;f<=1;f++){let E=Math.min(e-1,Math.max(0,n+u)),d=Math.min(e-1,Math.max(0,a+f)),g=u===0&&f===0?4:u===0||f===0?2:1;h+=o[E*e+d]*g,c+=g}i[n*e+a]=h/c}o=i}for(let r=0;r<e*e;r++)o[r]=s[r]?Math.max(.22,o[r]*1.12):Math.min(-.06,o[r]);this.H=o,this.mode==="volcano"&&this.computeCrater(),this.terrainTop=o.reduce((r,i)=>Math.max(r,i),0),this.crater&&(this.terrainTop=this.crater.rim)}crater=null;computeCrater(){let e=this.layout,t=0,o=0,s=0;if(this.modules.forEach((a,h)=>{e.crater[h]&&(t+=a.c-e.half+.5,o+=a.r-e.half+.5,s++)}),!s)return;t/=s,o/=s;let r=Math.max(1,Math.sqrt(s/Math.PI)*.95),i=0;for(let a of this.H)i=Math.max(i,a);let n=i+.45;this.crater={x:t,z:o,r,rim:n,lake:n-.95}}surfaceAt(e,t){let o=this.hAt(e,t),s=this.crater;if(!s)return o;let r=Math.hypot(e-s.x,t-s.z),i=.8,n=2.2;if(r<s.r)return s.lake-.25;if(r<s.r+i)return b.MathUtils.lerp(s.lake-.25,s.rim,b.MathUtils.smoothstep(r,s.r,s.r+i));if(r<s.r+i+n){let a=b.MathUtils.smoothstep(r,s.r+i,s.r+i+n);return Math.max(o,b.MathUtils.lerp(s.rim,o,a))}return o}hAt(e,t){let o=this.size,s=Math.min(o-1,Math.max(0,e+o/2-.5)),r=Math.min(o-1,Math.max(0,t+o/2-.5)),i=Math.floor(s),n=Math.floor(r),a=Math.min(o-1,i+1),h=Math.min(o-1,n+1),c=s-i,u=r-n,f=this.H,E=f[n*o+i]*(1-c)+f[n*o+a]*c,d=f[h*o+i]*(1-c)+f[h*o+a]*c;return E*(1-u)+d*u}buildTerrain(){let e=this.size,t=e*2,o=new b.PlaneGeometry(e,e,t,t);o.rotateX(-Math.PI/2);let s=o.attributes.position;for(let f=0;f<s.count;f++){let E=s.getX(f),d=s.getZ(f),g=(p(Math.round((E+100)*2)*131+Math.round((d+100)*2)*17)-.5)*.18,m=this.surfaceAt(E,d),y=this.crater&&Math.hypot(E-this.crater.x,d-this.crater.z)<this.crater.r+.9;s.setY(f,m+(m>.4&&!y?g:0))}let r=o.toNonIndexed();o.dispose(),r.computeVertexNormals();let i=r.attributes.position,n=r.attributes.normal,a=new Float32Array(i.count*3),h=new b.Color,c=this.layout.maxH,u=this.pal.bands;for(let f=0;f<i.count;f+=3){let E=(i.getY(f)+i.getY(f+1)+i.getY(f+2))/3,d=n.getY(f),g=E/c,m=u[1];E<.27?m=u[0]:d<.62&&g>.12?m=u[3]:g>.62?m=u[4]:g>.38?m=u[3]:g>.2&&(m=u[2]),h.set(m).multiplyScalar(.92+p(f*.37+3)*.14),E<0&&h.multiplyScalar(.8);for(let y=0;y<3;y++)a.set([h.r,h.g,h.b],(f+y)*3)}r.setAttribute("color",new b.BufferAttribute(a,3)),this.terrain=new b.Mesh(this.track(r),this.track(new b.MeshStandardMaterial({vertexColors:!0,roughness:.95,flatShading:!0}))),this.terrain.castShadow=!0,this.terrain.receiveShadow=!0,this.terrain.visible=!1,this.group.add(this.terrain),this.seaMat=this.track(new b.MeshStandardMaterial({color:this.pal.waterDeep,roughness:.2,metalness:.05,transparent:!0,opacity:0})),this.sea=new b.Mesh(this.track(new b.BoxGeometry(e+2.38,.05,e+2.38)),this.seaMat),this.sea.position.y=.05,this.sea.receiveShadow=!0,this.sea.visible=!1,this.group.add(this.sea)}buildLava(){this.lavaMat=new b.MeshStandardMaterial({color:"#ff6a1f",emissive:"#ff4a10",emissiveIntensity:0,flatShading:!0});let e=this.crater;if(!e)return;let t=e.r+.25,o=new b.Vector3(e.x,e.lake,e.z);this.craterCentre=o.clone();let s=[{matrix:new b.Matrix4().compose(o,new b.Quaternion,new b.Vector3(t,.14,t)),color:"#ff6a1f",delay:.6,pivot:o.clone()}],r=[],i=[];for(let n=0;n<14;n++){let a=p(n*7+1)*Math.PI*2,h=Math.sqrt(p(n*7+2))*t*.8,c=o.clone().add(new b.Vector3(Math.cos(a)*h,.08,Math.sin(a)*h)),u=.16+p(n*7+3)*.22;(n%2?r:i).push({matrix:new b.Matrix4().compose(c,new b.Quaternion().setFromEuler(new b.Euler(p(n)*3,p(n+1)*3,0)),n%2?new b.Vector3(u,u*.7,u):new b.Vector3(u*1.8,u*.35,u*1.4)),color:n%2?"#ffb340":"#3a2620",delay:.68,pivot:o.clone()})}this.grow.add(new b.CylinderGeometry(1,.94,1,22),this.lavaMat,s,!1),this.grow.add(new b.IcosahedronGeometry(.5,0),this.lavaMat,r,!1),this.grow.add(new b.IcosahedronGeometry(.5,0),new b.MeshStandardMaterial({color:16777215,roughness:1,flatShading:!0}),i,!1)}traceFlow(e){let t=this.size,o=this.H,s=[],r=new Set,i=e;for(let n=0;n<t*2;n++){let a=Math.floor(i/t),h=i%t,c=h-t/2+.5,u=a-t/2+.5;if(s.push({p:new b.Vector3(c,this.surfaceAt(c,u)+.06,u),k:i}),r.add(i),o[i]<0)break;let f=-1,E=1/0;for(let d=-1;d<=1;d++)for(let g=-1;g<=1;g++){let m=a+d,y=h+g;if(!d&&!g||m<0||y<0||m>=t||y>=t)continue;let T=m*t+y;!r.has(T)&&o[T]<E&&(E=o[T],f=T)}if(f<0)break;i=f}return s}buildRiver(){let e=this.size,t=this.H,o=this.layout,s=[];if(this.mode==="volcano"&&this.craterCentre)for(let f=0;f<3;f++){let E=f*(Math.PI*2/3)+.5,d=this.craterCentre,g=(this.crater?.r??1)+1,m=d.x+Math.cos(E)*g,y=d.z+Math.sin(E)*g,T=Math.round(m+e/2-.5),x=Math.round(y+e/2-.5);x>=0&&T>=0&&x<e&&T<e&&s.push(x*e+T)}else{let f=-1,E=-1/0;this.modules.forEach((d,g)=>{if(o.core[g]>=0||o.crater[g])return;let m=d.r*e+d.c,y=t[m]-Math.hypot(d.c-e/2,d.r-e/2)*.15+p(g)*.3;y>E&&(E=y,f=m)}),f>=0&&s.push(f)}let r=this.mode==="volcano",i=r?"#ff6a1f":this.mode==="winter"?"#dff1fb":"#5fc8e6",n=[],a=[],h=new b.Vector3(1,0,0),c=new Map;this.modules.forEach((f,E)=>c.set(f.r*e+f.c,E)),s.forEach((f,E)=>{let d=this.traceFlow(f);d.forEach(({k:g})=>{let m=c.get(g);m!==void 0&&o.core[m]<0&&this.qrHue.set(m,r?"#ff7a24":"#2f8fc7")});for(let g=0;g<d.length;g++){let m=d[g].p,y=(r?.3:.34)+g*.018,T=Math.min(.9,(r?.62:.55)+g/d.length*.28+E*.02);if(a.push({matrix:new b.Matrix4().compose(m,new b.Quaternion,new b.Vector3(y/2,.05,y/2)),color:i,delay:T,pivot:m.clone()}),g===d.length-1)break;let x=d[g+1].p,k=x.clone().sub(m),L=new b.Quaternion().setFromUnitVectors(h,k.clone().normalize());n.push({matrix:new b.Matrix4().compose(m.clone().add(x).multiplyScalar(.5),L,new b.Vector3(k.length(),.05,y)),color:i,delay:T,pivot:m.clone()})}});let u=r?this.lavaMat:new b.MeshStandardMaterial({color:16777215,roughness:.15,transparent:!0,opacity:.9});this.grow.add(new b.BoxGeometry(1,1,1),u,n,!1),this.grow.add(new b.CylinderGeometry(1,1,1,14),r?this.lavaMat:u.clone(),a,!1)}buildTrees(){let e=this.layout,t=[],o=[],s=[],r=this.mode==="winter",i=this.mode==="volcano";this.modules.forEach((n,a)=>{if(e.core[a]>=0||e.crater[a])return;let h=e.band[a],c=(h===0||h===1)&&!r&&p(a*3+9)<.18,u=(h===1||h===2)&&p(a*13+2)<(h===2?.32:.14);if(!c&&!u)return;this.qrHue.set(a,this.pal.foliage[Math.floor(p(a+30)*this.pal.foliage.length)]);let f=this.top(a);f.x+=(p(a+31)-.5)*.3,f.z+=(p(a+32)-.5)*.3;let E=Math.min(.85,this.growDelay(a)+.3+p(a+33)*.12);if(c||i){let g=.9+p(a+34)*.5,m=new b.Quaternion().setFromEuler(new b.Euler((p(a+35)-.5)*.4,0,(p(a+36)-.5)*.4)),y=new b.Vector3(0,g/2,0).applyQuaternion(m).add(f);t.push({matrix:new b.Matrix4().compose(y,m,new b.Vector3(.09,g,.09)),color:this.pal.trunk,delay:E,pivot:f.clone()});let T=new b.Vector3(0,g,0).applyQuaternion(m).add(f);for(let x=0;x<5;x++){let k=x/5*Math.PI*2+p(a+x)*.5,L=new b.Quaternion().setFromEuler(new b.Euler(0,k,-.45)),v=new b.Vector3(.28,-.05,0).applyQuaternion(L);s.push({matrix:new b.Matrix4().compose(T.clone().add(v),L,new b.Vector3(.6,.05,.16)),color:this.pal.foliage[x%this.pal.foliage.length],delay:Math.min(.9,E+.05),pivot:T.clone()})}return}let d=.8+p(a+37)*.5;t.push({matrix:new b.Matrix4().compose(f.clone().setY(f.y+.15*d),new b.Quaternion,new b.Vector3(.1,.3*d,.1)),color:this.pal.trunk,delay:E,pivot:f.clone()});for(let g=0;g<2;g++){let m=(.55-g*.12)*d,y=(.42-g*.12)*d,T=this.pal.foliage[Math.floor(p(a*5+g)*this.pal.foliage.length)];o.push({matrix:new b.Matrix4().compose(f.clone().setY(f.y+(.3+g*.32+m/2)*d),new b.Quaternion,new b.Vector3(y,m,y)),color:r&&g===1?"#f4f8fb":T,delay:Math.min(.9,E+.04*g),pivot:f.clone()})}}),this.grow.add(new b.BoxGeometry(1,1,1),new b.MeshStandardMaterial({color:16777215,roughness:.9}),t),this.grow.add(new b.CylinderGeometry(0,1,1,7),new b.MeshStandardMaterial({color:16777215,roughness:.85}),o),this.grow.add(new b.BoxGeometry(1,1,1),new b.MeshStandardMaterial({color:16777215,roughness:.8}),s,!1)}buildLandmarks(){let e=this.layout,t=[null,null,null],o=[0,0,0];this.modules.forEach((a,h)=>{let c=e.core[h];if(c<0)return;let[u,f]=$(a.r,a.c,this.size),E=u===3&&f===3;c===0&&E&&this.qrHue.set(h,"#d94a3a"),c===2&&E&&this.qrHue.set(h,"#8a4a32"),c===1&&or.some(([g,m])=>g===u&&m===f)&&this.qrHue.set(h,"#8a4a32");let d=this.top(h);t[c]=(t[c]??new b.Vector3).add(d),o[c]++});let s=[],r=[],i=[],n=[];t.forEach((a,h)=>{if(!a||!o[h])return;let c=a.divideScalar(o[h]),u=.55+h*.05;if(h===0){for(let f=0;f<6;f++)r.push({matrix:new b.Matrix4().compose(c.clone().setY(c.y+.25+f*.5),new b.Quaternion,new b.Vector3(.42-f*.025,.5,.42-f*.025)),color:f%2?"#d94a3a":"#f4f2ee",delay:u+f*.03,pivot:c.clone()});n.push({matrix:new b.Matrix4().compose(c.clone().setY(c.y+3.25),new b.Quaternion,new b.Vector3(.3,.4,.3)),color:"#fff2b0",delay:u+.2,pivot:c.clone()}),i.push({matrix:new b.Matrix4().compose(c.clone().setY(c.y+3.7),new b.Quaternion,new b.Vector3(.42,.5,.42)),color:"#d94a3a",delay:u+.22,pivot:c.clone()})}else if(h===1)for(let f=0;f<3;f++){let[E,d]=or[f],g=c.clone().add(new b.Vector3(d-3,0,E-3)),m=1.2+f*.25;s.push({matrix:new b.Matrix4().compose(g.clone().setY(g.y+m/2),new b.Quaternion,new b.Vector3(.1,m,.1)),color:this.pal.trunk,delay:u,pivot:g.clone()});for(let y=0;y<5;y++){let T=new b.Quaternion().setFromEuler(new b.Euler(0,y/5*Math.PI*2+f,-.5)),x=g.clone().setY(g.y+m);s.push({matrix:new b.Matrix4().compose(x.clone().add(new b.Vector3(.3,-.06,0).applyQuaternion(T)),T,new b.Vector3(.65,.05,.17)),color:this.mode==="winter"?"#e8eef2":this.pal.foliage[y%this.pal.foliage.length],delay:u+.08,pivot:x.clone()})}}else s.push({matrix:new b.Matrix4().compose(c.clone().setY(c.y+.31),new b.Quaternion,new b.Vector3(.84,.62,.8)),color:"#c99a6a",delay:u,pivot:c.clone()}),i.push({matrix:new b.Matrix4().compose(c.clone().setY(c.y+.84),new b.Quaternion().setFromEuler(new b.Euler(0,Math.PI/4,0)),new b.Vector3(.66,.44,.66)),color:this.mode==="winter"?"#f4f8fb":"#8a4a32",delay:u+.06,pivot:c.clone()}),s.push({matrix:new b.Matrix4().compose(c.clone().setY(c.y+.2).add(new b.Vector3(0,0,.41)),new b.Quaternion,new b.Vector3(.2,.38,.02)),color:"#5a3d28",delay:u+.05,pivot:c.clone()})}),this.grow.add(new b.BoxGeometry(1,1,1),new b.MeshStandardMaterial({color:16777215,roughness:.8}),s),this.grow.add(new b.CylinderGeometry(1,1,1,14),new b.MeshStandardMaterial({color:16777215,roughness:.6}),r),this.grow.add(new b.CylinderGeometry(0,1,1,4),new b.MeshStandardMaterial({color:16777215,roughness:.7}),i),this.lampMat=new b.MeshStandardMaterial({color:"#fff2b0",emissive:"#ffd35a",emissiveIntensity:0}),this.grow.add(new b.CylinderGeometry(1,1,1,10),this.lampMat,n,!1)}buildFoam(){let e=[];this.mode!=="winter"&&(this.water.forEach((t,o)=>{if(!t.shallow||p(o*17+5)>.35)return;let s=new b.Vector3(t.x+(p(o+1)-.5)*.6,.07,t.z+(p(o+2)-.5)*.6);e.push({matrix:new b.Matrix4().compose(s,new b.Quaternion().setFromEuler(new b.Euler(0,p(o)*3,0)),new b.Vector3(.3,.02,.12)),color:"#f4fbff",delay:.5+p(o+3)*.2,pivot:s.clone()})}),this.grow.add(new b.BoxGeometry(1,1,1),new b.MeshStandardMaterial({color:16777215,roughness:.5}),e,!1))}buildBoats(){if(this.mode==="winter"){this.boatHull=this.boatSail=null;return}let e=tr((s,r)=>this.isWater(s,r),this.size,5);e.sort((s,r)=>p(s.line*31+s.from+(s.horizontal?7:0))-p(r.line*31+r.from+(r.horizontal?7:0))),e.slice(0,5).forEach((s,r)=>this.boats.push({...s,speed:.35+p(r+5)*.3,phase:p(r*7+1)*2}));let t=Math.max(1,this.boats.length);this.boatHull=new b.InstancedMesh(this.track(new b.BoxGeometry(.7,.16,.3)),this.track(new b.MeshStandardMaterial({color:16777215,roughness:.6})),t),this.boatSail=new b.InstancedMesh(this.track(new b.CylinderGeometry(0,.28,.6,3)),this.track(new b.MeshStandardMaterial({color:"#fbfbf8",roughness:.5})),t),[this.boatHull,this.boatSail].forEach(s=>{s.count=this.boats.length,s.castShadow=!0,this.group.add(s)});let o=new b.Color;this.boats.forEach((s,r)=>this.boatHull.setColorAt(r,o.set(["#8a5a3a","#f4f2ee","#d94a3a","#3a6fc0","#f2c14e"][r%5])))}buildParticles(){this.particleKind=this.mode==="winter"?"snow":this.mode==="volcano"?"smoke":"none";let e=this.particleKind==="snow"?120:this.particleKind==="smoke"?26:1;this.particles=new b.InstancedMesh(this.track(new b.BoxGeometry(1,1,1)),this.track(new b.MeshStandardMaterial({color:this.particleKind==="smoke"?"#8a8580":"#ffffff",roughness:1,transparent:this.particleKind==="smoke",opacity:.85})),e),this.particles.count=this.particleKind==="none"?0:e,this.group.add(this.particles)}applyLighting(e,t,o,s){se(e,this.pal.mood,t,o,s),this.slabMat.color.set(q.slab).lerp(new b.Color(this.pal.slab),e),this.rockUniforms.uSide.value=e;let r=b.MathUtils.smoothstep(e,.5,1);this.lavaMat&&(this.lavaMat.emissiveIntensity=2.4*r),this.lampMat.emissiveIntensity=1.6*r}update(e,t){if(this.growth=e,e!==this.lastGrowth){this.lastGrowth=e,this.grow.update(e);let n=b.MathUtils.smoothstep(e,.06,.66);this.terrain.visible=n>.002,this.terrain.scale.y=Math.max(.001,n);let a=b.MathUtils.smoothstep(e,.2,.7);this.sea.visible=a>.002,this.seaMat.opacity=.82*a,this.seaLevel=a,this.slab.position.y=-.45-.5*a}let o=b.MathUtils.smoothstep(e,.08,.6),s=new b.Color,r=new b.Matrix4,i=this.mode!=="winter"?e:0;for(let n=0;n<this.water.length;n++){let a=this.water[n];s.copy(this.waterQr[n]).lerp(this.waterSide[n],o),this.waterMesh.setColorAt(n,s);let h=.03-.55*this.seaLevel+Math.sin(t*1.6+a.x*.7+a.z*.5)*.035*i;r.makeTranslation(a.x,h,a.z),this.waterMesh.setMatrixAt(n,r)}this.waterMesh.instanceColor&&(this.waterMesh.instanceColor.needsUpdate=!0),this.waterMesh.instanceMatrix.needsUpdate=!0,this.updateBoats(t),this.updateParticles(t)}updateBoats(e){if(!this.boatHull)return;let t=b.MathUtils.clamp((this.growth-.8)/.2,0,1);if(this.boatHull.visible=this.boatSail.visible=t>0&&this.boats.length>0,t<=0)return;let o=this.size/2,s=new b.Object3D;this.boats.forEach((r,i)=>{let n=r.to-r.from+1,a=(e*r.speed/n+r.phase)%2,h=a<1,c=h?a:2-a,u=r.from-o+.4+c*(n-.8),f=r.line-o+.5,E=r.horizontal?new b.Vector3(u,.15,f):new b.Vector3(f,.15,u);E.y+=Math.sin(e*2+i)*.03;let d=r.horizontal?h?0:Math.PI:h?-Math.PI/2:Math.PI/2,g=Math.min(c,1-c)*n,m=t*Math.min(1,.4+g);s.position.copy(E),s.rotation.set(0,d,Math.sin(e*1.7+i)*.06),s.scale.setScalar(m),s.updateMatrix(),this.boatHull.setMatrixAt(i,s.matrix),s.position.y+=.38*m,s.updateMatrix(),this.boatSail.setMatrixAt(i,s.matrix)}),this.boatHull.instanceMatrix.needsUpdate=!0,this.boatSail.instanceMatrix.needsUpdate=!0,this.boatHull.instanceColor&&(this.boatHull.instanceColor.needsUpdate=!0)}updateParticles(e){let t=b.MathUtils.clamp((this.growth-.85)/.15,0,1);if(this.particles.visible=t>0&&this.particleKind!=="none",!this.particles.visible)return;let o=new b.Object3D,s=this.size/2;for(let r=0;r<this.particles.count;r++){if(this.particleKind==="snow"){let i=this.terrainTop+4,n=i-(e*(.6+p(r)*.5)+p(r+50)*i)%i;o.position.set((p(r+1)-.5)*(s*2+1)+Math.sin(e+r)*.3,n,(p(r+2)-.5)*(s*2+1)),o.rotation.set(e+r,e*.7,0),o.scale.setScalar(.09*t)}else{let i=(e*.18+p(r+3))%1,n=this.craterCentre??new b.Vector3(0,this.terrainTop,0);o.position.set(n.x+(p(r+4)-.5)*1.6+i*2.2,n.y+.3+i*6,n.z+(p(r+5)-.5)*1.6-i*1.2),o.rotation.set(p(r)*3,e*.2+r,0),o.scale.setScalar((.4+i*1.4)*t*Math.min(1,(1-i)*3))}o.updateMatrix(),this.particles.setMatrixAt(r,o.matrix)}this.particles.instanceMatrix.needsUpdate=!0}dispose(){this.group.removeFromParent(),this.disposables.forEach(e=>e.dispose()),this.disposables=[]}};var M=te(oe(),1);var Rs={day:{hedges:["#3f8f3a","#4a9a40","#357c33","#5aa648","#44923c"],flowers:["#f25c8a","#ffd23f","#ffffff","#b07cf0","#ff7a4a"],path:"#e6d9bf",slab:"#d9ceb6",gazebo:["#d94a3a","#3a6fc0","#8a4a32"],leaves:[],lanterns:0,qrTint:null,qrTintAmount:0,mood:{ambient:{color:"#ffffff",intensity:1.2},sun:{color:"#fff4dc",intensity:2.6,position:[22,48,28]}}},evening:{hedges:["#4f9a5a","#58a464","#4a8f55","#5fae6a","#529e5e"],flowers:["#ff7aa8","#ffd86a","#fff4e0","#c79bff","#ff9a6a"],path:"#bfae90",slab:"#a8987e",gazebo:["#c9423a","#3a62b0","#7a4230"],leaves:[],lanterns:1,qrTint:"#4a3fa8",qrTintAmount:.55,mood:{ambient:{color:"#b4a6e0",intensity:1.35},sun:{color:"#ffa070",intensity:2.3,position:[44,16,-10]}}},autumn:{hedges:["#c9682a","#d98a2a","#b5532a","#e0a83a","#8f6a2a","#a8452a"],flowers:["#ffd23f","#ff7a4a","#c0392b"],path:"#dccbaa",slab:"#cbb894",gazebo:["#8a2f2a","#3a5a8a","#6a3a22"],leaves:["#e0892a","#c9562a","#f2b33a","#a8452a"],lanterns:0,qrTint:null,qrTintAmount:0,mood:{ambient:{color:"#fff0dc",intensity:1.15},sun:{color:"#ffd8a0",intensity:2.5,position:[30,36,22]}}}},xs=100,ar=1.2;function ir(l,e){let t=e/2,o=new Set(l.map(a=>a.r*e+a.c)),s=(a,h)=>a>=0&&h>=0&&a<e&&h<e&&o.has(a*e+h),r=[],i=[],n=[];return l.forEach((a,h)=>{let c=$(a.r,a.c,e);if(c){let[f,E,d]=c,g=f>=2&&f<=4&&E>=2&&E<=4;n.push(d),g?f===3&&E===3?(i.push("gazebo"),r.push(.3)):(i.push("bed"),r.push(.3)):(i.push("ring"),r.push(ar+.3));return}if(n.push(-1),!s(a.r-1,a.c)&&!s(a.r+1,a.c)&&!s(a.r,a.c-1)&&!s(a.r,a.c+1)){i.push("topiary"),r.push(.45);return}i.push("hedge"),r.push(ar+(p(h*7+3)<.12?.3:0))}),{size:e,half:t,height:r,kind:i,pavilion:n,maxH:Math.max(...r)}}function lr(l,e){let t=ir(l,e);return l.map((o,s)=>{let r=t.height[s];return{x:o.c-t.half+.5,y:r/2,z:o.r-t.half+.5,scaleX:1.13,scaleY:r/.88,scaleZ:1.13}})}function vs(){let l={uSide:{value:0}},e=new M.MeshStandardMaterial({color:16777215,roughness:.95,metalness:0});return e.onBeforeCompile=t=>{Object.assign(t.uniforms,l),t.vertexShader=`varying vec3 vHedgePos;\n`+t.vertexShader.replace("#include <project_vertex>",`#include <project_vertex>\n        vec4 hedgeWp = vec4(transformed, 1.0);\n        #ifdef USE_INSTANCING\n          hedgeWp = instanceMatrix * hedgeWp;\n        #endif\n        vHedgePos = (modelMatrix * hedgeWp).xyz;`),t.fragmentShader=`varying vec3 vHedgePos;\nuniform float uSide;\n`+t.fragmentShader.replace("#include <color_fragment>",`#include <color_fragment>\n        vec3 hp = floor(vHedgePos * 6.0);\n        float leaf = fract(sin(dot(hp, vec3(12.9898, 78.233, 37.719))) * 43758.5453);\n        float leaf2 = fract(sin(dot(floor(vHedgePos * 2.5), vec3(39.3, 11.7, 91.1))) * 13758.5453);\n        diffuseColor.rgb *= mix(1.0, 0.78 + 0.22 * leaf + 0.1 * (leaf2 - 0.5), uSide);`)},e.customProgramCacheKey=()=>"qr-maze-hedge",{material:e,uniforms:l}}var et=class{constructor(e,t,o,s){this.modules=e;this.matrix=t;this.size=o;this.mode=s;this.layout=ir(e,o),this.pal=Rs[s];let r=vs();this.voxelMaterial=r.material,this.hedgeUniforms=r.uniforms,this.targets=e.map((i,n)=>{let a=this.layout.height[n];return{x:i.c-this.layout.half+.5,y:a/2,z:i.r-this.layout.half+.5,scaleX:1.13,scaleY:a/.88,scaleZ:1.13}}),this.grow=new J(this.group,i=>this.track(i)),this.build()}group=new M.Group;voxelMaterial;targets;hedgeUniforms;layout;pal;disposables=[];grow;tiles=[];tileMesh;tileQr=[];tileSide=[];slabMat;lanternMat;qrHue=new Map;walkers=[];walkerBody;walkerHead;fountain=null;jets;lastGrowth=-1;growth=0;get maxHeight(){return this.layout.maxH+3.2}track(e){return this.disposables.push(e),e}isPath(e,t){return e<0||t<0||e>=this.size||t>=this.size?!1:!this.matrix[e][t]}hedgeColor(e){let t=this.modules[e],o=Math.floor(t.r/3)*97+Math.floor(t.c/3)*31,s=p(o+7)*.85+p(e*3+7)*.15;return this.pal.hedges[Math.min(this.pal.hedges.length-1,Math.floor(s*this.pal.hedges.length))]}voxelColor(e){let o=this.layout.kind[e],s=this.hedgeColor(e);(o==="bed"||o==="gazebo")&&(s="#6b4a32"),o==="topiary"&&(s="#b5653f");let r=this.qrHue.get(e)??(o==="bed"?"#5a9a3a":this.hedgeColor(e));return this.pal.qrTint&&!this.qrHue.has(e)&&(r="#"+new M.Color(r).lerp(new M.Color(this.pal.qrTint),this.pal.qrTintAmount).getHexString()),{qr:j(r,xs+(p(e*5+17)-.5)*14),side:s}}voxelSideWindow=[.3,.72];voxelSideScale(e){let t=this.layout.kind[e];return t==="hedge"||t==="ring"?[.8,.88,.8]:t==="topiary"?[.5,1,.5]:[1,1,1]}growDelay(e){let t=this.modules[e];return .04+(t.r+t.c)/(2*this.size)*.3+p(e*7+3)*.06}top(e){let t=this.modules[e];return new M.Vector3(t.c-this.layout.half+.5,this.layout.height[e],t.r-this.layout.half+.5)}build(){let e=this.size,t=e/2,o=e+2.4;this.slabMat=this.track(new M.MeshStandardMaterial({color:q.slab,roughness:.9}));let s=new M.Mesh(this.track(new M.BoxGeometry(o,.9,o)),this.slabMat);s.position.y=-.45,s.receiveShadow=!0,s.castShadow=!0,this.group.add(s);for(let n=0;n<e;n++)for(let a=0;a<e;a++)this.matrix[n][a]||this.tiles.push({x:a-t+.5,z:n-t+.5,r:n,c:a});this.tileMesh=new M.InstancedMesh(this.track(new M.BoxGeometry(1,.06,1)),this.track(new M.MeshStandardMaterial({color:16777215,roughness:.95})),Math.max(1,this.tiles.length)),this.tileMesh.count=this.tiles.length,this.tileMesh.receiveShadow=!0;let r=["#ffffff","#f6f5f2","#eeece8","#e9e7e2","#f9f8f6"],i=new M.Matrix4;this.tiles.forEach((n,a)=>{i.makeTranslation(n.x,.03,n.z),this.tileMesh.setMatrixAt(a,i),this.tileQr.push(new M.Color(r[Math.floor(p(a*3+5)*r.length)])),this.tileSide.push(new M.Color(this.pal.path).multiplyScalar(.93+p(a*11+9)*.1)),this.tileMesh.setColorAt(a,this.tileQr[a])}),this.group.add(this.tileMesh),this.buildLeafClumps(),this.buildFlowers(),this.buildTopiary(),this.buildPavilions(),this.buildFountain(),this.buildLanterns(),this.buildLeaves(),this.buildWalkers(),this.update(0,0)}buildLeafClumps(){let e=this.layout,t=this.size,o=new Set(this.modules.map(n=>n.r*t+n.c)),s=new Map;this.modules.forEach((n,a)=>s.set(n.r*t+n.c,e.height[a]));let r=[],i=new M.Color;this.modules.forEach((n,a)=>{let h=e.kind[a];if(h!=="hedge"&&h!=="ring")return;let c=this.top(a),u=e.height[a],f=this.hedgeColor(a),E=Math.min(.8,this.growDelay(a)+.18),d=(m,y,T)=>{i.set(f).multiplyScalar(.86+p(T)*.26),r.push({matrix:new M.Matrix4().compose(m,new M.Quaternion().setFromEuler(new M.Euler(p(T+1)*3,p(T+2)*3,p(T+3)*3)),new M.Vector3(y,y*(.8+p(T+4)*.3),y)),color:"#"+i.getHexString(),delay:E+p(T+5)*.08,pivot:new M.Vector3(c.x,u/2,c.z)})};for(let m=0;m<4;m++)d(c.clone().add(new M.Vector3((m%2?.22:-.22)+(p(a*9+m)-.5)*.12,-.08+p(a+m*3)*.1,(m<2?-.22:.22)+(p(a*7+m)-.5)*.12)),.5+p(a*11+m)*.16,a*31+m);[[0,1],[0,-1],[1,0],[-1,0]].forEach(([m,y],T)=>{let x=(n.r+m)*t+(n.c+y),k=o.has(x)?s.get(x)??0:0;if(k>=u)return;let L=Math.max(1,Math.round((u-k)/.45));for(let v=0;v<L;v++)for(let I=0;I<2;I++){let P=(I?.24:-.24)+(p(a*13+T*5+v+I)-.5)*.1,V=k+.25+v*.45+(p(a+T+v*7+I)-.5)*.1,A=new M.Vector3(c.x+(y!==0?y*.43:P),Math.min(u-.15,V),c.z+(m!==0?m*.43:P));d(A,.4+p(a*17+T+v+I)*.14,a*53+T*11+v*3+I)}})}),this.grow.add(new M.IcosahedronGeometry(.5,0),new M.MeshStandardMaterial({color:16777215,roughness:.95,flatShading:!0}),r)}buildFlowers(){let e=this.layout,t=[];this.modules.forEach((o,s)=>{if(e.kind[s]!=="hedge"&&e.kind[s]!=="ring"||p(s*13+5)>(this.mode==="autumn"?.12:.24))return;let r=this.pal.flowers[Math.floor(p(s*17+2)*this.pal.flowers.length)];this.qrHue.set(s,r==="#ffffff"||r==="#fff4e0"?"#c9b8e8":r);let i=this.top(s),n=Math.min(.88,this.growDelay(s)+.35);for(let a=0;a<6;a++){let h=a<3,c=i.clone().add(new M.Vector3((p(s*3+a)-.5)*.85,h?.26:-.2-p(s+a*5)*.7,(p(s*5+a)-.5)*.85));if(!h){let f=Math.floor(p(s+a*7)*4);f===0&&(c.x=i.x+.68),f===1&&(c.x=i.x-.68),f===2&&(c.z=i.z+.68),f===3&&(c.z=i.z-.68)}let u=.14+p(s*7+a)*.08;t.push({matrix:new M.Matrix4().compose(c,new M.Quaternion().setFromEuler(new M.Euler(0,p(s+a)*3,0)),new M.Vector3(u,u*.7,u)),color:r,delay:n,pivot:c.clone()})}}),this.grow.add(new M.BoxGeometry(1,1,1),new M.MeshStandardMaterial({color:16777215,roughness:.6}),t,!1)}buildTopiary(){let e=this.layout,t=[],o=[];this.modules.forEach((s,r)=>{if(e.kind[r]!=="topiary")return;let i=this.top(r),n=Math.min(.85,this.growDelay(r)+.25);o.push({matrix:new M.Matrix4().compose(i.clone().setY(i.y+.25),new M.Quaternion,new M.Vector3(.08,.5,.08)),color:"#6b4a32",delay:n,pivot:i.clone()});let a=.75+p(r+1)*.15;t.push({matrix:new M.Matrix4().compose(i.clone().setY(i.y+.5+a*.42),new M.Quaternion,new M.Vector3(a,a,a)),color:this.hedgeColor(r),delay:n+.05,pivot:i.clone()})}),this.grow.add(new M.BoxGeometry(1,1,1),new M.MeshStandardMaterial({color:16777215,roughness:.9}),o),this.grow.add(new M.SphereGeometry(.5,12,10),new M.MeshStandardMaterial({color:16777215,roughness:.95}),t)}buildPavilions(){let e=this.layout,t=[],o=[],s=[],r=[];this.modules.forEach((i,n)=>{let a=e.pavilion[n];if(a<0)return;let h=this.top(n),c=Math.min(.85,this.growDelay(n)+.3);if(e.kind[n]==="bed")for(let u=0;u<5;u++){let f=h.clone().add(new M.Vector3((p(n*3+u)-.5)*.8,.12,(p(n*5+u)-.5)*.8)),E=this.pal.flowers[Math.floor(p(n*11+u)*this.pal.flowers.length)];t.push({matrix:new M.Matrix4().compose(f,new M.Quaternion,new M.Vector3(.18,.24,.18)),color:E,delay:c,pivot:f.clone().setY(h.y)})}if(e.kind[n]==="gazebo"){let u=this.pal.gazebo[a];this.qrHue.set(n,u),r.push({matrix:new M.Matrix4().compose(h.clone().setY(h.y+.05),new M.Quaternion,new M.Vector3(.95,.1,.95)),color:"#f2eee6",delay:c,pivot:h.clone()});for(let[f,E]of[[-.38,-.38],[.38,-.38],[-.38,.38],[.38,.38]])o.push({matrix:new M.Matrix4().compose(h.clone().add(new M.Vector3(f,.75,E)),new M.Quaternion,new M.Vector3(.08,1.3,.08)),color:"#ffffff",delay:c+.04,pivot:h.clone()});s.push({matrix:new M.Matrix4().compose(h.clone().setY(h.y+1.75),new M.Quaternion().setFromEuler(new M.Euler(0,Math.PI/8,0)),new M.Vector3(.62,.6,.62)),color:u,delay:c+.08,pivot:h.clone()}),s.push({matrix:new M.Matrix4().compose(h.clone().setY(h.y+2.15),new M.Quaternion,new M.Vector3(.08,.25,.08)),color:"#d8b44a",delay:c+.1,pivot:h.clone()})}}),this.grow.add(new M.BoxGeometry(1,1,1),new M.MeshStandardMaterial({color:16777215,roughness:.6}),t,!1),this.grow.add(new M.BoxGeometry(1,1,1),new M.MeshStandardMaterial({color:16777215,roughness:.5}),r),this.grow.add(new M.BoxGeometry(1,1,1),new M.MeshStandardMaterial({color:16777215,roughness:.4}),o),this.grow.add(new M.CylinderGeometry(0,1,1,8),new M.MeshStandardMaterial({color:16777215,roughness:.55}),s)}buildFountain(){let e=null,t=1/0;for(let r of this.tiles){if(!(this.isPath(r.r-1,r.c)&&this.isPath(r.r+1,r.c)&&this.isPath(r.r,r.c-1)&&this.isPath(r.r,r.c+1)))continue;let n=Math.hypot(r.x,r.z);n<t&&(t=n,e=r)}let o=[],s=[];if(e){let r=new M.Vector3(e.x,.06,e.z);this.fountain={pos:r},o.push({matrix:new M.Matrix4().compose(r.clone().setY(.16),new M.Quaternion,new M.Vector3(1.5,.22,1.5)),color:"#dcd6cc",delay:.45,pivot:r.clone()}),o.push({matrix:new M.Matrix4().compose(r.clone().setY(.55),new M.Quaternion,new M.Vector3(.16,.7,.16)),color:"#dcd6cc",delay:.5,pivot:r.clone()}),o.push({matrix:new M.Matrix4().compose(r.clone().setY(.92),new M.Quaternion,new M.Vector3(.6,.1,.6)),color:"#dcd6cc",delay:.55,pivot:r.clone()}),s.push({matrix:new M.Matrix4().compose(r.clone().setY(.25),new M.Quaternion,new M.Vector3(1.3,.05,1.3)),color:"#6fc7dc",delay:.55,pivot:r.clone()}),s.push({matrix:new M.Matrix4().compose(r.clone().setY(.96),new M.Quaternion,new M.Vector3(.5,.04,.5)),color:"#6fc7dc",delay:.6,pivot:r.clone()})}this.grow.add(new M.CylinderGeometry(.5,.5,1,16),new M.MeshStandardMaterial({color:16777215,roughness:.6}),o),this.grow.add(new M.CylinderGeometry(.5,.5,1,16),new M.MeshStandardMaterial({color:16777215,roughness:.15,transparent:!0,opacity:.85}),s,!1),this.jets=new M.InstancedMesh(this.track(new M.BoxGeometry(.07,.07,.07)),this.track(new M.MeshStandardMaterial({color:"#cfefff",roughness:.2})),36),this.jets.count=this.fountain?36:0,this.group.add(this.jets)}buildLanterns(){let e=[],t=[];this.tiles.forEach((o,s)=>{if(p(s*19+4)>.09)return;let r=new M.Vector3(o.x+(p(s+1)-.5)*.5,.06,o.z+(p(s+2)-.5)*.5);e.push({matrix:new M.Matrix4().compose(r.clone().setY(.48),new M.Quaternion,new M.Vector3(.05,.85,.05)),color:"#3a3f46",delay:.6,pivot:r.clone()}),t.push({matrix:new M.Matrix4().compose(r.clone().setY(.98),new M.Quaternion,new M.Vector3(.2,.22,.2)),color:"#ffffff",delay:.65,pivot:r.clone()})}),this.grow.add(new M.BoxGeometry(1,1,1),new M.MeshStandardMaterial({color:16777215,roughness:.6}),e,!1),this.lanternMat=new M.MeshStandardMaterial({color:"#fff2cc",emissive:"#ffcf6a",emissiveIntensity:0}),this.grow.add(new M.BoxGeometry(1,1,1),this.lanternMat,t,!1)}buildLeaves(){if(!this.pal.leaves.length)return;let e=[];this.tiles.forEach((t,o)=>{let s=p(o*23+1)<.5?2:0;for(let r=0;r<s;r++){let i=new M.Vector3(t.x+(p(o*3+r)-.5)*.8,.075,t.z+(p(o*5+r)-.5)*.8);e.push({matrix:new M.Matrix4().compose(i,new M.Quaternion().setFromEuler(new M.Euler(0,p(o+r)*Math.PI,0)),new M.Vector3(.2,.02,.13)),color:this.pal.leaves[Math.floor(p(o*7+r)*this.pal.leaves.length)],delay:.65+p(o+r)*.15,pivot:i.clone()})}}),this.grow.add(new M.BoxGeometry(1,1,1),new M.MeshStandardMaterial({color:16777215,roughness:.8}),e,!1)}buildWalkers(){let e=this.size,t=(h,c)=>h*e+c,o=(h,c)=>{let u=new Map,f=new Map([[t(h,c),0]]),E=[t(h,c)],d=t(h,c);for(;E.length;){let g=E.shift(),m=Math.floor(g/e),y=g%e;for(let[T,x]of[[1,0],[-1,0],[0,1],[0,-1]]){let k=m+T,L=y+x;if(!this.isPath(k,L))continue;let v=t(k,L);f.has(v)||(f.set(v,f.get(g)+1),u.set(v,g),f.get(v)>f.get(d)&&(d=v),E.push(v))}}return{far:d,prev:u}},s=e/2,r=[];for(let h of this.tiles)if(h.r>7&&h.c>7){r.push([h.r,h.c]);break}for(let h=this.tiles.length-1;h>=0;h--){let c=this.tiles[h];if(!(c.r<e-8||c.c<8)){r.push([c.r,c.c]);break}}let i=["#e94f4f","#3a6fc0","#f2c14e"];r.forEach(([h,c],u)=>{let f=o(h,c),E=o(Math.floor(f.far/e),f.far%e),d=[],g=E.far;for(;g!==void 0;)d.push(g),g=E.prev.get(g);d.length<6||this.walkers.push({path:d.map(m=>new M.Vector3(m%e-s+.5,.06,Math.floor(m/e)-s+.5)),speed:.9+u*.25,phase:p(u+3)*2,color:i[u%i.length]})});let n=Math.max(1,this.walkers.length);this.walkerBody=new M.InstancedMesh(this.track(new M.CylinderGeometry(.12,.16,.42,8)),this.track(new M.MeshStandardMaterial({color:16777215,roughness:.7})),n),this.walkerHead=new M.InstancedMesh(this.track(new M.SphereGeometry(.11,10,8)),this.track(new M.MeshStandardMaterial({color:"#f1c9a5",roughness:.7})),n),[this.walkerBody,this.walkerHead].forEach(h=>{h.count=this.walkers.length,h.castShadow=!0,this.group.add(h)});let a=new M.Color;this.walkers.forEach((h,c)=>this.walkerBody.setColorAt(c,a.set(h.color)))}applyLighting(e,t,o,s){se(e,this.pal.mood,t,o,s),this.slabMat.color.set(q.slab).lerp(new M.Color(this.pal.slab),e),this.hedgeUniforms.uSide.value=e,this.lanternMat.emissiveIntensity=3*this.pal.lanterns*M.MathUtils.smoothstep(e,.5,1)}update(e,t){if(this.growth=e,e!==this.lastGrowth){this.lastGrowth=e,this.grow.update(e);let o=M.MathUtils.smoothstep(e,.1,.65),s=new M.Color;for(let r=0;r<this.tiles.length;r++)s.copy(this.tileQr[r]).lerp(this.tileSide[r],o),this.tileMesh.setColorAt(r,s);this.tileMesh.instanceColor&&(this.tileMesh.instanceColor.needsUpdate=!0)}this.updateWalkers(t),this.updateFountain(t)}updateWalkers(e){let t=M.MathUtils.clamp((this.growth-.8)/.2,0,1);if(this.walkerBody.visible=this.walkerHead.visible=t>0&&this.walkers.length>0,t<=0)return;let o=new M.Object3D;this.walkers.forEach((s,r)=>{let i=s.path.length-1,n=(e*s.speed/i+s.phase)%2,a=(n<1?n:2-n)*i,h=Math.floor(Math.min(a,i-1e-4)),c=a-h,u=s.path[h].clone().lerp(s.path[h+1],c),f=Math.abs(Math.sin(e*s.speed*6+r))*.04;o.position.set(u.x,.06+.21+f,u.z),o.rotation.set(0,0,0),o.scale.setScalar(t),o.updateMatrix(),this.walkerBody.setMatrixAt(r,o.matrix),o.position.y+=.32*t,o.updateMatrix(),this.walkerHead.setMatrixAt(r,o.matrix)}),this.walkerBody.instanceMatrix.needsUpdate=!0,this.walkerHead.instanceMatrix.needsUpdate=!0,this.walkerBody.instanceColor&&(this.walkerBody.instanceColor.needsUpdate=!0)}updateFountain(e){if(!this.fountain)return;let t=M.MathUtils.clamp((this.growth-.75)/.25,0,1);if(this.jets.visible=t>0,!this.jets.visible)return;let o=new M.Object3D,s=this.fountain.pos;for(let r=0;r<36;r++){let i=(e*.9+r/36)%1,n=r/36*Math.PI*2*3,a=i*.6;o.position.set(s.x+Math.cos(n)*a,1+i*1.6-i*i*2.2,s.z+Math.sin(n)*a),o.scale.setScalar(t),o.updateMatrix(),this.jets.setMatrixAt(r,o.matrix)}this.jets.instanceMatrix.needsUpdate=!0}dispose(){this.group.removeFromParent(),this.disposables.forEach(e=>e.dispose()),this.disposables=[]}};var G=te(oe(),1);var Ss={neon:{bottom:"#4fb8c8",mid:"#7f8fd8",top:"#b47ad6",accent:"#a98ae0",floor:"#13131c",slab:"#0b0b12",cabinet:"#2c2c3a",mood:{ambient:{color:"#8a8ab8",intensity:.65},sun:{color:"#b0b6ff",intensity:1,position:[22,48,28]}}},retro:{bottom:"#5cb85c",mid:"#e8c040",top:"#d9503a",accent:"#e8a030",floor:"#15110d",slab:"#0c0906",cabinet:"#3a2e24",mood:{ambient:{color:"#ffd8b0",intensity:.6},sun:{color:"#ffc890",intensity:1.1,position:[30,36,20]}}},mono:{bottom:"#5a5a66",mid:"#a0a0aa",top:"#ffffff",accent:"#e03a3a",floor:"#111113",slab:"#08080a",cabinet:"#2c2c34",mood:{ambient:{color:"#ffffff",intensity:.6},sun:{color:"#ffffff",intensity:1,position:[22,48,28]}}}};function Cs(l,e){return"#"+(e<.5?new G.Color(l.bottom).lerp(new G.Color(l.mid),e*2):new G.Color(l.mid).lerp(new G.Color(l.top),e*2-1)).getHexString()}var ks=62,tt=2.4,Is=120;function hr(l,e){let t=e*.34,o=[],s=[];return l.forEach(r=>{let i=$(r.r,r.c,e);if(i){let[n,a]=i;o.push(n>=2&&n<=4&&a>=2&&a<=4?"core":"cab"),s.push(tt)}else o.push("bar"),s.push(t)}),{size:e,half:e/2,kind:o,height:s,barH:t}}function Dt(l,e){let t=hr(l,e);return l.map((o,s)=>{let r=t.height[s];return{x:o.c-t.half+.5,y:r/2,z:o.r-t.half+.5,scaleX:1.13,scaleY:r/.88,scaleZ:1.13}})}function cr(l){let e=l*Is/60;return Math.exp(-(e-Math.floor(e))*6)}function Gs(l,e){let t={uSide:{value:0},uBeat:{value:0},uBottom:{value:new G.Color(l.bottom)},uMid:{value:new G.Color(l.mid)},uTop:{value:new G.Color(l.top)},uHmax:{value:e*1.15}},o=new G.MeshStandardMaterial({color:16777215,roughness:.35,metalness:.1});return o.onBeforeCompile=s=>{Object.assign(s.uniforms,t),s.vertexShader=`varying vec3 vEqPos;\n`+s.vertexShader.replace("#include <project_vertex>",`#include <project_vertex>\n        vec4 eqWp = vec4(transformed, 1.0);\n        #ifdef USE_INSTANCING\n          eqWp = instanceMatrix * eqWp;\n        #endif\n        vEqPos = (modelMatrix * eqWp).xyz;`),s.fragmentShader=`varying vec3 vEqPos;\n      uniform float uSide;\n      uniform float uBeat;\n      uniform vec3 uBottom;\n      uniform vec3 uMid;\n      uniform vec3 uTop;\n      uniform float uHmax;\n      `+s.fragmentShader.replace("#include <color_fragment>",`#include <color_fragment>\n          float eqT = clamp(vEqPos.y / uHmax, 0.0, 1.0);\n          vec3 eqGrad = eqT < 0.5 ? mix(uBottom, uMid, eqT * 2.0) : mix(uMid, uTop, eqT * 2.0 - 1.0);\n          float eqSeg = step(0.16, fract(vEqPos.y / 0.32));\n          diffuseColor.rgb = mix(diffuseColor.rgb, eqGrad * mix(0.18, 0.9, eqSeg), uSide);`).replace("#include <emissivemap_fragment>",`#include <emissivemap_fragment>\n          totalEmissiveRadiance += eqGrad * eqSeg * uSide * (0.32 + 0.28 * uBeat);`)},o.customProgramCacheKey=()=>"qr-eq-bar",{material:o,uniforms:t}}var ot=class{constructor(e,t,o,s){this.modules=e;this.matrix=t;this.size=o;this.layout=hr(e,o),this.pal=Ss[s];let r=Gs(this.pal,this.layout.barH);this.voxelMaterial=r.material,this.barUniforms=r.uniforms,this.targets=Dt(e,o),this.modules.forEach((i,n)=>this.layout.kind[n]==="bar"&&this.bars.push(n)),this.grow=new J(this.group,i=>this.track(i)),this.build()}group=new G.Group;voxelMaterial;targets;animated=!0;voxelSideWindow=[.3,.65];barUniforms;layout;pal;disposables=[];grow;tiles=[];tileMesh;tileQr=[];slabMat;bars=[];caps;capMat;woofers=[];ringMat;get maxHeight(){return this.layout.barH*1.25+1}track(e){return this.disposables.push(e),e}voxelColor(e){let t=this.layout.kind[e],o=this.modules[e],s,r;return t!=="bar"?{qr:this.pal.cabinet,side:this.pal.cabinet}:(s=Cs(this.pal,o.c/(this.size-1)),r=s,{qr:j(s,ks+(p(e*5+17)-.5)*8),side:r})}growDelay(e){let t=this.modules[e];return .04+Math.hypot(t.c-this.size/2,t.r-this.size/2)/(this.size/2)*.3+p(e*7+3)*.04}voxelSideScale(e){return this.layout.kind[e]==="bar"?[1,1,1]:[0,0,0]}level(e,t){let o=this.modules[e],s=o.c/(this.size-1),r=.5+.5*Math.sin(t*(1.7+s*5.3)+o.c*.9+o.r*.15),i=.5+.5*Math.sin(t*(3.1+s*8.7)+o.c*1.7-o.r*.35),n=cr(t)*(1-s)*.75;return .12+.78*(.55*r+.45*i)*(1-.4*s)+n}voxelDance(e,t){return this.layout.kind[e]==="bar"?this.level(e,t):1}build(){let e=this.size,t=e/2,o=e+2.4;this.slabMat=this.track(new G.MeshStandardMaterial({color:q.slab,roughness:.6}));let s=new G.Mesh(this.track(new G.BoxGeometry(o,.9,o)),this.slabMat);s.position.y=-.45,s.receiveShadow=!0,this.group.add(s);for(let n=0;n<e;n++)for(let a=0;a<e;a++)this.matrix[n][a]||this.tiles.push({x:a-t+.5,z:n-t+.5,r:n,c:a});this.tileMesh=new G.InstancedMesh(this.track(new G.BoxGeometry(.98,.06,.98)),this.track(new G.MeshStandardMaterial({color:16777215,roughness:.3,metalness:.2})),Math.max(1,this.tiles.length)),this.tileMesh.count=this.tiles.length,this.tileMesh.receiveShadow=!0;let r=["#ffffff","#f6f5f2","#eeece8","#e9e7e2","#f9f8f6"],i=new G.Matrix4;this.tiles.forEach((n,a)=>{i.makeTranslation(n.x,.03,n.z),this.tileMesh.setMatrixAt(a,i),this.tileQr.push(new G.Color(r[Math.floor(p(a*3+5)*r.length)])),this.tileMesh.setColorAt(a,this.tileQr[a])}),this.group.add(this.tileMesh),this.buildSpeakers(),this.buildCaps(),this.update(0,0)}buildSpeakers(){let e=this.size,t=e/2,o=[[0,0],[0,e-7],[e-7,0]],s=[];this.ringMat=this.track(new G.MeshStandardMaterial({color:this.pal.accent,emissive:this.pal.accent,emissiveIntensity:0}));let r=this.track(new G.MeshStandardMaterial({color:"#2a2a34",roughness:.8})),i=this.track(new G.MeshStandardMaterial({color:"#3a3a46",roughness:.5,metalness:.3})),n=this.track(new G.CylinderGeometry(2,1.1,.35,32,1,!0)),a=this.track(new G.SphereGeometry(.75,20,10,0,Math.PI*2,0,Math.PI/2)),h=this.track(new G.TorusGeometry(2.25,.08,8,48));o.forEach(([c,u],f)=>{let E=u+3.5-t,d=c+3.5-t,g=new G.Vector3(E,0,d);s.push({matrix:new G.Matrix4().compose(new G.Vector3(E,tt/2,d),new G.Quaternion,new G.Vector3(6.9,tt,6.9)),color:this.pal.cabinet,delay:.18+f*.03,pivot:g});let m=tt,y=new G.Mesh(n,r);y.position.set(E,m-.1,d);let T=new G.Mesh(a,i);T.position.set(E,m-.25,d);let x=new G.Mesh(h,this.ringMat);x.rotation.x=Math.PI/2,x.position.set(E,m+.04,d),[y,T,x].forEach(k=>{k.visible=!1,this.group.add(k)}),this.woofers.push({cone:y,cap:T,ring:x,y:m})}),this.grow.add(new G.BoxGeometry(1,1,1),new G.MeshStandardMaterial({color:16777215,roughness:.55,metalness:.15}),s)}buildCaps(){this.capMat=this.track(new G.MeshStandardMaterial({color:this.pal.top,emissive:this.pal.top,emissiveIntensity:.45})),this.caps=new G.InstancedMesh(this.track(new G.BoxGeometry(.98,.1,.98)),this.capMat,Math.max(1,this.bars.length)),this.caps.count=this.bars.length,this.caps.visible=!1,this.group.add(this.caps)}applyLighting(e,t,o,s){se(e,this.pal.mood,t,o,s),this.slabMat.color.set(q.slab).lerp(new G.Color(this.pal.slab),e),this.barUniforms.uSide.value=G.MathUtils.smoothstep(e,.2,.8)}update(e,t){this.grow.update(e);let o=cr(t),s=G.MathUtils.smoothstep(e,.2,.8);this.barUniforms.uBeat.value=o*s;let r=new G.Color(this.pal.floor),i=new G.Color(this.pal.accent),n=new G.Color;for(let c=0;c<this.tiles.length;c++){let u=this.tiles[c];n.copy(r),(u.r+u.c)%2===0&&n.lerp(i,.18*o),n.lerp(this.tileQr[c],1-s),this.tileMesh.setColorAt(c,n)}this.tileMesh.instanceColor&&(this.tileMesh.instanceColor.needsUpdate=!0);let a=G.MathUtils.smoothstep(e,.45,.8);this.woofers.forEach(c=>{[c.cone,c.cap,c.ring].forEach(f=>f.visible=a>.01);let u=Math.max(.001,a);c.cone.scale.set(u*(1+o*.05),u,u*(1+o*.05)),c.cap.scale.setScalar(u),c.cap.position.y=c.y-.25+o*.18*a,c.ring.scale.setScalar(u)}),this.ringMat.emissiveIntensity=(.8+1.6*o)*a;let h=G.MathUtils.smoothstep(e,.8,1);if(this.caps.visible=h>.01,this.caps.visible){let c=new G.Matrix4,u=this.layout.barH;this.bars.forEach((f,E)=>{let d=this.level(f,t),g=this.modules[f];c.compose(new G.Vector3(g.c-this.layout.half+.5,u*G.MathUtils.lerp(1,d,G.MathUtils.smoothstep(e,.55,1))+.05,g.r-this.layout.half+.5),new G.Quaternion,new G.Vector3(h,h,h)),this.caps.setMatrixAt(E,c)}),this.caps.instanceMatrix.needsUpdate=!0}}dispose(){this.group.removeFromParent(),this.disposables.forEach(e=>e.dispose()),this.disposables=[]}};var R=te(oe(),1);var Ls={ambient:{color:"#fff4ea",intensity:1.2},sun:{color:"#fff2e0",intensity:2.5,position:[22,48,28]}},Ps={chocolate:{sponge:"#7a4a2e",cream:"#f3e2c8",glaze:"#3e2216",choc:"#4a2a1a",berry:"#c8303a",leaf:"#4f9a3a",macaron:["#e8a0b4","#f0d080","#a8d8b0"],rosette:"#8a5236",candle:["#f4f1ea","#d94a3a"],board:"#d8b45a",confetti:["#f25c8a","#ffd23f","#4fb8e8","#7cd67c","#b07cf0"],mood:Ls},strawberry:{sponge:"#f2d4a8",cream:"#fff0f3",glaze:"#e8708e",choc:"#c9a07a",berry:"#d8243a",leaf:"#5aa648",macaron:["#f4a8c0","#ffd2dc","#e86a8a"],rosette:"#f08aa8",candle:["#ffffff","#f4a8c0"],board:"#f4e6ea",confetti:["#f25c8a","#ffd2dc","#ffffff","#ff9ab8","#ffd23f"],mood:{ambient:{color:"#fff0f4",intensity:1.2},sun:{color:"#fff4f0",intensity:2.5,position:[22,48,28]}}},mint:{sponge:"#5a3a28",cream:"#e2f5ea",glaze:"#7fd0b0",choc:"#3a2418",berry:"#3a5fb0",leaf:"#3f9a5a",macaron:["#a8e0c8","#d8f0e4","#7fd0b0"],rosette:"#6cc7a2",candle:["#ffffff","#5fbf9a"],board:"#cfe8dc",confetti:["#7fd0b0","#ffffff","#4fb8e8","#ffd23f","#a8e0c8"],mood:{ambient:{color:"#f0fff8",intensity:1.2},sun:{color:"#f4fff8",intensity:2.5,position:[22,48,28]}}}},Bs=82,ve=[4.6,4,3.4];function fr(l,e){let t=e/2,o=(e-1)/2,s=Math.max(2,Math.floor(o-7)),r=Math.max(1,Math.round(s*.5)),i=[[0,e-1],[Math.round(o-s),Math.round(o+s)],[Math.round(o-r),Math.round(o+r)]],n=[ve[0],ve[0]+ve[1],ve[0]+ve[1]+ve[2]],a=new Uint8Array(e*e);for(let c=0;c<e;c++)for(let u=0;u<e;u++){let f=0;c>=i[1][0]&&c<=i[1][1]&&u>=i[1][0]&&u<=i[1][1]&&(f=1),c>=i[2][0]&&c<=i[2][1]&&u>=i[2][0]&&u<=i[2][1]&&(f=2),a[c*e+u]=f}let h=l.map((c,u)=>{let f=$(c.r,c.c,e);if(f){let[d,g]=f;return d===3&&g===3?"candle":d>=2&&d<=4&&g>=2&&g<=4?"rosette":"border"}let E=p(u*13+7);return E<.45?"choc":E<.75?"berry":"macaron"});return{size:e,half:t,tierOf:a,tierTop:n,bounds:i,kind:h}}function ur(l,e,t){return l.tierTop[l.tierOf[e*l.size+t]]}function Ut(l,e){let t=fr(l,e);return l.map(o=>{let s=ur(t,o.r,o.c);return{x:o.c-t.half+.5,y:s+.36,z:o.r-t.half+.5,scaleX:1.13,scaleY:.82,scaleZ:1.13}})}var rt=class{constructor(e,t,o,s){this.modules=e;this.matrix=t;this.size=o;this.layout=fr(e,o),this.pal=Ps[s],this.voxelMaterial=new R.MeshStandardMaterial({color:16777215,roughness:.35,metalness:.05}),this.targets=Ut(e,o),this.grow=new J(this.group,r=>this.track(r)),this.build()}group=new R.Group;voxelMaterial;targets;voxelSideWindow=[.6,.92];layout;pal;disposables=[];grow;tiles=[];tileMesh;tileQr=[];tileSide=[];slabMat;flames=[];flameMat;confetti;lastGrowth=-1;get maxHeight(){return this.layout.tierTop[2]+1.5}track(e){return this.disposables.push(e),e}decoColor(e){let t=this.layout.kind[e],o=this.pal;switch(t){case"choc":case"border":return o.choc;case"berry":return o.berry;case"macaron":return o.macaron[Math.floor(p(e*3+1)*o.macaron.length)];case"rosette":return o.rosette;case"candle":return o.candle[1]}}voxelColor(e){let t=this.decoColor(e);return{qr:j(t,Bs+(p(e*5+17)-.5)*12),side:t}}rise(e,t){return R.MathUtils.smoothstep(t,.06+e*.13,.5+e*.13)}surface(e,t,o){let s=this.layout,r=s.tierOf[e*this.size+t],i=0;for(let n=0;n<=r;n++)i=Math.max(i,s.tierTop[n]*this.rise(n,o));return i}voxelBase(e,t){let o=this.modules[e];return this.surface(o.r,o.c,t)}detailDelay(e,t){return Math.min(.9,.55+e*.12+p(t)*.04)}growDelay(e){let t=this.modules[e];return .12+this.layout.tierOf[t.r*this.size+t.c]*.12+p(e*7+3)*.08}voxelSideScale(e){let t=this.layout.kind[e];return t==="choc"||t==="border"?[.62,.72,.62]:[0,0,0]}cellTopOf(e){let t=this.modules[e];return new R.Vector3(t.c-this.layout.half+.5,ur(this.layout,t.r,t.c),t.r-this.layout.half+.5)}build(){let e=this.size,t=e/2,o=e+2.4;this.slabMat=this.track(new R.MeshStandardMaterial({color:q.slab,roughness:.4,metalness:.3}));let s=new R.Mesh(this.track(new R.BoxGeometry(o,.9,o)),this.slabMat);s.position.y=-.45,s.receiveShadow=!0,this.group.add(s);for(let i=0;i<e;i++)for(let n=0;n<e;n++)this.matrix[i][n]||this.tiles.push({x:n-t+.5,z:i-t+.5,r:i,c:n});this.tileMesh=new R.InstancedMesh(this.track(new R.BoxGeometry(1,.06,1)),this.track(new R.MeshStandardMaterial({color:16777215,roughness:.6})),Math.max(1,this.tiles.length)),this.tileMesh.count=this.tiles.length,this.tileMesh.receiveShadow=!0;let r=["#ffffff","#f6f5f2","#eeece8","#e9e7e2","#f9f8f6"];this.tiles.forEach((i,n)=>{this.tileQr.push(new R.Color(r[Math.floor(p(n*3+5)*r.length)])),this.tileSide.push(new R.Color(this.pal.cream).multiplyScalar(.97+p(n*7+2)*.05))}),this.group.add(this.tileMesh),this.buildTiers(),this.buildDecorations(),this.buildCandles(),this.buildConfetti(),this.update(0,0)}buildTiers(){let e=this.layout,t=e.half,o=[],s=[],r=[],i=[],n=[],a=[],h=(c,u,f,E,d,g)=>new R.Matrix4().compose(new R.Vector3((c+u)/2,(f+E)/2,(d+g)/2),new R.Quaternion,new R.Vector3(u-c,E-f,g-d));e.bounds.forEach(([c,u],f)=>{let E=c-t,d=u+1-t,g=f===0?0:e.tierTop[f-1],m=e.tierTop[f],y=m-g,T=this.detailDelay(f,f*7+1)+.04,x=new R.Vector3((E+d)/2,g,(E+d)/2);s.push(f),o.push({matrix:h(E+.04,d-.04,g,m-.12,E+.04,d-.04),color:this.pal.sponge,delay:T,pivot:x});for(let v of[.33,.66]){let I=g+y*v;r.push(f),i.push({matrix:h(E+.02,d-.02,I-.07,I+.07,E+.02,d-.02),color:this.pal.cream,delay:T,pivot:x})}r.push(f),i.push({matrix:h(E,d,m-.14,m-.005,E,d),color:this.pal.cream,delay:T+.03,pivot:x});let k=m-.1;[[E,d,E,E],[E,d,d,d],[E,E,E,d],[d,d,E,d]].forEach(([v,I,P,V],A)=>{let O=Math.max(Math.abs(I-v),Math.abs(V-P)),ee=Math.round(O/.5);for(let W=0;W<=ee;W++){let ue=W/ee,ae=v+(I-v)*ue,Ae=P+(V-P)*ue,de=A===0?[0,-1]:A===1?[0,1]:A===2?[-1,0]:[1,0],B=f*1e3+A*100+W,K=.15+p(B)*.55,Y=new R.Vector3(ae+de[0]*.03,k-K/2,Ae+de[1]*.03);n.push({matrix:new R.Matrix4().compose(Y,new R.Quaternion,new R.Vector3(de[0]?.08:.26,K,de[1]?.08:.26)),color:this.pal.glaze,delay:T+.08,pivot:new R.Vector3(ae,k,Ae)});let Ee=new R.Vector3(ae+de[0]*.02,m+.06,Ae+de[1]*.02);a.push({matrix:new R.Matrix4().compose(Ee,new R.Quaternion,new R.Vector3(.2,.2,.2)),color:this.pal.cream,delay:T+.1,pivot:Ee.clone()})}let U=.07;n.push({matrix:A<2?h(E-U,d+U,k-.06,k+.08,(A?d:E)-U,(A?d:E)+U):h((A===3?d:E)-U,(A===3?d:E)+U,k-.06,k+.08,E-U,d+U),color:this.pal.glaze,delay:T+.06,pivot:new R.Vector3((E+d)/2,k,(E+d)/2)})})}),this.addTierMesh(new R.BoxGeometry(1,1,1),new R.MeshStandardMaterial({color:16777215,roughness:.9}),o,s),this.addTierMesh(new R.BoxGeometry(1,1,1),new R.MeshStandardMaterial({color:16777215,roughness:.7}),i,r),this.grow.add(new R.BoxGeometry(1,1,1),new R.MeshStandardMaterial({color:16777215,roughness:.2,metalness:.05}),n,!1),this.grow.add(new R.SphereGeometry(.5,10,8),new R.MeshStandardMaterial({color:16777215,roughness:.6}),a,!1)}tierSets=[];addTierMesh(e,t,o,s){let r=new R.InstancedMesh(this.track(e),this.track(t),Math.max(1,o.length));r.count=o.length,r.castShadow=!0,r.receiveShadow=!0;let i=new R.Color;o.forEach((n,a)=>r.setColorAt(a,i.set(n.color))),r.instanceColor&&(r.instanceColor.needsUpdate=!0),this.group.add(r),this.tierSets.push({mesh:r,base:o.map(n=>n.matrix),tier:s})}updateTiers(e){let t=new R.Matrix4,o=new R.Matrix4;for(let s of this.tierSets){let r=!1;for(let i=0;i<s.base.length;i++){let n=this.rise(s.tier[i],e);n>.001&&(r=!0),t.makeScale(1,Math.max(1e-4,n),1),o.copy(t).multiply(s.base[i]),s.mesh.setMatrixAt(i,o)}s.mesh.visible=r,s.mesh.instanceMatrix.needsUpdate=!0}}buildDecorations(){let e=this.layout,t=[],o=[],s=[],r=[],i=[];this.modules.forEach((n,a)=>{let h=e.kind[a],c=this.cellTopOf(a),u=this.detailDelay(e.tierOf[this.modules[a].r*this.size+this.modules[a].c],a*3+2),f=c.clone();if(h==="berry"){let E=c.clone().setY(c.y+.26);t.push({matrix:new R.Matrix4().compose(E,new R.Quaternion().setFromEuler(new R.Euler(.3,p(a)*3,0)),new R.Vector3(.62,.56,.62)),color:this.pal.berry,delay:u,pivot:f}),o.push({matrix:new R.Matrix4().compose(E.clone().setY(E.y+.27),new R.Quaternion().setFromEuler(new R.Euler(0,p(a+1)*3,0)),new R.Vector3(.36,.12,.36)),color:this.pal.leaf,delay:u+.03,pivot:f})}else if(h==="macaron"){let E=this.decoColor(a),d=new R.Quaternion().setFromEuler(new R.Euler((p(a+2)-.5)*.4,0,(p(a+3)-.5)*.4));s.push({matrix:new R.Matrix4().compose(c.clone().setY(c.y+.1),d,new R.Vector3(.74,.17,.74)),color:E,delay:u,pivot:f}),r.push({matrix:new R.Matrix4().compose(c.clone().setY(c.y+.23),d,new R.Vector3(.66,.09,.66)),color:this.pal.cream,delay:u,pivot:f}),s.push({matrix:new R.Matrix4().compose(c.clone().setY(c.y+.35),d,new R.Vector3(.74,.17,.74)),color:E,delay:u,pivot:f})}else h==="rosette"&&(i.push({matrix:new R.Matrix4().compose(c.clone().setY(c.y+.2),new R.Quaternion().setFromEuler(new R.Euler(0,p(a)*3,0)),new R.Vector3(.7,.4,.7)),color:this.pal.rosette,delay:u,pivot:f}),i.push({matrix:new R.Matrix4().compose(c.clone().setY(c.y+.5),new R.Quaternion().setFromEuler(new R.Euler(0,p(a+5)*3,0)),new R.Vector3(.36,.3,.36)),color:this.pal.rosette,delay:u+.03,pivot:f}))}),this.grow.add(new R.SphereGeometry(.5,12,10),new R.MeshStandardMaterial({color:16777215,roughness:.35}),t),this.grow.add(new R.CylinderGeometry(.5,.2,1,6),new R.MeshStandardMaterial({color:16777215,roughness:.7}),o,!1),this.grow.add(new R.CylinderGeometry(.5,.5,1,18),new R.MeshStandardMaterial({color:16777215,roughness:.55}),s),this.grow.add(new R.CylinderGeometry(.5,.5,1,18),new R.MeshStandardMaterial({color:16777215,roughness:.7}),r,!1),this.grow.add(new R.ConeGeometry(.5,1,8),new R.MeshStandardMaterial({color:16777215,roughness:.6,flatShading:!0}),i)}buildCandles(){let e=this.layout,t=[];this.flameMat=this.track(new R.MeshStandardMaterial({color:"#ffd27a",emissive:"#ff9a2a",emissiveIntensity:0,transparent:!0,opacity:.95}));let o=this.track(new R.ConeGeometry(.2,.62,12));this.modules.forEach((s,r)=>{if(e.kind[r]!=="candle")return;let i=this.cellTopOf(r),n=this.detailDelay(0,r*5+4);for(let h=0;h<8;h++)t.push({matrix:new R.Matrix4().compose(i.clone().setY(i.y+.16+h*.32),new R.Quaternion,new R.Vector3(.6,.32,.6)),color:this.pal.candle[h%2],delay:n+h*.01,pivot:i.clone()});let a=new R.Mesh(o,this.flameMat);a.position.set(i.x,i.y+2.95,i.z),a.visible=!1,this.group.add(a),this.flames.push(a)}),this.grow.add(new R.CylinderGeometry(.5,.5,1,14),new R.MeshStandardMaterial({color:16777215,roughness:.6}),t)}buildConfetti(){this.confetti=new R.InstancedMesh(this.track(new R.BoxGeometry(.22,.03,.14)),this.track(new R.MeshStandardMaterial({color:16777215,roughness:.6})),80);let t=new R.Color;for(let o=0;o<80;o++)this.confetti.setColorAt(o,t.set(this.pal.confetti[o%this.pal.confetti.length]));this.confetti.visible=!1,this.group.add(this.confetti)}applyLighting(e,t,o,s){se(e,this.pal.mood,t,o,s),this.slabMat.color.set(q.slab).lerp(new R.Color(this.pal.board),e)}update(e,t){if(e!==this.lastGrowth){this.lastGrowth=e,this.grow.update(e),this.updateTiers(e);let r=new R.Matrix4,i=new R.Color,n=R.MathUtils.smoothstep(e,.1,.65);this.tiles.forEach((a,h)=>{r.makeTranslation(a.x,this.surface(a.r,a.c,e)+.03,a.z),this.tileMesh.setMatrixAt(h,r),i.copy(this.tileQr[h]).lerp(this.tileSide[h],n),this.tileMesh.setColorAt(h,i)}),this.tileMesh.instanceMatrix.needsUpdate=!0,this.tileMesh.instanceColor&&(this.tileMesh.instanceColor.needsUpdate=!0)}let o=R.MathUtils.smoothstep(e,.75,1);this.flameMat.emissiveIntensity=2.2*o,this.flames.forEach((r,i)=>{r.visible=o>.01;let n=1+Math.sin(t*13+i*2)*.08+Math.sin(t*23+i)*.05;r.scale.set(o*(1+Math.sin(t*9+i)*.06),o*n,o*(1+Math.cos(t*9+i)*.06)),r.rotation.z=Math.sin(t*4+i)*.08});let s=R.MathUtils.clamp((e-.85)/.15,0,1);if(this.confetti.visible=s>0,this.confetti.visible){let r=new R.Object3D,i=this.size+2,n=this.layout.tierTop[2]+5;for(let a=0;a<this.confetti.count;a++){let h=n-(t*(.5+p(a)*.6)+p(a+50)*n)%n;r.position.set((p(a+1)-.5)*i+Math.sin(t+a)*.4,h,(p(a+2)-.5)*i+Math.cos(t*.8+a)*.4),r.rotation.set(t*(1+p(a+3))+a,t*.7+a,Math.sin(t+a)),r.scale.setScalar(s),r.updateMatrix(),this.confetti.setMatrixAt(a,r.matrix)}this.confetti.instanceMatrix.needsUpdate=!0}}dispose(){this.group.removeFromParent(),this.disposables.forEach(e=>e.dispose()),this.disposables=[]}};var H=te(oe(),1);var Vs={day:{stone:["#b8ab94","#a89c86","#c4b8a2","#9e937e"],roof:"#b5453a",courtyard:"#cfc6b4",water:"#3f8fb0",slab:"#6f8a4a",banners:["#c0392b","#2f5fb0","#d8a92a"],snow:!1,night:0,mood:{ambient:{color:"#ffffff",intensity:1.2},sun:{color:"#fff2dc",intensity:2.6,position:[22,48,28]}}},night:{stone:["#8a90a4","#7e8498","#969cb0","#767c8e"],roof:"#6a2f3a",courtyard:"#666b7a",water:"#1f3550",slab:"#3a4a3a",banners:["#c0392b","#2f5fb0","#d8a92a"],snow:!1,night:1,mood:{ambient:{color:"#8a98d8",intensity:1.15},sun:{color:"#b8c4ff",intensity:1.3,position:[-20,40,10]}}},winter:{stone:["#a9adb5","#9a9fa8","#b5b9c0","#8f949e"],roof:"#8a3a3a",courtyard:"#eef2f6",water:"#a9c9da",slab:"#e6eef4",banners:["#c0392b","#2f5fb0","#d8a92a"],snow:!0,night:0,mood:{ambient:{color:"#e8f0ff",intensity:1.25},sun:{color:"#f0f4ff",intensity:2.3,position:[30,32,20]}}}},As=92,dr=.4;function pr(l,e){let t=e/2,o=new Set(l.map(a=>a.r*e+a.c)),s=(a,h)=>a>=0&&h>=0&&a<e&&h<e&&o.has(a*e+h),r=[],i=[],n=[];return l.forEach((a,h)=>{let c=$(a.r,a.c,e);if(c){let[g,m,y]=c;n.push(y),g>=2&&g<=4&&m>=2&&m<=4?(r.push(g===3&&m===3?"keepTop":"keep"),i.push(5.2)):(r.push("ring"),i.push(3.2));return}if(n.push(-1),!s(a.r-1,a.c)&&!s(a.r+1,a.c)&&!s(a.r,a.c-1)&&!s(a.r,a.c+1)){r.push("house"),i.push(1.2);return}r.push("wall");let f=Math.hypot(a.c-t+.5,a.r-t+.5)/(t*.95),d=1.6+Math.pow(Math.max(0,1-f),1.3)*3.2+(p(h*7+1)<.1?.8:0);i.push(Math.round(d/dr)*dr)}),{size:e,half:t,kind:r,height:i,tower:n,maxH:Math.max(...i)}}function Nt(l,e){let t=pr(l,e);return l.map((o,s)=>{let r=t.height[s];return{x:o.c-t.half+.5,y:r/2,z:o.r-t.half+.5,scaleX:1.13,scaleY:r/.88,scaleZ:1.13}})}function Er(l){let e=l??{uSide:{value:0}},t=new H.MeshStandardMaterial({color:16777215,roughness:.92,metalness:0});return t.onBeforeCompile=o=>{Object.assign(o.uniforms,e),o.vertexShader=`varying vec3 vStonePos;\nvarying vec3 vStoneN;\n`+o.vertexShader.replace("#include <project_vertex>",`#include <project_vertex>\n        vec4 stoneWp = vec4(transformed, 1.0);\n        vec3 stoneN = objectNormal;\n        #ifdef USE_INSTANCING\n          stoneWp = instanceMatrix * stoneWp;\n          stoneN = mat3(instanceMatrix) * stoneN;\n        #endif\n        vStonePos = (modelMatrix * stoneWp).xyz;\n        vStoneN = normalize(mat3(modelMatrix) * stoneN);`),o.fragmentShader=`varying vec3 vStonePos;\nvarying vec3 vStoneN;\nuniform float uSide;\n`+o.fragmentShader.replace("#include <color_fragment>",`#include <color_fragment>\n        float stSide = 1.0 - step(0.5, abs(vStoneN.y));\n        float stU = abs(vStoneN.x) > 0.5 ? vStonePos.z : vStonePos.x;\n        float row = floor(vStonePos.y / 0.22);\n        float brickU = stU * 2.4 + mod(row, 2.0) * 0.5;\n        float mortar = (1.0 - step(0.08, fract(vStonePos.y / 0.22))) + (1.0 - step(0.06, fract(brickU)));\n        float shade = 0.9 + 0.12 * fract(sin(dot(vec2(floor(brickU), row), vec2(12.9898, 78.233))) * 43758.5453);\n        vec3 brick = diffuseColor.rgb * shade * mix(1.0, 0.62, clamp(mortar, 0.0, 1.0));\n        diffuseColor.rgb = mix(diffuseColor.rgb, brick, stSide * uSide);`)},t.customProgramCacheKey=()=>"qr-castle-stone",{material:t,uniforms:e}}var st=class{constructor(e,t,o,s){this.modules=e;this.matrix=t;this.size=o;this.layout=pr(e,o),this.pal=Vs[s];let r=Er();this.voxelMaterial=r.material,this.stoneUniforms=r.uniforms,this.targets=Nt(e,o),this.grow=new J(this.group,i=>this.track(i)),this.build()}group=new H.Group;voxelMaterial;targets;voxelSideWindow=[.6,.9];stoneUniforms;layout;pal;disposables=[];grow;tiles=[];tileMesh;tileQr=[];tileSide=[];slabMat;glowMats=[];flags=[];snowfall=null;lastGrowth=-1;get maxHeight(){return this.layout.maxH+3.4}track(e){return this.disposables.push(e),e}stoneColor(e){let t=this.modules[e],o=Math.floor(t.r/4)*97+Math.floor(t.c/4)*31;return this.pal.stone[Math.floor(p(o+3)*this.pal.stone.length)]}voxelColor(e){let t=this.layout.kind[e],o=this.stoneColor(e),s=o;return t==="house"&&(s=this.pal.roof),(t==="keepTop"||t==="keep")&&(s=this.pal.banners[this.layout.tower[e]]),{qr:j(s,As+(p(e*5+17)-.5)*12),side:o}}growDelay(e){return .04+this.layout.height[e]/this.layout.maxH*.32+p(e*7+3)*.05}voxelSideScale(e){return this.layout.kind[e]==="house"?[0,0,0]:[1,1,1]}top(e){let t=this.modules[e];return new H.Vector3(t.c-this.layout.half+.5,this.layout.height[e],t.r-this.layout.half+.5)}detailDelay(e){return Math.min(.9,.58+p(e*11+5)*.12)}build(){let e=this.size,t=e/2,o=e+2.4;this.slabMat=this.track(new H.MeshStandardMaterial({color:q.slab,roughness:.9}));let s=new H.Mesh(this.track(new H.BoxGeometry(o,.9,o)),this.slabMat);s.position.y=-.45,s.receiveShadow=!0,this.group.add(s);for(let n=0;n<e;n++)for(let a=0;a<e;a++)this.matrix[n][a]||this.tiles.push({x:a-t+.5,z:n-t+.5,r:n,c:a});this.tileMesh=new H.InstancedMesh(this.track(new H.BoxGeometry(1,.06,1)),this.track(new H.MeshStandardMaterial({color:16777215,roughness:.95})),Math.max(1,this.tiles.length)),this.tileMesh.count=this.tiles.length,this.tileMesh.receiveShadow=!0;let r=["#ffffff","#f6f5f2","#eeece8","#e9e7e2","#f9f8f6"],i=new H.Matrix4;this.tiles.forEach((n,a)=>{i.makeTranslation(n.x,.03,n.z),this.tileMesh.setMatrixAt(a,i),this.tileQr.push(new H.Color(r[Math.floor(p(a*3+5)*r.length)])),this.tileSide.push(new H.Color(this.pal.courtyard).multiplyScalar(.9+p(a*7+2)*.14)),this.tileMesh.setColorAt(a,this.tileQr[a])}),this.group.add(this.tileMesh),this.buildBattlements(),this.buildHouses(),this.buildKeeps(),this.buildWindowsAndTorches(),this.buildMoat(),this.pal.snow&&this.buildSnow(),this.update(0,0)}buildBattlements(){let e=this.layout,t=this.size,o=new Map;this.modules.forEach((i,n)=>o.set(i.r*t+i.c,e.height[n]));let s=[],r=[];this.modules.forEach((i,n)=>{let a=e.kind[n];if(a!=="wall"&&a!=="ring")return;let h=this.top(n),c=e.height[n],u=this.detailDelay(n),f=this.stoneColor(n);this.pal.snow&&r.push({matrix:new H.Matrix4().compose(h.clone().setY(c+.04),new H.Quaternion,new H.Vector3(1,.08,1)),color:"#f6f9fc",delay:u,pivot:h.clone()});for(let[E,d]of[[0,1],[0,-1],[1,0],[-1,0]])if(!((o.get((i.r+E)*t+(i.c+d))??0)>=c))for(let m of[-.25,.25]){let y=new H.Vector3(h.x+(d!==0?d*.39:m),c+.16,h.z+(E!==0?E*.39:m));s.push({matrix:new H.Matrix4().compose(y,new H.Quaternion,new H.Vector3(d!==0?.2:.26,.32,E!==0?.2:.26)),color:f,delay:u,pivot:y.clone().setY(c)}),this.pal.snow&&r.push({matrix:new H.Matrix4().compose(y.clone().setY(c+.35),new H.Quaternion,new H.Vector3(d!==0?.22:.28,.06,E!==0?.22:.28)),color:"#f6f9fc",delay:u,pivot:y.clone().setY(c)})}}),this.grow.add(new H.BoxGeometry(1,1,1),Er(this.stoneUniforms).material,s),r.length&&this.grow.add(new H.BoxGeometry(1,1,1),new H.MeshStandardMaterial({color:16777215,roughness:.9}),r,!1)}buildHouses(){let e=this.layout,t=[],o=[];this.modules.forEach((s,r)=>{if(e.kind[r]!=="house")return;let i=this.modules[r],n=new H.Vector3(i.c-e.half+.5,0,i.r-e.half+.5),a=Math.min(.8,this.growDelay(r)+.3);t.push({matrix:new H.Matrix4().compose(n.clone().setY(.45),new H.Quaternion,new H.Vector3(.82,.9,.82)),color:this.pal.snow?"#e4dccb":"#e8dcc2",delay:a,pivot:n.clone()}),t.push({matrix:new H.Matrix4().compose(n.clone().add(new H.Vector3(0,.25,.42)),new H.Quaternion,new H.Vector3(.24,.42,.04)),color:"#6a4a32",delay:a,pivot:n.clone()}),o.push({matrix:new H.Matrix4().compose(n.clone().setY(.9+.3),new H.Quaternion().setFromEuler(new H.Euler(0,Math.PI/4,0)),new H.Vector3(.7,.6,.7)),color:this.pal.snow?"#f4f8fb":this.pal.roof,delay:a+.05,pivot:n.clone()})}),this.grow.add(new H.BoxGeometry(1,1,1),new H.MeshStandardMaterial({color:16777215,roughness:.85}),t),this.grow.add(new H.CylinderGeometry(0,1,1,4),new H.MeshStandardMaterial({color:16777215,roughness:.8}),o)}buildKeeps(){let e=this.layout,t=e.half,o=[],s=this.size;[[0,0],[0,s-7],[s-7,0]].forEach(([n,a],h)=>{let c=a+3.5-t,u=n+3.5-t,f=5.2,E=new H.Vector3(c,f+1.1,u);o.push({matrix:new H.Matrix4().compose(E,new H.Quaternion().setFromEuler(new H.Euler(0,Math.PI/4,0)),new H.Vector3(1.5*Math.SQRT2,2.2,1.5*Math.SQRT2)),color:this.pal.banners[h],delay:.62+h*.03,pivot:new H.Vector3(c,f,u)}),this.addFlag(new H.Vector3(c,f+2.15,u),this.pal.banners[h],.7+h*.03)});let i=-1;this.modules.forEach((n,a)=>{e.kind[a]==="wall"&&(i<0||e.height[a]>e.height[i])&&(i=a)}),i>=0&&this.addFlag(this.top(i),this.pal.banners[0],.72),this.grow.add(new H.CylinderGeometry(0,1,1,4),new H.MeshStandardMaterial({color:16777215,roughness:.6}),o)}addFlag(e,t,o){let s=new H.Mesh(this.track(new H.CylinderGeometry(.04,.04,1.4,6)),this.track(new H.MeshStandardMaterial({color:"#4a4a52",roughness:.5}))),r=new H.Mesh(this.track(new H.BoxGeometry(.7,.42,.03)),this.track(new H.MeshStandardMaterial({color:t,roughness:.7,side:H.DoubleSide})));[s,r].forEach(i=>{i.visible=!1,i.castShadow=!0,this.group.add(i)}),this.flags.push({pole:s,cloth:r,base:e.clone(),delay:o})}buildWindowsAndTorches(){let e=this.layout,t=this.size,o=new Set(this.modules.map(h=>h.r*t+h.c)),s=this.track(new H.MeshStandardMaterial({color:"#2a2a32",emissive:"#ffb84a",emissiveIntensity:0,roughness:.4})),r=this.track(new H.MeshStandardMaterial({color:"#ffd27a",emissive:"#ff8a2a",emissiveIntensity:0}));this.glowMats.push(s,r);let i=[],n=[],a=[];this.modules.forEach((h,c)=>{let u=e.kind[c],f=e.height[c],E=this.top(c),d=this.detailDelay(c);if((u==="keep"||u==="ring"||u==="wall"&&f>=3)&&p(c*13+2)<.55)for(let[g,m]of[[0,1],[0,-1],[1,0],[-1,0]]){if(o.has((h.r+g)*t+(h.c+m)))continue;let y=Math.min(f-.6,1+p(c+g*3+m)*(f-1.6)),T=new H.Vector3(E.x+m*.5,y,E.z+g*.5);i.push({matrix:new H.Matrix4().compose(T,new H.Quaternion,new H.Vector3(m?.04:.18,.3,g?.04:.18)),color:"#ffffff",delay:d,pivot:T.clone()})}if((u==="wall"||u==="ring")&&p(c*19+7)<.12){let g=E.clone().setY(f+.25);n.push({matrix:new H.Matrix4().compose(g,new H.Quaternion,new H.Vector3(.06,.5,.06)),color:"#5a3d28",delay:d,pivot:E.clone()}),a.push({matrix:new H.Matrix4().compose(g.clone().setY(f+.58),new H.Quaternion,new H.Vector3(.14,.2,.14)),color:"#ffffff",delay:d+.03,pivot:E.clone()})}}),this.grow.add(new H.BoxGeometry(1,1,1),s,i,!1),this.pal.night&&(this.grow.add(new H.BoxGeometry(1,1,1),new H.MeshStandardMaterial({color:16777215,roughness:.8}),n,!1),this.grow.add(new H.ConeGeometry(.5,1,8),r,a,!1))}buildMoat(){let e=this.size,t=e/2,o=1.1,s=[],r=t+o/2+.02,i=e+2*o;[[0,-r,i,o],[0,r,i,o],[-r,0,o,e],[r,0,o,e]].forEach(([c,u,f,E])=>{let d=new H.Vector3(c,.02,u);s.push({matrix:new H.Matrix4().compose(d,new H.Quaternion,new H.Vector3(f,.05,E)),color:this.pal.water,delay:.55,pivot:d.clone()})});let a=[],h=new H.Vector3(0,.12,r);a.push({matrix:new H.Matrix4().compose(h,new H.Quaternion,new H.Vector3(1.6,.12,o+.4)),color:"#7a5634",delay:.68,pivot:h.clone()}),this.grow.add(new H.BoxGeometry(1,1,1),new H.MeshStandardMaterial({color:16777215,roughness:.2,metalness:.05}),s,!1),this.grow.add(new H.BoxGeometry(1,1,1),new H.MeshStandardMaterial({color:16777215,roughness:.85}),a)}buildSnow(){this.snowfall=new H.InstancedMesh(this.track(new H.BoxGeometry(.09,.09,.09)),this.track(new H.MeshStandardMaterial({color:"#ffffff"})),110),this.snowfall.visible=!1,this.group.add(this.snowfall)}applyLighting(e,t,o,s){se(e,this.pal.mood,t,o,s),this.slabMat.color.set(q.slab).lerp(new H.Color(this.pal.slab),e),this.stoneUniforms.uSide.value=H.MathUtils.smoothstep(e,.2,.8);let r=this.pal.night*H.MathUtils.smoothstep(e,.6,1);this.glowMats.forEach(i=>i.emissiveIntensity=2.4*r)}update(e,t){if(e!==this.lastGrowth){this.lastGrowth=e,this.grow.update(e);let o=H.MathUtils.smoothstep(e,.1,.65),s=new H.Color;for(let r=0;r<this.tiles.length;r++)s.copy(this.tileQr[r]).lerp(this.tileSide[r],o),this.tileMesh.setColorAt(r,s);this.tileMesh.instanceColor&&(this.tileMesh.instanceColor.needsUpdate=!0)}if(this.flags.forEach((o,s)=>{let r=H.MathUtils.clamp((e-o.delay)/(1-o.delay),0,1);o.pole.visible=o.cloth.visible=r>.01,o.pole.position.set(o.base.x,o.base.y+.7*r,o.base.z),o.pole.scale.set(1,Math.max(.001,r),1);let i=Math.sin(t*3+s)*.25;o.cloth.position.set(o.base.x+.36*r,o.base.y+1.2*r,o.base.z),o.cloth.rotation.set(0,i,Math.sin(t*5+s)*.05),o.cloth.scale.set(Math.max(.001,r),Math.max(.001,r),1)}),this.snowfall){let o=H.MathUtils.clamp((e-.85)/.15,0,1);if(this.snowfall.visible=o>0,o>0){let s=new H.Object3D,r=this.size+2,i=this.layout.maxH+6;for(let n=0;n<this.snowfall.count;n++){let a=i-(t*(.5+p(n)*.5)+p(n+50)*i)%i;s.position.set((p(n+1)-.5)*r+Math.sin(t+n)*.3,a,(p(n+2)-.5)*r),s.scale.setScalar(o),s.updateMatrix(),this.snowfall.setMatrixAt(n,s.matrix)}this.snowfall.instanceMatrix.needsUpdate=!0}}}dispose(){this.group.removeFromParent(),this.disposables.forEach(e=>e.dispose()),this.disposables=[]}};function mr(l,e,t,o){if(l==="tree"&&o&&o.length===e)return Bt(o,t);if(l==="city"&&o&&o.length===e)return $o(o,t);if(l==="island"&&o&&o.length===e)return nr(o,t);if(l==="maze"&&o&&o.length===e)return lr(o,t);if(l==="equalizer"&&o&&o.length===e)return Dt(o,t);if(l==="cake"&&o&&o.length===e)return Ut(o,t);if(l==="castle"&&o&&o.length===e)return Nt(o,t);let s=[],r=1;switch(l){case"tree":{let a=t*.7,h=a*.36,c=a-h,u=.5,f=Math.max(12,Math.floor(e*.16));for(let T=0;T<f;T++){let x=T/(f-1||1),k=u+x*h,L=x<.28?1.35:Math.max(.75,1.05-x*.3),v=T*2.39996,I=T%3*.35*L,P=Math.cos(v)*I,V=Math.sin(v)*I;s.push({x:P,y:k,z:V,scaleX:.92,scaleY:.92,scaleZ:.92})}let E=Math.max(10,Math.floor(e*.12)),d=[.1,Math.PI*.65,Math.PI*1.32,Math.PI*.32];for(let T=0;T<E;T++){let x=T%d.length,k=d[x]+Math.floor(T/d.length)*.12,L=Math.floor(T/d.length)/Math.max(1,Math.floor(E/d.length)),v=u+h*.72+L*(h*.55),I=(L*.75+.25)*(t*.23),P=Math.cos(k)*I,V=Math.sin(k)*I;s.push({x:P,y:v,z:V,scaleX:.9,scaleY:.9,scaleZ:.9})}let g=Math.max(8,Math.floor(e*.08));for(let T=0;T<g;T++){let x=T*1.37,k=1.4+T%5*1.4;s.push({x:Math.cos(x)*k,y:u+T%2*.2,z:Math.sin(x)*k,scaleX:.85,scaleY:.6,scaleZ:.85})}let m=e-s.length,y=[{cx:0,cy:u+h+c*.55,cz:0,rx:t*.35,ry:c*.48,rz:t*.35},{cx:3.2,cy:u+h+c*.42,cz:2.2,rx:t*.25,ry:c*.38,rz:t*.25},{cx:-3.2,cy:u+h+c*.46,cz:1.8,rx:t*.26,ry:c*.4,rz:t*.26},{cx:.6,cy:u+h+c*.38,cz:-3.2,rx:t*.27,ry:c*.36,rz:t*.27}];for(let T=0;T<m;T++){let x=y[T%y.length],k=Math.floor(T/y.length),L=Math.max(1,Math.floor(m/y.length)),v=Math.acos(1-2*(k/L)),I=T*2.39996,P=.62+.38*(T*23%100/100),V=x.cx+Math.sin(v)*Math.cos(I)*x.rx*P,A=x.cy+Math.cos(v)*x.ry*P,O=x.cz+Math.sin(v)*Math.sin(I)*x.rz*P;s.push({x:V,y:A,z:O,scaleX:.95,scaleY:.95,scaleZ:.95})}break}case"phone":{let a=t*.72,h=a*.52,c=h/2,u=a/2,f=r+u,E=Math.floor(h/.88),d=Math.floor(a/.88),g=0;for(let m=0;m<d&&g<e;m++)for(let y=0;y<E&&g<e;y++){let T=(y/(E-1||1)-.5)*2,x=(m/(d-1||1)-.5)*2;if(Math.pow(T,4)+Math.pow(x,4)<=1){let L=T*c,v=f-x*u,I=Math.abs(T)<.28&&Math.abs(x- -.72)<.08,P=I?.8:0;s.push({x:L,y:v,z:P,scaleX:I?1.05:.92,scaleY:I?1.05:.92,scaleZ:I?1.2:.85}),g++}}for(;s.length<e;){let m=s.length/e*Math.PI*2;s.push({x:Math.cos(m)*c*.92,y:f+Math.sin(m)*u*.92,z:-.6,scaleX:.88,scaleY:.88,scaleZ:1.1})}break}case"city":{let a=Math.ceil(Math.sqrt(e)),h=t*.8/a,c=a*h/2,u=t*.55;for(let f=0;f<e;f++){let E=Math.floor(f/a),d=f%a,g=Math.sin(E*12.9898+d*78.233)*43758.5453,m=g-Math.floor(g),y=Math.hypot(d-a/2,E-a/2)/(a/2),T=Math.max(0,1-y),x=(.2+m*.8)*(1+T*2),k=d*h-c,L=E*h-c,v=Math.max(1.2,x*u),I=.88*v/2+.05;s.push({x:k,y:I,z:L,scaleX:.88,scaleY:v,scaleZ:.88})}break}case"crystal":{let h=t*.65/2,c=t*.35,u=r+h;for(let f=0;f<e;f++){let E=Math.acos(-1+2*f/e),d=Math.sqrt(e*Math.PI)*E,g=.84+.22*Math.cos(d*4),m=c*Math.sin(E)*g,y=m*Math.cos(d),T=m*Math.sin(d),x=u+Math.cos(E)*h;s.push({x:y,y:x,z:T,scaleX:.95,scaleY:.95,scaleZ:.95})}break}case"pyramid":{let h=t*.42/8,c=0;for(let u=0;u<8&&c<e;u++){let f=8-u,E=(u+.5)*h+.05;for(let d=-f;d<=f&&c<e;d++)for(let g=-f;g<=f&&c<e;g++)if(Math.abs(d)===f||Math.abs(g)===f||u===0){let m=g*(t*.048),y=d*(t*.048);s.push({x:m,y:E,z:y,scaleX:.95,scaleY:.95,scaleZ:.95}),c++}}for(;s.length<e;){let u=Math.floor(Math.random()*8),f=Math.max(1,8-u),E=(Math.random()*2-1)*f,d=(Math.random()*2-1)*f;s.push({x:d*(t*.048),y:(u+.5)*h+.05,z:E*(t*.048),scaleX:.95,scaleY:.95,scaleZ:.95})}break}case"heart":{let a=t*.62,h=a*.96,c=r;for(let u=0;u<e;u++){let f=u/e*Math.PI*2,E=u*7%e/e,d=(E-.5)*(t*.22),g=16*Math.pow(Math.sin(f),3),y=(13*Math.cos(f)-5*Math.cos(2*f)-2*Math.cos(3*f)-Math.cos(4*f)+17)/34,T=c+y*a,x=g/16*(h/2)*(1-Math.abs(E-.5)*.4),k=d;s.push({x,y:T,z:k,scaleX:.95,scaleY:.95,scaleZ:.95})}break}case"sphere":default:{let a=t*.35,h=r+a,c=Math.PI*(Math.sqrt(5)-1);for(let u=0;u<e;u++){let f=1-u/(e-1||1)*2,E=Math.sqrt(Math.max(0,1-f*f)),d=c*u,g=Math.cos(d)*E*a,m=h+f*a,y=Math.sin(d)*E*a;s.push({x:g,y:m,z:y,scaleX:.95,scaleY:.95,scaleZ:.95})}break}}let i=1/0;for(let a of s){let h=.88*(a.scaleY??1)/2,c=a.y-h;c<i&&(i=c)}let n=.25;if(i<n){let a=n-i;for(let h of s)h.y+=a}return s}var nt={"velvet-emerald":{id:"velvet-emerald",name:"Fresh Mint",subtitle:"\\u0421\\u0432\\u0435\\u0436\\u0430\\u044F \\u043C\\u044F\\u0442\\u0430 \\u0438 \\u0441\\u043E\\u0441\\u043D\\u043E\\u0432\\u044B\\u0439 \\u0430\\u043A\\u0446\\u0435\\u043D\\u0442",bgColor:"#F0EBE9",groundColor:"#fcfbf9",voxelColor:"#19C37D",accentColor:"#22d38e",finderColor:"#132A22",isDark:!1},"terracotta-clay":{id:"terracotta-clay",name:"\\u0422\\u0435\\u0440\\u0440\\u0430\\u043A\\u043E\\u0442\\u0430 \\u0438 \\u041A\\u0440\\u0435\\u043C",subtitle:"\\u0422\\u0435\\u043F\\u043B\\u044B\\u0439 \\u0433\\u043B\\u0438\\u043D\\u044F\\u043D\\u044B\\u0439 \\u0430\\u043A\\u0446\\u0435\\u043D\\u0442 \\u0438 \\u043A\\u0430\\u0440\\u0430\\u043C\\u0435\\u043B\\u044C",bgColor:"#F0EBE9",groundColor:"#ffffff",voxelColor:"#3d2516",accentColor:"#ea580c",finderColor:"#f97316",isDark:!1},"espresso-cream":{id:"espresso-cream",name:"\\u042D\\u0441\\u043F\\u0440\\u0435\\u0441\\u0441\\u043E \\u0438 \\u0424\\u0430\\u0440\\u0444\\u043E\\u0440",subtitle:"\\u0413\\u043B\\u0443\\u0431\\u043E\\u043A\\u0438\\u0439 \\u0442\\u0435\\u043C\\u043D\\u044B\\u0439 \\u043A\\u043E\\u0444\\u0435 \\u043D\\u0430 \\u043C\\u043E\\u043B\\u043E\\u0447\\u043D\\u043E\\u043C",bgColor:"#F0EBE9",groundColor:"#ffffff",voxelColor:"#201e1c",accentColor:"#57534e",finderColor:"#292524",isDark:!1},"soft-indigo":{id:"soft-indigo",name:"\\u041A\\u043E\\u0431\\u0430\\u043B\\u044C\\u0442 \\u0438 \\u041B\\u0430\\u0432\\u0430\\u043D\\u0434\\u0430",subtitle:"\\u041C\\u044F\\u0433\\u043A\\u0438\\u0439 \\u043F\\u0430\\u0441\\u0442\\u0435\\u043B\\u044C\\u043D\\u044B\\u0439 \\u0438\\u043D\\u0434\\u0438\\u0433\\u043E",bgColor:"#f4f4f8",groundColor:"#ffffff",voxelColor:"#1e1b4b",accentColor:"#4f46e5",finderColor:"#6366f1",isDark:!1},"dark-obsidian":{id:"dark-obsidian",name:"\\u0413\\u043B\\u0443\\u0431\\u043E\\u043A\\u0438\\u0439 \\u041E\\u0431\\u0441\\u0438\\u0434\\u0438\\u0430\\u043D",subtitle:"\\u041A\\u043E\\u043D\\u0442\\u0440\\u0430\\u0441\\u0442\\u043D\\u044B\\u0439 \\u0442\\u0435\\u043C\\u043D\\u044B\\u0439 \\u0433\\u0440\\u0430\\u0444\\u0438\\u0442",bgColor:"#161514",groundColor:"#23201d",voxelColor:"#3f3a36",accentColor:"#10b981",finderColor:"#34d399",isDark:!0}},at=class{container;renderer;scene;camera;orthoCam;viewT=0;treeView=0;lastFrameTime=0;instancedMesh;groundMesh;slabMesh=null;stageTop=10;faceYaw=0;ambientLight;dirLight;pointLight;voxels=[];text;shape;theme;state="qr";season="spring";treeDecor=null;stageScene=null;timeOfDay="day";islandMode="summer";gardenMode="day";eqMode="neon";cakeFlavor="chocolate";castleMode="day";qrSize=25;clock=new C.Clock;morphProgress=0;targetProgress=0;animFrameId=null;intersectionObserver=null;isVisible=!0;paused=!1;setPaused(e){this.paused=e}onPointerDownHandler;onPointerUpHandler;onResizeHandler;onStateChange;onReady;constructor(e){this.container=e.container,this.text=e.text,this.shape=e.shape,this.theme=nt[e.themeId]||nt["velvet-emerald"],this.season=e.season??"spring",this.timeOfDay=e.timeOfDay??"day",this.islandMode=e.islandMode??"summer",this.gardenMode=e.gardenMode??"day",this.eqMode=e.eqMode??"neon",this.cakeFlavor=e.cakeFlavor??"chocolate",this.castleMode=e.castleMode??"day";let t=e.initialState??"morphed";this.state=t,this.targetProgress=t==="morphed"?1:0,this.viewT=this.targetProgress,this.treeView=this.targetProgress,this.morphProgress=this.targetProgress,this.onStateChange=e.onStateChange,this.onReady=e.onReady,this.init()}init(){let e=this.container.clientWidth||500,t=this.container.clientHeight||500;this.scene=new C.Scene,this.scene.background=null,this.camera=new C.PerspectiveCamera(36,e/t,.1,1e3),this.camera.position.set(0,46,56),this.camera.lookAt(0,3.5,0),this.orthoCam=new C.OrthographicCamera(-20,20,20,-20,.1,1e3);try{this.renderer=new C.WebGLRenderer({antialias:!0,alpha:!0})}catch{try{this.renderer=new C.WebGLRenderer({alpha:!0})}catch(a){console.error("WebGLRenderer initialization failed:",a);return}}this.renderer.setSize(e,t),this.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2)),this.renderer.shadowMap.enabled=!0,this.renderer.shadowMap.type=C.PCFSoftShadowMap,this.container.innerHTML="",this.container.appendChild(this.renderer.domElement),this.ambientLight=new C.AmbientLight(this.theme.isDark?16777215:16579577,this.theme.isDark?.7:1.35),this.scene.add(this.ambientLight),this.dirLight=new C.DirectionalLight(16777215,this.theme.isDark?1.5:1.6),this.dirLight.position.set(22,48,28),this.dirLight.castShadow=!0,this.dirLight.shadow.mapSize.width=1024,this.dirLight.shadow.mapSize.height=1024,this.dirLight.shadow.bias=-.001,this.dirLight.shadow.camera.left=-22,this.dirLight.shadow.camera.right=22,this.dirLight.shadow.camera.top=22,this.dirLight.shadow.camera.bottom=-22,this.dirLight.shadow.camera.near=.5,this.dirLight.shadow.camera.far=120,this.scene.add(this.dirLight),this.pointLight=new C.PointLight(this.theme.accentColor,this.theme.isDark?2:1.5,70),this.pointLight.position.set(-18,22,-18),this.scene.add(this.pointLight);let o=new C.CylinderGeometry(15.6,16.2,.45,64),s=new C.MeshStandardMaterial({color:this.theme.isDark?2236446:16513525,roughness:this.theme.isDark?.4:.6,metalness:this.theme.isDark?.3:.04});this.groundMesh=new C.Mesh(o,s),this.groundMesh.position.y=-.25,this.groundMesh.receiveShadow=!0,this.scene.add(this.groundMesh);let r=new C.PlaneGeometry(60,60),i=new C.ShadowMaterial({opacity:this.theme.isDark?.35:.08}),n=new C.Mesh(r,i);n.rotation.x=-Math.PI/2,n.position.y=-.27,n.receiveShadow=!0,this.scene.add(n),this.rebuildVoxels(),this.bindEvents(),this.setupIntersectionObserver(),this.animate(),this.onReady&&this.onReady()}rebuildVoxels(){this.instancedMesh&&(this.scene.remove(this.instancedMesh),this.instancedMesh.geometry.dispose(),Array.isArray(this.instancedMesh.material)?this.instancedMesh.material.forEach(m=>m.dispose()):this.instancedMesh.material.dispose());let{modules:e,size:t}=_o(this.text),o=[];for(let m=0;m<t;m++)for(let y=0;y<t;y++)e[m][y]&&o.push({r:m,c:y,isFinder:Oo(m,y,t)});let s=o.length,r=this.shape==="tree";this.qrSize=t,this.faceYaw=this.shape==="phone"||this.shape==="heart"?Math.PI/4:0;let i=mr(this.shape,s,t,o);this.treeDecor&&(this.treeDecor.dispose(),this.treeDecor=null),r&&(this.treeDecor=new Ke(o,e,t,this.season),this.scene.add(this.treeDecor.group)),this.stageScene&&(this.stageScene.dispose(),this.stageScene=null),this.shape==="city"?this.stageScene=new Je(o,e,t,this.timeOfDay):this.shape==="island"?this.stageScene=new $e(o,e,t,this.islandMode):this.shape==="maze"?this.stageScene=new et(o,e,t,this.gardenMode):this.shape==="equalizer"?this.stageScene=new ot(o,e,t,this.eqMode):this.shape==="cake"?this.stageScene=new rt(o,e,t,this.cakeFlavor):this.shape==="castle"&&(this.stageScene=new st(o,e,t,this.castleMode));let n=!!this.stageScene;if(this.stageScene?(this.scene.add(this.stageScene.group),this.stageScene.targets&&(i=this.stageScene.targets)):er(this.ambientLight,this.dirLight),this.groundMesh.visible=!1,this.slabMesh&&(this.slabMesh.removeFromParent(),this.slabMesh.geometry.dispose(),this.slabMesh.material.dispose(),this.slabMesh=null),!r&&!n){let m=t+2.4;this.slabMesh=new C.Mesh(new C.BoxGeometry(m,.9,m),new C.MeshStandardMaterial({color:this.theme.isDark?"#23201d":"#f3f1ec",roughness:.85})),this.slabMesh.position.y=-.45,this.slabMesh.receiveShadow=!0,this.slabMesh.castShadow=!0,this.scene.add(this.slabMesh)}this.stageTop=r?t*.95:n?this.stageScene.maxHeight:Math.max(4,...i.map(m=>m.y+.44*(m.scaleY??1))),r||!this.theme.isDark?(this.ambientLight.intensity=1.25,this.dirLight.intensity=2.5,this.pointLight.intensity=.4):(this.ambientLight.intensity=this.theme.isDark?.7:1.15,this.dirLight.intensity=this.theme.isDark?1.5:1.6,this.pointLight.intensity=this.theme.isDark?2:1.2);let a=.88,h=new C.BoxGeometry(a,a,a),c=n?this.stageScene.voxelMaterial:new C.MeshStandardMaterial({color:16777215,roughness:r?.6:.25,metalness:r?0:.35});this.instancedMesh=new C.InstancedMesh(h,c,s),this.instancedMesh.castShadow=!0,this.instancedMesh.receiveShadow=!0,this.voxels=[];let u=new C.Color,f=new C.Color(this.theme.voxelColor),E=new C.Color(this.theme.finderColor),d=new C.Color(this.theme.accentColor),g=t/2;for(let m=0;m<s;m++){let{r:y,c:T,isFinder:x}=o[m],k=i[m]||{x:0,y:0,z:0},L=Math.cos(this.faceYaw),v=Math.sin(this.faceYaw),I={...k,x:k.x*L+k.z*v,z:-k.x*v+k.z*L},P=T-g+.5,V=y-g+.5,A=.5,O=Math.hypot(P,V),ee=n?this.stageScene.growDelay(m):O/(g*1.4)*.45;if(this.voxels.push({qrX:P,qrY:A,qrZ:V,qrScaleX:1.142,qrScaleY:1,qrScaleZ:1.142,targetX:I.x,targetY:I.y,targetZ:I.z,targetScaleX:I.scaleX??1,targetScaleY:I.scaleY??1,targetScaleZ:I.scaleZ??1,waveDelay:ee,isFinder:x}),r){u.set(Vt(o[m],m,t,this.season));let U=Xo(o[m],m,t,this.season),W=this.voxels[this.voxels.length-1];W.qrColor=u.clone(),W.sideColor=new C.Color(U.color),W.sideScale=U.scale}else if(n){let U=this.stageScene.voxelColor(m);u.set(U.qr);let W=this.voxels[this.voxels.length-1];W.qrColor=u.clone(),W.sideColor=new C.Color(U.side)}else x?u.copy(E):m%7===0?u.copy(d):u.copy(f);this.instancedMesh.setColorAt(m,u)}this.instancedMesh.instanceColor.needsUpdate=!0,this.scene.add(this.instancedMesh),this.updateMeshTransforms()}updateMeshTransforms(){let e=new C.Object3D;for(let t=0;t<this.voxels.length;t++){let o=this.voxels[t],s=this.treeDecor?1:this.morphProgress,r=C.MathUtils.clamp((s-o.waveDelay)/(1-o.waveDelay||.001),0,1),i=r<.5?4*r*r*r:1-Math.pow(-2*r+2,3)/2,n=this.stageScene?0:Math.sin(r*Math.PI)*5,a=C.MathUtils.lerp(o.qrX,o.targetX,i),h=C.MathUtils.lerp(o.qrY,o.targetY,i)+n,c=C.MathUtils.lerp(o.qrZ,o.targetZ,i),u=C.MathUtils.lerp(o.qrScaleX,o.targetScaleX,i),f=C.MathUtils.lerp(o.qrScaleY,o.targetScaleY,i),E=C.MathUtils.lerp(o.qrScaleZ,o.targetScaleZ,i);e.position.set(a,h,c);let d=this.treeDecor&&o.sideScale!==void 0?Math.max(1e-4,C.MathUtils.lerp(1,o.sideScale,C.MathUtils.smoothstep(this.treeView,.12,.6))):1,g=d,m=d,y=d;if(this.stageScene?.voxelSideScale){let[T,x,k]=this.stageScene.voxelSideScale(t),[L,v]=this.stageScene.voxelSideWindow??[.35,.75],I=C.MathUtils.smoothstep(this.treeView,L,v);g=Math.max(1e-4,C.MathUtils.lerp(1,T,I)),m=Math.max(1e-4,C.MathUtils.lerp(1,x,I)),y=Math.max(1e-4,C.MathUtils.lerp(1,k,I))}if(e.scale.set(u*g,f*m,E*y),this.stageScene?.voxelBase&&(e.position.y=this.stageScene.voxelBase(t,this.treeView)+f*m*.88/2),this.stageScene?.voxelDance){let T=C.MathUtils.lerp(1,this.stageScene.voxelDance(t,this.clock.getElapsedTime()),C.MathUtils.smoothstep(this.treeView,.55,1)),x=f*m*.88;e.position.y=h-x/2+x*T/2,e.scale.y*=T}this.stageScene?e.rotation.set(0,0,0):r>0&&r<1?(e.rotation.x=r*Math.PI*2,e.rotation.y=r*Math.PI+this.faceYaw*i):e.rotation.set(0,r>=1?this.faceYaw:0,0),e.updateMatrix(),this.instancedMesh.setMatrixAt(t,e.matrix)}if(this.instancedMesh.instanceMatrix.needsUpdate=!0,this.treeDecor||this.stageScene){let t=new C.Color;for(let o=0;o<this.voxels.length;o++){let s=this.voxels[o];!s.qrColor||!s.sideColor||(t.copy(s.qrColor).lerp(s.sideColor,this.treeView),this.instancedMesh.setColorAt(o,t))}this.instancedMesh.instanceColor.needsUpdate=!0,this.treeDecor?.update(this.treeView,this.clock.getElapsedTime()),this.stageScene&&(this.stageScene.applyLighting(this.treeView,this.ambientLight,this.dirLight,this.pointLight),this.stageScene.update(this.treeView,this.clock.getElapsedTime()))}}setSeason(e){e!==this.season&&(this.season=e,this.shape==="tree"&&this.rebuildVoxels())}setCastleMode(e){e!==this.castleMode&&(this.castleMode=e,this.shape==="castle"&&this.rebuildVoxels())}setCakeFlavor(e){e!==this.cakeFlavor&&(this.cakeFlavor=e,this.shape==="cake"&&this.rebuildVoxels())}setEqMode(e){e!==this.eqMode&&(this.eqMode=e,this.shape==="equalizer"&&this.rebuildVoxels())}setGardenMode(e){e!==this.gardenMode&&(this.gardenMode=e,this.shape==="maze"&&this.rebuildVoxels())}setIslandMode(e){e!==this.islandMode&&(this.islandMode=e,this.shape==="island"&&this.rebuildVoxels())}setTimeOfDay(e){e!==this.timeOfDay&&(this.timeOfDay=e,this.shape==="city"&&this.rebuildVoxels())}getSeason(){return this.season}toggleState(){this.setState(this.state==="qr"?"morphed":"qr")}resetView(){}setState(e){this.state=e,this.targetProgress=e==="morphed"?1:0,this.onStateChange&&this.onStateChange(this.state)}getState(){return this.state}updateConfig(e,t,o){let s=!1;if((e!==this.text||t!==this.shape)&&(this.text=e,this.shape=t,s=!0),o!==this.theme.id){this.theme=nt[o]||nt["velvet-emerald"];let r=this.groundMesh.material;r.color.set(this.theme.isDark?2236446:16513525),r.roughness=this.theme.isDark?.4:.6,r.metalness=this.theme.isDark?.3:.05,this.pointLight.color.set(this.theme.accentColor),this.pointLight.intensity=this.theme.isDark?2:1.2,this.ambientLight.intensity=this.theme.isDark?.7:1.15,s=!0}s&&this.rebuildVoxels()}bindEvents(){let e=this.renderer.domElement,t=!1,o=0,s=0;this.onPointerDownHandler=r=>{t=!0,o=r.clientX,s=r.clientY},this.onPointerUpHandler=r=>{if(!t)return;t=!1,Math.hypot(r.clientX-o,r.clientY-s)<6&&this.toggleState()},this.onResizeHandler=()=>{this.handleResize()},e.addEventListener("pointerdown",this.onPointerDownHandler),window.addEventListener("pointerup",this.onPointerUpHandler),window.addEventListener("resize",this.onResizeHandler)}handleResize(){if(!this.container||!this.renderer)return;let e=this.container.clientWidth||500,t=this.container.clientHeight||500;this.camera&&(this.camera.aspect=e/t,this.camera.updateProjectionMatrix()),this.renderer.setSize(e,t)}setupIntersectionObserver(){this.intersectionObserver=new IntersectionObserver(e=>{e.forEach(t=>{this.isVisible=t.isIntersecting})},{threshold:.05}),this.intersectionObserver.observe(this.container)}animate=()=>{this.animFrameId=requestAnimationFrame(this.animate),!(!this.isVisible||this.paused)&&(this.updateStageCamera(),this.renderer.render(this.scene,this.activeCamera()))};activeCamera(){return this.orthoCam}updateStageCamera(){let e=performance.now()/1e3,t=Math.min(.05,this.lastFrameTime?e-this.lastFrameTime:0);this.lastFrameTime=e;let o=1.15,s=this.targetProgress;if(this.viewT!==s){let T=t/o;this.viewT=s>this.viewT?Math.min(s,this.viewT+T):Math.max(s,this.viewT-T)}let r=this.viewT,i=r<.5?4*r*r*r:1-Math.pow(-2*r+2,3)/2,n=this.qrSize,a=this.stageTop,h=C.MathUtils.lerp(Math.PI/2-1e-4,C.MathUtils.degToRad(32),i),c=C.MathUtils.lerp(0,Math.PI/4,i),u=new C.Vector3(0,C.MathUtils.lerp(0,a*.4,i),0),f=200;this.orthoCam.position.set(u.x+f*Math.cos(h)*Math.sin(c),u.y+f*Math.sin(h),u.z+f*Math.cos(h)*Math.cos(c)),this.orthoCam.up.set(0,1,0),this.orthoCam.lookAt(u);let E=(this.container.clientWidth||500)/(this.container.clientHeight||500),d=C.MathUtils.lerp((n+2.4)*1.56,n*1.62+4,i),g=C.MathUtils.lerp((n+2.4)*1.56,a*1.18+4,i),m=Math.max(g,d/E),y=m*E*C.MathUtils.lerp(.11,.06,i);this.orthoCam.left=-m*E/2-y,this.orthoCam.right=m*E/2-y,this.orthoCam.top=m/2,this.orthoCam.bottom=-m/2,this.orthoCam.updateProjectionMatrix(),i!==this.treeView?(this.treeView=i,this.morphProgress=i,this.updateMeshTransforms()):this.stageScene?.animated&&i>.001?this.updateMeshTransforms():(this.treeDecor?.update(i,this.clock.getElapsedTime()),this.stageScene?.update(i,this.clock.getElapsedTime())),this.dirLight.shadow.intensity=C.MathUtils.smoothstep(i,.15,.6)}exportSnapshot(){return this.renderer.render(this.scene,this.activeCamera()),this.renderer.domElement.toDataURL("image/png")}destroy(){this.animFrameId&&cancelAnimationFrame(this.animFrameId),this.intersectionObserver&&this.intersectionObserver.disconnect(),this.onPointerDownHandler&&this.renderer?.domElement&&this.renderer.domElement.removeEventListener("pointerdown",this.onPointerDownHandler),this.onPointerUpHandler&&window.removeEventListener("pointerup",this.onPointerUpHandler),this.onResizeHandler&&window.removeEventListener("resize",this.onResizeHandler),this.treeDecor?.dispose(),this.stageScene?.dispose(),this.renderer?.dispose(),this.container&&(this.container.innerHTML="")}};function zs(l,e={}){let t=document.getElementById(l);return t?new at({container:t,text:e.url||"https://gridika.ru",shape:e.shape||"castle",themeId:e.themeId||"velvet-emerald",season:e.season,timeOfDay:e.timeOfDay,islandMode:e.islandMode,gardenMode:e.gardenMode,eqMode:e.eqMode,cakeFlavor:e.cakeFlavor,castleMode:e.castleMode,initialState:e.initialState??"morphed"}):null}return Hr(Ds);})();\n';
 
-    var scene = new T.Scene();
-    scene.background = new T.Color(data.theme.bg);
-
-    var camera = new T.PerspectiveCamera(40, w / h, 0.1, 1000);
-    camera.position.set(0, 38, 44);
-    camera.lookAt(0, 2.5, 0);
-
-    var renderer = new T.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
-    renderer.setSize(w, h);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = T.PCFSoftShadowMap;
-    container.appendChild(renderer.domElement);
-
-    var amb = new T.AmbientLight(0xffffff, data.theme.dark ? 0.75 : 0.95);
-    scene.add(amb);
-
-    var dir = new T.DirectionalLight(0xffffff, data.theme.dark ? 1.5 : 1.2);
-    dir.position.set(20, 45, 25);
-    dir.castShadow = true;
-    dir.shadow.camera.left = -22;
-    dir.shadow.camera.right = 22;
-    dir.shadow.camera.top = 22;
-    dir.shadow.camera.bottom = -22;
-    scene.add(dir);
-
-    var pt = new T.PointLight(data.theme.accent, 2, 60);
-    pt.position.set(-15, 20, -15);
-    scene.add(pt);
-
-    var groundGeo = new T.CylinderGeometry(20, 21, 1.2, 48);
-    var groundMat = new T.MeshStandardMaterial({ color: data.theme.ground, roughness: 0.4, metalness: 0.3 });
-    var ground = new T.Mesh(groundGeo, groundMat);
-    ground.position.y = -0.7;
-    ground.receiveShadow = true;
-    scene.add(ground);
-
-    var count = data.c.length;
-    var boxGeo = new T.BoxGeometry(0.88, 0.88, 0.88);
-    var mat = new T.MeshStandardMaterial({ color: 0xffffff, roughness: 0.25, metalness: 0.35 });
-    var mesh = new T.InstancedMesh(boxGeo, mat, count);
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-
-    var colorObj = new T.Color();
-    var colBase = new T.Color(data.theme.voxel);
-    var colFinder = new T.Color(data.theme.finder);
-    var colAcc = new T.Color(data.theme.accent);
-    var half = data.s / 2;
-
-    var voxels = [];
-    for (var i = 0; i < count; i++) {
-      var c = data.c[i];
-      var t = data.t[i];
-      var qx = c[0] - half + 0.5;
-      var qz = c[1] - half + 0.5;
-      var dist = Math.hypot(qx, qz);
-      var delay = (dist / (half * 1.4)) * 0.45;
-
-      voxels.push({
-        qx: qx, qz: qz,
-        tx: t[0], ty: t[1], tz: t[2], sy: t[3] || 1,
-        delay: delay
-      });
-
-      if (c[2] === 1) colorObj.copy(colFinder);
-      else if (i % 7 === 0) colorObj.copy(colAcc);
-      else colorObj.copy(colBase);
-      mesh.setColorAt(i, colorObj);
+// src/engine/qrMorphEmbedGenerator.ts
+function generateQrMorphEmbedCode(o) {
+  const id = "gridika-qr-" + Math.random().toString(36).slice(2, 8);
+  const height = o.height ?? 480;
+  const url = o.text || "https://gridika.ru";
+  const badgeHtml = `<a id="${id}-badge" href="https://gridika.ru" target="_blank" rel="noopener" style="position:absolute;bottom:14px;right:16px;z-index:10;font-family:system-ui,-apple-system,sans-serif;font-size:11px;font-weight:700;color:#8BF0C2;text-decoration:none;background:rgba(12,31,23,0.85);backdrop-filter:blur(6px);padding:5px 12px;border-radius:8px;border:1px solid rgba(25,195,125,0.3);box-shadow:0 2px 8px rgba(0,0,0,0.2);">Gridika.ru \u2197</a>`;
+  const header = o.license ? codeHeader("3D \u0438\u043D\u0442\u0435\u0440\u0430\u043A\u0442\u0438\u0432\u043D\u044B\u0439 QR-\u043A\u043E\u0434", o.license) : "<!-- Gridika \xB7 3D \u0438\u043D\u0442\u0435\u0440\u0430\u043A\u0442\u0438\u0432\u043D\u044B\u0439 QR-\u043A\u043E\u0434 -->";
+  const licenseJs = o.license ? domainLockJs(`${id}-badge`, o.license.domain) : "";
+  const opts = {
+    url,
+    shape: o.shape || "tree",
+    themeId: o.themeId || "velvet-emerald",
+    season: o.season,
+    timeOfDay: o.timeOfDay,
+    islandMode: o.islandMode,
+    gardenMode: o.gardenMode,
+    eqMode: o.eqMode,
+    cakeFlavor: o.cakeFlavor,
+    castleMode: o.castleMode,
+    initialState: "morphed"
+  };
+  return `${header}
+<div id="${id}" style="width:100%;max-width:520px;height:${height}px;margin:0 auto;position:relative;border-radius:18px;overflow:hidden;background:#0c1f17;box-shadow:0 14px 36px rgba(0,0,0,0.45);">
+  <div style="position:absolute;top:14px;left:16px;z-index:10;font-family:system-ui,-apple-system,sans-serif;font-size:11px;font-weight:800;color:#19C37D;letter-spacing:0.05em;background:rgba(12,31,23,0.85);backdrop-filter:blur(6px);padding:4px 10px;border-radius:8px;border:1px solid rgba(25,195,125,0.25);pointer-events:none;">GRIDIKA 3D \xB7 \u0418\u041D\u0422\u0415\u0420\u0410\u041A\u0422\u0418\u0412\u041D\u042B\u0419 QR</div>
+  <div style="position:absolute;bottom:14px;left:16px;z-index:10;font-family:system-ui,-apple-system,sans-serif;font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);background:rgba(0,0,0,0.5);backdrop-filter:blur(6px);padding:5px 12px;border-radius:8px;pointer-events:none;">\u041A\u043B\u0438\u043A\u043D\u0438\u0442\u0435 \u0434\u043B\u044F \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u0432 QR</div>
+  ${badgeHtml}
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function() {
+  function start() {
+    ${qrMorphRuntime_iife_default}
+    if (typeof GridikaQrMorphModule !== 'undefined' && GridikaQrMorphModule.initQrMorphWidget) {
+      GridikaQrMorphModule.initQrMorphWidget("${id}", ${JSON.stringify(opts)});
     }
-    mesh.instanceColor.needsUpdate = true;
-    scene.add(mesh);
-
-    var dummy = new T.Object3D();
-    var progress = 0, targetProgress = 0, rotX = 0, rotY = 0, targetRotX = 0, targetRotY = 0;
-    var isDragging = false, startX = 0, startY = 0, prevX = 0, prevY = 0;
-
-    function updateTransforms() {
-      for (var i = 0; i < count; i++) {
-        var v = voxels[i];
-        var lt = Math.max(0, Math.min(1, (progress - v.delay) / (1 - v.delay || 0.001)));
-        var ease = lt < 0.5 ? 4 * lt * lt * lt : 1 - Math.pow(-2 * lt + 2, 3) / 2;
-        var arc = Math.sin(lt * Math.PI) * 5.0;
-
-        var x = v.qx + (v.tx - v.qx) * ease;
-        var y = 0.5 + (v.ty - 0.5) * ease + arc;
-        var z = v.qz + (v.tz - v.qz) * ease;
-        var sy = 1 + (v.sy - 1) * ease;
-        // flat QR: the 0.88 cubes widen to a hair over one module, so no light seams show between them
-        var sq = 1.142 + (1 - 1.142) * ease;
-
-        dummy.position.set(x, y, z);
-        dummy.scale.set(sq, sy, sq);
-        if (lt > 0 && lt < 1) {
-          dummy.rotation.x = lt * Math.PI * 2;
-          dummy.rotation.y = lt * Math.PI;
-        } else {
-          dummy.rotation.set(0, 0, 0);
-        }
-        dummy.updateMatrix();
-        mesh.setMatrixAt(i, dummy.matrix);
+  }
+  ${licenseJs}
+  if (window.THREE) {
+    start();
+  } else {
+    var check = setInterval(function() {
+      if (window.THREE) {
+        clearInterval(check);
+        start();
       }
-      mesh.instanceMatrix.needsUpdate = true;
-    }
-    updateTransforms();
-
-    var canvas = renderer.domElement;
-    canvas.addEventListener("pointerdown", function(e) {
-      isDragging = true;
-      startX = prevX = e.clientX;
-      startY = prevY = e.clientY;
-    });
-    window.addEventListener("pointermove", function(e) {
-      if (isDragging) {
-        targetRotY += (e.clientX - prevX) * 0.01;
-        targetRotX += (e.clientY - prevY) * 0.01;
-        targetRotX = Math.max(-0.6, Math.min(0.8, targetRotX));
-        prevX = e.clientX;
-        prevY = e.clientY;
-      }
-    });
-    window.addEventListener("pointerup", function(e) {
-      isDragging = false;
-      var d = Math.hypot(e.clientX - startX, e.clientY - startY);
-      if (d < 6) {
-        targetProgress = targetProgress === 0 ? 1 : 0;
-      }
-    });
-
-    var isVisible = true;
-    if ("IntersectionObserver" in window) {
-      var obs = new IntersectionObserver(function(es) {
-        isVisible = es[0].isIntersecting;
-      }, { threshold: 0.05 });
-      obs.observe(container);
-    }
-
-    function loop() {
-      requestAnimationFrame(loop);
-      if (!isVisible) return;
-
-      var diff = targetProgress - progress;
-      if (Math.abs(diff) > 0.001) {
-        progress += diff * 0.08;
-        updateTransforms();
-      }
-
-      if (targetProgress === 1 && !isDragging) {
-        targetRotY += 0.005;
-      }
-      rotX += (targetRotX - rotX) * 0.1;
-      rotY += (targetRotY - rotY) * 0.1;
-
-      mesh.rotation.y = rotY;
-      mesh.rotation.x = rotX;
-      ground.rotation.y = rotY;
-      ground.rotation.x = rotX;
-
-      renderer.render(scene, camera);
-    }
-    loop();
-
-    window.addEventListener("resize", function() {
-      var rw = container.clientWidth || 400;
-      var rh = container.clientHeight || ${height};
-      camera.aspect = rw / rh;
-      camera.updateProjectionMatrix();
-      renderer.setSize(rw, rh);
-    });
-  });
+    }, 50);
+  }
 })();
 </script>`;
 }
@@ -15699,6 +14749,24 @@ var cardRuntime_default = "/* Gridika \xB7 \u0412\u0438\u0437\u0438\u0442\u043A\
 
 // src/engine/cardScene.ts
 var import_jsqr = __toESM(require_jsQR(), 1);
+
+// src/engine/qrMatrix.ts
+var import_qrcode = __toESM(require_lib(), 1);
+function generateQrMatrix(text, errorCorrectionLevel = "M") {
+  const qr = import_qrcode.default.create(text, {
+    errorCorrectionLevel
+  });
+  const size = qr.modules.size;
+  const modules = [];
+  for (let r = 0; r < size; r++) {
+    const row = [];
+    for (let c = 0; c < size; c++) {
+      row.push(Boolean(qr.modules.get(r, c)));
+    }
+    modules.push(row);
+  }
+  return { modules, size };
+}
 
 // src/engine/vcard.ts
 var EMPTY_CONTACT = {
@@ -17359,7 +16427,25 @@ function buildTimerData(s, mode) {
 // src/engine/purchaseCode.ts
 function buildPurchaseCode(c, license) {
   if (c.p === "qr-morph" && c.qr) {
-    return generateEmbedCode({ text: c.qr.text, shape: c.qr.shape, themeId: c.qr.themeId, height: 480, license });
+    const shape = c.qr.shape || "castle";
+    if (shape === "castle") {
+      const mode = c.qr.modes && c.qr.modes["castle"] || "day";
+      return generateCastleEmbedCode({ text: c.qr.text, height: 480, mode, license });
+    }
+    return generateQrMorphEmbedCode({
+      text: c.qr.text,
+      shape,
+      themeId: c.qr.themeId,
+      height: 480,
+      season: c.qr.modes?.tree,
+      timeOfDay: c.qr.modes?.city,
+      islandMode: c.qr.modes?.island,
+      gardenMode: c.qr.modes?.maze,
+      eqMode: c.qr.modes?.equalizer,
+      cakeFlavor: c.qr.modes?.cake,
+      castleMode: c.qr.modes?.castle,
+      license
+    });
   }
   if (c.p === "qr-card" && c.card) {
     const hidden = new Set(c.card.hidden);

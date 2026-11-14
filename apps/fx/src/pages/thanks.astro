@@ -63,6 +63,16 @@ import { ChangeNote } from '../components/ChangeNote';
           <ol id="thx-tab-steps" class="mt-3 flex flex-col gap-1.5 text-[13px] font-semibold text-[#44403c] leading-snug list-decimal pl-5"></ol>
         </div>
         <div class="mt-3 text-left"><ChangeNote /></div>
+        <a href="/guide" target="_blank" class="mt-3 flex items-center justify-between p-3.5 rounded-2xl bg-white border border-[#d5f2e3] hover:border-[#19C37D] text-[#0f5c3c] font-bold text-[12.5px] transition-all shadow-[0_4px_16px_-8px_rgba(25,195,125,0.25)] group">
+          <div class="flex items-center gap-2.5">
+            <span class="w-7 h-7 rounded-xl bg-[#19C37D] text-[#132A22] flex items-center justify-center font-black text-[12px] group-hover:scale-110 transition-transform">▶</span>
+            <div>
+              <div class="text-[12.5px] font-black text-[#132A22] leading-tight">Видео-инструкция по замене данных</div>
+              <div class="text-[11px] text-[#78716c] font-medium leading-tight mt-0.5">Пошагово: как изменить текст в Блокноте и не сломать 3D</div>
+            </div>
+          </div>
+          <span class="text-[14px] font-black text-[#19C37D] group-hover:translate-x-1 transition-transform">→</span>
+        </a>
       </div>
 
       {/* 2. STATE: CHECKING PAYMENT (redirected from YooKassa with token) */}
@@ -337,9 +347,14 @@ import { ChangeNote } from '../components/ChangeNote';
           <button type="button" data-act="copy" class="h-11 rounded-full bg-[#19C37D] hover:bg-[#17b373] text-[#132A22] font-extrabold text-[14px] transition-colors cursor-pointer">Скопировать код</button>
           <button type="button" data-act="dl" class="h-11 px-4 rounded-full bg-white border border-[#e5dfd2] hover:bg-[#f6f3ee] text-[#132A22] font-extrabold text-[13px] transition-colors cursor-pointer">Скачать</button>
         </div>
-        <div class="mt-2 flex items-center justify-between gap-2 px-1">
-          <button type="button" data-act="peek" aria-expanded="false" class="text-[12px] font-bold text-[#78716c] hover:text-[#132A22] cursor-pointer">Показать код</button>
-          <a href="${studio}" class="text-[12px] font-bold text-[#78716c] hover:text-[#132A22]">Изменить в студии →</a>
+        <div class="mt-2.5 flex items-center justify-between gap-1.5 px-0.5 text-[11.5px] sm:text-[12px]">
+          <button type="button" data-act="peek" aria-expanded="false" class="font-bold text-[#78716c] hover:text-[#132A22] cursor-pointer shrink-0">Показать код</button>
+          <a href="/guide#${c.p}" target="_blank" class="font-extrabold text-[#0f5c3c] hover:text-[#132A22] inline-flex items-center gap-1 transition-colors whitespace-nowrap">
+            <span class="w-3.5 h-3.5 rounded-full bg-[#19C37D] text-[#132A22] text-[8.5px] flex items-center justify-center font-black shrink-0">▶</span>
+            <span>Инструкция</span>
+            <span class="text-[10px] text-[#78716c]">↗</span>
+          </a>
+          <a href="${studio}" class="font-bold text-[#78716c] hover:text-[#132A22] shrink-0 whitespace-nowrap">В студию →</a>
         </div>
         <pre data-code hidden class="mt-2 max-h-36 overflow-auto rounded-xl bg-[#132A22] text-[#8BF0C2] px-3.5 py-3 font-mono text-[10.5px] leading-[1.5] whitespace-pre-wrap break-all"></pre>`;
 

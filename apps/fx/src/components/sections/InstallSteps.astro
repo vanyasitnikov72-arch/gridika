@@ -75,6 +75,10 @@ import { ProductPreview } from '../ProductPreview';
           <h3 class="text-lg font-black text-[#132A22]">Вставьте на сайт</h3>
         </div>
         <p class="mt-2 text-[13px] text-[#6b645c] font-semibold leading-relaxed">Добавьте на страницу HTML-блок: в Тильде — T123 «HTML-код», в WordPress — «Произвольный HTML», в Webflow — Code Embed. Вставьте код и опубликуйте — работает на компьютере и телефоне.</p>
+        <a href="/guide#install" class="mt-2.5 inline-flex items-center gap-1.5 text-[12px] font-extrabold text-[#0f5c3c] hover:text-[#19C37D] transition-colors group">
+          <span>Инструкция по установке в гайде</span>
+          <span class="group-hover:translate-x-0.5 transition-transform">→</span>
+        </a>
       </li>
     </ol>
   </div>
@@ -92,6 +96,10 @@ import { ProductPreview } from '../ProductPreview';
         <p class="mt-1.5 text-[13px] text-[#6b645c] font-semibold leading-relaxed">
           Текст можно поправить прямо в коде — заголовки, подписи и ссылки кнопок лежат там обычным текстом. А то, что собрано из кубиков (QR, промокод, логотип), меняется в студии.
         </p>
+        <a href="/guide" class="mt-2.5 inline-flex items-center gap-1.5 text-[12.5px] font-extrabold text-[#0f5c3c] hover:text-[#19C37D] transition-colors group">
+          <span>Подробнее смотрите в пошаговом гайде</span>
+          <span class="group-hover:translate-x-0.5 transition-transform text-[#19C37D]">→</span>
+        </a>
       </div>
     </div>
     <ol class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -111,8 +119,21 @@ import { ProductPreview } from '../ProductPreview';
         <div class="mt-0.5 text-[12px] font-semibold text-[#6b645c] leading-snug">Обновите HTML-блок и опубликуйте страницу</div>
       </li>
     </ol>
-    <div class="md:col-span-2 -mt-1 rounded-xl bg-[var(--vx-soft)] px-4 py-2.5 text-[12.5px] font-bold text-[#132A22] leading-snug">
-      Купленный код ваш навсегда: без подписки и привязки к сайту, а ссылка из письма не сгорает.
+    <div class="md:col-span-2 -mt-1 rounded-2xl bg-[var(--vx-soft)] p-3 sm:px-4 sm:py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border border-[#d2f3e3]">
+      <div class="text-[12.5px] font-bold text-[#132A22] leading-snug flex items-center gap-2">
+        <svg class="w-4 h-4 text-[#19C37D] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>Купленный код ваш навсегда: без подписки и привязки к сайту, а ссылка из письма не сгорает.</span>
+      </div>
+      <a
+        href="/guide"
+        class="shrink-0 inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#132A22] hover:bg-[#1a382e] text-[#19C37D] font-extrabold text-[12px] transition-all shadow-xs group select-none cursor-pointer"
+      >
+        <span class="w-2 h-2 rounded-full bg-[#19C37D] group-hover:scale-125 transition-transform"></span>
+        <span>Интерактивный гайд</span>
+        <span class="group-hover:translate-x-0.5 transition-transform text-white">→</span>
+      </a>
     </div>
   </div>
 </section>

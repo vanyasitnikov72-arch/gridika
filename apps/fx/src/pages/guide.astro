@@ -1,0 +1,2170 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Footer from '../components/Footer.astro';
+import Navbar from '../components/Navbar.astro';
+import { EFFECT_GUIDES } from '../engine/effectGuides';
+import { PRODUCTS } from '../data/products';
+import { CMS_GUIDES } from '../engine/cmsGuides';
+
+const breadcrumbs = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Главная',
+      item: 'https://gridika.ru/',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Гайд: как изменить и установить код',
+      item: 'https://gridika.ru/guide',
+    },
+  ],
+};
+---
+
+<Layout
+  title="Интерактивный гайд: как изменить и установить 3D-код — Gridika"
+  description="Пошаговая интерактивная инструкция: как открыть код в любом редакторе, найти строки через Ctrl+F, заменить текст и контакты, и как установить код на Tilda, WordPress, Webflow, Wix."
+  structuredData={breadcrumbs}
+>
+  {/* TOP FLOATING NAVBAR */}
+  <Navbar />
+
+  <main class="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 pt-4 sm:pt-6 pb-8 sm:pb-12">
+    
+    {/* HERO HEADER */}
+    <div class="text-center max-w-2xl mx-auto">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#DFF8EB] text-[#0f5c3c] text-[12px] font-extrabold mb-3 shadow-xs">
+        <svg class="w-3.5 h-3.5 text-[#19C37D] animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        </svg>
+        <span>Интерактивная база знаний</span>
+      </div>
+      <h1 class="text-[32px] sm:text-[44px] font-black text-[#132A22] tracking-tight leading-[1.08]">
+        Как установить код и изменить данные
+      </h1>
+      <p class="mt-3 text-[15px] sm:text-[17px] font-semibold text-[#6b645c] leading-relaxed">
+        Купленный код ваш навсегда. Выберите вашу CMS для быстрой установки на сайт, а затем воспользуйтесь интерактивным тренажёром для редактирования контактов в коде.
+      </p>
+    </div>
+
+    {/* ======================================================== */}
+    {/* SECTION 1: INTERACTIVE CMS INSTALLATION (TILDA, WP, ETC) */}
+    {/* ======================================================== */}
+    <section id="install" class="mt-10 sm:mt-12 bg-white rounded-[28px] border border-[#ece6da] p-4 sm:p-8 shadow-[0_20px_50px_-25px_rgba(19,42,34,0.12)]">
+      
+      <div class="text-center max-w-xl mx-auto mb-6">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f6f3ee] text-[#78716c] text-[11px] font-black uppercase tracking-wider mb-2">
+          <span>Часть 1: Инструкция по установке</span>
+        </div>
+        <h2 class="text-[26px] sm:text-[32px] font-black text-[#132A22] tracking-tight">
+          Как установить код на ваш сайт
+        </h2>
+        <p class="text-[13.5px] text-[#78716c] font-semibold mt-1">
+          Выберите вашу CMS или конструктор для пошаговой инструкции:
+        </p>
+      </div>
+
+      {/* CMS SELECTOR TABS */}
+      <div class="flex items-center justify-center gap-2 flex-wrap" id="cms-tabs">
+        <button type="button" data-cms="tilda" class="h-10 px-4 rounded-xl text-[12.5px] font-black transition-all cursor-pointer bg-[#132A22] text-[#19C37D] shadow-sm flex items-center gap-2">
+          <span class="w-5 h-5 rounded-md bg-[#ff5f56]/20 text-[#ff5f56] flex items-center justify-center font-black text-[11px]">T</span>
+          <span>Tilda (Тильда)</span>
+        </button>
+        <button type="button" data-cms="wordpress" class="h-10 px-4 rounded-xl text-[12.5px] font-bold transition-all cursor-pointer bg-white hover:bg-[#f6f3ee] text-[#132A22] border border-[#e5dfd2] flex items-center gap-2">
+          <span class="w-5 h-5 rounded-md bg-[#3b82f6]/20 text-[#3b82f6] flex items-center justify-center font-black text-[11px]">W</span>
+          <span>WordPress</span>
+        </button>
+        <button type="button" data-cms="webflow" class="h-10 px-4 rounded-xl text-[12.5px] font-bold transition-all cursor-pointer bg-white hover:bg-[#f6f3ee] text-[#132A22] border border-[#e5dfd2] flex items-center gap-2">
+          <span class="w-5 h-5 rounded-md bg-[#10b981]/20 text-[#10b981] flex items-center justify-center font-black text-[10px]">Wf</span>
+          <span>Webflow</span>
+        </button>
+        <button type="button" data-cms="wix" class="h-10 px-4 rounded-xl text-[12.5px] font-bold transition-all cursor-pointer bg-white hover:bg-[#f6f3ee] text-[#132A22] border border-[#e5dfd2] flex items-center gap-2">
+          <span class="w-5 h-5 rounded-md bg-[#8b5cf6]/20 text-[#8b5cf6] flex items-center justify-center font-black text-[10px]">Wx</span>
+          <span>Wix</span>
+        </button>
+        <button type="button" data-cms="html" class="h-10 px-4 rounded-xl text-[12.5px] font-bold transition-all cursor-pointer bg-white hover:bg-[#f6f3ee] text-[#132A22] border border-[#e5dfd2] flex items-center gap-2">
+          <span class="w-5 h-5 rounded-md bg-[#f59e0b]/20 text-[#f59e0b] flex items-center justify-center font-mono font-black text-[10px]">&lt;/&gt;</span>
+          <span>Чистый HTML</span>
+        </button>
+      </div>
+
+      {/* CMS STEP SELECTOR TABS (4 STEPS) */}
+      <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 select-none" id="cms-step-tabs">
+        <button type="button" data-cms-step="1" class="h-10 px-3 rounded-xl text-[11.5px] sm:text-[12.5px] font-black transition-all cursor-pointer bg-[#19C37D] text-[#132A22] shadow-xs flex items-center justify-center gap-2 w-full text-center">
+          <span class="cms-step-badge w-5 h-5 rounded-full bg-[#132A22] text-white text-[10px] flex items-center justify-center font-black shrink-0">1</span>
+          <span class="cms-step-tab-label truncate">1. Блок T123</span>
+        </button>
+        <button type="button" data-cms-step="2" class="h-10 px-3 rounded-xl text-[11.5px] sm:text-[12.5px] font-extrabold transition-all cursor-pointer bg-[#f6f3ee] hover:bg-[#eee9df] text-[#78716c] flex items-center justify-center gap-2 w-full text-center">
+          <span class="cms-step-badge w-5 h-5 rounded-full bg-[#d6cfc3] text-[#132A22] text-[10px] flex items-center justify-center font-black shrink-0">2</span>
+          <span class="cms-step-tab-label truncate">2. Кнопка «Контент»</span>
+        </button>
+        <button type="button" data-cms-step="3" class="h-10 px-3 rounded-xl text-[11.5px] sm:text-[12.5px] font-extrabold transition-all cursor-pointer bg-[#f6f3ee] hover:bg-[#eee9df] text-[#78716c] flex items-center justify-center gap-2 w-full text-center">
+          <span class="cms-step-badge w-5 h-5 rounded-full bg-[#d6cfc3] text-[#132A22] text-[10px] flex items-center justify-center font-black shrink-0">3</span>
+          <span class="cms-step-tab-label truncate">3. Вставка 3D-кода</span>
+        </button>
+        <button type="button" data-cms-step="4" class="h-10 px-3 rounded-xl text-[11.5px] sm:text-[12.5px] font-extrabold transition-all cursor-pointer bg-[#f6f3ee] hover:bg-[#eee9df] text-[#78716c] flex items-center justify-center gap-2 w-full text-center">
+          <span class="cms-step-badge w-5 h-5 rounded-full bg-[#d6cfc3] text-[#132A22] text-[10px] flex items-center justify-center font-black shrink-0">4</span>
+          <span class="cms-step-tab-label truncate">4. Публикация</span>
+        </button>
+      </div>
+
+      {/* CMS INTERACTIVE SIMULATOR PLAYER */}
+      <div class="mt-4 rounded-2xl bg-[#0d1713] border border-[#1b382b] overflow-hidden shadow-2xl">
+        {/* PLAYER HEADER */}
+        <div class="px-4 py-3 bg-[#08120d] border-b border-[#1b382b] flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="flex items-center gap-1.5 shrink-0">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#ef4444]"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-[#f59e0b]"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-[#10b981]"></span>
+            </div>
+            <div id="cms-player-platform-pill" class="px-2.5 py-0.5 rounded-md bg-[#ff5f56]/20 text-[#ff5f56] font-black text-[11px] flex items-center gap-1.5 shrink-0">
+              <span id="cms-player-platform-dot" class="w-2 h-2 rounded-full bg-[#ff5f56]"></span>
+              <span id="cms-player-platform-name">Tilda (Тильда)</span>
+            </div>
+            <span class="text-white/30 hidden sm:inline">•</span>
+            <span id="cms-player-header-title" class="text-white/80 font-bold text-[12px] sm:text-[12.5px] truncate">
+              Шаг 1 из 4: Выбор блока
+            </span>
+          </div>
+        </div>
+
+        {/* PLAYER MAIN BODY (2 COLUMNS) */}
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 p-4 sm:p-6 items-stretch">
+          
+          {/* LEFT COLUMN: INSTRUCTIONS & CONTROLS */}
+          <div class="lg:col-span-5 flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span id="cms-info-badge" class="px-2.5 py-0.5 rounded-md bg-[#19C37D]/20 text-[#19C37D] text-[10.5px] font-mono font-black uppercase tracking-wider">
+                  Шаг 1 из 4: Выбор блока
+                </span>
+              </div>
+
+              <h3 id="cms-info-title" class="mt-2 text-[19px] sm:text-[21px] font-black text-white leading-tight">
+                Добавьте блок T123 (HTML-код)
+              </h3>
+
+              <p id="cms-info-desc" class="mt-2 text-[12.5px] sm:text-[13px] text-[#9ca3af] leading-relaxed">
+                В библиотеке блоков Тильды прокрутите левое меню вниз до категории «Другое» и выберите стандартный блок «HTML-код» (T123). Он появится в выбранном месте страницы.
+              </p>
+
+              {/* PRO TIP BOX */}
+              <div class="mt-3.5 p-3 rounded-xl bg-[#142820] border border-[#1f4534] text-[12px] text-[#86efac] leading-relaxed flex items-start gap-2.5">
+                <svg class="w-4 h-4 text-[#19C37D] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <div id="cms-info-tip" class="font-medium">
+                  Блок T123 доступен на тарифах Personal и Business. Если у вас несколько 3D-эффектов — каждый вставляется в свой отдельный блок T123.
+                </div>
+              </div>
+
+              {/* COPY TEST CODE BUTTON (Interactive feature) */}
+              <div id="cms-copy-box" class="mt-3">
+                <button id="cms-copy-test-btn" type="button" class="w-full py-2.5 px-3.5 rounded-xl bg-[#19C37D] hover:bg-[#16a366] text-[#081d14] font-black text-[12px] flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98] cursor-pointer">
+                  <svg id="cms-copy-icon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span id="cms-copy-btn-text">Скопировать тестовый 3D-код</span>
+                </button>
+              </div>
+            </div>
+
+            {/* STEPPER NAVIGATION CONTROLS */}
+            <div class="pt-3 border-t border-[#1b382b] flex items-center justify-between">
+              <button id="cms-prev-btn" type="button" class="h-9 px-3.5 rounded-xl bg-[#132a22] hover:bg-[#1a382e] text-[#19C37D] border border-[#1b382b] text-[12px] font-bold transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer flex items-center gap-1.5">
+                <span>←</span>
+                <span>Назад</span>
+              </button>
+              
+              <span id="cms-step-counter" class="text-[12px] font-mono font-bold text-white/50">
+                1 / 4
+              </span>
+
+              <button id="cms-next-btn" type="button" class="h-9 px-4 rounded-xl bg-[#19C37D] hover:bg-[#16a366] text-[#081d14] text-[12px] font-black transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                <span>Далее</span>
+                <span>→</span>
+              </button>
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN: INTERACTIVE VISUAL CMS SIMULATION STAGE */}
+          <div class="lg:col-span-7 flex flex-col">
+            <div id="cms-visual-stage" class="relative w-full h-[320px] sm:h-[340px] rounded-xl bg-[#09100d] border border-[#1b382b] overflow-hidden flex flex-col select-none">
+              {/* Dynamically populated by JS based on current CMS & Step */}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* CMS INSTALLATION QUICK FAQ / TIPS */}
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="p-3.5 rounded-2xl bg-[#FAF8F5] border border-[#ece6da]">
+          <div class="flex items-center gap-2 font-black text-[#132A22] text-[13px]">
+            <span class="w-6 h-6 rounded-lg bg-[#19C37D]/15 text-[#19C37D] flex items-center justify-center font-black text-[11px]">1</span>
+            <span>Несколько 3D-виджетов</span>
+          </div>
+          <p class="mt-1.5 text-[12px] text-[#78716c] leading-relaxed">
+            Если на одной странице нужно несколько эффектов — каждый вставляется в свой блок HTML. Движок автоматически оптимизирует общую память.
+          </p>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-[#FAF8F5] border border-[#ece6da]">
+          <div class="flex items-center gap-2 font-black text-[#132A22] text-[13px]">
+            <span class="w-6 h-6 rounded-lg bg-[#19C37D]/15 text-[#19C37D] flex items-center justify-center font-black text-[11px]">2</span>
+            <span>Скорость сайта (PageSpeed)</span>
+          </div>
+          <p class="mt-1.5 text-[12px] text-[#78716c] leading-relaxed">
+            Скрипт весит всего ~45 КБ и загружается асинхронно, не блокируя основной контент и сохраняя зелёную зону Google PageSpeed.
+          </p>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-[#FAF8F5] border border-[#ece6da]">
+          <div class="flex items-center gap-2 font-black text-[#132A22] text-[13px]">
+            <span class="w-6 h-6 rounded-lg bg-[#19C37D]/15 text-[#19C37D] flex items-center justify-center font-black text-[11px]">3</span>
+            <span>Мобильные устройства</span>
+          </div>
+          <p class="mt-1.5 text-[12px] text-[#78716c] leading-relaxed">
+            Все эффекты поддерживают touch-жесты, автоматически подстраиваются под ширину экрана смартфона и плавно работают на iOS и Android.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    {/* ======================================================== */}
+    {/* SECTION 2: INTERACTIVE STEPPER FOR EDITING CODE           */}
+    {/* ======================================================== */}
+    <section class="mt-12 sm:mt-16 bg-white rounded-[28px] border border-[#ece6da] p-4 sm:p-8 shadow-[0_20px_50px_-25px_rgba(19,42,34,0.12)]">
+      
+      {/* SECTION HEADER */}
+      <div class="text-center max-w-xl mx-auto mb-6">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f6f3ee] text-[#78716c] text-[11px] font-black uppercase tracking-wider mb-2">
+          <span>Часть 2: Инструкция по изменению текста</span>
+        </div>
+        <h2 class="text-[26px] sm:text-[32px] font-black text-[#132A22] tracking-tight">
+          Как изменить текст и контакты в коде
+        </h2>
+        <p class="text-[13.5px] text-[#78716c] font-semibold mt-1">
+          Интерактивный плеер: пошагово откройте файл в редакторе, найдите нужную строку и сохраните результат:
+        </p>
+      </div>
+
+      {/* STEP TABS (5 STEPS) - RESPONSIVE GRID WITHOUT HORIZONTAL SCROLLBAR */}
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 sm:gap-2 select-none" id="guide-step-tabs">
+        <button type="button" data-step="1" class="h-10 px-2 sm:px-2.5 rounded-xl text-[11px] sm:text-[12px] font-black transition-all cursor-pointer bg-[#19C37D] text-[#132A22] shadow-xs flex items-center justify-center gap-1.5 w-full text-center">
+          <span class="step-num-badge w-5 h-5 rounded-full bg-[#132A22] text-white text-[10px] flex items-center justify-center font-black shrink-0">1</span>
+          <span class="truncate">Открыть файл</span>
+        </button>
+        <button type="button" data-step="2" class="h-10 px-2 sm:px-2.5 rounded-xl text-[11px] sm:text-[12px] font-extrabold transition-all cursor-pointer bg-[#f6f3ee] hover:bg-[#eee9df] text-[#78716c] flex items-center justify-center gap-1.5 w-full text-center">
+          <span class="step-num-badge w-5 h-5 rounded-full bg-[#d6cfc3] text-[#132A22] text-[10px] flex items-center justify-center font-black shrink-0">2</span>
+          <span class="truncate">Найти (Ctrl+F)</span>
+        </button>
+        <button type="button" data-step="3" class="h-10 px-2 sm:px-2.5 rounded-xl text-[11px] sm:text-[12px] font-extrabold transition-all cursor-pointer bg-[#f6f3ee] hover:bg-[#eee9df] text-[#78716c] flex items-center justify-center gap-1.5 w-full text-center">
+          <span class="step-num-badge w-5 h-5 rounded-full bg-[#d6cfc3] text-[#132A22] text-[10px] flex items-center justify-center font-black shrink-0">3</span>
+          <span class="truncate">Заменить (Ctrl+S)</span>
+        </button>
+        <button type="button" data-step="4" class="h-10 px-2 sm:px-2.5 rounded-xl text-[11px] sm:text-[12px] font-extrabold transition-all cursor-pointer bg-[#f6f3ee] hover:bg-[#eee9df] text-[#78716c] flex items-center justify-center gap-1.5 w-full text-center">
+          <span class="step-num-badge w-5 h-5 rounded-full bg-[#d6cfc3] text-[#132A22] text-[10px] flex items-center justify-center font-black shrink-0">4</span>
+          <span class="truncate">На сайте</span>
+        </button>
+        <button type="button" data-step="5" class="h-10 px-2 sm:px-2.5 rounded-xl text-[11px] sm:text-[12px] font-extrabold transition-all cursor-pointer bg-[#fff1f2] hover:bg-[#ffe4e6] text-[#e11d48] flex items-center justify-center gap-1.5 w-full text-center col-span-2 sm:col-span-1">
+          <span class="step-num-badge w-5 h-5 rounded-full bg-[#f43f5e] text-white text-[10px] flex items-center justify-center font-black shrink-0">5</span>
+          <span class="truncate">Смена QR-ссылки</span>
+        </button>
+      </div>
+
+      {/* VIDEO / VISUAL DEMO STAGE */}
+      <div class="mt-5 rounded-2xl border border-[#ece6da] overflow-hidden bg-[#132A22] shadow-inner text-white">
+        
+        {/* PLAYER TOP BAR - STRICTLY FIXED HEIGHT (52px) & MOTIONLESS ACROSS ALL STEPS */}
+        <div class="h-[52px] min-h-[52px] max-h-[52px] px-4 bg-[#0b1b15] border-b border-white/10 flex items-center justify-between gap-3 shrink-0 overflow-hidden">
+          <div class="flex items-center gap-2 min-w-0">
+            <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 shrink-0">
+              <span class="relative flex h-2 w-2 shrink-0">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#19C37D] opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-[#19C37D]"></span>
+              </span>
+              <span class="text-[10px] font-mono font-bold text-[#8BF0C2] uppercase tracking-wider hidden sm:inline">Интерактивный плеер</span>
+            </div>
+            <span class="text-white/20 hidden sm:inline">•</span>
+            <span id="player-title" class="font-mono text-[12px] text-white/85 font-bold truncate">Шаг 1: Открытие файла в любом редакторе</span>
+          </div>
+
+          {/* OS SWITCHER (WINDOWS / LINUX & MACOS) - INVISIBLE (RESERVES SAME WIDTH) ON STEPS 1, 4, 5 */}
+          <div class="invisible opacity-0 pointer-events-none inline-flex p-1 rounded-xl bg-white/5 border border-white/10 text-[11px] font-bold shrink-0 transition-opacity duration-200" id="os-switcher">
+            <button type="button" data-os="pc" class="os-tab-btn active px-3 py-1 rounded-lg transition-all flex items-center gap-1.5 bg-[#19C37D] text-[#132A22] font-black shadow-xs cursor-pointer">
+              <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/>
+              </svg>
+              <span>Windows</span>
+              <span class="opacity-40 font-normal">/</span>
+              <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="4 17 10 11 4 5"></polyline>
+                <line x1="12" y1="19" x2="20" y2="19"></line>
+              </svg>
+              <span>Linux</span>
+            </button>
+            <button type="button" data-os="mac" class="os-tab-btn px-3 py-1 rounded-lg transition-all flex items-center gap-1.5 text-white/70 hover:text-white font-semibold cursor-pointer">
+              <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-1.99.6-2.63 1.35-.57.65-1.07 1.72-.94 2.74 1 .08 2.03-.5 2.65-1.24z"/>
+              </svg>
+              <span>macOS</span>
+            </button>
+          </div>
+        </div>
+
+        {/* SCREEN AREA */}
+        <div class="relative w-full min-h-[410px] sm:min-h-[450px] bg-gradient-to-b from-[#132A22] to-[#0c1c16] flex items-center justify-center p-4 sm:p-7 overflow-hidden select-none">
+          
+          {/* STEP 1: OPENING FILE IN ANY CODE EDITOR */}
+          <div data-stage="1" class="guide-stage w-full max-w-3xl flex flex-col lg:flex-row items-center justify-between gap-6 py-2">
+            {/* Left: Info */}
+            <div class="flex-1 text-left min-w-[240px]">
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#19C37D]/20 text-[#8BF0C2] text-[11px] font-bold mb-2">
+                <svg class="w-3.5 h-3.5 text-[#19C37D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+                <span>Любой редактор кода</span>
+              </div>
+              <h3 class="text-[18px] sm:text-[22px] font-black text-white leading-snug">
+                Откройте файл в удобной для вас программе
+              </h3>
+              <p class="text-[12px] sm:text-[13px] text-white/70 mt-2 leading-relaxed">
+                Подойдёт стандартный <b>Блокнот Windows</b>, <b>TextEdit</b> на Mac, либо специализированные редакторы кода: <b>VS Code, Sublime Text, Notepad++, WebStorm</b>.
+              </p>
+              
+              <div class="mt-4 grid grid-cols-2 gap-2 text-[11.5px] font-mono">
+                <div class="p-2 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2 text-white/90">
+                  <svg class="w-4 h-4 text-[#19C37D] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                  <span>Блокнот</span>
+                </div>
+                <div class="p-2 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2 text-white/90">
+                  <svg class="w-4 h-4 text-[#38bdf8] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                  </svg>
+                  <span>VS Code</span>
+                </div>
+                <div class="p-2 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2 text-white/90">
+                  <svg class="w-4 h-4 text-[#fb923c] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                  </svg>
+                  <span>Sublime Text</span>
+                </div>
+                <div class="p-2 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2 text-white/90">
+                  <svg class="w-4 h-4 text-[#a3e635] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                  <span>TextEdit</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Window Simulation + Physical White Mouse Outside (Side by Side) */}
+            <div class="flex items-center justify-center gap-3.5 shrink-0">
+              {/* Desktop Window: 326px wide */}
+              <div class="w-[300px] sm:w-[326px] h-[230px] bg-[#0c1f17] rounded-2xl border border-white/15 relative overflow-hidden shadow-2xl flex flex-col justify-between shrink-0">
+                
+                {/* Window Titlebar */}
+                <div class="px-3 py-2 bg-[#081510] border-b border-white/10 flex items-center justify-between z-10 shrink-0">
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#ff5f56]"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#27c93f]"></span>
+                  </div>
+                  <span class="text-[10px] font-mono text-white/50">Папка с файлом эффекта</span>
+                </div>
+
+                {/* Desktop Canvas (Fixed Coordinate Container) */}
+                <div class="relative flex-1 w-full overflow-hidden select-none" id="step1-desktop-canvas">
+                  
+                  {/* 1. File on desktop at fixed position */}
+                  <div class="anim-file-select absolute top-3.5 left-3.5 flex flex-col items-center justify-center p-2 rounded-xl border border-white/10 bg-white/5 shadow-md w-18 transition-all">
+                    <div class="w-11 h-13 rounded-lg bg-gradient-to-b from-[#19C37D]/25 to-white/5 border border-[#19C37D]/40 flex flex-col items-center justify-center relative mb-1 shadow-md">
+                      <svg class="w-5 h-5 text-[#19C37D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="16 18 22 12 16 6"></polyline>
+                        <polyline points="8 6 2 12 8 18"></polyline>
+                      </svg>
+                      <span class="absolute -top-1.5 -right-1 px-1 rounded bg-[#19C37D] text-[#132A22] text-[7.5px] font-mono font-black">HTML</span>
+                    </div>
+                    <span class="text-[10px] font-mono text-white font-bold tracking-tight">effect.html</span>
+                    <span class="text-[8.5px] font-mono text-white/40">18 КБ</span>
+                  </div>
+
+                  {/* 2. Pixel-Perfect OS Cursor Arrow (STAYS on file after hovering, never vanishes prematurely!) */}
+                  <div class="anim-cursor-step1 absolute pointer-events-none z-30 top-0 left-0">
+                    <svg class="w-6 h-6 drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 2L4 19L8.2 14.8L11.8 22.2L14.6 20.8L11.1 13.5L16.5 13.5L4 2Z" fill="#FFFFFF" stroke="#132A22" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+                    </svg>
+                    <span class="anim-click-ripple-step1 absolute top-[2px] left-[4px] w-6 h-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#19C37D]"></span>
+                  </div>
+
+                  {/* 3. Context Menu (Pops up at file on right-click) */}
+                  <div class="anim-context-menu absolute top-3.5 left-[76px] w-[124px] bg-[#0c1f17]/95 backdrop-blur-md rounded-xl p-1 shadow-2xl text-white text-[10.5px] font-bold border border-white/15 z-20 select-none">
+                    <div class="px-2 py-1 rounded text-white/40">Открыть</div>
+                    <div class="anim-context-item-openwith px-2 py-1 rounded flex items-center justify-between text-[#8BF0C2] font-black">
+                      <span>Открыть с помощью</span>
+                      <span class="text-[9px]">▸</span>
+                    </div>
+                    <div class="px-2 py-1 rounded text-white/30">Свойства</div>
+                  </div>
+
+                  {/* 4. Submenu of Editors (Flies out cleanly to the right of "Открыть с помощью" - ZERO OVERLAP) */}
+                  <div class="anim-editors-submenu absolute top-6 left-[202px] w-[116px] bg-[#0c1f17]/95 backdrop-blur-md rounded-xl p-1 shadow-2xl text-white text-[10px] font-bold border border-white/15 z-22 select-none space-y-0.5">
+                    <div class="anim-submenu-item-notepad px-2 py-1 rounded flex items-center justify-between font-black">
+                      <span class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#19C37D]"></span>
+                        <span>Блокнот</span>
+                      </span>
+                      <span class="text-[7.5px] text-[#19C37D] font-mono">выбрать</span>
+                    </div>
+                    <div class="px-2 py-0.5 rounded text-white/40 flex items-center gap-1.5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-white/20"></span>
+                      <span>VS Code</span>
+                    </div>
+                    <div class="px-2 py-0.5 rounded text-white/40 flex items-center gap-1.5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-white/20"></span>
+                      <span>Sublime Text</span>
+                    </div>
+                    <div class="px-2 py-0.5 rounded text-white/40 flex items-center gap-1.5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-white/20"></span>
+                      <span>TextEdit</span>
+                    </div>
+                  </div>
+
+                  {/* 5. Editor Window (Blooms in and covers canvas with opened code) */}
+                  <div class="anim-editor-bloom absolute inset-0 bg-[#07130d] p-3 flex flex-col justify-between z-25 font-mono text-[10.5px]">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-1.5 text-white/50">
+                      <span class="flex items-center gap-1.5 text-[#8BF0C2] font-bold">
+                        <span class="w-2 h-2 rounded-full bg-[#19C37D]"></span>
+                        <span>effect.html — Блокнот</span>
+                      </span>
+                      <span class="text-[9px] text-[#19C37D] bg-[#19C37D]/10 px-1.5 py-0.5 rounded border border-[#19C37D]/30 font-sans font-bold">✓ Файл открыт!</span>
+                    </div>
+                    <div class="space-y-1 text-white/70 py-1 text-[10.5px]">
+                      <div class="text-white/30">// 1. Конфигурация виджета:</div>
+                      <div>const config = &#123;</div>
+                      <div class="text-[#8BF0C2] font-bold">&nbsp;&nbsp;phone: '+7 900 123-45-67',</div>
+                      <div class="text-white/60">&nbsp;&nbsp;name: 'Иван Иванов',</div>
+                      <div>&#125;;</div>
+                    </div>
+                    <div class="pt-1.5 border-t border-white/10 text-[9px] text-white/40 font-mono flex items-center justify-between">
+                      <span>Строка 3, столбец 12</span>
+                      <span>UTF-8 • CRLF</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Minimalist White Hardware Mouse (Outside the Window, Matching User Photo) */}
+              <div class="anim-mouse-hardware flex flex-col items-center shrink-0 select-none">
+                <div class="relative w-[76px] h-[126px] rounded-[34px] bg-gradient-to-b from-[#ffffff] via-[#f7f8f9] to-[#edf0f2] border border-[#d1d5db] shadow-[0_14px_32px_rgba(0,0,0,0.55)] p-1.5 flex flex-col justify-between">
+                  {/* Upper Button Area with Middle Split Seam */}
+                  <div class="relative h-14 w-full flex">
+                    {/* Top Center Seam */}
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1.5px] h-3.5 bg-[#cbd5e1]"></div>
+                    
+                    {/* Scroll Wheel Cavity & Metallic Wheel */}
+                    <div class="absolute top-2.5 left-1/2 -translate-x-1/2 w-4 h-7 rounded-full bg-[#e2e8f0] border border-[#cbd5e1] p-0.5 flex flex-col items-center justify-center gap-0.5 z-10 shadow-inner">
+                      <span class="w-2.5 h-0.5 bg-[#94a3b8] rounded-full"></span>
+                      <span class="w-2.5 h-0.5 bg-[#94a3b8] rounded-full"></span>
+                      <span class="w-2.5 h-0.5 bg-[#94a3b8] rounded-full"></span>
+                    </div>
+
+                    {/* Seam below wheel */}
+                    <div class="absolute top-10 left-1/2 -translate-x-1/2 w-[1.5px] h-4 bg-[#cbd5e1]"></div>
+
+                    {/* Left Button (ЛКМ) */}
+                    <div class="flex-1 h-full rounded-tl-[28px]"></div>
+
+                    {/* Right Button (ПКМ) - Animated tactile click & emerald outline */}
+                    <div class="anim-rclick-btn flex-1 h-full rounded-tr-[28px] transition-all"></div>
+                  </div>
+
+                  {/* Lower Palm Rest */}
+                  <div class="flex-1 flex flex-col items-center justify-end pb-2.5">
+                    <div class="w-2 h-2 rounded-full bg-[#cbd5e1]"></div>
+                  </div>
+                </div>
+
+                {/* Click Indicator Badge (No lightning bolt) */}
+                <span class="anim-rclick-label mt-2 px-2.5 py-0.5 rounded-md bg-[#19C37D] text-[#132A22] text-[9px] font-mono font-black shadow-lg">
+                  ПКМ
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* STEP 2: SCROLLING CODE & SINGLE-OS FLOATING KEYS */}
+          <div data-stage="2" class="guide-stage hidden w-full max-w-xl text-left animate-fade-in">
+            {/* Editor Window with Scrolling Code Track */}
+            <div class="h-[190px] overflow-hidden relative rounded-xl bg-[#0b1b15] border border-white/10 p-3.5 font-mono text-[11px] sm:text-[12px] leading-relaxed shadow-2xl">
+              
+              {/* Search popup widget */}
+              <div class="absolute top-2.5 right-2.5 w-60 sm:w-64 bg-[#1a382c] p-2.5 rounded-xl border border-[#2d5747] shadow-2xl anim-search-box z-10">
+                <div class="flex items-center gap-1.5 text-[10.5px] text-[#8BF0C2] font-bold mb-1">
+                  <svg class="w-3.5 h-3.5 text-[#19C37D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <span>Поиск по файлу:</span>
+                </div>
+                <div class="bg-black/60 px-2.5 py-1.5 rounded-lg text-white font-mono text-[12px] border border-white/10 flex items-center justify-between">
+                  <span class="anim-type-search text-[#19C37D] font-bold"></span>
+                  <span class="anim-search-found-badge text-[9.5px] bg-[#19C37D]/20 text-[#19C37D] border border-[#19C37D]/40 px-1.5 py-0.5 rounded font-sans font-bold">
+                    1 совпадение
+                  </span>
+                </div>
+              </div>
+
+              {/* Code Scroll Track: starts at top of file, scrolls only after search typing completes */}
+              <div class="code-track-scroll space-y-0.5 select-text">
+                <div class="text-white/30">// 1. HTML разметка страницы:</div>
+                <div class="text-white/45">&lt;div id="gridika-widget-root"&gt;&lt;/div&gt;</div>
+                <div class="text-white/45">&lt;style&gt;</div>
+                <div class="text-white/35">&nbsp;&nbsp;.gridika-stage &#123; width: 100%; height: 500px; &#125;</div>
+                <div class="text-white/45">&lt;/style&gt;</div>
+                <div class="text-white/30">// 2. Подключение 3D-библиотеки Three.js:</div>
+                <div class="text-white/45">&lt;script src="https://cdnjs.cloudflare.com/.../three.min.js"&gt;&lt;/script&gt;</div>
+                <div class="text-white/45">&lt;script&gt;</div>
+                <div class="text-white/35">&nbsp;&nbsp;// 3D-сцена и параметры виджета</div>
+                <div class="text-white/30">// 3. Конфигурация контактов и текста:</div>
+                <div class="text-white/70">&nbsp;&nbsp;const config = &#123;</div>
+                <div class="text-white/70">&nbsp;&nbsp;&nbsp;&nbsp;name: 'Иван Иванов',</div>
+                <div class="anim-highlight-line px-2 py-0.5 rounded text-[#8BF0C2] font-bold flex items-center justify-between">
+                  <span>&nbsp;&nbsp;&nbsp;&nbsp;phone: <span class="text-white font-bold">'<span class="bg-yellow-400/30 text-yellow-200 px-1 rounded">+7 900 123-45-67</span>'</span>,</span>
+                  <span class="text-[9.5px] text-[#19C37D] font-sans font-bold">← найдено!</span>
+                </div>
+                <div class="text-white/70">&nbsp;&nbsp;&nbsp;&nbsp;role: 'Основатель example.com',</div>
+                <div class="text-white/70">&nbsp;&nbsp;&#125;;</div>
+                <div class="text-white/45">&lt;/script&gt;</div>
+              </div>
+            </div>
+
+            {/* Floating Keys Bar (Unified Single Keycap Set, in-place OS label & key update) */}
+            <div class="mt-4 h-16 flex items-center justify-center">
+              <div class="anim-keys-appear-fade flex items-center justify-center">
+                <div class="flex flex-col items-center">
+                  <div class="flex items-center gap-2">
+                    <div class="step2-first-key anim-key-press-search h-10 px-3.5 rounded-xl bg-[#f8fafc] text-[#132A22] font-mono text-[13px] font-black border-b-[3px] border-[#cbd5e1] shadow-[0_6px_16px_rgba(0,0,0,0.35)] flex items-center justify-center min-w-[54px]">Ctrl</div>
+                    <span class="text-white/40 font-black text-[14px]">+</span>
+                    <div class="anim-key-press-search-delayed h-10 px-3.5 rounded-xl bg-[#f8fafc] text-[#132A22] font-mono text-[13px] font-black border-b-[3px] border-[#cbd5e1] shadow-[0_6px_16px_rgba(0,0,0,0.35)] flex items-center justify-center min-w-[42px]">F</div>
+                  </div>
+                  <span class="step2-os-label text-[10.5px] text-[#8BF0C2] font-bold mt-1.5 tracking-wider uppercase">для Windows / Linux</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* STEP 3: REPLACE TEXT & FLOATING CTRL+S / CMD+S + SAVE IN TOP-RIGHT CORNER OF CODE BOX */}
+          <div data-stage="3" class="guide-stage hidden w-full max-w-xl text-left animate-fade-in">
+            {/* Editor Showing Erasing & Typing New Phone */}
+            <div class="bg-[#0b1b15] rounded-xl p-3.5 border border-white/10 font-mono text-[11.5px] sm:text-[12.5px] leading-relaxed shadow-2xl relative">
+              
+              {/* SAVE CONFIRMATION POPUP IN TOP-RIGHT CORNER OF CODE BOX (AS REQUESTED) */}
+              <div class="anim-save-corner absolute top-3 right-3 z-20 pointer-events-none">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#19C37D] text-[#132A22] text-[11px] font-sans font-black shadow-[0_4px_20px_rgba(25,195,125,0.6)]">
+                  <svg class="w-4 h-4 text-[#132A22]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>файл effect.html успешно сохранён!</span>
+                </div>
+              </div>
+
+              <div class="text-white/40">// Заменяем текст внутри одинарных кавычек:</div>
+              <div class="text-white/70">const config = &#123;</div>
+              <div class="text-white/70">&nbsp;&nbsp;name: 'Иван Иванов',</div>
+              
+              {/* Dynamic Replace Line */}
+              <div class="bg-[#19C37D]/25 border-l-4 border-[#19C37D] px-2 py-1.5 my-1.5 rounded text-[#8BF0C2] font-bold flex items-center justify-between">
+                <span>&nbsp;&nbsp;phone: '<span class="anim-typed-new-phone text-white bg-black/60 px-1.5 py-0.5 rounded text-[#19C37D] font-black"></span>',</span>
+                <span class="anim-step3-badge text-[10px] text-[#19C37D] font-sans font-bold">✓ ввели новый номер!</span>
+              </div>
+              
+              <div class="text-white/70">&#125;;</div>
+            </div>
+
+            {/* Floating Keys Bar for Save (Unified Single Keycap Set, in-place OS label & key update) */}
+            <div class="mt-4 h-16 flex items-center justify-center">
+              <div class="anim-keys-save-cycle flex items-center justify-center">
+                <div class="flex flex-col items-center">
+                  <div class="flex items-center gap-2">
+                    <div class="step3-first-key anim-key-press-save h-10 px-3.5 rounded-xl bg-[#f8fafc] text-[#132A22] font-mono text-[13px] font-black border-b-[3px] border-[#cbd5e1] shadow-[0_6px_16px_rgba(0,0,0,0.35)] flex items-center justify-center min-w-[54px]">Ctrl</div>
+                    <span class="text-white/40 font-black text-[14px]">+</span>
+                    <div class="anim-key-press-save-delayed h-10 px-3.5 rounded-xl bg-[#f8fafc] text-[#132A22] font-mono text-[13px] font-black border-b-[3px] border-[#cbd5e1] shadow-[0_6px_16px_rgba(0,0,0,0.35)] flex items-center justify-center min-w-[42px]">S</div>
+                  </div>
+                  <span class="step3-os-label text-[10.5px] text-[#8BF0C2] font-bold mt-1.5 tracking-wider uppercase">для Windows / Linux</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-2.5 text-center text-[11.5px] text-white/70">
+              <span class="text-[#fde68a] font-bold">Золотое правило:</span> не удаляйте одинарные кавычки <code class="text-[#19C37D] font-mono font-bold">'...'</code> и запятую в конце!
+            </div>
+          </div>
+
+          {/* STEP 4: RESULT ON SITE WITH 3D CARD VISUALIZATION */}
+          <div data-stage="4" class="guide-stage hidden w-full max-w-xl text-center animate-fade-in">
+            {/* Outer Browser Window */}
+            <div class="bg-[#0c1f17] rounded-2xl border border-white/15 overflow-hidden shadow-2xl text-white">
+              
+              {/* Browser window titlebar & address */}
+              <div class="flex items-center justify-between px-4 py-2.5 bg-[#081510] border-b border-white/10 text-[11px]">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#ff5f56]"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#27c93f]"></span>
+                </div>
+                <div class="text-[11px] font-mono text-[#8BF0C2] bg-black/50 px-3.5 py-1 rounded-full border border-white/10 flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-[#19C37D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                  <span>ваш-сайт.ru</span>
+                  <span class="anim-refresh-spin text-[12px] text-[#19C37D] cursor-default" title="Обновление F5">↻</span>
+                </div>
+                <span class="text-[10px] font-mono text-[#19C37D] bg-[#19C37D]/10 px-2 py-0.5 rounded border border-[#19C37D]/30 hidden sm:inline-block">F5: обновлено</span>
+              </div>
+
+              {/* 3D Canvas Area (Simulating WebGL Stage on Website) */}
+              <div class="relative w-full min-h-[300px] sm:min-h-[320px] bg-gradient-to-b from-[#132A22] via-[#0d231b] to-[#07130e] p-5 flex flex-col items-center justify-center overflow-hidden select-none">
+                
+                {/* Ambient 3D Glow in Background */}
+                <div class="absolute w-72 h-72 rounded-full bg-[#19C37D]/15 blur-3xl pointer-events-none -top-10 left-1/2 -translate-x-1/2"></div>
+
+                {/* Status Announcement Badge above card */}
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#19C37D]/20 border border-[#19C37D]/40 text-[#8BF0C2] text-[11px] font-bold shadow-md mb-3 relative z-10">
+                  <span class="w-2 h-2 rounded-full bg-[#19C37D] animate-ping"></span>
+                  <span>3D-визитка на вашем сайте сразу отображает новый номер:</span>
+                </div>
+
+                {/* Realistic 3D Business Card */}
+                <div class="anim-3d-card relative w-[290px] sm:w-[325px] rounded-2xl bg-gradient-to-br from-[#1b4334] via-[#102e23] to-[#0a1f18] p-4 text-left border-2 border-[#19C37D]/60 shadow-[0_24px_50px_rgba(0,0,0,0.8),0_0_24px_rgba(25,195,125,0.25)] ring-1 ring-white/20 overflow-hidden">
+                  
+                  {/* Subtle 3D Card Sweeping Light Reflection */}
+                  <div class="anim-card-shine absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none"></div>
+
+                  {/* Corner 3D Voxel Cubes Decor (Matching Gridika 3D voxel engine & user photo) */}
+                  <div class="absolute -top-1 -right-1 pointer-events-none drop-shadow-[0_6px_12px_rgba(0,0,0,0.7)]">
+                    <svg class="w-13 h-13" viewBox="0 0 64 64" fill="none">
+                      <!-- Base Platform Voxel 1 -->
+                      <path d="M38 12 L56 22 L38 32 L20 22 Z" fill="#34d399"/>
+                      <path d="M20 22 L38 32 L38 48 L20 38 Z" fill="#059669"/>
+                      <path d="M38 32 L56 22 L56 38 L38 48 Z" fill="#10b981"/>
+                      <!-- Floating Mini Voxel 2 -->
+                      <path d="M38 4 L48 9 L38 14 L28 9 Z" fill="#a7f3d0"/>
+                      <path d="M28 9 L38 14 L38 22 L28 17 Z" fill="#34d399"/>
+                      <path d="M38 14 L48 9 L48 17 L38 22 Z" fill="#6ee7b7"/>
+                    </svg>
+                  </div>
+
+                  {/* Top Bar on Card: Monogram & NFC / 3D Tag */}
+                  <div class="flex items-center justify-between mb-2.5 relative z-10">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#19C37D] to-[#0a3326] text-[#132A22] font-black text-[12px] font-mono flex items-center justify-center border border-[#8BF0C2]/50 shadow-md">
+                      ИИ
+                    </div>
+                    <span class="text-[8.5px] font-mono font-bold text-[#8BF0C2] bg-white/10 px-2 py-0.5 rounded-full border border-white/15 mr-8">
+                      3D Визитка
+                    </span>
+                  </div>
+
+                  {/* Card Person Name & Role */}
+                  <div class="relative z-10">
+                    <div class="text-[15px] sm:text-[16px] font-black text-white tracking-tight leading-snug">Иван Иванов</div>
+                    <div class="text-[10.5px] font-bold text-[#8BF0C2]/90">Основатель example.com</div>
+                  </div>
+
+                  {/* Dynamic Updated Phone Line (HIGHLIGHTED & GLOWING) */}
+                  <div class="anim-phone-highlight mt-2.5 p-2 rounded-xl bg-black/40 border border-[#19C37D]/40 transition-all flex items-center justify-between relative z-10 shadow-lg">
+                    <div class="flex items-center gap-2">
+                      <div class="w-6 h-6 rounded-md bg-[#19C37D] text-[#132A22] flex items-center justify-center shrink-0 shadow-sm">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24c1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                        </svg>
+                      </div>
+                      <span class="font-mono text-[12.5px] sm:text-[13px] font-black text-white tracking-wide">
+                        +7 999 555-44-33
+                      </span>
+                    </div>
+                    <span class="text-[9px] font-sans font-black bg-[#19C37D] text-[#132A22] px-2 py-0.5 rounded-md shadow-md animate-pulse">
+                      ✓ обновлён!
+                    </span>
+                  </div>
+
+                  {/* Other Contact Info */}
+                  <div class="mt-2 flex items-center justify-between text-[10px] text-white/60 relative z-10 px-0.5">
+                    <span class="font-mono text-[9.5px] text-[#8BF0C2]/90 flex items-center gap-1.5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-[#19C37D]"></span>
+                      <span>example.com</span>
+                    </span>
+                    <span class="font-mono text-[9px] text-[#8BF0C2]/80">QR на обороте ↻</span>
+                  </div>
+
+                </div>
+
+                <div class="mt-3 text-[11px] font-semibold text-white/60">
+                  Поменяли строку в коде → обновили страницу сайта (F5) → 3D-визитка мгновенно работает с новым контактом.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* STEP 5: INTERACTIVE BREAKAGE SIMULATION (URL CHANGE VS 3D VOXEL SCANNER) */}
+          <div data-stage="5" class="guide-stage hidden w-full max-w-2xl text-left animate-fade-in py-1">
+            {/* Split Screen Container: Left (Code change) vs Right (3D Voxel Scanner) */}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              
+              {/* Panel 1: Code Editor showing URL replacement */}
+              <div class="bg-[#0b1b15] rounded-2xl border border-white/10 p-3.5 font-mono text-[11px] flex flex-col justify-between shadow-2xl relative overflow-hidden">
+                <div>
+                  <div class="flex items-center justify-between pb-2 border-b border-white/10 text-white/50 text-[10px]">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-[#ff5f56]"></span>
+                      <span class="w-2 h-2 rounded-full bg-[#ffbd2e]"></span>
+                      <span class="w-2 h-2 rounded-full bg-[#27c93f]"></span>
+                      <span class="ml-1 text-white/70 font-bold">effect.html (Код)</span>
+                    </div>
+                    <span class="text-amber-400 font-sans font-bold">Строка 14</span>
+                  </div>
+
+                  <div class="mt-2.5 space-y-1 text-white/70">
+                    <div class="text-white/30">// Вы заменили ссылку в тексте:</div>
+                    <div>const config = &#123;</div>
+                    <div class="text-white/40">&nbsp;&nbsp;name: 'Иван Иванов',</div>
+                    
+                    {/* Pulsing edited url line */}
+                    <div class="p-1.5 rounded-lg bg-amber-400/15 border border-amber-400/40 text-amber-200 font-bold my-1 flex flex-col gap-0.5">
+                      <span class="text-[9px] text-amber-300 font-sans font-bold">В файле ввели новый сайт:</span>
+                      <span class="text-white bg-black/60 px-1.5 py-0.5 rounded font-black truncate">&nbsp;&nbsp;url: '<span class="text-amber-300">https://new-site.ru</span>',</span>
+                    </div>
+
+                    <div>&#125;;</div>
+                  </div>
+                </div>
+
+                <div class="mt-2 pt-2 border-t border-white/10 text-[10.5px] font-sans text-amber-300/90 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                  <span>В файле строчка изменилась, но...</span>
+                </div>
+              </div>
+
+              {/* Panel 2: 3D Voxel Stage with Phone Camera Scanner & Mismatch Alert */}
+              <div class="bg-[#140a0a] rounded-2xl border border-[#ef4444]/40 p-3.5 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+                <div>
+                  <div class="flex items-center justify-between pb-2 border-b border-white/10 text-[10px]">
+                    <span class="flex items-center gap-1.5 font-bold text-[#f87171]">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                        <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                      </svg>
+                      <span>Камера телефона (Сканирование)</span>
+                    </span>
+                    <span class="text-[9px] font-mono text-[#f87171] bg-[#ef4444]/20 px-1.5 py-0.5 rounded font-bold border border-[#ef4444]/40">14 000 вокселей</span>
+                  </div>
+
+                  {/* Simulated 3D QR Matrix + Laser Viewfinder Scanner */}
+                  <div class="relative mt-2.5 h-[115px] rounded-xl bg-black/70 border border-white/10 flex items-center justify-center overflow-hidden">
+                    
+                    {/* Isometric 3D QR Voxel Matrix Representation */}
+                    <div class="anim-voxel-pulse relative flex items-center justify-center">
+                      <svg class="w-20 h-20 drop-shadow-[0_8px_16px_rgba(0,0,0,0.8)]" viewBox="0 0 64 64" fill="none">
+                        <!-- Voxel QR Platform -->
+                        <path d="M32 8 L58 23 L32 38 L6 23 Z" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+                        <path d="M6 23 L32 38 L32 50 L6 35 Z" fill="#0f172a"/>
+                        <path d="M32 38 L58 23 L58 35 L32 50 Z" fill="#1e293b"/>
+                        <!-- Red/Coral Voxel Pillars representing old QR -->
+                        <path d="M32 16 L42 22 L32 28 L22 22 Z" fill="#f87171"/>
+                        <path d="M22 22 L32 28 L32 34 L22 28 Z" fill="#b91c1c"/>
+                        <path d="M32 28 L42 22 L42 28 L32 34 Z" fill="#dc2626"/>
+                        
+                        <path d="M22 13 L28 17 L22 21 L16 17 Z" fill="#fca5a5"/>
+                        <path d="M42 13 L48 17 L42 21 L36 17 Z" fill="#fca5a5"/>
+                        <path d="M32 24 L38 28 L32 32 L26 28 Z" fill="#fca5a5"/>
+                      </svg>
+                    </div>
+
+                    {/* Laser Scanner Viewfinder Overlay */}
+                    <div class="absolute inset-2 border-2 border-dashed border-[#f87171]/40 rounded-lg pointer-events-none flex flex-col justify-between p-1">
+                      <div class="flex justify-between text-[#f87171] text-[8px] font-mono">
+                        <span>┌ СКАНИРОВАНИЕ</span>
+                        <span>┐</span>
+                      </div>
+                      {/* Animated Laser Scanning Line */}
+                      <div class="anim-scanner-laser w-full h-[2px] bg-gradient-to-r from-transparent via-[#ef4444] to-transparent shadow-[0_0_12px_#ef4444]"></div>
+                      <div class="flex justify-between text-[#f87171] text-[8px] font-mono">
+                        <span>└ 3D-КУБИКИ</span>
+                        <span>┘</span>
+                      </div>
+                    </div>
+
+                    {/* Pop-up Detected URL Banner from Camera (ALWAYS READS OLD-SITE.RU) */}
+                    <div class="anim-scan-readout absolute inset-x-2 bottom-2 bg-[#2a0e0e]/95 backdrop-blur-md border border-[#ef4444] rounded-lg p-1.5 text-center shadow-2xl">
+                      <div class="text-[9px] text-[#fca5a5] font-sans font-bold flex items-center justify-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#ef4444] animate-ping"></span>
+                        <span>Камера видит физические кубики:</span>
+                      </div>
+                      <div class="text-[11px] font-mono font-black text-white bg-black/60 rounded px-1 mt-0.5 border border-[#ef4444]/40 truncate flex items-center justify-center gap-1.5">
+                        <svg class="w-3 h-3 text-[#fca5a5] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                        </svg>
+                        <span>https://old-site.ru</span>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* Mismatch Warning Alert Footer */}
+                <div class="mt-2 pt-2 border-t border-white/10 text-[10.5px] font-sans text-[#f87171] font-bold flex items-center justify-between">
+                  <span class="flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-[#ef4444]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    <span>Откроет старый сайт!</span>
+                  </span>
+                  <span class="text-[9px] text-white/50 font-normal">кубики не перестроились</span>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Explanatory Bottom Strip + Direct CTA to 3D Studio */}
+            <div class="mt-3 p-3.5 rounded-2xl bg-[#140a0a] border border-[#ef4444]/35 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left">
+              <div class="text-[11.5px] leading-relaxed text-white/80">
+                <span class="text-white font-bold">Почему так происходит?</span> Камера считывает реальную 3D-геометрию вокселей Three.js, сгенерированную на сервере. Текстовая строчка в коде физические кубики не меняет.
+              </div>
+              <a href="/" class="shrink-0 h-9 px-4 rounded-xl bg-[#19C37D] hover:bg-[#17b373] text-[#132A22] font-black text-[12px] flex items-center justify-center gap-2 transition-all shadow-md group">
+                <span>Открыть в 3D Студии</span>
+                <svg class="w-3.5 h-3.5 text-[#132A22] transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+        {/* BOTTOM CONTROLS & STEP DESCRIPTION */}
+        <div class="p-4 sm:p-5 bg-[#0e211a] border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex-1">
+            <div id="step-desc-title" class="text-[14px] font-black text-white">Шаг 1: Открытие кода в любом редакторе</div>
+            <div id="step-desc-text" class="text-[12px] text-white/70 mt-0.5">Кликните правой кнопкой мыши по файлу и выберите Блокнот, VS Code, Sublime или любой другой редактор.</div>
+          </div>
+          
+          <div class="flex items-center gap-2 shrink-0">
+            <button type="button" id="btn-prev-step" class="h-9 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-[12px] transition-colors cursor-pointer flex items-center gap-1">
+              <span>←</span>
+              <span>Назад</span>
+            </button>
+            <span id="step-counter" class="text-[12px] font-mono text-white/50 px-2">1 / 5</span>
+            <button type="button" id="btn-next-step" class="h-9 px-4 rounded-xl bg-[#19C37D] hover:bg-[#17b373] text-[#132A22] font-black text-[12px] transition-colors cursor-pointer flex items-center gap-1">
+              <span>Далее</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    {/* ======================================================== */}
+    {/* SECTION 3: PER-EFFECT CHEAT SHEET                        */}
+    {/* ======================================================== */}
+    <section class="mt-12 sm:mt-16">
+      <div class="text-center max-w-xl mx-auto mb-6">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f6f3ee] text-[#78716c] text-[11px] font-black uppercase tracking-wider mb-2">
+          <span>Часть 3: Справочник эффектов</span>
+        </div>
+        <h2 class="text-[24px] sm:text-[30px] font-black text-[#132A22] tracking-tight">
+          Что можно менять в каждом эффекте
+        </h2>
+        <p class="mt-1 text-[14px] font-semibold text-[#78716c]">
+          Выберите ваш купленный эффект, чтобы увидеть точные названия строк в коде:
+        </p>
+      </div>
+
+      {/* PRODUCT PILLS */}
+      <div class="flex items-center justify-center gap-1.5 flex-wrap" id="effect-pills">
+        {PRODUCTS.map((p, idx) => (
+          <button
+            type="button"
+            data-effect-id={p.id}
+            class={`h-9 px-3.5 rounded-full text-[12px] font-bold transition-all cursor-pointer ${
+              idx === 0
+                ? 'bg-[#132A22] text-[#19C37D] shadow-sm'
+                : 'bg-white hover:bg-[#f6f3ee] text-[#132A22] border border-[#e5dfd2]'
+            }`}
+          >
+            {p.shortName || p.name}
+          </button>
+        ))}
+      </div>
+
+      {/* EFFECT DETAIL CARDS */}
+      <div class="mt-6" id="effect-details-container">
+        {PRODUCTS.map((prod, idx) => {
+          const g = EFFECT_GUIDES[prod.id];
+          if (!g) return null;
+          return (
+            <div data-effect-card={prod.id} class={`${idx === 0 ? '' : 'hidden'} bg-white rounded-2xl border border-[#ece6da] p-5 sm:p-7 shadow-sm animate-fade-in`}>
+              <div class="flex items-center justify-between pb-3 border-b border-[#f3efe7] mb-4">
+                <div>
+                  <h3 class="text-[18px] font-black text-[#132A22]">{g.title}</h3>
+                  <p class="text-[12px] text-[#78716c] font-semibold mt-0.5">Шпаргалка параметров для Блокнота и редакторов кода</p>
+                </div>
+                <a href={`/?effect=${prod.id}`} class="text-[12px] font-extrabold text-[#0f5c3c] hover:underline flex items-center gap-1.5 group">
+                  <span>Открыть в 3D Студии</span>
+                  <svg class="w-3.5 h-3.5 text-[#0f5c3c] transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </a>
+              </div>
+
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+                {/* CAN EDIT (GREEN) */}
+                <div class="rounded-2xl bg-[#F0FAF5] border border-[#d2f3e3] p-4 sm:p-5 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 text-[13.5px] font-black text-[#0f5c3c]">
+                      <span class="w-5 h-5 rounded-full bg-[#19C37D] text-[#132A22] flex items-center justify-center shrink-0 shadow-xs">
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </span>
+                      <span>Можно менять в коде (бесплатно):</span>
+                    </div>
+                    <p class="text-[11.5px] text-[#0f5c3c]/80 mt-1">Эти строки находятся в открытом текстовом файле внутри блока <code>config = &#123;...&#125;</code></p>
+                    
+                    <ul class="mt-3.5 space-y-3">
+                      {g.editableFields.map((f) => (
+                        <li class="bg-white p-3.5 rounded-xl border border-[#d2f3e3] shadow-xs text-[11.5px]">
+                          <div class="flex items-center justify-between gap-2 mb-1.5">
+                            <span class="font-extrabold text-[#132A22] text-[12.5px]">{f.label}</span>
+                            <span class="font-mono text-[10px] text-[#0f5c3c] bg-[#DFF8EB] px-2 py-0.5 rounded-md font-bold">{f.fieldKey}</span>
+                          </div>
+                          <div class="font-mono text-[11px] text-[#0f5c3c] bg-[#FAF8F5] px-2.5 py-1.5 rounded-lg border border-[#e5dfd2] my-1 truncate flex items-center justify-between">
+                            <span>{f.fieldKey}: {typeof f.originalVal === 'string' && !f.originalVal.startsWith('+') && !isNaN(Number(f.originalVal)) ? f.originalVal : `'${f.originalVal}'`},</span>
+                            <span class="text-[10px] text-[#19C37D] font-sans font-bold flex items-center gap-1 shrink-0 ml-2">
+                              <svg class="w-3 h-3 text-[#19C37D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                              </svg>
+                              <span>можно менять</span>
+                            </span>
+                          </div>
+                          {f.description && (
+                            <p class="text-[11px] text-[#6b645c] mt-1 leading-snug">{f.description}</p>
+                          )}
+                          {f.range && (
+                            <div class="mt-2 flex items-start gap-1.5 text-[10.5px] text-[#0f5c3c] font-semibold bg-[#F0FAF5] p-2 rounded-lg border border-[#d2f3e3]">
+                              <svg class="w-3.5 h-3.5 text-[#19C37D] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="4" y1="21" x2="4" y2="14"></line>
+                                <line x1="4" y1="10" x2="4" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12" y2="3"></line>
+                                <line x1="20" y1="21" x2="20" y2="16"></line>
+                                <line x1="20" y1="12" x2="20" y2="3"></line>
+                                <line x1="1" y1="14" x2="7" y2="14"></line>
+                                <line x1="9" y1="8" x2="15" y2="8"></line>
+                                <line x1="17" y1="16" x2="23" y2="16"></line>
+                              </svg>
+                              <div>
+                                <span class="font-bold text-[#132A22]">Допустимые значения: </span>
+                                <span class="text-[#0f5c3c]">{f.range}</span>
+                              </div>
+                            </div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div class="mt-4 pt-3 border-t border-[#d2f3e3] text-[11px] text-[#0f5c3c] font-semibold flex items-center gap-2">
+                    <svg class="w-4 h-4 text-[#19C37D] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="16" x2="12" y2="12"></line>
+                      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <span>Нажмите <kbd class="px-1.5 py-0.5 rounded bg-white border text-[10px] font-mono font-bold shadow-xs">Ctrl+F</kbd> в редакторе, найдите название параметра и впишите своё значение.</span>
+                  </div>
+                </div>
+
+                {/* CANNOT EDIT (AMBER / RED) */}
+                <div class="rounded-2xl bg-[#FFF9ED] border border-[#fdecd0] p-4 sm:p-5 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2 text-[13.5px] font-black text-[#991b1b]">
+                        <span class="w-5 h-5 rounded-full bg-[#ef4444] text-white flex items-center justify-center shrink-0 shadow-xs">
+                          <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                          </svg>
+                        </span>
+                        <span>Что НЕЛЬЗЯ менять вручную в коде:</span>
+                      </div>
+                      <span class="hidden sm:inline-flex items-center gap-1 text-[10px] font-extrabold text-[#ef4444] bg-[#fee2e2] px-2 py-0.5 rounded-full">
+                        защищено 3D
+                      </span>
+                    </div>
+                    <p class="text-[11.5px] text-[#7f1d1d]/85 mt-1">Эти части встроены в трёхмерную модель — ручная правка сломает сцену</p>
+
+                    {/* Specific forbidden list with code snippet boxes */}
+                    <div class="mt-3.5 space-y-3">
+                      {(g.forbiddenItems || []).map((item) => (
+                        <div class="p-3.5 rounded-xl bg-white border border-[#fecaca] shadow-xs">
+                          <div class="flex items-center justify-between gap-2 mb-1.5">
+                            <div class="flex items-center gap-1.5 font-bold text-[#991b1b] text-[12px]">
+                              <svg class="w-3.5 h-3.5 text-[#ef4444] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                              </svg>
+                              <span>{item.title}</span>
+                            </div>
+                            <span class="text-[9.5px] font-bold text-[#b91c1c] bg-[#fee2e2] px-2 py-0.5 rounded-md shrink-0">
+                              не трогать в коде
+                            </span>
+                          </div>
+
+                          {/* Realistic Dark Monospace Code Box - zero scrollbars, compact fit */}
+                          <div class="my-2 rounded-lg bg-[#0b130e] border border-[#ef4444]/35 p-2.5 font-mono text-[10.5px] sm:text-[11px] leading-snug select-text overflow-hidden shadow-inner">
+                            <div class="flex items-center justify-between text-[9px] text-white/40 pb-1 mb-1.5 border-b border-white/10 font-sans select-none">
+                              <span class="flex items-center gap-1.5 text-[#fca5a5] font-semibold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#ef4444]"></span>
+                                <span>Строка в файле effect.html:</span>
+                              </span>
+                              <span class="text-[#f87171] font-semibold uppercase tracking-wider text-[8.5px] bg-[#ef4444]/15 px-1.5 py-0.5 rounded shrink-0">только для чтения</span>
+                            </div>
+                            <code class="text-[#fca5a5] font-bold block whitespace-pre-wrap break-all sm:break-normal select-all">{item.codeSnippet}</code>
+                          </div>
+
+                          {/* Human explanation */}
+                          <div class="text-[11px] text-[#57534e] mt-1.5 leading-snug">
+                            {item.desc}
+                          </div>
+
+                          {/* Consequence alert */}
+                          <div class="mt-2 pt-2 border-t border-[#fecaca]/60 text-[10.5px] text-[#991b1b] flex items-start gap-1.5 bg-[#FFF5F5] p-2 rounded-lg">
+                            <svg class="w-3.5 h-3.5 text-[#ef4444] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                              <circle cx="12" cy="12" r="10"></circle>
+                              <line x1="12" y1="8" x2="12" y2="12"></line>
+                              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <div>
+                              <span class="font-bold">Что произойдёт при изменении: </span>
+                              <span class="text-[#7f1d1d]">{item.consequence}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Why and Truth */}
+                    <div class="mt-3.5 p-3 rounded-xl bg-white/95 border border-[#fdecd0] text-[11px] text-[#78716c] space-y-2 leading-relaxed shadow-xs">
+                      <div class="flex items-start gap-2">
+                        <svg class="w-4 h-4 text-[#b45309] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                          <line x1="12" y1="8" x2="12" y2="12"></line>
+                          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <div>
+                          <span class="text-[#b45309] font-bold">Причина: </span>
+                          <span class="text-[#57534e]">{g.breakTarget.brokenWhy}</span>
+                        </div>
+                      </div>
+                      <div class="flex items-start gap-2">
+                        <svg class="w-4 h-4 text-[#b45309] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                          <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                        </svg>
+                        <div>
+                          <span class="text-[#b45309] font-bold">Результат: </span>
+                          <span class="text-[#57534e]">{g.breakTarget.cameraTruth}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="mt-4 pt-3.5 border-t border-[#fdecd0]">
+                    <div class="text-[11.5px] font-bold text-[#b45309] mb-2 flex items-center gap-1.5">
+                      <svg class="w-3.5 h-3.5 text-[#b45309] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                      </svg>
+                      <span>Как изменить геометрию или ссылку правильно:</span>
+                    </div>
+                    <a href={`/?effect=${prod.id}`} class="w-full h-10 rounded-xl bg-[#132A22] hover:bg-[#1d3a2f] text-[#19C37D] font-extrabold text-[12px] flex items-center justify-center gap-2 transition-colors shadow-sm group">
+                      <span>{g.studioActionText}</span>
+                      <svg class="w-4 h-4 text-[#19C37D] transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  /* ======================================================== */
+  /* CSS ANIMATIONS FOR INTERACTIVE CODE EDITING WALKTHROUGH */
+  /* ======================================================== */
+
+  /* STEP 1: DESKTOP SIMULATION (8.0s MASTER CYCLE) */
+  /* Sequence:
+     0% - 14%: Cursor moves smoothly onto effect.html file icon (48px, 50px).
+     15% - 32%: Cursor stays on file! Simultaneously, white mouse outside window presses ПКМ with emerald glow, and cursor on file performs right click.
+     33%: White mouse fades out.
+     34% - 58%: Context menu appears at file (left: 76px, width: 124px).
+     37%: Cursor moves onto "Открыть с помощью ▸".
+     44% - 58%: Submenu with editors opens to the right (left: 202px, width: 116px, zero overlap!). Cursor moves to "Блокнот" and clicks.
+     59%: Menus vanish, cursor vanishes.
+     61% - 94%: Code editor window blooms in, displaying opened code (clean, no "готово к поиску").
+     96% - 100%: Smooth reset for loop.
+  */
+
+  @keyframes step1CursorSequence {
+    0%   { transform: translate(220px, 140px); opacity: 0; }
+    4%   { opacity: 1; }
+    14%  { transform: translate(48px, 50px); opacity: 1; }
+    /* CURSOR DOES NOT DISAPPEAR! IT STAYS ON EFFECT.HTML */
+    15%, 19% { transform: translate(48px, 50px) scale(1); opacity: 1; }
+    21%, 27% { transform: translate(48px, 50px) scale(0.9); opacity: 1; } /* CLICK ON FILE SIMULTANEOUSLY WITH ПКМ */
+    29%, 34% { transform: translate(48px, 50px) scale(1); opacity: 1; }
+    37%  { transform: translate(128px, 46px); opacity: 1; } /* Moves onto "Открыть с помощью" */
+    43%  { transform: translate(128px, 46px); opacity: 1; }
+    48%  { transform: translate(246px, 44px); opacity: 1; } /* Moves to "Блокнот" in submenu to the right */
+    52%, 56% { transform: translate(246px, 44px) scale(0.9); opacity: 1; } /* Clicks on Блокнот */
+    58%  { opacity: 0; transform: translate(246px, 44px); }
+    60%, 100% { opacity: 0; transform: translate(220px, 140px); }
+  }
+
+  @keyframes clickRippleStep1 {
+    0%, 19% { transform: scale(0); opacity: 0; }
+    21%     { transform: scale(0.6); opacity: 1; }
+    27%     { transform: scale(1.6); opacity: 0; }
+    50%     { transform: scale(0); opacity: 0; }
+    52%     { transform: scale(0.6); opacity: 1; }
+    56%     { transform: scale(1.6); opacity: 0; }
+    100%    { opacity: 0; }
+  }
+
+  @keyframes step1MouseHardwareFade {
+    0%, 13%  { opacity: 0; transform: translateY(8px) scale(0.92); pointer-events: none; }
+    16%, 31% { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+    34%, 100%{ opacity: 0; transform: translateY(-6px) scale(0.95); pointer-events: none; }
+  }
+
+  @keyframes step1WhiteMouseRClickPress {
+    0%, 18%  { transform: translateY(0); background-color: transparent; }
+    21%, 29% { transform: translateY(1.5px); background-color: rgba(25, 195, 125, 0.22); border-radius: 0 20px 0 0; box-shadow: 0 0 14px rgba(25, 195, 125, 0.85); }
+    32%, 100%{ transform: translateY(0); background-color: transparent; }
+  }
+
+  @keyframes step1RClickLabelPop {
+    0%, 18%  { opacity: 0.6; transform: scale(0.92); }
+    21%, 29% { opacity: 1; transform: scale(1.06); box-shadow: 0 0 14px rgba(25, 195, 125, 0.9); }
+    32%, 100%{ opacity: 0.6; transform: scale(0.92); }
+  }
+
+  @keyframes step1ContextMenuShow {
+    0%, 33%  { opacity: 0; transform: scale(0.92) translateY(4px); pointer-events: none; }
+    36%, 58% { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+    60%, 100%{ opacity: 0; transform: scale(0.96); pointer-events: none; }
+  }
+
+  @keyframes step1OpenWithHighlight {
+    0%, 36%  { background-color: transparent; color: rgba(255,255,255,0.7); }
+    39%, 58% { background-color: #19C37D; color: #132A22; }
+    60%, 100%{ background-color: transparent; }
+  }
+
+  @keyframes step1SubmenuShow {
+    0%, 43%  { opacity: 0; transform: scale(0.92) translateY(4px); pointer-events: none; }
+    46%, 58% { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+    60%, 100%{ opacity: 0; transform: scale(0.96); pointer-events: none; }
+  }
+
+  @keyframes step1NotepadHighlight {
+    0%, 47%  { background-color: transparent; color: rgba(255,255,255,0.8); }
+    50%, 58% { background-color: #19C37D; color: #132A22; }
+    60%, 100%{ background-color: transparent; }
+  }
+
+  @keyframes step1EditorBloom {
+    0%, 60%  { opacity: 0; transform: scale(0.94) translateY(6px); pointer-events: none; }
+    64%, 94% { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+    97%, 100%{ opacity: 0; transform: scale(0.98); pointer-events: none; }
+  }
+
+  .anim-cursor-step1 {
+    animation: step1CursorSequence 8.0s ease-in-out infinite;
+  }
+  .anim-click-ripple-step1 {
+    animation: clickRippleStep1 8.0s ease-out infinite;
+  }
+  .anim-mouse-hardware {
+    animation: step1MouseHardwareFade 8.0s ease-in-out infinite;
+  }
+  .anim-rclick-btn {
+    animation: step1WhiteMouseRClickPress 8.0s ease-in-out infinite;
+  }
+  .anim-rclick-label {
+    animation: step1RClickLabelPop 8.0s ease-in-out infinite;
+  }
+  .anim-context-menu {
+    animation: step1ContextMenuShow 8.0s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+  .anim-context-item-openwith {
+    animation: step1OpenWithHighlight 8.0s ease-in-out infinite;
+  }
+  .anim-editors-submenu {
+    animation: step1SubmenuShow 8.0s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+  .anim-submenu-item-notepad {
+    animation: step1NotepadHighlight 8.0s ease-in-out infinite;
+  }
+  .anim-editor-bloom {
+    animation: step1EditorBloom 8.0s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+
+  /* File selection highlight on desktop (Step 1) */
+  @keyframes fileSelectionCycle {
+    0%, 19% {
+      border-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    21%, 58% {
+      border-color: rgba(25, 195, 125, 0.75);
+      background-color: rgba(25, 195, 125, 0.16);
+      box-shadow: 0 0 0 1px rgba(25, 195, 125, 0.4), 0 0 16px rgba(25, 195, 125, 0.3);
+    }
+    60%, 100% {
+      border-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .anim-file-select {
+    animation: fileSelectionCycle 8.0s ease-in-out infinite;
+  }
+
+  /* STEP 2: SEARCH SEQUENCE (8.0s MASTER CYCLE) */
+  /* Sequence:
+     0% - 15%: Keys Ctrl+F / Cmd+F appear and press down.
+     16% - 22%: Keys fade out. Search box appears.
+     24% - 50%: Phone number is typed into search box char-by-char.
+     52%: "1 совпадение" badge pops in.
+     59% - 68%: Code track scrolls down to line 14.
+     68% - 94%: Target line glows with green highlight and "← найдено!".
+     96% - 100%: Smooth reset for loop.
+  */
+
+  @keyframes keysAppearPressFadeCycle {
+    0%        { opacity: 0; transform: translateY(12px) scale(0.92); }
+    5%, 15%   { opacity: 1; transform: translateY(0) scale(1); }
+    22%, 100% { opacity: 0; transform: translateY(-8px) scale(0.95); pointer-events: none; }
+  }
+
+  /* DEEP TACTILE KEY PRESS FOR STEP 2 (SEARCH) */
+  @keyframes keyPressSearchCycle {
+    0%, 7% {
+      transform: translateY(0);
+      border-bottom-width: 3px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+    }
+    9%, 16% {
+      transform: translateY(4px) scale(0.96);
+      background-color: #19C37D;
+      color: #081d14;
+      border-bottom-width: 0px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 20px rgba(25, 195, 125, 0.85);
+    }
+    19%, 100% {
+      transform: translateY(0);
+      border-bottom-width: 3px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+    }
+  }
+
+  .anim-keys-appear-fade {
+    animation: keysAppearPressFadeCycle 8.0s ease-in-out infinite;
+  }
+  .anim-key-press-search {
+    animation: keyPressSearchCycle 8.0s ease-in-out infinite;
+  }
+  .anim-key-press-search-delayed {
+    animation: keyPressSearchCycle 8.0s ease-in-out 0.08s infinite;
+  }
+
+  @keyframes searchBoxFade {
+    0%, 20%   { opacity: 0; transform: translateY(-8px) scale(0.95); pointer-events: none; }
+    24%, 68%  { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+    74%, 100% { opacity: 0; transform: translateY(-6px) scale(0.96); pointer-events: none; }
+  }
+
+  .anim-search-box {
+    animation: searchBoxFade 8.0s ease-in-out infinite;
+  }
+
+  @keyframes searchFoundBadgePop {
+    0%, 53%   { opacity: 0; transform: scale(0.75); }
+    56%, 68%  { opacity: 1; transform: scale(1); }
+    74%, 100% { opacity: 0; transform: scale(0.75); }
+  }
+
+  .anim-search-found-badge {
+    animation: searchFoundBadgePop 8.0s ease-out infinite;
+  }
+
+  @keyframes codeScrollTrack {
+    0%, 59%   { transform: translateY(0); }
+    67%, 93%  { transform: translateY(-118px); }
+    97%, 100% { transform: translateY(0); }
+  }
+
+  .code-track-scroll {
+    animation: codeScrollTrack 8.0s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  }
+
+  @keyframes lineGlow {
+    0%, 66%   { background-color: transparent; }
+    70%, 93%  { background-color: rgba(25, 195, 125, 0.28); border-left: 4px solid #19C37D; }
+    97%, 100% { background-color: transparent; }
+  }
+
+  .anim-highlight-line {
+    animation: lineGlow 8.0s ease-in-out infinite;
+  }
+
+  /* STEP 3: REPLACE & SAVE SEQUENCE (8.0s MASTER CYCLE) */
+  /* Sequence:
+     0% - 10%: Initial state.
+     10% - 22%: Erases old number char-by-char.
+     22% - 42%: Types new phone number (+7 999 555-44-33).
+     44%: Badge "✓ ввели новый номер!" pops in.
+     47% - 58%: Keys Ctrl+S / Cmd+S appear and press down.
+     60% - 66%: Keys fade out.
+     67% - 94%: Save confirmation badge pops up in top-right corner of code window.
+     96% - 100%: Smooth reset for loop.
+  */
+
+  @keyframes step3BadgePop {
+    0%, 43%  { opacity: 0; transform: scale(0.8); }
+    46%, 93% { opacity: 1; transform: scale(1); }
+    97%, 100%{ opacity: 0; }
+  }
+
+  .anim-step3-badge {
+    animation: step3BadgePop 8.0s ease-out infinite;
+  }
+
+  @keyframes keysSaveCycle {
+    0%, 45%   { opacity: 0; transform: translateY(12px) scale(0.92); pointer-events: none; }
+    48%, 59%  { opacity: 1; transform: translateY(0) scale(1); }
+    63%, 100% { opacity: 0; transform: translateY(-8px) scale(0.95); pointer-events: none; }
+  }
+
+  .anim-keys-save-cycle {
+    animation: keysSaveCycle 8.0s ease-in-out infinite;
+  }
+
+  /* DEEP TACTILE KEY PRESS FOR STEP 3 (SAVE) */
+  @keyframes keyPressSaveCycle {
+    0%, 50% {
+      transform: translateY(0);
+      border-bottom-width: 3px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+    }
+    52%, 58% {
+      transform: translateY(4px) scale(0.96);
+      background-color: #19C37D;
+      color: #081d14;
+      border-bottom-width: 0px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 20px rgba(25, 195, 125, 0.85);
+    }
+    61%, 100% {
+      transform: translateY(0);
+      border-bottom-width: 3px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+    }
+  }
+
+  .anim-key-press-save {
+    animation: keyPressSaveCycle 8.0s ease-in-out infinite;
+  }
+  .anim-key-press-save-delayed {
+    animation: keyPressSaveCycle 8.0s ease-in-out 0.08s infinite;
+  }
+
+  @keyframes saveCornerBadgePop {
+    0%, 64%  { opacity: 0; transform: translateY(-6px) scale(0.9); pointer-events: none; }
+    68%, 93% { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+    97%, 100%{ opacity: 0; transform: translateY(-4px) scale(0.95); pointer-events: none; }
+  }
+
+  .anim-save-corner {
+    animation: saveCornerBadgePop 8.0s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+
+  /* STEP 4: REFRESH SPIN & REALISTIC 3D BUSINESS CARD FLOAT & GLOW */
+  @keyframes refreshSpin {
+    0%, 20%  { transform: rotate(0deg); }
+    35%, 60% { transform: rotate(360deg); }
+    100%     { transform: rotate(360deg); }
+  }
+  .anim-refresh-spin {
+    display: inline-block;
+    animation: refreshSpin 3.5s ease-in-out infinite;
+  }
+
+  @keyframes card3DFloat {
+    0%, 100% {
+      transform: perspective(900px) rotateX(12deg) rotateY(-12deg) rotateZ(1deg) translateY(0px);
+    }
+    50% {
+      transform: perspective(900px) rotateX(16deg) rotateY(-7deg) rotateZ(2deg) translateY(-8px);
+    }
+  }
+
+  .anim-3d-card {
+    animation: card3DFloat 5.0s ease-in-out infinite;
+    transform-style: preserve-3d;
+  }
+
+  @keyframes cardShineSweep {
+    0%, 15%   { transform: translateX(-150%) skewX(-20deg); opacity: 0; }
+    22%       { opacity: 0.45; }
+    35%, 100% { transform: translateX(350%) skewX(-20deg); opacity: 0; }
+  }
+
+  .anim-card-shine {
+    animation: cardShineSweep 6.0s ease-in-out infinite;
+  }
+
+  @keyframes phoneUpdatedGlow {
+    0%, 20% {
+      box-shadow: 0 0 0 rgba(25, 195, 125, 0);
+      border-color: rgba(25, 195, 125, 0.4);
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+    30%, 80% {
+      box-shadow: 0 0 20px rgba(25, 195, 125, 0.6), inset 0 0 10px rgba(25, 195, 125, 0.25);
+      border-color: #19C37D;
+      background-color: rgba(25, 195, 125, 0.18);
+    }
+    90%, 100% {
+      box-shadow: 0 0 0 rgba(25, 195, 125, 0);
+      border-color: rgba(25, 195, 125, 0.4);
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  .anim-phone-highlight {
+    animation: phoneUpdatedGlow 4.0s ease-in-out infinite;
+  }
+
+  /* STEP 5: 3D VOXEL SCANNER & MISMATCH SIMULATION */
+  @keyframes scannerLaser {
+    0%, 100% { transform: translateY(-38px); opacity: 0.35; }
+    50%      { transform: translateY(38px); opacity: 1; }
+  }
+  .anim-scanner-laser {
+    animation: scannerLaser 2.2s ease-in-out infinite;
+  }
+
+  @keyframes scanReadoutPulse {
+    0%, 25%   { opacity: 0; transform: translateY(8px) scale(0.95); }
+    35%, 85%  { opacity: 1; transform: translateY(0) scale(1); }
+    95%, 100% { opacity: 0; transform: translateY(6px) scale(0.96); }
+  }
+  .anim-scan-readout {
+    animation: scanReadoutPulse 5.0s ease-in-out infinite;
+  }
+
+  @keyframes voxelFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-4px) scale(1.02); }
+  }
+  .anim-voxel-pulse {
+    animation: voxelFloat 3.5s ease-in-out infinite;
+  }
+
+  /* CMS SIMULATOR ANIMATIONS */
+  @keyframes cmsCursorClick {
+    0%, 20%  { transform: translate(14px, 14px) scale(1); }
+    35%, 45% { transform: translate(0px, 0px) scale(0.92); }
+    55%, 100%{ transform: translate(14px, 14px) scale(1); }
+  }
+  .anim-cms-cursor {
+    animation: cmsCursorClick 3.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+
+  @keyframes cmsPulseGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(25, 195, 125, 0); }
+    50%      { box-shadow: 0 0 16px 2px rgba(25, 195, 125, 0.6); }
+  }
+  .anim-cms-glow {
+    animation: cmsPulseGlow 2.5s ease-in-out infinite;
+  }
+
+  @keyframes cmsFloatCard {
+    0%, 100% {
+      transform: perspective(700px) rotateX(10deg) rotateY(-10deg) translateY(0);
+    }
+    50% {
+      transform: perspective(700px) rotateX(14deg) rotateY(-5deg) translateY(-6px);
+    }
+  }
+  .anim-cms-float {
+    animation: cmsFloatCard 4.5s ease-in-out infinite;
+    transform-style: preserve-3d;
+  }
+</style>
+
+<script>
+  import { CMS_GUIDES } from '../engine/cmsGuides';
+  import castleSnippet from '../embed/castleSnippet.txt?raw';
+
+  // STEPPER DATA & TEXTS
+  const STEPS = [
+    {
+      num: 1,
+      title: 'Шаг 1: Открытие файла в любом редакторе',
+      text: 'Кликните правой кнопкой мыши по файлу эффекта (или коду в CMS) и откройте его в Блокноте (Notepad), TextEdit, VS Code, Sublime Text или любом другом редакторе.',
+      badge: 'Шаг 1 из 5',
+    },
+    {
+      num: 2,
+      title: 'Шаг 2: Нажатие Ctrl + F (Cmd + F) и поиск нужной строки',
+      text: 'Сочетание клавиш Ctrl+F (или Cmd+F на Mac) мгновенно открывает строку поиска в редакторе. Введите старый номер телефона или текст — редактор автоматически пролистает код вниз и подсветит нужную строку.',
+      badge: 'Шаг 2 из 5',
+    },
+    {
+      num: 3,
+      title: 'Шаг 3: Замена текста в кавычках и сохранение (Ctrl + S / Cmd + S)',
+      text: 'Сотрите старый номер внутри одинарных кавычек и впишите свой. Затем нажмите сочетание клавиш Ctrl+S (Cmd+S на Mac) для сохранения файла. Главное: одинарные кавычки \'...\' и запятую в конце не удаляйте!',
+      badge: 'Шаг 3 из 5',
+    },
+    {
+      num: 4,
+      title: 'Шаг 4: Готовый результат на вашем сайте',
+      text: 'Обновите страницу сайта в браузере (F5): 3D-сцена сразу отображает новые контактные данные без перезагрузок и повторной покупки.',
+      badge: 'Шаг 4 из 5',
+    },
+    {
+      num: 5,
+      title: 'Шаг 5: Почему нельзя менять ссылку QR-кода вручную',
+      text: '3D-кубики QR-кода генерируются сервером под конкретную ссылку. Если заменить ссылку в текстовом файле, кубики не перестроятся, и камера откроет старый сайт!',
+      badge: 'Шаг 5 из 5',
+    },
+  ];
+
+  function initGuidePage() {
+    if (!document.getElementById('guide-step-tabs')) return;
+
+    let currentStep = 1;
+  const tabBtns = document.querySelectorAll('#guide-step-tabs button[data-step]');
+  const stages = document.querySelectorAll('.guide-stage');
+  const playerTitle = document.getElementById('player-title');
+  const playerBadge = document.getElementById('player-badge');
+  const descTitle = document.getElementById('step-desc-title');
+  const descText = document.getElementById('step-desc-text');
+  const stepCounter = document.getElementById('step-counter');
+  const btnPrev = document.getElementById('btn-prev-step') as HTMLButtonElement | null;
+  const btnNext = document.getElementById('btn-next-step') as HTMLButtonElement | null;
+
+  const CYCLE_MS = 8000;
+  let stepStartTime = performance.now();
+
+  function setStep(stepNum: number) {
+    if (stepNum < 1) stepNum = 1;
+    if (stepNum > STEPS.length) stepNum = STEPS.length;
+    currentStep = stepNum;
+    stepStartTime = performance.now();
+
+    const data = STEPS[stepNum - 1];
+
+    // Update buttons (grid-friendly, never triggering horizontal scrollbars)
+    tabBtns.forEach((btn) => {
+      const s = Number((btn as HTMLElement).dataset.step);
+      const isColSpan = s === 5 ? ' col-span-2 sm:col-span-1' : '';
+      const baseBtnClass = `h-10 px-2 sm:px-2.5 rounded-xl text-[11px] sm:text-[12px] transition-all cursor-pointer flex items-center justify-center gap-1.5 w-full text-center${isColSpan}`;
+      const badge = btn.querySelector('.step-num-badge');
+
+      if (s === stepNum) {
+        if (s === 5) {
+          btn.className = `${baseBtnClass} font-black bg-[#e11d48] text-white shadow-xs`;
+          if (badge) badge.className = 'step-num-badge w-5 h-5 rounded-full bg-white text-[#e11d48] text-[10px] flex items-center justify-center font-black shrink-0';
+        } else {
+          btn.className = `${baseBtnClass} font-black bg-[#19C37D] text-[#132A22] shadow-xs`;
+          if (badge) badge.className = 'step-num-badge w-5 h-5 rounded-full bg-[#132A22] text-white text-[10px] flex items-center justify-center font-black shrink-0';
+        }
+      } else {
+        if (s === 5) {
+          btn.className = `${baseBtnClass} font-extrabold bg-[#fff1f2] hover:bg-[#ffe4e6] text-[#e11d48]`;
+          if (badge) badge.className = 'step-num-badge w-5 h-5 rounded-full bg-[#f43f5e] text-white text-[10px] flex items-center justify-center font-black shrink-0';
+        } else {
+          btn.className = `${baseBtnClass} font-extrabold bg-[#f6f3ee] hover:bg-[#eee9df] text-[#78716c]`;
+          if (badge) badge.className = 'step-num-badge w-5 h-5 rounded-full bg-[#d6cfc3] text-[#132A22] text-[10px] flex items-center justify-center font-black shrink-0';
+        }
+      }
+    });
+
+    // Update stages & sync CSS animations to start from t=0
+    stages.forEach((stage) => {
+      const s = Number((stage as HTMLElement).dataset.stage);
+      const isTarget = s === stepNum;
+      stage.classList.toggle('hidden', !isTarget);
+      if (isTarget) {
+        const animEls = stage.querySelectorAll<HTMLElement>('[class*="anim-"], .code-track-scroll');
+        animEls.forEach((el) => {
+          el.style.animation = 'none';
+          void el.offsetHeight; // trigger reflow
+          el.style.animation = '';
+        });
+      }
+    });
+
+    // OS Switcher visibility: ONLY on steps 2 and 3 (keeps reserved slot on steps 1, 4, 5 to prevent horizontal movement)
+    const osSwitcher = document.getElementById('os-switcher');
+    if (osSwitcher) {
+      const showOs = (stepNum === 2 || stepNum === 3);
+      if (showOs) {
+        osSwitcher.classList.remove('invisible', 'opacity-0', 'pointer-events-none');
+        osSwitcher.classList.add('opacity-100', 'pointer-events-auto');
+      } else {
+        osSwitcher.classList.add('invisible', 'opacity-0', 'pointer-events-none');
+        osSwitcher.classList.remove('opacity-100', 'pointer-events-auto');
+      }
+    }
+
+    // Texts
+    if (playerTitle) playerTitle.textContent = data.title;
+    if (playerBadge) playerBadge.textContent = data.badge;
+    if (descTitle) descTitle.textContent = data.title;
+    if (descText) descText.textContent = data.text;
+    if (stepCounter) stepCounter.textContent = `${stepNum} / ${STEPS.length}`;
+
+    if (btnPrev) btnPrev.disabled = stepNum === 1;
+    if (btnNext) btnNext.textContent = stepNum === STEPS.length ? 'В начало ↺' : 'Далее →';
+  }
+
+  tabBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const s = Number((btn as HTMLElement).dataset.step);
+      setStep(s);
+    });
+  });
+
+  btnPrev?.addEventListener('click', () => setStep(currentStep - 1));
+  btnNext?.addEventListener('click', () => {
+    if (currentStep === STEPS.length) {
+      setStep(1);
+    } else {
+      setStep(currentStep + 1);
+    }
+  });
+
+  // SYNCHRONIZED AUTO-TYPE ANIMATIONS (8000ms cycle)
+  const typeSearchEl = document.querySelector('.anim-type-search');
+  const typeNewPhoneEl = document.querySelector('.anim-typed-new-phone');
+
+  const searchTarget = '+7 900 123-45-67';
+  const newPhoneTarget = '+7 999 555-44-33';
+
+  function animateTyping(now: number) {
+    if (!document.getElementById('guide-step-tabs')) return;
+    const elapsed = (now - stepStartTime) % CYCLE_MS;
+
+    // STEP 2: SEARCH TYPING (Starts at 2200ms after keys press & box appearance, finishes at 4200ms)
+    if (typeSearchEl) {
+      if (elapsed < 2200) {
+        typeSearchEl.textContent = '';
+      } else if (elapsed >= 2200 && elapsed < 4200) {
+        const progress = (elapsed - 2200) / (4200 - 2200);
+        const chars = Math.floor(progress * searchTarget.length);
+        typeSearchEl.textContent = searchTarget.slice(0, chars) + '▌';
+      } else if (elapsed >= 4200 && elapsed < 7500) {
+        typeSearchEl.textContent = searchTarget;
+      } else {
+        typeSearchEl.textContent = '';
+      }
+    }
+
+    // STEP 3: NEW NUMBER TYPING (Erases from 800ms-1800ms, types new from 1800ms-3400ms)
+    if (typeNewPhoneEl) {
+      if (elapsed < 800) {
+        typeNewPhoneEl.textContent = searchTarget;
+      } else if (elapsed >= 800 && elapsed < 1800) {
+        const progress = (elapsed - 800) / (1800 - 800);
+        const charsRemaining = Math.max(0, Math.floor((1 - progress) * searchTarget.length));
+        typeNewPhoneEl.textContent = searchTarget.slice(0, charsRemaining) + '▌';
+      } else if (elapsed >= 1800 && elapsed < 3400) {
+        const progress = (elapsed - 1800) / (3400 - 1800);
+        const chars = Math.floor(progress * newPhoneTarget.length);
+        typeNewPhoneEl.textContent = newPhoneTarget.slice(0, chars) + '▌';
+      } else if (elapsed >= 3400 && elapsed < 7400) {
+        typeNewPhoneEl.textContent = newPhoneTarget;
+      } else {
+        typeNewPhoneEl.textContent = searchTarget;
+      }
+    }
+
+    requestAnimationFrame(animateTyping);
+  }
+
+  requestAnimationFrame(animateTyping);
+
+  // OS SWITCHER LOGIC (Windows / Linux & macOS)
+  const osBtns = document.querySelectorAll('#os-switcher button[data-os]');
+  let currentOS = 'pc';
+
+  function setOS(os: string) {
+    currentOS = os;
+    osBtns.forEach((btn) => {
+      const isTarget = (btn as HTMLElement).dataset.os === os;
+      if (isTarget) {
+        btn.className = 'os-tab-btn active px-3 py-1 rounded-lg transition-all flex items-center gap-1.5 bg-[#19C37D] text-[#132A22] font-black shadow-xs cursor-pointer';
+      } else {
+        btn.className = 'os-tab-btn px-3 py-1 rounded-lg transition-all flex items-center gap-1.5 text-white/70 hover:text-white font-semibold cursor-pointer';
+      }
+    });
+
+    const isMac = os === 'mac';
+    const firstKeyText = isMac ? 'Cmd ⌘' : 'Ctrl';
+    const osLabelText = isMac ? 'для macOS' : 'для Windows / Linux';
+
+    const step2Key = document.querySelector('.step2-first-key');
+    const step2Label = document.querySelector('.step2-os-label');
+    if (step2Key) step2Key.textContent = firstKeyText;
+    if (step2Label) step2Label.textContent = osLabelText;
+
+    const step3Key = document.querySelector('.step3-first-key');
+    const step3Label = document.querySelector('.step3-os-label');
+    if (step3Key) step3Key.textContent = firstKeyText;
+    if (step3Label) step3Label.textContent = osLabelText;
+  }
+
+  osBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const os = (btn as HTMLElement).dataset.os;
+      if (os) setOS(os);
+    });
+  });
+
+  // ==========================================
+  // CMS INTERACTIVE SIMULATOR CONTROLLER
+  // ==========================================
+  let currentCms = 'tilda';
+  let currentCmsStep = 1;
+
+  const cmsTabs = document.querySelectorAll<HTMLButtonElement>('#cms-tabs button[data-cms]');
+  const cmsStepTabs = document.querySelectorAll<HTMLButtonElement>('#cms-step-tabs button[data-cms-step]');
+
+  const cmsPlayerPlatformPill = document.getElementById('cms-player-platform-pill');
+  const cmsPlayerPlatformDot = document.getElementById('cms-player-platform-dot');
+  const cmsPlayerPlatformName = document.getElementById('cms-player-platform-name');
+  const cmsPlayerHeaderTitle = document.getElementById('cms-player-header-title');
+
+  const cmsInfoBadge = document.getElementById('cms-info-badge');
+  const cmsInfoTitle = document.getElementById('cms-info-title');
+  const cmsInfoDesc = document.getElementById('cms-info-desc');
+  const cmsInfoTip = document.getElementById('cms-info-tip');
+  const cmsStepCounter = document.getElementById('cms-step-counter');
+
+  const cmsPrevBtn = document.getElementById('cms-prev-btn') as HTMLButtonElement | null;
+  const cmsNextBtn = document.getElementById('cms-next-btn') as HTMLButtonElement | null;
+  const cmsCopyTestBtn = document.getElementById('cms-copy-test-btn');
+  const cmsCopyBtnText = document.getElementById('cms-copy-btn-text');
+  const cmsVisualStage = document.getElementById('cms-visual-stage');
+
+  function renderCmsVisualStage(cmsId: string, stepNum: number) {
+    if (!cmsVisualStage) return;
+    const guide = CMS_GUIDES[cmsId] || CMS_GUIDES.tilda;
+    const step = guide.steps[stepNum - 1] || guide.steps[0];
+    const brand = guide.brandColor;
+
+    if (stepNum === 1) {
+      cmsVisualStage.innerHTML = `
+        <div class="px-3.5 py-2 bg-[#0d1813] border-b border-[#1b382b] flex items-center justify-between text-[11px] text-white/60">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full" style="background-color: ${brand};"></span>
+            <span class="font-mono text-white/80">${guide.name} • Редактор</span>
+          </div>
+          <div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-white/5 text-[10px] text-white/50">
+            <span>Библиотека элементов</span>
+          </div>
+        </div>
+        <div class="flex-1 p-3.5 grid grid-cols-12 gap-3 items-stretch overflow-hidden">
+          <div class="col-span-5 rounded-lg bg-[#111f18] border border-[#1f4030] p-2 flex flex-col justify-between text-[11px]">
+            <div>
+              <div class="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1.5 px-1">Категории</div>
+              <div class="space-y-1">
+                <div class="px-2 py-1 rounded text-white/40">Обложка / Hero</div>
+                <div class="px-2 py-1 rounded text-white/40">О проекте</div>
+                <div class="px-2 py-1 rounded text-white/40">Колонки и сетка</div>
+                <div class="relative px-2 py-1.5 rounded bg-[#162e22] border text-white font-bold flex items-center justify-between" style="border-color: ${brand};">
+                  <span class="truncate">${step.mockBadge}</span>
+                  <span class="w-1.5 h-1.5 rounded-full" style="background-color: ${brand};"></span>
+                  <div class="absolute -right-2 -bottom-2 z-10 anim-cms-cursor pointer-events-none">
+                    <svg class="w-5 h-5 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M4 0l16 12.279-6.951 1.17 4.325 8.817-3.596 1.734-4.35-8.879-5.428 5.428z"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-[#1b382b]">
+              <button type="button" class="w-full py-1.5 rounded text-[11px] font-bold text-center text-white cursor-pointer" style="background-color: ${brand};">
+                ${step.mockButton}
+              </button>
+            </div>
+          </div>
+          <div class="col-span-7 rounded-lg border-2 border-dashed border-[#234d3a] bg-[#0c1611] p-3 flex flex-col items-center justify-center text-center">
+            <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 mb-2">
+              <svg class="w-5 h-5 text-[#19C37D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </div>
+            <div class="text-[12px] font-bold text-white">${step.mockHeadline}</div>
+            <div class="mt-1 text-[11px] text-white/50 max-w-[200px] leading-tight">${step.mockSub}</div>
+            <span class="mt-2.5 px-2 py-0.5 rounded bg-[#19C37D]/20 text-[#19C37D] text-[10px] font-bold">
+              Выбранная позиция на странице
+            </span>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    if (stepNum === 2) {
+      cmsVisualStage.innerHTML = `
+        <div class="px-3.5 py-2 bg-[#0d1813] border-b border-[#1b382b] flex items-center justify-between text-[11px] text-white/60">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full" style="background-color: ${brand};"></span>
+            <span class="font-mono text-white/80">${guide.name} • Холст страницы</span>
+          </div>
+          <div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-white/5 text-[10px] text-white/50">
+            <span>Режим редактирования</span>
+          </div>
+        </div>
+        <div class="flex-1 p-3.5 flex flex-col justify-between overflow-hidden">
+          <div class="p-2.5 rounded-lg bg-[#111f18] border border-[#1f4030] flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-[10.5px] font-black text-white" style="background-color: ${brand};">
+                ${guide.iconLabel}
+              </span>
+              <span class="text-[12px] font-bold text-white">${step.mockHeadline}</span>
+            </div>
+            <span class="text-[11px] text-white/40 font-mono">${step.mockSub}</span>
+          </div>
+          <div class="my-2 p-3.5 rounded-xl bg-[#0e1c15] border-2 border-[#19C37D]/40 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2 pb-2 border-b border-white/10">
+              <span class="text-[11px] font-bold text-[#86efac] flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#19C37D]"></span>
+                <span>${step.mockBadge}</span>
+              </span>
+              <div class="relative">
+                <button type="button" class="px-3 py-1 rounded text-[11px] font-black text-white anim-cms-glow cursor-pointer" style="background-color: ${brand};">
+                  ${step.mockButton}
+                </button>
+                <div class="absolute -right-2 -bottom-2 z-10 anim-cms-cursor pointer-events-none">
+                  <svg class="w-5 h-5 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M4 0l16 12.279-6.951 1.17 4.325 8.817-3.596 1.734-4.35-8.879-5.428 5.428z"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="py-4 text-center">
+              <div class="text-[12px] font-bold text-white/80">Блок готов к вставке 3D-скрипта</div>
+              <div class="mt-1 text-[11px] text-white/50">Нажмите кнопку «${step.mockButton}» для открытия поля HTML</div>
+            </div>
+          </div>
+          <div class="p-2 rounded-lg bg-[#0a1410] border border-[#1b382b] flex items-center justify-between text-[11px] text-white/60">
+            <span>Статус: блок активен</span>
+            <span class="text-[#19C37D] font-bold">Ожидает добавления кода →</span>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    if (stepNum === 3) {
+      cmsVisualStage.innerHTML = `
+        <div class="px-3.5 py-2 bg-[#0d1813] border-b border-[#1b382b] flex items-center justify-between text-[11px] text-white/60">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full" style="background-color: ${brand};"></span>
+            <span class="font-mono text-white/80">${step.mockHeadline}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-[#19C37D] text-[10px] font-bold">
+              ${step.mockBadge}
+            </span>
+            <span class="text-white/40 hover:text-white cursor-pointer">✕</span>
+          </div>
+        </div>
+        <div class="flex-1 p-3 flex flex-col justify-between bg-[#08100c] overflow-hidden">
+          <div class="p-3 rounded-lg bg-[#050b08] border border-[#183628] font-mono text-[11px] sm:text-[11.5px] leading-relaxed select-text overflow-hidden">
+            <div class="text-white/40 mb-1">// Вставка автономного 3D-кода Gridika:</div>
+            <div class="flex items-start gap-2">
+              <span class="text-white/30 select-none">1</span>
+              <span class="text-[#f59e0b]">&lt;<span class="text-[#ef4444]">div</span> <span class="text-[#38bdf8]">id</span>=<span class="text-[#86efac]">"gridika-widget"</span>&gt;&lt;/<span class="text-[#ef4444]">div</span>&gt;</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-white/30 select-none">2</span>
+              <span class="text-[#f59e0b]">&lt;<span class="text-[#ef4444]">script</span> <span class="text-[#38bdf8]">src</span>=<span class="text-[#86efac]">"https://cdnjs.cloudflare.com/.../three.min.js"</span>&gt;&lt;/<span class="text-[#ef4444]">script</span>&gt;</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-white/30 select-none">3</span>
+              <span class="text-[#f59e0b]">&lt;<span class="text-[#ef4444]">script</span>&gt;<span class="text-white/50">/* 3D-сцена инициализируется сама */</span>&lt;/<span class="text-[#ef4444]">script</span>&gt;</span>
+            </div>
+          </div>
+          <div class="mt-2.5 pt-2 border-t border-[#183628] flex items-center justify-between">
+            <div class="text-[11px] text-white/50 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-[#19C37D]"></span>
+              <span>Код валиден • Ready</span>
+            </div>
+            <div class="relative">
+              <button type="button" class="px-4 py-1.5 rounded-lg text-[11.5px] font-black text-white anim-cms-glow shadow-md cursor-pointer" style="background-color: ${brand};">
+                ${step.mockButton}
+              </button>
+              <div class="absolute -right-2 -bottom-2 z-10 anim-cms-cursor pointer-events-none">
+                <svg class="w-5 h-5 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M4 0l16 12.279-6.951 1.17 4.325 8.817-3.596 1.734-4.35-8.879-5.428 5.428z"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    // STEP 4: PUBLISHED RESULT
+    const cleanBadge = (step.mockBadge || '').replace(/^[✓✔\s]+/, '');
+    cmsVisualStage.innerHTML = `
+      <div class="px-3.5 py-2 bg-[#0d1813] border-b border-[#1b382b] flex items-center justify-between text-[11px] text-white/60">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-[#10b981]"></span>
+          <span class="font-mono text-white/80">https://vash-sait.ru</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-emerald-500/20 text-[#19C37D] text-[10.5px] font-bold">
+          <span>✓ ${cleanBadge}</span>
+        </div>
+      </div>
+      <div class="flex-1 p-3.5 flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-b from-[#0a1711] to-[#040806]">
+        <div class="anim-cms-float relative w-56 sm:w-60 h-32 sm:h-34 rounded-2xl bg-gradient-to-br from-[#1b3f30] via-[#12281e] to-[#0a1610] border border-[#19C37D]/50 shadow-[0_14px_34px_rgba(25,195,125,0.28)] flex flex-col justify-between p-3.5 overflow-hidden">
+          <div class="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] anim-card-shine pointer-events-none"></div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-[#19C37D]"></span>
+              <span class="text-[10.5px] font-black tracking-wider uppercase text-[#19C37D]">Gridika 3D</span>
+            </div>
+            <span class="text-[9.5px] px-2 py-0.5 rounded-full bg-white/10 text-white/80 font-mono font-bold">LIVE</span>
+          </div>
+          <div class="my-auto text-center py-0.5">
+            <div class="text-[13.5px] sm:text-[14px] font-black text-white tracking-wide">3D-ВИДЖЕТ АКТИВЕН</div>
+            <div class="text-[10.5px] text-[#86efac] font-medium mt-0.5">WebGL • 60 FPS • Интерактив</div>
+          </div>
+          <div class="flex items-center justify-between text-[9.5px] sm:text-[10px] text-white/60 border-t border-white/10 pt-1.5 whitespace-nowrap">
+            <span>Онлайн на сайте</span>
+            <span class="text-[#19C37D] font-bold">✓ Работает</span>
+          </div>
+        </div>
+        <div class="mt-3 px-3.5 py-1.5 rounded-full bg-[#19C37D]/15 border border-[#19C37D]/30 text-[11px] sm:text-[11.5px] font-bold text-[#86efac] flex items-center gap-1.5 max-w-[92%]">
+          <svg class="w-3.5 h-3.5 text-[#19C37D] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span class="truncate">${step.title}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function updateCmsUI() {
+    const guide = CMS_GUIDES[currentCms] || CMS_GUIDES.tilda;
+    const step = guide.steps[currentCmsStep - 1] || guide.steps[0];
+
+    // CMS Tabs
+    cmsTabs.forEach((btn) => {
+      const c = btn.dataset.cms;
+      if (c === currentCms) {
+        btn.className = 'h-10 px-4 rounded-xl text-[12.5px] font-black transition-all cursor-pointer bg-[#132A22] text-[#19C37D] shadow-sm flex items-center gap-2';
+      } else {
+        btn.className = 'h-10 px-4 rounded-xl text-[12.5px] font-bold transition-all cursor-pointer bg-white hover:bg-[#f6f3ee] text-[#132A22] border border-[#e5dfd2] flex items-center gap-2';
+      }
+    });
+
+    // Step Tabs
+    cmsStepTabs.forEach((btn, idx) => {
+      const s = Number(btn.dataset.cmsStep);
+      const isTarget = s === currentCmsStep;
+      const stepData = guide.steps[idx];
+      const label = btn.querySelector('.cms-step-tab-label');
+      const badge = btn.querySelector('.cms-step-badge');
+      if (label && stepData) label.textContent = stepData.shortTab;
+
+      if (isTarget) {
+        btn.className = 'h-10 px-3 rounded-xl text-[11.5px] sm:text-[12.5px] font-black transition-all cursor-pointer bg-[#19C37D] text-[#132A22] shadow-xs flex items-center justify-center gap-2 w-full text-center';
+        if (badge) badge.className = 'cms-step-badge w-5 h-5 rounded-full bg-[#132A22] text-white text-[10px] flex items-center justify-center font-black shrink-0';
+      } else {
+        btn.className = 'h-10 px-3 rounded-xl text-[11.5px] sm:text-[12.5px] font-extrabold transition-all cursor-pointer bg-[#f6f3ee] hover:bg-[#eee9df] text-[#78716c] flex items-center justify-center gap-2 w-full text-center';
+        if (badge) badge.className = 'cms-step-badge w-5 h-5 rounded-full bg-[#d6cfc3] text-[#132A22] text-[10px] flex items-center justify-center font-black shrink-0';
+      }
+    });
+
+    // Player Header
+    if (cmsPlayerPlatformPill) {
+      cmsPlayerPlatformPill.className = `px-2.5 py-0.5 rounded-md ${guide.iconBg} ${guide.iconColor} font-black text-[11px] flex items-center gap-1.5 shrink-0`;
+    }
+    if (cmsPlayerPlatformDot) {
+      cmsPlayerPlatformDot.style.backgroundColor = guide.brandColor;
+    }
+    if (cmsPlayerPlatformName) {
+      cmsPlayerPlatformName.textContent = guide.name;
+    }
+    if (cmsPlayerHeaderTitle) {
+      cmsPlayerHeaderTitle.textContent = `${step.badge}: ${step.title}`;
+    }
+
+    // Left Column Info
+    if (cmsInfoBadge) cmsInfoBadge.textContent = step.badge;
+    if (cmsInfoTitle) cmsInfoTitle.textContent = step.title;
+    if (cmsInfoDesc) cmsInfoDesc.textContent = step.desc;
+    if (cmsInfoTip) cmsInfoTip.textContent = step.tip;
+    if (cmsStepCounter) cmsStepCounter.textContent = `${currentCmsStep} / 4`;
+
+    if (cmsPrevBtn) cmsPrevBtn.disabled = currentCmsStep === 1;
+    if (cmsNextBtn) cmsNextBtn.textContent = currentCmsStep === 4 ? 'В начало ↺' : 'Далее →';
+
+    // Render Stage
+    renderCmsVisualStage(currentCms, currentCmsStep);
+  }
+
+  cmsTabs.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const c = btn.dataset.cms;
+      if (c && c !== currentCms) {
+        currentCms = c;
+        updateCmsUI();
+      }
+    });
+  });
+
+  cmsStepTabs.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const s = Number(btn.dataset.cmsStep);
+      if (s) {
+        currentCmsStep = s;
+        updateCmsUI();
+      }
+    });
+  });
+
+  cmsPrevBtn?.addEventListener('click', () => {
+    if (currentCmsStep > 1) {
+      currentCmsStep--;
+      updateCmsUI();
+    }
+  });
+
+  cmsNextBtn?.addEventListener('click', () => {
+    if (currentCmsStep < 4) {
+      currentCmsStep++;
+    } else {
+      currentCmsStep = 1;
+    }
+    updateCmsUI();
+  });
+
+  cmsCopyTestBtn?.addEventListener('click', () => {
+    const code = castleSnippet;
+    navigator.clipboard.writeText(code).then(() => {
+      if (cmsCopyBtnText) {
+        const orig = cmsCopyBtnText.textContent;
+        cmsCopyBtnText.textContent = '✓ Скопировано в буфер!';
+        setTimeout(() => {
+          cmsCopyBtnText.textContent = orig;
+        }, 2200);
+      }
+    });
+  });
+
+  // Initial render
+  updateCmsUI();
+
+  // PRODUCT PILLS FILTER
+  const effectPills = document.querySelectorAll('#effect-pills button[data-effect-id]');
+  const effectCards = document.querySelectorAll('#effect-details-container [data-effect-card]');
+
+  function selectEffect(id: string) {
+    effectPills.forEach((p) => {
+      const pId = (p as HTMLElement).dataset.effectId;
+      if (pId === id) {
+        p.className = 'h-9 px-3.5 rounded-full text-[12px] font-bold transition-all cursor-pointer bg-[#132A22] text-[#19C37D] shadow-sm';
+      } else {
+        p.className = 'h-9 px-3.5 rounded-full text-[12px] font-bold transition-all cursor-pointer bg-white hover:bg-[#f6f3ee] text-[#132A22] border border-[#e5dfd2]';
+      }
+    });
+
+    effectCards.forEach((c) => {
+      const cId = (c as HTMLElement).dataset.effectCard;
+      c.classList.toggle('hidden', cId !== id);
+    });
+  }
+
+  effectPills.forEach((p) => {
+    p.addEventListener('click', () => {
+      const id = (p as HTMLElement).dataset.effectId;
+      if (id) selectEffect(id);
+    });
+  });
+
+  // Check URL hash (e.g. /guide#gift-box or /guide#install)
+  const hash = window.location.hash.replace('#', '');
+  if (hash === 'install') {
+    document.getElementById('install')?.scrollIntoView({ behavior: 'smooth' });
+  } else if (hash) {
+    selectEffect(hash);
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initGuidePage);
+} else {
+  initGuidePage();
+}
+document.addEventListener('astro:page-load', initGuidePage);
+</script>

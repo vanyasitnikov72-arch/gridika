@@ -1,5 +1,6 @@
 ---
 import CookieBanner from '../components/CookieBanner.astro';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title: string;
@@ -39,6 +40,7 @@ const computedCanonical = canonicalUrl || (currentPath === '/' ? siteUrl : `${si
     <meta name="author" content="Gridika" />
     <meta name="format-detection" content="telephone=no" />
     <link rel="canonical" href={computedCanonical} />
+    <ClientRouter />
 
     {/* Search Engine Robots & Verification Directives */}
     <meta name="yandex-verification" content="637ebf922b7d6122" />

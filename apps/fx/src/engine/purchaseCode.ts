@@ -1,5 +1,6 @@
 import type { TargetShapeType } from './shapes';
-import { generateEmbedCode } from './standaloneGenerator';
+import { generateCastleEmbedCode } from './castleEmbedGenerator';
+import { generateQrMorphEmbedCode } from './qrMorphEmbedGenerator';
 import { generateCardEmbedCode } from './cardEmbedGenerator';
 import { generateGiftEmbedCode } from './giftEmbedGenerator';
 import { generateLogoEmbedCode } from './logoEmbedGenerator';
@@ -15,7 +16,25 @@ import type { PurchaseConfig } from './purchase';
 /** The site code for a purchase, built from the saved studio settings (null if not supported). */
 export function buildPurchaseCode(c: PurchaseConfig, license: { id: string; domain: string }): string | null {
   if (c.p === 'qr-morph' && c.qr) {
-    return generateEmbedCode({ text: c.qr.text, shape: c.qr.shape as TargetShapeType, themeId: c.qr.themeId, height: 480, license });
+    const shape = c.qr.shape || 'castle';
+    if (shape === 'castle') {
+      const mode = (c.qr.modes && (c.qr.modes['castle'] as 'day' | 'night' | 'winter')) || 'day';
+      return generateCastleEmbedCode({ text: c.qr.text, height: 480, mode, license });
+    }
+    return generateQrMorphEmbedCode({
+      text: c.qr.text,
+      shape: shape as TargetShapeType,
+      themeId: c.qr.themeId,
+      height: 480,
+      season: c.qr.modes?.tree,
+      timeOfDay: c.qr.modes?.city,
+      islandMode: c.qr.modes?.island,
+      gardenMode: c.qr.modes?.maze,
+      eqMode: c.qr.modes?.equalizer,
+      cakeFlavor: c.qr.modes?.cake,
+      castleMode: c.qr.modes?.castle,
+      license,
+    });
   }
   if (c.p === 'qr-card' && c.card) {
     const hidden = new Set(c.card.hidden);
