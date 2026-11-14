@@ -141,6 +141,7 @@ export class QrMorphViewer {
   private lastFrameTime = 0;
   private instancedMesh!: THREE.InstancedMesh;
   private groundMesh!: THREE.Mesh;
+  private shadowMesh!: THREE.Mesh;
   /** Square slab podium shared by every shape (the tree brings its own inside TreeDecor). */
   private slabMesh: THREE.Mesh | null = null;
   /** Highest point of the current shape — frames the side view. */
@@ -300,11 +301,14 @@ export class QrMorphViewer {
     const shadowMat = new THREE.ShadowMaterial({
       opacity: this.theme.isDark ? 0.35 : 0.08,
     });
-    const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
-    shadowMesh.rotation.x = -Math.PI / 2;
-    shadowMesh.position.y = -0.27;
-    shadowMesh.receiveShadow = true;
-    this.scene.add(shadowMesh);
+    this.shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
+    this.shadowMesh.rotation.x = -Math.PI / 2;
+    this.shadowMesh.position.y = -0.27;
+    this.shadowMesh.receiveShadow = true;
+    if (this.standalone) {
+      this.shadowMesh.visible = false;
+    }
+    this.scene.add(this.shadowMesh);
 
     // 5. Build QR Voxels
     this.rebuildVoxels();
@@ -799,9 +803,10 @@ export class QrMorphViewer {
 
     // Fit: square slab from the top, tall tree on a diamond base from the side
     const aspect = (this.container.clientWidth || 500) / (this.container.clientHeight || 500);
-    // top view: exact studio scale; in studio mode, offset away from jade wave; in standalone, dead-center
-    const fitW = THREE.MathUtils.lerp((N + 2.4) * 1.56, N * 1.62 + 4, e);
-    const fitH = THREE.MathUtils.lerp((N + 2.4) * 1.56, treeH * 1.18 + 4, e);
+    // In standalone, scale out (1.22) so the size exactly matches the studio's proportion
+    const scaleFactor = this.standalone ? 1.22 : 1.0;
+    const fitW = THREE.MathUtils.lerp((N + 2.4) * 1.56, N * 1.62 + 4, e) * scaleFactor;
+    const fitH = THREE.MathUtils.lerp((N + 2.4) * 1.56, treeH * 1.18 + 4, e) * scaleFactor;
     const vh = Math.max(fitH, fitW / aspect);
     // In studio, nudge right away from jade wave; in standalone, stay dead-center (shift = 0)
     const shift = this.standalone ? 0 : vh * aspect * THREE.MathUtils.lerp(0.11, 0.06, e);
@@ -824,8 +829,11 @@ export class QrMorphViewer {
       this.treeDecor?.update(e, this.clock.getElapsedTime());
       this.stageScene?.update(e, this.clock.getElapsedTime());
     }
-    // Crown shadows would grey out light modules when seen from above
-    this.dirLight.shadow.intensity = THREE.MathUtils.smoothstep(e, 0.15, 0.6);
+    // Crown shadows: in top view (QR code), turn off castShadow completely so no shadow sticks out
+    this.dirLight.castShadow = e > 0.08;
+    if (this.dirLight.shadow) {
+      (this.dirLight.shadow as any).intensity = THREE.MathUtils.smoothstep(e, 0.15, 0.6);
+    }
   }
 
   public exportSnapshot(): string {
