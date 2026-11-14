@@ -16306,7 +16306,7 @@ var PS5 = new RegExp(String.fromCharCode(8233), "g");
 var safeJson5 = (v) => JSON.stringify(v).replace(/</g, BS5 + "u003c").replace(LS5, BS5 + "u2028").replace(PS5, BS5 + "u2029");
 function generateTimerEmbedCode(o) {
   const id = "gridika-timer-" + Math.random().toString(36).slice(2, 8);
-  const maxW = o.maxWidth ?? 460;
+  const maxW = o.maxWidth ?? 320;
   const badge = `<a id="${id}-badge" href="https://gridika.ru" target="_blank" rel="noopener" style="position:absolute;right:8px;top:8px;z-index:5;font:600 11px system-ui,-apple-system,sans-serif;color:#64748b;text-decoration:none;background:rgba(255,255,255,0.85);padding:4px 9px;border-radius:6px;border:1px solid rgba(0,0,0,0.08)">Gridika</a>`;
   const runtime = timerRuntime_default.replace(/^export /gm, "");
   const ends = o.data.personal ? `\u043B\u0438\u0447\u043D\u044B\u0439, ${o.data.personal} \u0447 \u0441 \u043F\u0435\u0440\u0432\u043E\u0433\u043E \u0432\u0438\u0437\u0438\u0442\u0430` : `\u0434\u043E ${new Date(o.data.end).toISOString().replace("T", " ").slice(0, 16)} UTC`;

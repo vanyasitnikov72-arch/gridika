@@ -13,7 +13,7 @@ export type TimerEndType = 'date' | 'personal';
 export type TimerEndAction = 'text' | 'link' | 'hide';
 export { TIMER_MODES, timerParts };
 
-export function timerEmbedHeight(d: Pick<TimerData, 'format' | 'title' | 'button'>, maxWidth = 460): number {
+export function timerEmbedHeight(d: Pick<TimerData, 'format' | 'title' | 'button'>, maxWidth = 320): number {
   return Math.round(maxWidth / (d.format === 'dhms' ? 1.08 : 2.2)) + (d.title ? 40 : 0) + (d.button ? 70 : 0);
 }
 
