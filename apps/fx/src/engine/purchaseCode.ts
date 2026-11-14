@@ -16,23 +16,19 @@ import type { PurchaseConfig } from './purchase';
 /** The site code for a purchase, built from the saved studio settings (null if not supported). */
 export function buildPurchaseCode(c: PurchaseConfig, license: { id: string; domain: string }): string | null {
   if (c.p === 'qr-morph' && c.qr) {
-    const shape = c.qr.shape || 'castle';
-    if (shape === 'castle') {
-      const mode = (c.qr.modes && (c.qr.modes['castle'] as 'day' | 'night' | 'winter')) || 'day';
-      return generateCastleEmbedCode({ text: c.qr.text, height: 480, mode, license });
-    }
+    const shape = c.qr.shape || 'tree';
     return generateQrMorphEmbedCode({
       text: c.qr.text,
       shape: shape as TargetShapeType,
       themeId: c.qr.themeId,
       height: 480,
-      season: c.qr.modes?.tree,
-      timeOfDay: c.qr.modes?.city,
-      islandMode: c.qr.modes?.island,
-      gardenMode: c.qr.modes?.maze,
-      eqMode: c.qr.modes?.equalizer,
-      cakeFlavor: c.qr.modes?.cake,
-      castleMode: c.qr.modes?.castle,
+      season: (c.qr.modes?.season || c.qr.modes?.tree) as any,
+      timeOfDay: (c.qr.modes?.timeOfDay || c.qr.modes?.city) as any,
+      islandMode: (c.qr.modes?.islandMode || c.qr.modes?.island) as any,
+      gardenMode: (c.qr.modes?.gardenMode || c.qr.modes?.maze) as any,
+      eqMode: (c.qr.modes?.eqMode || c.qr.modes?.equalizer) as any,
+      cakeFlavor: (c.qr.modes?.cakeFlavor || c.qr.modes?.cake) as any,
+      castleMode: (c.qr.modes?.castleMode || c.qr.modes?.castle) as any,
       license,
     });
   }

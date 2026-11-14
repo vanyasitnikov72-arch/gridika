@@ -30,7 +30,7 @@ export function initQrMorphWidget(containerId: string, options: QrMorphWidgetOpt
   return new QrMorphViewer({
     container,
     text: options.url || 'https://gridika.ru',
-    shape: options.shape || 'castle',
+    shape: options.shape || 'tree',
     themeId: options.themeId || 'velvet-emerald',
     season: options.season,
     timeOfDay: options.timeOfDay,
@@ -40,5 +40,6 @@ export function initQrMorphWidget(containerId: string, options: QrMorphWidgetOpt
     cakeFlavor: options.cakeFlavor,
     castleMode: options.castleMode,
     initialState: options.initialState ?? 'morphed',
+    standalone: true,
   });
 }

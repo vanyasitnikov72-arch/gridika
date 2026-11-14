@@ -94,6 +94,7 @@ export interface QrViewerOptions {
   cakeFlavor?: CakeFlavor;
   castleMode?: CastleMode;
   initialState?: 'qr' | 'morphed';
+  standalone?: boolean;
   onStateChange?: (state: 'qr' | 'morphed') => void;
   onReady?: () => void;
 }
@@ -186,12 +187,14 @@ export class QrMorphViewer {
 
   private onStateChange?: (state: 'qr' | 'morphed') => void;
   private onReady?: () => void;
+  private standalone = false;
 
   constructor(options: QrViewerOptions) {
     this.container = options.container;
     this.text = options.text;
     this.shape = options.shape;
     this.theme = THEMES[options.themeId] || THEMES['velvet-emerald'];
+    this.standalone = options.standalone ?? false;
     this.season = options.season ?? 'spring';
     this.timeOfDay = options.timeOfDay ?? 'day';
     this.islandMode = options.islandMode ?? 'summer';
@@ -686,6 +689,7 @@ export class QrMorphViewer {
 
   private bindEvents() {
     const el = this.renderer.domElement;
+    el.style.cursor = 'pointer';
 
     // The stage is static: a tap (not a drag) toggles QR ⇄ shape, nothing rotates
     let isDownOnCanvas = false;
@@ -790,12 +794,16 @@ export class QrMorphViewer {
 
     // Fit: square slab from the top, tall tree on a diamond base from the side
     const aspect = (this.container.clientWidth || 500) / (this.container.clientHeight || 500);
-    // top view: slab takes ~68% of the stage so it stays clear of the green shape on the left
-    const fitW = THREE.MathUtils.lerp((N + 2.4) * 1.56, N * 1.62 + 4, e);
-    const fitH = THREE.MathUtils.lerp((N + 2.4) * 1.56, treeH * 1.18 + 4, e);
+    // top view: in standalone mode, centered neatly; in studio mode, offset away from jade wave
+    const fitW = this.standalone
+      ? THREE.MathUtils.lerp((N + 2.4) * 1.12, N * 1.35 + 2, e)
+      : THREE.MathUtils.lerp((N + 2.4) * 1.56, N * 1.62 + 4, e);
+    const fitH = this.standalone
+      ? THREE.MathUtils.lerp((N + 2.4) * 1.12, treeH * 1.15 + 2, e)
+      : THREE.MathUtils.lerp((N + 2.4) * 1.56, treeH * 1.18 + 4, e);
     const vh = Math.max(fitH, fitW / aspect);
-    // nudge the picture to the right, away from the green blob that cuts into the stage's left edge
-    const shift = vh * aspect * THREE.MathUtils.lerp(0.11, 0.06, e);
+    // In studio, nudge right away from jade wave; in standalone, stay dead-center (shift = 0)
+    const shift = this.standalone ? 0 : vh * aspect * THREE.MathUtils.lerp(0.11, 0.06, e);
     this.orthoCam.left = (-vh * aspect) / 2 - shift;
     this.orthoCam.right = (vh * aspect) / 2 - shift;
     this.orthoCam.top = vh / 2;

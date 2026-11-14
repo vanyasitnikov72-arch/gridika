@@ -23,7 +23,7 @@ export function generateQrMorphEmbedCode(o: QrMorphEmbedOptions): string {
   const height = o.height ?? 480;
   const url = o.text || 'https://gridika.ru';
 
-  const badgeHtml = `<a id="${id}-badge" href="https://gridika.ru" target="_blank" rel="noopener" style="position:absolute;bottom:14px;right:16px;z-index:10;font-family:system-ui,-apple-system,sans-serif;font-size:11px;font-weight:700;color:#8BF0C2;text-decoration:none;background:rgba(12,31,23,0.85);backdrop-filter:blur(6px);padding:5px 12px;border-radius:8px;border:1px solid rgba(25,195,125,0.3);box-shadow:0 2px 8px rgba(0,0,0,0.2);">Gridika.ru ↗</a>`;
+  const badgeHtml = `<a id="${id}-badge" href="https://gridika.ru" target="_blank" rel="noopener" style="position:absolute;bottom:10px;right:12px;z-index:10;font-family:system-ui,-apple-system,sans-serif;font-size:10px;font-weight:600;color:rgba(0,0,0,0.45);text-decoration:none;background:rgba(255,255,255,0.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:3px 9px;border-radius:6px;border:1px solid rgba(0,0,0,0.08);box-shadow:0 1px 4px rgba(0,0,0,0.06);">Gridika ↗</a>`;
 
   const header = o.license
     ? codeHeader('3D интерактивный QR-код', o.license)
@@ -46,9 +46,7 @@ export function generateQrMorphEmbedCode(o: QrMorphEmbedOptions): string {
   };
 
   return `${header}
-<div id="${id}" style="width:100%;max-width:520px;height:${height}px;margin:0 auto;position:relative;border-radius:18px;overflow:hidden;background:#0c1f17;box-shadow:0 14px 36px rgba(0,0,0,0.45);">
-  <div style="position:absolute;top:14px;left:16px;z-index:10;font-family:system-ui,-apple-system,sans-serif;font-size:11px;font-weight:800;color:#19C37D;letter-spacing:0.05em;background:rgba(12,31,23,0.85);backdrop-filter:blur(6px);padding:4px 10px;border-radius:8px;border:1px solid rgba(25,195,125,0.25);pointer-events:none;">GRIDIKA 3D · ИНТЕРАКТИВНЫЙ QR</div>
-  <div style="position:absolute;bottom:14px;left:16px;z-index:10;font-family:system-ui,-apple-system,sans-serif;font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);background:rgba(0,0,0,0.5);backdrop-filter:blur(6px);padding:5px 12px;border-radius:8px;pointer-events:none;">Кликните для переключения в QR</div>
+<div id="${id}" style="width:100%;max-width:480px;height:${height}px;margin:0 auto;position:relative;background:transparent;user-select:none;-webkit-user-select:none;">
   ${badgeHtml}
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
