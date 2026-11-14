@@ -403,11 +403,13 @@ export function createGiftViewer(THREE, container, init) {
     var opened = closeT >= 0 ? curOt > 1.0 : openT >= 0, pts = keyPoints(opened);
     var f = new THREE.Vector3(Math.sin(camYaw) * Math.cos(camPitch), Math.sin(camPitch), Math.cos(camYaw) * Math.cos(camPitch));
     var r = new THREE.Vector3(Math.cos(camYaw), 0, -Math.sin(camYaw)), u = new THREE.Vector3().crossVectors(f, r).normalize();
-    var tanV = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2), tanH = tanV * camera.aspect;
-    // centre: middle of the projected extents (plus room at the bottom for the caption and button)
+    var tanV = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+    var effAspect = Math.min(camera.aspect, 0.85);
+    var tanH = tanV * effAspect;
+    // centre: middle of the projected extents (plus generous room at the bottom so the podium never overlaps caption)
     var x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
     pts.forEach(function (p) { var x = p.dot(r), y = p.dot(u); x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); });
-    y0 -= opened ? 1.1 : 0.7;
+    y0 -= opened ? 2.6 : 1.6;
     var look = new THREE.Vector3().addScaledVector(r, (x0 + x1) / 2).addScaledVector(u, (y0 + y1) / 2);
     // distance: every point must fit within the field of view
     var dist = 0;
@@ -418,7 +420,7 @@ export function createGiftViewer(THREE, container, init) {
       dist = Math.max(dist, z + x / tanH, z + y / tanV);
     });
     dist = Math.max(dist, z0dist(look, y0, u, f, tanV));
-    return { look: look, dist: dist * 1.06 };
+    return { look: look, dist: dist * 1.08 };
   }
   // keep the extra caption room at the bottom inside the frame
   function z0dist(look, y0, u, f, tanV) { return Math.abs(y0 - look.dot(u)) / tanV; }
