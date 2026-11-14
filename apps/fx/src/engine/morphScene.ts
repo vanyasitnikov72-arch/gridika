@@ -13,7 +13,7 @@ export type MorphSpeed = 'slow' | 'normal' | 'fast';
 export type MorphControl = 'slider' | 'scroll' | 'auto';
 export { MORPH_MODES };
 
-export function morphEmbedHeight(d: { w: number; h: number }, maxWidth = 760): number {
+export function morphEmbedHeight(d: { w: number; h: number }, maxWidth = 480): number {
   const pixel = Math.min(18, Math.max(8, Math.floor(maxWidth / (d.w + 4))));
   return Math.round(d.h * pixel + 80);
 }

@@ -15847,7 +15847,7 @@ var PS4 = new RegExp(String.fromCharCode(8233), "g");
 var safeJson4 = (v) => JSON.stringify(v).replace(/</g, BS4 + "u003c").replace(LS4, BS4 + "u2028").replace(PS4, BS4 + "u2029");
 function generateMorphEmbedCode(o) {
   const id = "gridika-morph-" + Math.random().toString(36).slice(2, 8);
-  const maxW = o.maxWidth ?? 760;
+  const maxW = o.maxWidth ?? 480;
   const badge = `<a id="${id}-badge" href="https://gridika.ru" target="_blank" rel="noopener" style="position:absolute;right:12px;bottom:52px;z-index:5;font:600 11px system-ui,-apple-system,sans-serif;color:#64748b;text-decoration:none;background:rgba(255,255,255,0.85);padding:4px 9px;border-radius:6px;border:1px solid rgba(0,0,0,0.08)">Gridika</a>`;
   const runtime = morphRuntime_default.replace(/^export /gm, "");
   return `${codeHeader("\u043C\u043E\u0440\u0444 \xAB\u0434\u043E / \u043F\u043E\u0441\u043B\u0435\xBB", o.license)}
