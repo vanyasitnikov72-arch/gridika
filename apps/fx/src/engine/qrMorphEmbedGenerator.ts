@@ -49,7 +49,7 @@ export function generateQrMorphEmbedCode(o: QrMorphEmbedOptions): string {
 <div id="${id}" style="width:100%;max-width:480px;height:${height}px;margin:0 auto;position:relative;background:transparent;user-select:none;-webkit-user-select:none;">
   ${badgeHtml}
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
 (function() {
   function start() {

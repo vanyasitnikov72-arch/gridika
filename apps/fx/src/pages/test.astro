@@ -1,0 +1,338 @@
+---
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gridika — Тестовая страница (Песочница для проверки 3D-кода)</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background: #f7f6f2;
+        color: #1a1a1a;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        background: #ffffff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      }
+      .logo-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .badge {
+        background: #e6f9f0;
+        color: #0d9488;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 999px;
+      }
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      button.btn {
+        background: #19c37d;
+        color: #ffffff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      button.btn:hover {
+        background: #14a86b;
+      }
+      button.btn-sec {
+        background: #f1f0eb;
+        color: #333333;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      button.btn-sec:hover {
+        background: #e6e5df;
+      }
+      .theme-toggle {
+        display: flex;
+        background: #f1f0eb;
+        padding: 3px;
+        border-radius: 8px;
+        gap: 2px;
+      }
+      .theme-btn {
+        border: none;
+        background: transparent;
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        color: #666;
+        transition: all 0.15s ease;
+      }
+      .theme-btn.active {
+        background: #ffffff;
+        color: #111;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 24px;
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+        gap: 20px;
+      }
+
+      .editor-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+      }
+
+      textarea#code-input {
+        width: 100%;
+        height: 140px;
+        font-family: 'Fira Code', Menlo, Monaco, Consolas, monospace;
+        font-size: 12px;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        background: #fafaf8;
+        resize: vertical;
+        outline: none;
+        color: #222;
+        line-height: 1.5;
+      }
+      textarea#code-input:focus {
+        border-color: #19c37d;
+        box-shadow: 0 0 0 3px rgba(25, 195, 125, 0.15);
+        background: #ffffff;
+      }
+
+      .preview-container {
+        flex: 1;
+        min-height: 550px;
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+        display: flex;
+        flex-direction: column;
+        transition: background-color 0.3s ease;
+      }
+
+      iframe#preview-frame {
+        width: 100%;
+        height: 100%;
+        flex: 1;
+        border: none;
+        background: transparent;
+      }
+
+      .placeholder-hint {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        color: #888;
+        pointer-events: none;
+      }
+      .placeholder-hint svg {
+        opacity: 0.4;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo-group">
+        <strong style="font-size: 17px; letter-spacing: -0.02em;">Gridika Test Sandbox</strong>
+        <span class="badge">Тест вставки 3D-кода</span>
+      </div>
+
+      <div class="controls">
+        <span style="font-size: 12px; font-weight: 600; color: #777;">Фон сайта:</span>
+        <div class="theme-toggle" id="theme-toggle">
+          <button class="theme-btn active" data-bg="#ffffff" data-color="#111">Белый</button>
+          <button class="theme-btn" data-bg="#f7f6f2" data-color="#111">Крем</button>
+          <button class="theme-btn" data-bg="#121316" data-color="#fff">Тёмный</button>
+          <button class="theme-btn" data-bg="#0c1f17" data-color="#fff">Изумруд</button>
+        </div>
+
+        <button class="btn" id="run-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Запустить код
+        </button>
+        <button class="btn-sec" id="paste-btn">Вставить из буфера</button>
+        <button class="btn-sec" id="clear-btn">Очистить</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="editor-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <label for="code-input" style="font-size: 13px; font-weight: 700; color: #333;">
+            Вставьте скопированный код виджета (HTML / JS):
+          </label>
+          <span style="font-size: 11px; color: #888;">
+            Код запустится в изолированном контексте ровно так же, как на реальном сайте (Tilda, WordPress, Webflow)
+          </span>
+        </div>
+        <textarea id="code-input" placeholder="Вставьте сюда код эффекта (например, полученный на странице /thanks или скопированный из студии)..."></textarea>
+      </div>
+
+      <div class="preview-container" id="preview-wrapper">
+        <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin"></iframe>
+        <div class="placeholder-hint" id="empty-hint">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+          <span style="font-size: 14px; font-weight: 500;">Вставьте код в поле выше и нажмите «Запустить код»</span>
+        </div>
+      </div>
+    </main>
+
+    <script is:inline>
+      const textarea = document.getElementById('code-input');
+      const runBtn = document.getElementById('run-btn');
+      const pasteBtn = document.getElementById('paste-btn');
+      const clearBtn = document.getElementById('clear-btn');
+      const iframe = document.getElementById('preview-frame');
+      const emptyHint = document.getElementById('empty-hint');
+      const previewWrapper = document.getElementById('preview-wrapper');
+      const themeBtns = document.querySelectorAll('.theme-btn');
+
+      let currentBg = '#ffffff';
+      let currentColor = '#111111';
+
+      themeBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          themeBtns.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentBg = btn.getAttribute('data-bg');
+          currentColor = btn.getAttribute('data-color');
+          previewWrapper.style.backgroundColor = currentBg;
+          applyBackgroundToIframe();
+        });
+      });
+
+      function applyBackgroundToIframe() {
+        try {
+          if (iframe.contentDocument && iframe.contentDocument.body) {
+            iframe.contentDocument.body.style.backgroundColor = currentBg;
+            iframe.contentDocument.body.style.color = currentColor;
+          }
+        } catch (e) {}
+      }
+
+      function executeCode() {
+        const code = textarea.value.trim();
+        if (!code) {
+          iframe.srcdoc = '';
+          emptyHint.style.display = 'flex';
+          return;
+        }
+
+        emptyHint.style.display = 'none';
+
+        const fullDoc = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: ${currentBg};
+      color: ${currentColor};
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+      transition: background-color 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  ${code}
+</body>
+</html>`;
+
+        iframe.srcdoc = fullDoc;
+      }
+
+      runBtn.addEventListener('click', executeCode);
+
+      pasteBtn.addEventListener('click', async () => {
+        try {
+          const text = await navigator.clipboard.readText();
+          if (text) {
+            textarea.value = text;
+            executeCode();
+          }
+        } catch (err) {
+          textarea.focus();
+        }
+      });
+
+      clearBtn.addEventListener('click', () => {
+        textarea.value = '';
+        iframe.srcdoc = '';
+        emptyHint.style.display = 'flex';
+      });
+
+      // Автоматический запуск при нажатии Ctrl+Enter в текстовом поле
+      textarea.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          executeCode();
+        }
+      });
+    </script>
+  </body>
+</html>

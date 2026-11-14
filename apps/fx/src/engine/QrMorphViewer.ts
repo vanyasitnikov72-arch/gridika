@@ -247,6 +247,11 @@ export class QrMorphViewer {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    if ('outputColorSpace' in this.renderer) {
+      this.renderer.outputColorSpace = (THREE as any).SRGBColorSpace;
+    } else if ('outputEncoding' in this.renderer) {
+      (this.renderer as any).outputEncoding = 3001;
+    }
 
     this.container.innerHTML = '';
     this.container.appendChild(this.renderer.domElement);
@@ -794,13 +799,9 @@ export class QrMorphViewer {
 
     // Fit: square slab from the top, tall tree on a diamond base from the side
     const aspect = (this.container.clientWidth || 500) / (this.container.clientHeight || 500);
-    // top view: in standalone mode, centered neatly; in studio mode, offset away from jade wave
-    const fitW = this.standalone
-      ? THREE.MathUtils.lerp((N + 2.4) * 1.12, N * 1.35 + 2, e)
-      : THREE.MathUtils.lerp((N + 2.4) * 1.56, N * 1.62 + 4, e);
-    const fitH = this.standalone
-      ? THREE.MathUtils.lerp((N + 2.4) * 1.12, treeH * 1.15 + 2, e)
-      : THREE.MathUtils.lerp((N + 2.4) * 1.56, treeH * 1.18 + 4, e);
+    // top view: exact studio scale; in studio mode, offset away from jade wave; in standalone, dead-center
+    const fitW = THREE.MathUtils.lerp((N + 2.4) * 1.56, N * 1.62 + 4, e);
+    const fitH = THREE.MathUtils.lerp((N + 2.4) * 1.56, treeH * 1.18 + 4, e);
     const vh = Math.max(fitH, fitW / aspect);
     // In studio, nudge right away from jade wave; in standalone, stay dead-center (shift = 0)
     const shift = this.standalone ? 0 : vh * aspect * THREE.MathUtils.lerp(0.11, 0.06, e);
