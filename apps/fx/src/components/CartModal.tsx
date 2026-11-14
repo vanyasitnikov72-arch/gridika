@@ -75,8 +75,6 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
     seen[it.productId] = (seen[it.productId] || 0) + 1;
     return totals[it.productId] > 1 ? `${it.title} · ${seen[it.productId]}` : it.title;
   });
-  // a sample order: the real codes appear only after payment (a signed order link)
-  const previewHash = items.length > 0 ? '#order=demo' : '';
   const removeWithFade = (id: string) => {
     setLeaving(id);
     window.setTimeout(() => {
@@ -345,16 +343,6 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
                   )}
                 </button>
                 <p className="text-center text-[11.5px] font-semibold text-[#a8a29e] leading-snug">Разовая оплата, без подписки. Код сразу на экране и на почте.</p>
-                {previewHash && (
-                  <a
-                    href={`/thanks${previewHash}`}
-                    target="_blank"
-                    rel="noopener"
-                    className="self-center text-[12px] font-bold text-[#78716c] hover:text-[#132A22] underline decoration-[#d6cfc2] underline-offset-4"
-                  >
-                    Как выглядит страница с кодом →
-                  </a>
-                )}
               </div>
             </>
           )}
