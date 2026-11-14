@@ -483,10 +483,27 @@ export function createGiftViewer(THREE, container, init) {
   cv.addEventListener('click', function () { if (openT < 0) open(); });
   var ro = new ResizeObserver(resize); ro.observe(container);
   var io = null;
+  var userScrolled = false;
+  var onUserScroll = function () {
+    userScrolled = true;
+    window.removeEventListener('scroll', onUserScroll);
+  };
+  window.addEventListener('scroll', onUserScroll, { passive: true });
+
   if ('IntersectionObserver' in window) {
+    var initialFired = false;
     io = new IntersectionObserver(function (es) {
       var e = es[0]; visible = e ? e.isIntersecting : true;
-      if (e && state.data.trigger === 'scroll' && e.intersectionRatio >= 0.6 && openT < 0) setTimeout(open, 350);
+      if (!e) return;
+      if (init.isStudio) return; // In studio editor, user controls open/close manually
+      // On initial load without scroll, don't auto-open if already visible
+      if (!initialFired) {
+        initialFired = true;
+        if (!userScrolled) return;
+      }
+      if (state.data.trigger === 'scroll' && e.intersectionRatio >= 0.6 && openT < 0 && userScrolled) {
+        setTimeout(open, 350);
+      }
     }, { threshold: [0, 0.02, 0.6] });
     io.observe(container);
   }
@@ -548,6 +565,7 @@ export function createGiftViewer(THREE, container, init) {
     return min;
   };
   api.dispose = function () {
+    window.removeEventListener('scroll', onUserScroll);
     cancelAnimationFrame(raf); ro.disconnect(); if (io) io.disconnect();
     scene.traverse(function (o) { if (o.geometry) o.geometry.dispose(); var m = o.material; (Array.isArray(m) ? m : m ? [m] : []).forEach(function (x) { if (x.map) x.map.dispose(); x.dispose(); }); });
     renderer.dispose(); cv.remove(); ov.remove();

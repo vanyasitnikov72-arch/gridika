@@ -192,7 +192,7 @@ export class GiftViewer {
   constructor(container: HTMLElement, settings: GiftSettings, mode: GiftMode) {
     this.data = buildGiftData(settings);
     container.innerHTML = '';
-    this.api = createGiftViewer(THREE, container, { data: this.data, mode }) as RuntimeApi;
+    this.api = createGiftViewer(THREE, container, { data: this.data, mode, isStudio: true }) as RuntimeApi;
     this.api.onOpen = (o) => this.onOpen?.(o);
   }
   get kind() {
