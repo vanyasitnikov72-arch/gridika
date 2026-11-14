@@ -97,7 +97,9 @@ export function generateCartSubtitle(config: PurchaseConfig): string {
   if (p === 'voxel-morph') {
     const modes: Record<string, string> = { wave: 'Волна', burst: 'Взрыв', pixel: 'Пиксель', spiral: 'Спираль', rain: 'Дождь', mosaic: 'Мозаика' };
     const m = config.morph;
-    return m ? `${modes[m.settings.mode] || 'Волна'} · ${m.settings.control === 'auto' ? 'сам' : m.settings.control === 'scroll' ? 'прокрутка' : 'ползунок'}` : 'Морф «до / после»';
+    const mode = m?.settings?.mode || (m?.data as any)?.mode || 'wave';
+    const control = m?.settings?.control || (m?.data as any)?.control || 'slider';
+    return m ? `${modes[mode] || 'Волна'} · ${control === 'auto' ? 'сам' : control === 'scroll' ? 'прокрутка' : 'ползунок'}` : 'Морф «до / после»';
   }
   if (p === 'sale-timer' && config.timer) {
     const t = config.timer.settings;
@@ -144,6 +146,20 @@ export function removeFromCart(id: string): void {
 
 export function clearCart(): void {
   saveCart([]);
+}
+
+export function addFullLineToCart(): CartItem[] {
+  const lineConfigs: PurchaseConfig[] = [
+    { p: 'qr-morph', site: 'localhost', qr: { text: 'https://gridika.ru', shape: 'castle', themeId: 'velvet-emerald', modes: { castle: 'day' } } },
+    { p: 'qr-card', site: 'localhost', card: { contact: { name: 'Александр Волков', role: 'Арт-директор', company: 'Gridika Design', phone: '+7 999 000-11-22', email: 'alex@gridika.ru', site: 'gridika.ru', telegram: 'gridika_alex', whatsapp: '' }, hidden: [], mode: 'graphite', style: 'classic' } },
+    { p: 'gift-box', site: 'localhost', gift: { settings: { kind: 'code', code: 'GRIDIKA2026', percent: '25', url: 'https://gridika.ru', caption: 'Скидка 25% на все 3D-эффекты', trigger: 'click', shape: 'cube', pattern: 'plain' }, mode: 'festive' } },
+    { p: 'sale-timer', site: 'localhost', timer: { settings: { date: '2026-12-31', time: '23:59', tz: 3, format: 'dhms', title: 'До завершения специального предложения', buttonText: 'Получить скидку', buttonUrl: 'https://gridika.ru', endAction: 'text', endText: 'Акция завершена!', endUrl: '', endType: 'date', hours: 24 }, mode: 'sale' } },
+    { p: 'voxel-morph', site: 'localhost', morph: { data: { res: 48, a: { w: 48, h: 36, cols: ['#19c37d'] }, b: { w: 48, h: 36, cols: ['#f59e0b'] } }, settings: { res: 48, mode: 'wave', control: 'slider', depth: 'flat', speed: 'normal', labelA: 'До', labelB: 'После', labelStyle: 'dark' } } },
+    { p: 'voxel-logo', site: 'localhost', logo: { data: { w: 16, h: 16, cols: ['#19c37d'] }, mode: 'spin' } },
+  ];
+  clearCart();
+  lineConfigs.forEach((cfg) => addToCart(cfg));
+  return getCart();
 }
 
 export function isProductInCart(productId: ProductId): boolean {

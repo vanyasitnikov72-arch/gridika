@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
-import type { CartItem } from '../engine/cartStore';
+import { type CartItem, addFullLineToCart } from '../engine/cartStore';
 import { ProductPreview } from './ProductPreview';
 import { orderPrice, nextCodeHint, codes, rub, PRICE_ONE } from '../engine/pricing';
 import { ordersApi } from '../data/api';
@@ -85,7 +85,22 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  const isLocalhost = typeof window !== 'undefined' && (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+  );
+
   const handleCheckout = async () => {
+    if (isLocalhost) {
+      setLoading(true);
+      const cleanItems = items.map((it) => it.config);
+      const toB64url = (s: string) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      const itemsB64 = toB64url(JSON.stringify(cleanItems));
+      const testOrderId = 'TEST-' + Math.random().toString(36).slice(2, 7).toUpperCase();
+      window.location.href = `/thanks#order=${testOrderId}&items=${itemsB64}`;
+      return;
+    }
+
     if (!email || !email.includes('@') || !email.includes('.')) {
       setErrorMsg('Укажите корректный email для отправки кода и чека');
       return;
@@ -194,6 +209,15 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
                   Добавить «{currentProductTitle}»
                 </button>
               )}
+              {isLocalhost && (
+                <button
+                  type="button"
+                  onClick={() => addFullLineToCart()}
+                  className="mt-3 h-10 px-4 rounded-full bg-[#DFF8EB] hover:bg-[#cbf4df] text-[#0f5c3c] font-black text-[12.5px] transition-colors cursor-pointer"
+                >
+                  ⚡ Добавить всю линейку (6 эффектов) для теста
+                </button>
+              )}
             </div>
           ) : (
             <>
@@ -271,6 +295,15 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
                     + «{currentProductTitle}» из студии
                   </button>
                 )}
+                {isLocalhost && (
+                  <button
+                    type="button"
+                    onClick={() => addFullLineToCart()}
+                    className="text-[12px] font-bold text-[#15803d] hover:underline cursor-pointer"
+                  >
+                    ⚡ Заполнить всей линейкой (6 эффектов)
+                  </button>
+                )}
               </div>
 
               {/* total */}
@@ -334,15 +367,19 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
                   className="h-12 rounded-full bg-[#132A22] hover:bg-[#1f4235] text-white font-black text-[14px] flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-wait"
                 >
                   {loading ? (
-                    <span>Создаём заказ...</span>
+                    <span>Формируем код...</span>
                   ) : (
                     <>
-                      <span>Оплатить {rub(total)}</span>
+                      <span>{isLocalhost ? 'Получить готовый код (Тест без ЮKassa)' : `Оплатить ${rub(total)}`}</span>
                       <span aria-hidden="true">→</span>
                     </>
                   )}
                 </button>
-                <p className="text-center text-[11.5px] font-semibold text-[#a8a29e] leading-snug">Разовая оплата, без подписки. Код сразу на экране и на почте.</p>
+                <p className="text-center text-[11.5px] font-semibold text-[#a8a29e] leading-snug">
+                  {isLocalhost
+                    ? 'Тестовый режим на localhost: оплата ЮKassa отключена, код всех эффектов формируется мгновенно.'
+                    : 'Разовая оплата, без подписки. Код сразу на экране и на почте.'}
+                </p>
               </div>
             </>
           )}
