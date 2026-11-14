@@ -151,6 +151,8 @@ export class QrMorphViewer {
   private ambientLight!: THREE.AmbientLight;
   private dirLight!: THREE.DirectionalLight;
   private pointLight!: THREE.PointLight;
+  private baseAmbientIntensity = 1.15;
+  private baseDirIntensity = 1.6;
 
   private voxels: VoxelData[] = [];
   private text: string;
@@ -416,14 +418,16 @@ export class QrMorphViewer {
     // Tree lighting: (ambient + sun·cosθ) ≈ π, so top faces render at their true colour —
     // light tiles stay near-white and leaves keep their tone, which gives the top-down QR its contrast
     if (isTree || !this.theme.isDark) {
-      this.ambientLight.intensity = 1.25;
-      this.dirLight.intensity = 2.5;
+      this.baseAmbientIntensity = 1.25;
+      this.baseDirIntensity = 2.5;
       this.pointLight.intensity = 0.4;
     } else {
-      this.ambientLight.intensity = this.theme.isDark ? 0.7 : 1.15;
-      this.dirLight.intensity = this.theme.isDark ? 1.5 : 1.6;
+      this.baseAmbientIntensity = this.theme.isDark ? 0.7 : 1.15;
+      this.baseDirIntensity = this.theme.isDark ? 1.5 : 1.6;
       this.pointLight.intensity = this.theme.isDark ? 2 : 1.2;
     }
+    this.ambientLight.intensity = this.baseAmbientIntensity;
+    this.dirLight.intensity = this.baseDirIntensity;
 
     // Cube geometry
     const cubeSize = 0.88;
@@ -829,11 +833,19 @@ export class QrMorphViewer {
       this.treeDecor?.update(e, this.clock.getElapsedTime());
       this.stageScene?.update(e, this.clock.getElapsedTime());
     }
-    // Crown shadows: in top view (QR code), turn off castShadow completely so no shadow sticks out
-    this.dirLight.castShadow = e > 0.08;
-    if (this.dirLight.shadow) {
-      (this.dirLight.shadow as any).intensity = THREE.MathUtils.smoothstep(e, 0.15, 0.6);
-    }
+    // The shadow disappears/appears during mode switching, but earlier (while cubes are still in the air):
+    // As e moves between 0.45 and 0.78, directional light intensity smoothly fades out,
+    // transferring light energy to ambient light so brightness remains uniform.
+    // Below e = 0.45 (when the figure is assembling into the flat QR code), shadows are completely off.
+    const shadowFade = THREE.MathUtils.smoothstep(e, 0.45, 0.78);
+    this.dirLight.intensity = this.baseDirIntensity * shadowFade;
+    this.ambientLight.intensity = this.baseAmbientIntensity + this.baseDirIntensity * (1 - shadowFade) * 0.45;
+    this.dirLight.castShadow = shadowFade > 0.005;
+
+    const lx = THREE.MathUtils.lerp(0, 24, e);
+    const ly = THREE.MathUtils.lerp(50, 38, e);
+    const lz = THREE.MathUtils.lerp(0, 20, e);
+    this.dirLight.position.set(lx, ly, lz);
   }
 
   public exportSnapshot(): string {
