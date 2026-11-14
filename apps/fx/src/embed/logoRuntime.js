@@ -275,9 +275,10 @@ export function createLogoViewer(THREE, container, init) {
     var w = container.clientWidth || 400, h = container.clientHeight || 400, aspect = w / h;
     camera.aspect = aspect;
     var tanV = Math.tan((camera.fov * Math.PI) / 360);
+    var effAspect = Math.min(aspect, 0.85);
     // spinning: the widest the logo gets is its diagonal with the depth
     var halfW = (state.data.motion === 'spin' ? Math.hypot(size.w, size.d) : size.w) / 2, halfH = size.h / 2;
-    var dist = Math.max(halfH / tanV, halfW / (tanV * aspect)) * 1.42 + size.d / 2;
+    var dist = Math.max(halfH / tanV, halfW / (tanV * effAspect)) * 1.75 + size.d / 2;
     camera.position.set(0, 0, dist);
     camera.lookAt(0, 0, 0);
     camera.near = Math.max(0.1, dist / 50); camera.far = dist * 6;

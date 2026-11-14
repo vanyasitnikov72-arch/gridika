@@ -36,7 +36,7 @@ export function generateLogoEmbedCode(o: LogoEmbedOptions): string {
   const runtime = runtimeSource.replace(/^export /gm, '');
 
   return `${codeHeader('3D-логотип из вокселей', o.license)}
-<div id="${id}" style="position:relative;width:100%;height:${height}px;margin:0 auto;">${badge}</div>
+<div id="${id}" style="position:relative;width:100%;max-width:480px;height:${height}px;margin:0 auto;">${badge}</div>
 <script type="module">${domainLockJs(`${id}-badge`, o.license.domain)}
 var GRIDIKA = ${safeJson({ data: o.data, mode: o.mode })};
 ${runtime}

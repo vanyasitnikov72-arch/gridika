@@ -15251,9 +15251,10 @@ export function createLogoViewer(THREE, container, init) {
     var w = container.clientWidth || 400, h = container.clientHeight || 400, aspect = w / h;
     camera.aspect = aspect;
     var tanV = Math.tan((camera.fov * Math.PI) / 360);
+    var effAspect = Math.min(aspect, 0.85);
     // spinning: the widest the logo gets is its diagonal with the depth
     var halfW = (state.data.motion === 'spin' ? Math.hypot(size.w, size.d) : size.w) / 2, halfH = size.h / 2;
-    var dist = Math.max(halfH / tanV, halfW / (tanV * aspect)) * 1.42 + size.d / 2;
+    var dist = Math.max(halfH / tanV, halfW / (tanV * effAspect)) * 1.75 + size.d / 2;
     camera.position.set(0, 0, dist);
     camera.lookAt(0, 0, 0);
     camera.near = Math.max(0.1, dist / 50); camera.far = dist * 6;
@@ -15387,7 +15388,7 @@ function generateLogoEmbedCode(o) {
   const badge = `<a id="${id}-badge" href="https://gridika.ru" target="_blank" rel="noopener" style="position:absolute;right:12px;bottom:12px;z-index:5;font:600 11px system-ui,-apple-system,sans-serif;color:#64748b;text-decoration:none;background:rgba(255,255,255,0.85);padding:4px 9px;border-radius:6px;border:1px solid rgba(0,0,0,0.08)">Gridika</a>`;
   const runtime = logoRuntime_default.replace(/^export /gm, "");
   return `${codeHeader("3D-\u043B\u043E\u0433\u043E\u0442\u0438\u043F \u0438\u0437 \u0432\u043E\u043A\u0441\u0435\u043B\u0435\u0439", o.license)}
-<div id="${id}" style="position:relative;width:100%;height:${height}px;margin:0 auto;">${badge}</div>
+<div id="${id}" style="position:relative;width:100%;max-width:480px;height:${height}px;margin:0 auto;">${badge}</div>
 <script type="module">${domainLockJs(`${id}-badge`, o.license.domain)}
 var GRIDIKA = ${safeJson3({ data: o.data, mode: o.mode })};
 ${runtime}
