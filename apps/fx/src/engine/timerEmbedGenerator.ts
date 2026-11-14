@@ -13,11 +13,12 @@ import { domainLockJs } from './domainLock';
 export interface TimerEmbedOptions {
   data: TimerData;
   license: { id: string; domain: string };
+  maxWidth?: number;
 }
 
-/** rough block height on a 900 px column, for the install hint */
-export function timerEmbedHeight(d: Pick<TimerData, 'format' | 'title' | 'button'>): number {
-  return Math.round(900 / (d.format === 'dhms' ? 2.7 : 2.2)) + (d.title ? 40 : 0) + (d.button ? 70 : 0);
+/** rough block height on a 460 px column, for the install hint */
+export function timerEmbedHeight(d: Pick<TimerData, 'format' | 'title' | 'button'>, maxWidth = 460): number {
+  return Math.round(maxWidth / (d.format === 'dhms' ? 1.08 : 2.2)) + (d.title ? 40 : 0) + (d.button ? 70 : 0);
 }
 
 const THREE_URLS = [
@@ -32,6 +33,7 @@ const safeJson = (v: unknown) => JSON.stringify(v).replace(/</g, BS + 'u003c').r
 
 export function generateTimerEmbedCode(o: TimerEmbedOptions): string {
   const id = 'gridika-timer-' + Math.random().toString(36).slice(2, 8);
+  const maxW = o.maxWidth ?? 460;
   const badge = `<a id="${id}-badge" href="https://gridika.ru" target="_blank" rel="noopener" style="position:absolute;right:8px;top:8px;z-index:5;font:600 11px system-ui,-apple-system,sans-serif;color:#64748b;text-decoration:none;background:rgba(255,255,255,0.85);padding:4px 9px;border-radius:6px;border:1px solid rgba(0,0,0,0.08)">Gridika</a>`;
   const runtime = runtimeSource.replace(/^export /gm, '');
   const ends = o.data.personal
@@ -39,7 +41,7 @@ export function generateTimerEmbedCode(o: TimerEmbedOptions): string {
     : `до ${new Date(o.data.end).toISOString().replace('T', ' ').slice(0, 16)} UTC`;
 
   return `${codeHeader(`таймер акции · ${ends}`, o.license)}
-<div id="${id}" style="position:relative;width:100%;max-width:900px;margin:0 auto;">${badge}</div>
+<div id="${id}" style="position:relative;width:100%;max-width:${maxW}px;margin:0 auto;">${badge}</div>
 <script type="module">${domainLockJs(`${id}-badge`, o.license.domain)}
 var GRIDIKA = ${safeJson({ data: o.data })};
 ${runtime}

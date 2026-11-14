@@ -120,7 +120,7 @@ export function createTimerViewer(THREE, container, init) {
   var ROW_GAP = 13;
   function wantTwoRows() {
     var w = stage.clientWidth || container.clientWidth || 600;
-    return state.data.format === 'dhms' && w < 480;
+    return state.data.format === 'dhms' && w < 520;
   }
   function buildLayout() {
     [digitMesh, colonMesh].forEach(function (m) { if (m) { group.remove(m); m.dispose(); } });
