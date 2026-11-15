@@ -777,8 +777,8 @@ export function QrConfigurator() {
   return (
     <div className="w-full">
       {/* MASTER STUDIO CARD CONTAINER */}
-      <div className="relative w-full max-w-5xl mx-auto">
-        <div ref={cardRef} className="relative w-full bg-white rounded-[2.5rem] p-6 sm:p-8 lg:p-10 shadow-[0_24px_64px_-16px_rgba(85,70,50,0.08),0_4px_16px_-2px_rgba(85,70,50,0.03),inset_0_1px_1px_rgba(255,255,255,1)] border border-[#e5dfd2] overflow-hidden select-none">
+      <div className="relative w-full max-w-5xl xl:max-w-6xl mx-auto transition-all duration-300">
+        <div ref={cardRef} className="relative w-full bg-white rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-7 lg:p-10 shadow-[0_24px_64px_-16px_rgba(85,70,50,0.08),0_4px_16px_-2px_rgba(85,70,50,0.03),inset_0_1px_1px_rgba(255,255,255,1)] border border-[#e5dfd2] overflow-hidden select-none">
           
           {/* 3D logo: dark preview that hugs the wave (desktop) */}
           <DarkStage
@@ -828,15 +828,15 @@ export function QrConfigurator() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center relative z-10 lg:h-[560px]">
             
             {/* 1. LEFT ZONE: product navigation on the wave */}
-            <div className="lg:col-span-3 relative lg:h-full flex flex-col rounded-[1.75rem] lg:rounded-none p-5 lg:p-2 bg-[linear-gradient(140deg,var(--vx-accent),color-mix(in_srgb,var(--vx-accent)_70%,var(--vx-deep))_70%,var(--vx-deep))] lg:bg-none text-[var(--vx-on)] select-none">
+            <div className="lg:col-span-3 relative lg:h-full flex flex-col rounded-[1.75rem] lg:rounded-none p-4 sm:p-5 lg:p-2 bg-[linear-gradient(140deg,var(--vx-accent),color-mix(in_srgb,var(--vx-accent)_70%,var(--vx-deep))_70%,var(--vx-deep))] lg:bg-none text-[var(--vx-on)] select-none">
               <div className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.16em] opacity-75 lg:pt-1">
                 <span>Линейка</span>
                 <span className="font-mono tracking-normal">{active.number}/{String(PRODUCTS.length).padStart(2, '0')}</span>
               </div>
 
-              <div key={activeProduct} className="mt-4 lg:mt-auto lg:h-[190px] lg:pr-6 flex flex-col justify-end fx-fade-in">
-                <div className="text-[2rem] lg:text-[2.4rem] font-black tracking-[-0.02em] leading-[1]">{active.label}</div>
-                <p className="text-[13px] font-semibold opacity-80 mt-2.5 leading-snug max-w-[14rem] lg:line-clamp-4">{active.tagline}</p>
+              <div key={activeProduct} className="mt-2.5 sm:mt-4 lg:mt-auto lg:h-[190px] lg:pr-6 flex flex-col justify-end fx-fade-in">
+                <div className="text-[1.75rem] sm:text-[2rem] lg:text-[2.4rem] font-black tracking-[-0.02em] leading-[1]">{active.label}</div>
+                <p className="text-[12.5px] sm:text-[13px] font-semibold opacity-80 mt-1.5 sm:mt-2.5 leading-snug max-w-[16rem] lg:max-w-[14rem] lg:line-clamp-4">{active.tagline}</p>
               </div>
 
               <LiquidNav items={STUDIO_PRODUCTS} activeId={activeProduct} onSelect={selectProduct} />
@@ -844,7 +844,7 @@ export function QrConfigurator() {
 
             {/* 2. CENTER ZONE: Expansive Stage (Switches depending on activeProduct) */}
             <div ref={stageColRef} className="lg:col-span-5 flex flex-col items-center justify-center relative my-1 lg:my-0">
-              <div className="relative w-full h-[360px] sm:h-[430px] lg:h-[520px] flex flex-col items-center justify-center">
+              <div className="relative w-full h-[460px] sm:h-[480px] lg:h-[520px] flex flex-col items-center justify-center overflow-hidden sm:overflow-visible">
 
                 {/* MODE 01: QR MORPH STAGE (Permanently mounted for persistent Three.js context) */}
                 <div
@@ -864,7 +864,7 @@ export function QrConfigurator() {
 
                   {/* Sub-toolbar under the QR stage */}
                   <div className="absolute bottom-2 left-0 right-0 z-20 flex flex-col items-center gap-1.5 pointer-events-auto lg:translate-x-12">
-                    <div className="flex flex-nowrap items-center justify-center gap-2.5 h-9">
+                    <div className="flex flex-nowrap items-center justify-center gap-2 sm:gap-2.5 h-9 max-w-full">
                     <div className="relative w-[68px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center gap-1 shrink-0">
                       <div
                         className={`absolute top-1 left-1 w-7 h-7 rounded-full bg-[#19C37D] shadow-[0_2px_8px_rgba(25,195,125,0.35)] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-none ${
@@ -900,13 +900,13 @@ export function QrConfigurator() {
                     </div>
 
                     {shape === 'tree' && (
-                      <div className="w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-1 shrink-0">
+                      <div className="w-[214px] sm:w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-0.5 sm:gap-1 shrink-0">
                         {SEASON_OPTIONS.map((opt) => (
                           <button
                             key={opt.id}
                             type="button"
                             onClick={() => setSeason(opt.id)}
-                            className={`w-[72px] h-7 flex items-center justify-center gap-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                            className={`w-[66px] sm:w-[72px] h-7 flex items-center justify-center gap-1 sm:gap-1.5 rounded-full text-[10.5px] sm:text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
                               season === opt.id ? 'bg-[#132A22] text-white shadow-sm' : 'text-[#57534e] hover:bg-[#f3efe7]'
                             }`}
                           >
@@ -918,13 +918,13 @@ export function QrConfigurator() {
                     )}
 
                     {shape === 'island' && (
-                      <div className="w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-1 shrink-0">
+                      <div className="w-[214px] sm:w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-0.5 sm:gap-1 shrink-0">
                         {ISLAND_OPTIONS.map((opt) => (
                           <button
                             key={opt.id}
                             type="button"
                             onClick={() => setIslandMode(opt.id)}
-                            className={`w-[72px] h-7 flex items-center justify-center gap-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                            className={`w-[66px] sm:w-[72px] h-7 flex items-center justify-center gap-1 sm:gap-1.5 rounded-full text-[10.5px] sm:text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
                               islandMode === opt.id ? 'bg-[#132A22] text-white shadow-sm' : 'text-[#57534e] hover:bg-[#f3efe7]'
                             }`}
                           >
@@ -936,13 +936,13 @@ export function QrConfigurator() {
                     )}
 
                     {shape === 'maze' && (
-                      <div className="w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-1 shrink-0">
+                      <div className="w-[214px] sm:w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-0.5 sm:gap-1 shrink-0">
                         {GARDEN_OPTIONS.map((opt) => (
                           <button
                             key={opt.id}
                             type="button"
                             onClick={() => setGardenMode(opt.id)}
-                            className={`w-[72px] h-7 flex items-center justify-center gap-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                            className={`w-[66px] sm:w-[72px] h-7 flex items-center justify-center gap-1 sm:gap-1.5 rounded-full text-[10.5px] sm:text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
                               gardenMode === opt.id ? 'bg-[#132A22] text-white shadow-sm' : 'text-[#57534e] hover:bg-[#f3efe7]'
                             }`}
                           >
@@ -954,13 +954,13 @@ export function QrConfigurator() {
                     )}
 
                     {shape === 'equalizer' && (
-                      <div className="w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-1 shrink-0">
+                      <div className="w-[214px] sm:w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-0.5 sm:gap-1 shrink-0">
                         {EQ_OPTIONS.map((opt) => (
                           <button
                             key={opt.id}
                             type="button"
                             onClick={() => setEqMode(opt.id)}
-                            className={`w-[72px] h-7 flex items-center justify-center gap-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                            className={`w-[66px] sm:w-[72px] h-7 flex items-center justify-center gap-1 sm:gap-1.5 rounded-full text-[10.5px] sm:text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
                               eqMode === opt.id ? 'bg-[#132A22] text-white shadow-sm' : 'text-[#57534e] hover:bg-[#f3efe7]'
                             }`}
                           >
@@ -972,13 +972,13 @@ export function QrConfigurator() {
                     )}
 
                     {shape === 'cake' && (
-                      <div className="w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-1 shrink-0">
+                      <div className="w-[214px] sm:w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-0.5 sm:gap-1 shrink-0">
                         {CAKE_OPTIONS.map((opt) => (
                           <button
                             key={opt.id}
                             type="button"
                             onClick={() => setCakeFlavor(opt.id)}
-                            className={`w-[72px] h-7 flex items-center justify-center gap-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                            className={`w-[66px] sm:w-[72px] h-7 flex items-center justify-center gap-1 sm:gap-1.5 rounded-full text-[10.5px] sm:text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
                               cakeFlavor === opt.id ? 'bg-[#132A22] text-white shadow-sm' : 'text-[#57534e] hover:bg-[#f3efe7]'
                             }`}
                           >
@@ -990,13 +990,13 @@ export function QrConfigurator() {
                     )}
 
                     {shape === 'castle' && (
-                      <div className="w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-1 shrink-0">
+                      <div className="w-[214px] sm:w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-0.5 sm:gap-1 shrink-0">
                         {CASTLE_OPTIONS.map((opt) => (
                           <button
                             key={opt.id}
                             type="button"
                             onClick={() => setCastleMode(opt.id)}
-                            className={`w-[72px] h-7 flex items-center justify-center gap-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                            className={`w-[66px] sm:w-[72px] h-7 flex items-center justify-center gap-1 sm:gap-1.5 rounded-full text-[10.5px] sm:text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
                               castleMode === opt.id ? 'bg-[#132A22] text-white shadow-sm' : 'text-[#57534e] hover:bg-[#f3efe7]'
                             }`}
                           >
@@ -1008,13 +1008,13 @@ export function QrConfigurator() {
                     )}
 
                     {shape === 'city' && (
-                      <div className="w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-1 shrink-0">
+                      <div className="w-[214px] sm:w-[234px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center justify-between gap-0.5 sm:gap-1 shrink-0">
                         {TIME_OPTIONS.map((opt) => (
                           <button
                             key={opt.id}
                             type="button"
                             onClick={() => setTimeOfDay(opt.id)}
-                            className={`w-[72px] h-7 flex items-center justify-center gap-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                            className={`w-[66px] sm:w-[72px] h-7 flex items-center justify-center gap-1 sm:gap-1.5 rounded-full text-[10.5px] sm:text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
                               timeOfDay === opt.id ? 'bg-[#132A22] text-white shadow-sm' : 'text-[#57534e] hover:bg-[#f3efe7]'
                             }`}
                           >

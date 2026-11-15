@@ -124,19 +124,19 @@ export function TimerStage({
 
   return (
     <div className="w-full h-full relative">
-      <div className="w-full h-full pb-20 lg:pl-[96px] flex items-center justify-center">
+      <div className="w-full h-full pb-24 sm:pb-20 lg:pl-[96px] flex items-center justify-center">
         <div
           ref={hostRef}
-          className={`relative w-full select-none transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-            size === 's' ? 'scale-[0.86]' : size === 'l' ? 'scale-[1.12]' : 'scale-100'
+          className={`relative w-full max-w-[280px] sm:max-w-[340px] lg:max-w-none select-none transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+            size === 's' ? 'scale-[0.86]' : size === 'l' ? 'scale-[1.06] sm:scale-[1.12]' : 'scale-100'
           }`}
           style={{ transformOrigin: 'center center' }}
         />
       </div>
 
       <div className="absolute bottom-2 left-0 right-0 z-20 flex flex-col items-center gap-1.5 pointer-events-auto lg:translate-x-12">
-        <div className="flex flex-nowrap items-center justify-center gap-2.5 h-9">
-          <div className={`${pill} pl-2 pr-3 gap-1.5`}>
+        <div className="flex flex-nowrap items-center justify-center gap-2 sm:gap-2.5 h-9 max-w-full">
+          <div className={`${pill} pl-1.5 pr-2.5 sm:pl-2 sm:pr-3 gap-1 sm:gap-1.5 max-w-[calc(100vw-36px)]`}>
             {TIMER_MODE_OPTIONS.map((o) => {
               const on = state.mode === o.id;
               return (
@@ -147,12 +147,12 @@ export function TimerStage({
                   aria-label={o.label}
                   aria-pressed={on}
                   onClick={() => state.setMode(o.id)}
-                  className={`w-[24px] h-[24px] rounded-full shrink-0 cursor-pointer transition-transform duration-200 ${on ? 'scale-110' : 'hover:scale-110'}`}
+                  className={`w-[22px] h-[22px] sm:w-[24px] sm:h-[24px] rounded-full shrink-0 cursor-pointer transition-transform duration-200 ${on ? 'scale-110' : 'hover:scale-110'}`}
                   style={{ background: o.swatch, boxShadow: on ? '0 0 0 2px #fff, 0 0 0 4px #132A22' : 'inset 0 0 0 1px rgba(0,0,0,0.14)' }}
                 />
               );
             })}
-            <span className="ml-1 min-w-[96px] text-[11.5px] font-extrabold text-[#132A22] whitespace-nowrap">{TIMER_MODE_OPTIONS.find((o) => o.id === state.mode)?.label}</span>
+            <span className="ml-1 min-w-[72px] sm:min-w-[96px] text-[10.5px] sm:text-[11.5px] font-extrabold text-[#132A22] whitespace-nowrap">{TIMER_MODE_OPTIONS.find((o) => o.id === state.mode)?.label}</span>
           </div>
         </div>
         {onSizeChange && <SizePill size={size} onChange={onSizeChange} productId="sale-timer" />}

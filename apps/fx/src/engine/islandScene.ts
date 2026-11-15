@@ -330,7 +330,7 @@ export class IslandDecor implements StageScene {
     );
     this.waterMesh.count = this.water.length;
     this.waterMesh.receiveShadow = true;
-    const greys = ['#ffffff', '#f6f5f2', '#eeece8', '#e9e7e2', '#f9f8f6'];
+    const greys = ['#ffffff'];
     this.water.forEach((w, i) => {
       this.waterQr.push(new THREE.Color(greys[Math.floor(rand(i * 3 + 5) * greys.length)]));
       const base = new THREE.Color(w.shallow ? this.pal.waterShallow : this.pal.waterDeep);

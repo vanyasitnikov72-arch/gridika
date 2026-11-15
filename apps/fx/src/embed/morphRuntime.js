@@ -19,14 +19,19 @@ var SPEED = { slow: 1.6, normal: 1, fast: 0.6 };
 
 /** base64 RGB565 → Float32Array of sRGB 0..1 triples */
 export function decodeMorphGrid(s, n) {
-  var bin = atob(s), out = new Float32Array(n * 3);
-  for (var i = 0; i < n; i++) {
-    var v = bin.charCodeAt(i * 2) | (bin.charCodeAt(i * 2 + 1) << 8);
-    out[i * 3] = ((v >> 11) & 31) / 31;
-    out[i * 3 + 1] = ((v >> 5) & 63) / 63;
-    out[i * 3 + 2] = (v & 31) / 31;
+  if (typeof s !== 'string' || !s) return new Float32Array(n * 3);
+  try {
+    var bin = atob(s), out = new Float32Array(n * 3);
+    for (var i = 0; i < n; i++) {
+      var v = bin.charCodeAt(i * 2) | (bin.charCodeAt(i * 2 + 1) << 8);
+      out[i * 3] = ((v >> 11) & 31) / 31;
+      out[i * 3 + 1] = ((v >> 5) & 63) / 63;
+      out[i * 3 + 2] = (v & 31) / 31;
+    }
+    return out;
+  } catch (e) {
+    return new Float32Array(n * 3);
   }
-  return out;
 }
 
 export function createMorphViewer(THREE, container, init) {

@@ -277,7 +277,7 @@ export class CakeDecor implements StageScene {
     );
     this.tileMesh.count = this.tiles.length;
     this.tileMesh.receiveShadow = true;
-    const greys = ['#ffffff', '#f6f5f2', '#eeece8', '#e9e7e2', '#f9f8f6'];
+    const greys = ['#ffffff'];
     this.tiles.forEach((_, i) => {
       this.tileQr.push(new THREE.Color(greys[Math.floor(rand(i * 3 + 5) * greys.length)]));
       this.tileSide.push(new THREE.Color(this.pal.cream).multiplyScalar(0.97 + rand(i * 7 + 2) * 0.05));

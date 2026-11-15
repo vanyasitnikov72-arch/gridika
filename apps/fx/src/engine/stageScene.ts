@@ -41,7 +41,7 @@ export interface StageScene {
 export const NEUTRAL_LIGHT = {
   ambient: { color: '#ffffff', intensity: 1.25 },
   sun: { color: '#ffffff', intensity: 2.5, position: [22, 48, 28] as [number, number, number] },
-  slab: '#f3f1ec',
+  slab: '#ffffff',
 };
 
 export function resetStageLighting(ambient: THREE.AmbientLight, sun: THREE.DirectionalLight) {

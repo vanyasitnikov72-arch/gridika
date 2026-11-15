@@ -2,7 +2,6 @@
 import { codeHeader } from './codeNotice';
 import runtimeSource from '../embed/morphRuntime.js?raw';
 import type { MorphData } from './morphScene';
-import { domainLockJs } from './domainLock';
 
 /**
  * Site snippet for 05 · Морф «до / после» (Tilda T123, WordPress, Webflow, Wix, plain HTML).
@@ -34,12 +33,11 @@ export function morphEmbedHeight(d: { w: number; h: number }, maxWidth = 480): n
 export function generateMorphEmbedCode(o: MorphEmbedOptions): string {
   const id = 'gridika-morph-' + Math.random().toString(36).slice(2, 8);
   const maxW = o.maxWidth ?? 480;
-  const badge = `<a id="${id}-badge" href="https://gridika.ru" target="_blank" rel="noopener" style="position:absolute;right:12px;bottom:52px;z-index:5;font:600 11px system-ui,-apple-system,sans-serif;color:#64748b;text-decoration:none;background:rgba(255,255,255,0.85);padding:4px 9px;border-radius:6px;border:1px solid rgba(0,0,0,0.08)">Gridika</a>`;
   const runtime = runtimeSource.replace(/^export /gm, '');
 
   return `${codeHeader('морф «до / после»', o.license)}
-<div id="${id}" style="position:relative;width:100%;max-width:${maxW}px;aspect-ratio:${o.data.w}/${o.data.h};margin:0 auto;border-radius:18px;overflow:hidden;">${badge}</div>
-<script type="module">${domainLockJs(`${id}-badge`, o.license.domain)}
+<div id="${id}" style="position:relative;width:100%;max-width:${maxW}px;aspect-ratio:${o.data.w}/${o.data.h};margin:0 auto;border-radius:18px;overflow:hidden;"></div>
+<script type="module">
 var GRIDIKA = ${safeJson({ data: o.data })};
 ${runtime}
 (async function () {

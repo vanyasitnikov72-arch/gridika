@@ -457,7 +457,7 @@ export class CityDecor implements StageScene {
     );
     this.tileMesh.count = this.tiles.length;
     this.tileMesh.receiveShadow = true;
-    const greys = ['#ffffff', '#f6f5f2', '#eeece8', '#e9e7e2', '#f9f8f6'];
+    const greys = ['#ffffff'];
     const m4 = new THREE.Matrix4();
     this.tiles.forEach((t, i) => {
       m4.makeTranslation(t.x, 0.03, t.z);

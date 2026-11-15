@@ -46,7 +46,6 @@ export const DEMO_ORDER: OrderItem[] = [
   {
     p: 'voxel-morph',
     morph: {
-      data: { res: 48, a: { w: 48, h: 36, cols: ['#19c37d'] }, b: { w: 48, h: 36, cols: ['#f59e0b'] } },
       settings: { res: 48, mode: 'wave', control: 'slider', depth: 'flat', speed: 'normal', labelA: 'До', labelB: 'После', labelStyle: 'dark' },
     },
   },

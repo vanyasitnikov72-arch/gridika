@@ -76,6 +76,7 @@ export function createTimerViewer(THREE, container, init) {
     '.gtm-flash{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(255,255,255,.95),rgba(255,255,255,0) 70%);opacity:0;pointer-events:none}',
     '.gtm-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:13px 24px;max-width:calc(100% - 16px);overflow-wrap:anywhere;text-align:center;border-radius:999px;font-weight:800;font-size:15px;text-decoration:none;box-shadow:0 10px 24px -10px rgba(0,0,0,.45);transition:transform .2s,filter .2s}',
     '.gtm-btn:hover{transform:translateY(-1px);filter:brightness(1.06)}',
+    init.studio ? '.gtm-btn{margin-top:6px;padding:9px 20px;font-size:13.5px}' : '',
   ].join('');
   if (getComputedStyle(container).position === 'static') container.style.position = 'relative';
   var root = document.createElement('div');

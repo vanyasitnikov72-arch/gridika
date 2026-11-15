@@ -137,7 +137,7 @@ export function CardStage({ state, active, size = 'm', onSizeChange }: { state: 
       </div>
 
       <div className="absolute bottom-2 left-0 right-0 z-20 flex flex-col items-center gap-1.5 pointer-events-auto lg:translate-x-12">
-        <div className="flex flex-nowrap items-center justify-center gap-2.5 h-9">
+        <div className="flex flex-nowrap items-center justify-center gap-2 sm:gap-2.5 h-9 max-w-full">
           {/* front / back */}
           <div className={`relative w-[68px] ${pill}`}>
             <div
@@ -171,7 +171,7 @@ export function CardStage({ state, active, size = 'm', onSizeChange }: { state: 
           </div>
 
           {/* colours: swatches show the card colour and its accent */}
-          <div className={`w-[234px] justify-between px-1.5 ${pill}`}>
+          <div className={`w-[170px] sm:w-[214px] justify-between px-2 sm:px-2.5 ${pill}`}>
             {CARD_MODES.map((opt) => {
               const p = (CARD_PALETTES as Record<string, { bgA: string; accent: string }>)[opt.id];
               const on = state.mode === opt.id;

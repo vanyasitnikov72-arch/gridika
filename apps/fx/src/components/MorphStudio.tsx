@@ -174,20 +174,20 @@ export function MorphStage({
   const d = state.data;
   return (
     <div className="w-full h-full relative">
-      <div className="w-full h-full pb-20 lg:pl-[80px] flex items-center justify-center">
+      <div className="w-full h-full pb-20 flex items-center justify-center lg:justify-start lg:pl-[76px] xl:pl-[84px]">
         {/* the block keeps the pictures' proportions, like on the site; clear of the wave on desktop */}
         <div
           ref={hostRef}
-          className={`relative w-full max-h-full rounded-[18px] overflow-hidden select-none shadow-[0_18px_40px_-18px_rgba(40,20,30,0.45)] lg:-translate-x-[6px] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-            size === 's' ? 'scale-[0.86]' : size === 'l' ? 'scale-[1.12]' : 'scale-100'
+          className={`relative rounded-[18px] overflow-hidden select-none shadow-[0_18px_40px_-18px_rgba(40,20,30,0.45)] w-[88%] sm:w-[90%] max-w-[320px] sm:max-w-[350px] lg:max-w-none lg:w-[325px] xl:w-[345px] origin-center lg:origin-left transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+            size === 's' ? 'scale-[0.88]' : size === 'l' ? 'scale-[1.10]' : 'scale-100'
           }`}
-          style={{ aspectRatio: d ? `${d.w} / ${d.h}` : '4 / 3', transformOrigin: 'center center' }}
+          style={{ aspectRatio: d ? `${d.w} / ${d.h}` : '4 / 3' }}
         />
       </div>
 
-      <div className="absolute bottom-2 left-0 right-0 z-20 flex flex-col items-center gap-1.5 pointer-events-auto lg:translate-x-12">
-        <div className="flex flex-nowrap items-center justify-center gap-2.5 h-9">
-          <div className={`${pill} pr-3`}>
+      <div className="absolute bottom-2 left-0 right-0 z-20 flex flex-col items-center gap-1.5 pointer-events-auto lg:translate-x-8 xl:translate-x-10">
+        <div className="flex flex-nowrap items-center justify-center gap-2 sm:gap-2.5 h-9 max-w-full">
+          <div className={`${pill} pl-1 pr-2 sm:pr-3 gap-0.5 sm:gap-1 max-w-[calc(100vw-36px)]`}>
             {MORPH_MODE_OPTIONS.map((o) => {
               const on = state.settings.mode === o.id;
               return (
@@ -347,7 +347,7 @@ export function MorphPanel({ state }: { state: MorphState }) {
       </div>
 
       <div className="text-[11px] font-bold text-right text-[#a8a29e]">
-        {d ? `${d.w}×${d.h} = ${(d.w * d.h).toLocaleString('ru-RU')} кубиков · фото не уходят на сервер` : 'Читаем картинки…'}
+        {d?.w && d?.h ? `${d.w}×${d.h} = ${(d.w * d.h).toLocaleString('ru-RU')} кубиков · фото не уходят на сервер` : 'Читаем картинки…'}
       </div>
     </div>
   );

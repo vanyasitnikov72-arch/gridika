@@ -159,7 +159,7 @@ export function LogoStage({ state, active, size = 'm', onSizeChange }: { state: 
       </div>
 
       <div className="absolute bottom-2 left-0 right-0 z-20 flex flex-col items-center gap-1.5 pointer-events-auto lg:translate-x-12">
-        <div className="flex flex-nowrap items-center justify-center gap-2.5 h-9">
+        <div className="flex flex-nowrap items-center justify-center gap-2 sm:gap-2.5 h-9 max-w-full">
           <button
             type="button"
             title="Собрать заново"

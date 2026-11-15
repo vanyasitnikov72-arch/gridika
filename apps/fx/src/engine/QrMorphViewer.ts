@@ -400,7 +400,7 @@ export class QrMorphViewer {
       this.slabMesh = new THREE.Mesh(
         new THREE.BoxGeometry(slabW, 0.9, slabW),
         new THREE.MeshStandardMaterial({
-          color: this.theme.isDark ? '#23201d' : '#f3f1ec',
+          color: this.theme.isDark ? '#23201d' : '#ffffff',
           roughness: 0.85,
         })
       );
@@ -812,8 +812,9 @@ export class QrMorphViewer {
     const fitW = THREE.MathUtils.lerp((N + 2.4) * 1.56, N * 1.62 + 4, e) * scaleFactor;
     const fitH = THREE.MathUtils.lerp((N + 2.4) * 1.56, treeH * 1.18 + 4, e) * scaleFactor;
     const vh = Math.max(fitH, fitW / aspect);
-    // In studio, nudge right away from jade wave; in standalone, stay dead-center (shift = 0)
-    const shift = this.standalone ? 0 : vh * aspect * THREE.MathUtils.lerp(0.11, 0.06, e);
+    // In studio on desktop, nudge right away from jade wave; in standalone or on mobile, stay dead-center (shift = 0)
+    const isDesktop = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches;
+    const shift = this.standalone || !isDesktop ? 0 : vh * aspect * THREE.MathUtils.lerp(0.11, 0.06, e);
     this.orthoCam.left = (-vh * aspect) / 2 - shift;
     this.orthoCam.right = (vh * aspect) / 2 - shift;
     this.orthoCam.top = vh / 2;

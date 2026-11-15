@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'preact/hooks';
 import type { CartItem } from '../engine/cartStore';
 import { calculateCartTotal } from './CartModal';
 
@@ -7,7 +8,12 @@ interface CartFloatingPillProps {
 }
 
 export function CartFloatingPill({ items, onOpenCart }: CartFloatingPillProps) {
-  if (items.length === 0) return null;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || items.length === 0) return null;
 
   const count = items.length;
   const { total } = calculateCartTotal(count);
@@ -15,19 +21,19 @@ export function CartFloatingPill({ items, onOpenCart }: CartFloatingPillProps) {
   return (
     <aside
       aria-label="Корзина заказов"
-      className="fixed bottom-5 sm:bottom-6 left-1/2 -translate-x-1/2 z-40 animate-in fade-in slide-in-from-bottom-4 duration-300 pointer-events-auto"
+      className="fixed bottom-3 sm:bottom-6 left-1/2 -translate-x-1/2 z-40 animate-in fade-in slide-in-from-bottom-4 duration-300 pointer-events-auto"
     >
       <button
         type="button"
         onClick={onOpenCart}
-        className="h-12 pl-4 pr-5 rounded-full bg-[#132A22]/95 hover:bg-[#1a382d] text-white border border-[#19C37D]/40 shadow-[0_12px_32px_-8px_rgba(19,42,34,0.65)] hover:shadow-[0_16px_36px_-6px_rgba(25,195,125,0.4)] backdrop-blur-md flex items-center gap-3 transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer select-none group"
+        className="h-11 sm:h-12 pl-3.5 pr-4.5 sm:pl-4 sm:pr-5 rounded-full bg-[#132A22]/95 hover:bg-[#1a382d] text-white border border-[#19C37D]/40 shadow-[0_12px_32px_-8px_rgba(19,42,34,0.65)] hover:shadow-[0_16px_36px_-6px_rgba(25,195,125,0.4)] backdrop-blur-md flex items-center gap-2.5 sm:gap-3 transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer select-none group"
       >
-        <span className="relative flex items-center justify-center w-7 h-7 rounded-full bg-[var(--vx-accent)] text-[#132A22] text-xs font-black shrink-0 shadow-sm">
+        <span className="relative flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[var(--vx-accent)] text-[#132A22] text-[11px] sm:text-xs font-black shrink-0 shadow-sm">
           {count}
           <span className="absolute -inset-1 rounded-full bg-[var(--vx-accent)] opacity-40 animate-ping pointer-events-none" />
         </span>
 
-        <div className="flex items-baseline gap-2 text-xs sm:text-[13px] font-black">
+        <div className="flex items-baseline gap-1.5 sm:gap-2 text-xs sm:text-[13px] font-black">
           <span className="text-[#F0EBE9]">В заказе:</span>
           <span className="text-[var(--vx-accent)]">{total.toLocaleString('ru-RU')} ₽</span>
         </div>

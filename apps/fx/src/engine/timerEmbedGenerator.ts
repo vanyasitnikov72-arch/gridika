@@ -2,7 +2,6 @@
 import { codeHeader } from './codeNotice';
 import runtimeSource from '../embed/timerRuntime.js?raw';
 import type { TimerData } from './timerScene';
-import { domainLockJs } from './domainLock';
 
 /**
  * Site snippet for 06 · Таймер акции (Tilda T123, WordPress, Webflow, Wix, plain HTML).
@@ -34,15 +33,14 @@ const safeJson = (v: unknown) => JSON.stringify(v).replace(/</g, BS + 'u003c').r
 export function generateTimerEmbedCode(o: TimerEmbedOptions): string {
   const id = 'gridika-timer-' + Math.random().toString(36).slice(2, 8);
   const maxW = o.maxWidth ?? 320;
-  const badge = `<a id="${id}-badge" href="https://gridika.ru" target="_blank" rel="noopener" style="position:absolute;right:8px;top:8px;z-index:5;font:600 11px system-ui,-apple-system,sans-serif;color:#64748b;text-decoration:none;background:rgba(255,255,255,0.85);padding:4px 9px;border-radius:6px;border:1px solid rgba(0,0,0,0.08)">Gridika</a>`;
   const runtime = runtimeSource.replace(/^export /gm, '');
   const ends = o.data.personal
     ? `личный, ${o.data.personal} ч с первого визита`
     : `до ${new Date(o.data.end).toISOString().replace('T', ' ').slice(0, 16)} UTC`;
 
   return `${codeHeader(`таймер акции · ${ends}`, o.license)}
-<div id="${id}" style="position:relative;width:100%;max-width:${maxW}px;margin:0 auto;">${badge}</div>
-<script type="module">${domainLockJs(`${id}-badge`, o.license.domain)}
+<div id="${id}" style="position:relative;width:100%;max-width:${maxW}px;margin:0 auto;"></div>
+<script type="module">
 var GRIDIKA = ${safeJson({ data: o.data })};
 ${runtime}
 (async function () {

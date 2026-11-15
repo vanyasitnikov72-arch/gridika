@@ -279,7 +279,7 @@ export class TreeDecor {
     const slabW = N + 2.4;
     const slab = new THREE.Mesh(
       this.track(new THREE.BoxGeometry(slabW, 0.9, slabW)),
-      this.track(new THREE.MeshStandardMaterial({ color: '#f3f1ec', roughness: 0.85 }))
+      this.track(new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.85 }))
     );
     slab.position.y = -0.45;
     slab.receiveShadow = true;
@@ -299,7 +299,7 @@ export class TreeDecor {
     );
     tiles.receiveShadow = true;
     const m4 = new THREE.Matrix4();
-    const greys = ['#ffffff', '#f6f5f2', '#eeece8', '#e6e4df', '#f9f8f6'];
+    const greys = ['#ffffff'];
     this.lightModules.forEach((p, i) => {
       m4.makeTranslation(p.x, 0.03, p.z);
       tiles.setMatrixAt(i, m4);

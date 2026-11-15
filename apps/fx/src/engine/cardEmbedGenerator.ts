@@ -3,7 +3,6 @@ import { codeHeader } from './codeNotice';
 import runtimeSource from '../embed/cardRuntime.js?raw';
 import { buildCardData, type CardMode, type CardStyle } from './cardScene';
 import type { CardContact } from './vcard';
-import { domainLockJs } from './domainLock';
 
 /**
  * Tilda T123 snippet for 02 · Визитка с QR.
@@ -61,18 +60,12 @@ export function generateCardEmbedCode(o: CardEmbedOptions): string {
     ? codeHeader('визитка с QR', o.license)
     : `<!-- Gridika: 3D-визитка с QR -->`;
 
-  // the badge always ships; with a license it is removed only on the licensed domain
-  const badge = `<a id="${id}-badge" href="https://gridika.ru" target="_blank" rel="noopener" style="position:absolute;right:12px;bottom:12px;z-index:5;font:600 11px system-ui,-apple-system,sans-serif;color:#64748b;text-decoration:none;background:rgba(255,255,255,0.85);padding:4px 9px;border-radius:6px;border:1px solid rgba(0,0,0,0.08)">Gridika</a>`;
-  const lock = o.license
-    ? domainLockJs(`${id}-badge`, o.license.domain)
-    : '';
-
   const runtime = runtimeSource.replace(/^export /gm, '');
 
   return `${header}
-<div id="${id}" style="position:relative;width:100%;max-width:${maxW}px;height:${height}px;margin:0 auto;">${badge}</div>
+<div id="${id}" style="position:relative;width:100%;max-width:${maxW}px;height:${height}px;margin:0 auto;"></div>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap">
-<script type="module">${lock}
+<script type="module">
 var GRIDIKA = ${safeJson(payload)};
 ${runtime}
 (async function () {
