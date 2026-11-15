@@ -15,12 +15,12 @@ interface Props {
 
 const { 
   title, 
-  description = "Готовые интерактивные 3D-эффекты и виджеты для Tilda, WordPress, Webflow, Wix и любого сайта. 3D QR-код, визитка, подарок с промокодом, воксели. Установка за минуту без программиста.",
+  description = "Gridika — готовые интерактивные 3D-виджеты для любого сайта: 3D QR-код, визитка, подарок с промокодом и воксели. Установка за 1 минуту в Tilda, WordPress или Webflow без кода. Разовая оплата от 1 490 ₽ без подписок.",
   keywords = "3d эффекты для сайта, 3d qr код, виджеты для тильды, интерактивные виджеты, 3d для tilda, 3d для wordpress, webflow 3d, voxel logo, qr визитка 3d, 3d виджеты",
   noindex = false,
   canonicalUrl,
   ogType = 'website',
-  ogImage = 'https://gridika.ru/gridika-avatar.png',
+  ogImage = 'https://gridika.ru/gridika-radar-logo.png',
   structuredData
 } = Astro.props;
 
@@ -60,9 +60,9 @@ const computedCanonical = canonicalUrl || (currentPath === '/' ? `${siteUrl}/` :
     <meta name="theme-color" content="#F0EBE9" />
 
     {/* Favicon & Web App Icons */}
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate icon" type="image/png" href="/gridika-avatar.png" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/gridika-radar-logo.svg" />
+    <link rel="alternate icon" type="image/png" href="/gridika-radar-logo.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
@@ -75,7 +75,7 @@ const computedCanonical = canonicalUrl || (currentPath === '/' ? `${siteUrl}/` :
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="512" />
     <meta property="og:image:height" content="512" />
-    <meta property="og:image:alt" content="Gridika — 3D-эффекты для любого сайта" />
+    <meta property="og:image:alt" content="Gridika — интерактивные 3D-эффекты и виджеты для сайта" />
     <meta property="og:locale" content="ru_RU" />
 
     {/* Twitter / X Cards */}

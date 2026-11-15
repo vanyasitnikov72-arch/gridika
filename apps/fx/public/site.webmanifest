@@ -1,7 +1,7 @@
 {
-  "name": "Gridika — 3D-эффекты для любого сайта",
+  "name": "Gridika — интерактивные 3D-эффекты и виджеты для сайта",
   "short_name": "Gridika",
-  "description": "Готовые интерактивные 3D-эффекты для Tilda, WordPress, Webflow, Wix и любого сайта. Установка за минуту без программиста.",
+  "description": "Gridika — готовые интерактивные 3D-виджеты для любого сайта: 3D QR-код, визитка, подарок с промокодом и воксели. Установка за минуту без программиста.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -10,13 +10,13 @@
   "lang": "ru",
   "icons": [
     {
-      "src": "/gridika-avatar.png",
+      "src": "/gridika-radar-logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/gridika-avatar.svg",
+      "src": "/gridika-radar-logo.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
