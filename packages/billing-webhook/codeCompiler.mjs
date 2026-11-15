@@ -15378,442 +15378,442 @@ ${runtime}
 }
 
 // raw-file:E:\Programming\temka\apps\fx\src\embed\morphRuntime.js
-var morphRuntime_default = `/* Gridika \xB7 \u041C\u043E\u0440\u0444 \xAB\u0434\u043E / \u043F\u043E\u0441\u043B\u0435\xBB \u2014 runtime shared by the studio and the site snippet.
- * Plain JS without imports: three.js is passed in. Both pictures come as colour grids of the same
- * size (RGB565, base64), so the snippet carries no image files.
- *
- * data: { w, h, a: '<base64 RGB565>', b: '<base64 RGB565>', labels: ['\u0414\u043E', '\u041F\u043E\u0441\u043B\u0435'] | null,
- *         speed: 'slow' | 'normal' | 'fast', labelStyle: 'dark' | 'light', depth: 'flat' | 'deep',
- *         control: 'slider' | 'scroll' | 'auto', mode: 'wave' | 'burst' | 'pixel' }
- */
-
-export var MORPH_MODES = {
-  wave: { label: '\u0412\u043E\u043B\u043D\u0430' },
-  burst: { label: '\u0412\u0437\u0440\u044B\u0432' },
-  pixel: { label: '\u041F\u0438\u043A\u0441\u0435\u043B\u044C' },
-  spiral: { label: '\u0421\u043F\u0438\u0440\u0430\u043B\u044C' },
-  rain: { label: '\u0414\u043E\u0436\u0434\u044C' },
-  mosaic: { label: '\u041C\u043E\u0437\u0430\u0438\u043A\u0430' },
-};
-var SPEED = { slow: 1.6, normal: 1, fast: 0.6 };
-
-/** base64 RGB565 \u2192 Float32Array of sRGB 0..1 triples */
-export function decodeMorphGrid(s, n) {
-  if (typeof s !== 'string' || !s) return new Float32Array(n * 3);
-  try {
-    var bin = atob(s), out = new Float32Array(n * 3);
-    for (var i = 0; i < n; i++) {
-      var v = bin.charCodeAt(i * 2) | (bin.charCodeAt(i * 2 + 1) << 8);
-      out[i * 3] = ((v >> 11) & 31) / 31;
-      out[i * 3 + 1] = ((v >> 5) & 63) / 63;
-      out[i * 3 + 2] = (v & 31) / 31;
-    }
-    return out;
-  } catch (e) {
-    return new Float32Array(n * 3);
-  }
-}
-
-export function createMorphViewer(THREE, container, init) {
-  var U = 0.5;
-  var state = { data: init.data };
-  var api = {};
-  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function clamp01(t) { return t < 0 ? 0 : t > 1 ? 1 : t; }
-  function easeInOut(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
-  function smooth(t) { return t * t * (3 - 2 * t); }
-  function rnd(i) { var n = Math.sin(i * 127.1 + 311.7) * 43758.5453; return n - Math.floor(n); }
-
-  // ---------- renderer / scene ----------
-  var renderer;
-  try {
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'default' });
-  } catch (e1) {
-    try { renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true }); } catch (e2) {
-      console.warn('Morph WebGLRenderer init failed:', e2);
-      var noop = function () {};
-      return { setData: noop, setProgress: noop, setPaused: noop, snapshot: function () { return document.createElement('canvas'); }, dispose: noop };
-    }
-  }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  if ('outputColorSpace' in renderer) renderer.outputColorSpace = THREE.SRGBColorSpace;
-  if (getComputedStyle(container).position === 'static') container.style.position = 'relative';
-  container.appendChild(renderer.domElement);
-  var cv = renderer.domElement;
-  cv.style.display = 'block'; cv.style.width = '100%'; cv.style.height = '100%'; cv.style.touchAction = 'pan-y';
-
-  var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(28, 1, 0.1, 500);
-  var group = new THREE.Group(); scene.add(group);
-  var D = U * 0.6, cube = null;
-  function depthOf(d) { return d.depth === 'deep' ? U * 1.6 : U * 0.6; }
-
-  // Unlit colours with a fixed shade per face: the face looking at the camera keeps the exact photo
-  // colour, sides and tops darken a little so lifted cubes read as 3D.
-  var mat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-  mat.onBeforeCompile = function (sh) {
-    sh.vertexShader = sh.vertexShader
-      .replace('#include <common>', '#include <common>\\nvarying vec3 vViewN;')
-      .replace('#include <begin_vertex>', [
-        '#include <begin_vertex>',
-        'vec3 nn = normal;',
-        '#ifdef USE_INSTANCING',
-        'nn = mat3(instanceMatrix) * nn;',
-        '#endif',
-        'vViewN = normalize(normalMatrix * nn);',
-      ].join('\\n'));
-    sh.fragmentShader = sh.fragmentShader
-      .replace('#include <common>', '#include <common>\\nvarying vec3 vViewN;')
-      .replace('#include <color_fragment>', [
-        '#include <color_fragment>',
-        'vec3 n = normalize(vViewN);',
-        'float shade = 0.58 + 0.42 * max(n.z, 0.0) + 0.12 * n.y;',
-        'diffuseColor.rgb *= clamp(shade, 0.4, 1.0);',
-      ].join('\\n'));
-  };
-  mat.customProgramCacheKey = function () { return 'gridika-morph-faces'; };
-
-  // ---------- overlay: labels, slider, scroll hint, autoplay pill (plain DOM on top of the canvas) ----------
-  var css = [
-    '.gmx{position:absolute;inset:0;pointer-events:none;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#fff}',
-    '.gmx-chip{position:absolute;top:12px;padding:5px 11px;border-radius:999px;background:rgba(18,16,26,.5);font-size:12px;font-weight:700;letter-spacing:.02em;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:opacity .3s}',
-    '.gmx-light .gmx-chip{background:rgba(255,255,255,.88);color:#1d1a24;box-shadow:0 2px 10px rgba(0,0,0,.12)}',
-    '.gmx-glass{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;border-radius:999px;background:rgba(18,16,26,.42);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,.2),inset 0 0 0 1px rgba(255,255,255,.14);transition:opacity .45s,transform .45s}',
-    '.gmx-slider{width:min(68%,400px);height:44px;padding:0 22px;box-sizing:border-box;pointer-events:auto;cursor:grab;touch-action:none;outline:none}',
-    '.gmx-slider:focus-visible{box-shadow:0 8px 24px rgba(0,0,0,.2),inset 0 0 0 2px #fff}',
-    '.gmx-track{position:relative;flex:1;height:6px;border-radius:6px;background:rgba(255,255,255,.26)}',
-    '.gmx-fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:linear-gradient(90deg,rgba(255,255,255,.55),#fff)}',
-    '.gmx-knob{position:absolute;top:50%;width:32px;height:32px;margin:-16px 0 0 -16px;border-radius:50%;background:#fff;color:#221d2c;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.32),0 0 0 5px rgba(255,255,255,.22);transition:transform .18s cubic-bezier(.34,1.56,.64,1)}',
-    '.gmx-slider:hover .gmx-knob{transform:scale(1.08)}',
-    '.gmx-drag{cursor:grabbing}.gmx-drag .gmx-knob{transform:scale(.92)}',
-    '.gmx-hint{padding:8px 15px 8px 11px;font-size:12.5px;font-weight:600;white-space:nowrap}',
-    '.gmx-mouse{position:relative;width:15px;height:23px;border:2px solid #fff;border-radius:9px;box-sizing:border-box;flex:none}',
-    '.gmx-mouse:after{content:"";position:absolute;left:50%;top:4px;width:2px;height:5px;margin-left:-1px;border-radius:2px;background:#fff;animation:gmx-wheel 1.5s ease-in-out infinite}',
-    '@keyframes gmx-wheel{0%{transform:translateY(0);opacity:1}65%{transform:translateY(7px);opacity:0}100%{transform:translateY(7px);opacity:0}}',
-    '.gmx-auto{padding:6px 15px 6px 6px;font-size:12px;font-weight:600;pointer-events:auto;white-space:nowrap;max-width:calc(100% - 24px);box-sizing:border-box}',
-    '.gmx-auto [data-t]{overflow:hidden;text-overflow:ellipsis}',
-    '.gmx-hint{max-width:calc(100% - 24px);box-sizing:border-box}',
-    '.gmx-play{width:28px;height:28px;border-radius:50%;border:0;background:#fff;color:#221d2c;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;padding:0}',
-    '.gmx-mini{position:relative;width:56px;height:4px;border-radius:4px;background:rgba(255,255,255,.28);overflow:hidden;flex:none}',
-    '.gmx-mini i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:#fff}',
-    '.gmx-slider,.gmx-auto{opacity:.45}',
-    '.gmx-on .gmx-slider,.gmx-on .gmx-auto,.gmx-slider:focus-visible,.gmx-drag{opacity:1}',
-    '.gmx-swipe{position:relative;width:14px;height:26px;flex:none}',
-    '.gmx-swipe:before{content:"";position:absolute;left:50%;top:3px;bottom:3px;width:2px;margin-left:-1px;border-radius:2px;background:rgba(255,255,255,.35)}',
-    '.gmx-swipe i{position:absolute;left:50%;top:14px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.28);animation:gmx-swipe 1.6s ease-in-out infinite}',
-    '.gmx-rev .gmx-swipe i{animation-name:gmx-swipe-down}',
-    '@keyframes gmx-swipe{0%{top:14px;opacity:0}20%{top:14px;opacity:1}75%{top:0;opacity:1}100%{top:0;opacity:0}}',
-    '@keyframes gmx-swipe-down{0%{top:0;opacity:0}20%{top:0;opacity:1}75%{top:14px;opacity:1}100%{top:14px;opacity:0}}',
-    '@media (prefers-reduced-motion: reduce){.gmx-mouse:after,.gmx-swipe i{animation:none}}',
-  ].join('');
-  var ui = document.createElement('div');
-  ui.className = 'gmx';
-  ui.innerHTML = '<style>' + css + '</style>';
-  container.appendChild(ui);
-  var el = function (tag, cls, html) { var x = document.createElement(tag); if (cls) x.className = cls; if (html) x.innerHTML = html; ui.appendChild(x); return x; };
-  var chipA = el('span', 'gmx-chip'), chipB = el('span', 'gmx-chip');
-  chipA.style.left = '12px'; chipB.style.right = '12px';
-  var CHEV = '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2 1 6l4 4M11 2l4 4-4 4"/></svg>';
-  // slider
-  var bar = el('div', 'gmx-glass gmx-slider', '<div class="gmx-track"><div class="gmx-fill"></div><div class="gmx-knob">' + CHEV + '</div></div>');
-  bar.setAttribute('role', 'slider'); bar.setAttribute('aria-label', '\u0414\u043E / \u043F\u043E\u0441\u043B\u0435'); bar.setAttribute('aria-valuemin', '0'); bar.setAttribute('aria-valuemax', '100'); bar.tabIndex = 0;
-  var track = bar.querySelector('.gmx-track'), fill = bar.querySelector('.gmx-fill'), knob = bar.querySelector('.gmx-knob');
-  // scroll: how to use it, and how far it has gone
-  var touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-  var hint = el('div', 'gmx-glass gmx-hint', (touch ? '<span class="gmx-swipe"><i></i></span>' : '<span class="gmx-mouse"></span>') + '<span data-h></span>');
-  var hintText = hint.querySelector('[data-h]');
-  var HINT_DOWN = touch ? '\u041B\u0438\u0441\u0442\u0430\u0439\u0442\u0435 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0443' : '\u041F\u0440\u043E\u043A\u0440\u0443\u0442\u0438\u0442\u0435 \u0432\u043D\u0438\u0437', HINT_UP = touch ? '\u041B\u0438\u0441\u0442\u0430\u0439\u0442\u0435 \u043D\u0430\u0437\u0430\u0434 \u2014 \u0432\u0435\u0440\u043D\u0443\u0442\u044C' : '\u041F\u0440\u043E\u043A\u0440\u0443\u0442\u0438\u0442\u0435 \u0432\u0432\u0435\u0440\u0445 \u2014 \u0432\u0435\u0440\u043D\u0443\u0442\u044C';
-  // autoplay: pause / play and where it is
-  var PLAY = '<svg width="12" height="12" viewBox="0 0 12 12"><path d="M3 1.5v9l7.5-4.5z" fill="currentColor"/></svg>';
-  var PAUSE = '<svg width="12" height="12" viewBox="0 0 12 12"><rect x="2" y="1.5" width="3" height="9" rx="1" fill="currentColor"/><rect x="7" y="1.5" width="3" height="9" rx="1" fill="currentColor"/></svg>';
-  var auto = el('div', 'gmx-glass gmx-auto', '<button type="button" class="gmx-play" aria-label="\u041F\u0430\u0443\u0437\u0430">' + PAUSE + '</button><span class="gmx-mini"><i></i></span><span data-t>\u041C\u0435\u043D\u044F\u0435\u0442\u0441\u044F \u0441\u0430\u043C\u043E</span>');
-  auto.title = '\u041D\u0430\u0436\u043C\u0438\u0442\u0435 \u043D\u0430 \u0444\u043E\u0442\u043E, \u0447\u0442\u043E\u0431\u044B \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u0441\u0440\u0430\u0437\u0443';
-  var playBtn = auto.querySelector('.gmx-play'), autoFill = auto.querySelector('.gmx-mini i'), autoText = auto.querySelector('[data-t]');
-  var autoPaused = false;
-
-  // the controls stay dim until the visitor comes to the block (hover, touch, keyboard)
-  var quietTimer = 0;
-  function wake(ms) {
-    clearTimeout(quietTimer);
-    ui.classList.add('gmx-on');
-    if (ms) quietTimer = setTimeout(function () { if (!dragging && !canvasDrag) ui.classList.remove('gmx-on'); }, ms);
-  }
-  container.addEventListener('pointerenter', function (ev) { if (ev.pointerType === 'mouse') wake(0); });
-  container.addEventListener('pointerleave', function (ev) { if (ev.pointerType === 'mouse') wake(1200); });
-  container.addEventListener('pointerdown', function (ev) { if (ev.pointerType !== 'mouse') wake(2500); });
-  container.addEventListener('focusin', function () { wake(0); });
-  container.addEventListener('focusout', function () { wake(1200); });
-
-  // ---------- grid ----------
-  var mesh = null, N = 0, colA, colB, delay, rx, ry, dirX, dirY, amp, curFace;
-  var size = { w: 1, h: 1 };
-  var col = new THREE.Color();
-
-  function build() {
-    if (mesh) { group.remove(mesh); mesh.dispose(); mesh = null; }
-    var d = state.data;
-    N = d.w * d.h;
-    size = { w: d.w * U, h: d.h * U };
-    if (cube) cube.dispose();
-    D = depthOf(d);
-    cube = new THREE.BoxGeometry(U, U, D);
-    colA = decodeMorphGrid(d.a, N); colB = decodeMorphGrid(d.b, N);
-    mesh = new THREE.InstancedMesh(cube, mat, N);
-    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    delay = new Float32Array(N); rx = new Float32Array(N); ry = new Float32Array(N);
-    dirX = new Float32Array(N); dirY = new Float32Array(N); amp = new Float32Array(N);
-    curFace = new Int8Array(N).fill(-1);
-    var cx = (d.w - 1) / 2, cy = (d.h - 1) / 2, maxR = Math.hypot(cx, cy) || 1;
-    for (var y = 0, i = 0; y < d.h; y++) {
-      for (var x = 0; x < d.w; x++, i++) {
-        rx[i] = (x - cx) * U; ry[i] = (cy - y) * U;
-        var dx = x - cx, dy = cy - y, dl = Math.hypot(dx, dy) || 1;
-        dirX[i] = dx / dl; dirY[i] = dy / dl; amp[i] = 0.5 + rnd(i + 3) * 0.8;
-      }
-    }
-    setDelays();
-    group.add(mesh);
-    lastP = -1;
-    resize();
-  }
-  function setDelays() {
-    var d = state.data, cx = (d.w - 1) / 2, cy = (d.h - 1) / 2, maxR = Math.hypot(cx, cy) || 1;
-    for (var y = 0, i = 0; y < d.h; y++) {
-      for (var x = 0; x < d.w; x++, i++) {
-        var fx = x / Math.max(1, d.w - 1), fy = y / Math.max(1, d.h - 1);
-        if (d.mode === 'burst') delay[i] = (Math.hypot(x - cx, y - cy) / maxR) * 0.75 + rnd(i + 11) * 0.25;
-        else if (d.mode === 'pixel') delay[i] = fy * 0.7 + fx * 0.15 + rnd(i + 13) * 0.15;
-        else if (d.mode === 'spiral') {
-          // a spiral arm sweeping out from the centre
-          var ang = (Math.atan2(cy - y, x - cx) + Math.PI) / (Math.PI * 2);
-          delay[i] = (Math.hypot(x - cx, y - cy) / maxR) * 0.55 + ang * 0.35 + rnd(i + 19) * 0.1;
-        }
-        else if (d.mode === 'rain') delay[i] = fx * 0.2 + fy * 0.25 + rnd(i + 23) * 0.55;
-        else if (d.mode === 'mosaic') delay[i] = rnd(i + 29);
-        else delay[i] = fx * 0.88 + rnd(i + 17) * 0.12;
-      }
-    }
-  }
-
-  // ---------- progress ----------
-  var P = 0, target = 0, lastP = -1, dragging = false, uiDirty = true;
-  var m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), p = new THREE.Vector3(), one = new THREE.Vector3(1, 1, 1);
-  function windowFor(mode) {
-    return mode === 'pixel' ? 0.3 : mode === 'burst' ? 0.5 : mode === 'spiral' ? 0.42 : mode === 'rain' ? 0.4 : mode === 'mosaic' ? 0.22 : 0.36;
-  }
-
-  function place(Pv) {
-    if (!mesh) return;
-    var mode = state.data.mode, L = windowFor(mode);
-    for (var i = 0; i < N; i++) {
-      var l = clamp01((Pv - delay[i] * (1 - L)) / L), s = Math.sin(Math.PI * l);
-      var x = rx[i], y = ry[i], z = 0, ax = 0, ay = 0, az = 0, face;
-      if (mode === 'pixel') {
-        var k = easeInOut(l); ax = Math.PI * k; z = s * D * 1.2; face = k < 0.5 ? 0 : 1;
-      } else if (mode === 'burst') {
-        var a = amp[i];
-        x += dirX[i] * s * U * 5 * a; y += dirY[i] * s * U * 5 * a; z = s * U * 9 * a;
-        ax = s * (rnd(i + 21) - 0.5) * 5; ay = s * (rnd(i + 23) - 0.5) * 5; face = l < 0.5 ? 0 : 1;
-      } else if (mode === 'spiral') {
-        // the cube is carried round the centre and lifted, then set down in the new picture
-        var th = s * 1.4, cs = Math.cos(th), sn = Math.sin(th);
-        x = rx[i] * cs - ry[i] * sn; y = rx[i] * sn + ry[i] * cs;
-        z = s * U * 4.5 * amp[i]; az = s * 1.6; ax = s * 0.4; face = l < 0.5 ? 0 : 1;
-      } else if (mode === 'rain') {
-        // the old cube falls away, the new one drops in from above
-        if (l < 0.5) { var kf = l * 2; y -= kf * kf * U * 16; z = kf * U * 2; ax = kf * 1.4; face = 0; }
-        else { var kr = (l - 0.5) * 2, er = 1 - (1 - kr) * (1 - kr) * (1 - kr); y += (1 - er) * U * 16; z = (1 - er) * U * 2; ax = -(1 - er) * 1.4; face = 1; }
-        if (l <= 0) face = 0;
-      } else if (mode === 'mosaic') {
-        var km = easeInOut(l); ay = Math.PI * km; z = s * D * 1.4; face = km < 0.5 ? 0 : 1;
-      } else {
-        z = s * U * 3.2; ay = s * 0.5; ax = -s * 0.25; face = l < 0.5 ? 0 : 1;
-      }
-      e.set(ax, ay, az); q.setFromEuler(e); p.set(x, y, z);
-      m4.compose(p, q, one); mesh.setMatrixAt(i, m4);
-      if (face !== curFace[i]) {
-        var c = face ? colB : colA;
-        col.setRGB(c[i * 3], c[i * 3 + 1], c[i * 3 + 2], THREE.SRGBColorSpace);
-        mesh.setColorAt(i, col); curFace[i] = face;
-        if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-      }
-    }
-    mesh.instanceMatrix.needsUpdate = true;
-  }
-
-  function updateUi() {
-    var d = state.data, labels = d.labels, c = d.control;
-    ui.classList.toggle('gmx-light', d.labelStyle === 'light');
-    chipA.textContent = labels ? labels[0] : ''; chipB.textContent = labels ? labels[1] : '';
-    chipA.style.display = labels && labels[0] ? '' : 'none'; chipB.style.display = labels && labels[1] ? '' : 'none';
-    chipA.style.opacity = String(1 - smooth(clamp01(P * 1.6))); chipB.style.opacity = String(smooth(clamp01(P * 1.6 - 0.6)));
-    bar.style.display = c === 'slider' ? '' : 'none';
-    fill.style.width = (P * 100).toFixed(2) + '%'; knob.style.left = (P * 100).toFixed(2) + '%';
-    bar.setAttribute('aria-valuenow', String(Math.round(P * 100)));
-    // scroll: the hint says which way to scroll; it hides while the picture is changing
-    hint.style.display = c === 'scroll' ? '' : 'none';
-    if (c === 'scroll') {
-      var moving = P > 0.02 && P < 0.98;
-      hintText.textContent = target > 0.5 ? HINT_UP : HINT_DOWN;
-      hint.classList.toggle('gmx-rev', target > 0.5);
-      hint.style.opacity = moving ? '0' : '1';
-      hint.style.transform = 'translateX(-50%) translateY(' + (moving ? '10px' : '0') + ')';
-    }
-    auto.style.display = c === 'auto' ? '' : 'none';
-    autoFill.style.width = (P * 100).toFixed(2) + '%';
-  }
-
-  // ---------- controls ----------
-  function setFromClientX(clientX, el) {
-    var r = el.getBoundingClientRect();
-    target = clamp01((clientX - r.left) / r.width);
-  }
-  bar.addEventListener('pointerdown', function (ev) { dragging = true; bar.classList.add('gmx-drag'); bar.setPointerCapture(ev.pointerId); setFromClientX(ev.clientX, track); });
-  bar.addEventListener('pointermove', function (ev) { if (dragging) setFromClientX(ev.clientX, track); });
-  var endDrag = function () { dragging = false; bar.classList.remove('gmx-drag'); };
-  bar.addEventListener('pointerup', endDrag);
-  bar.addEventListener('pointercancel', endDrag);
-  bar.addEventListener('keydown', function (ev) {
-    if (ev.key === 'ArrowRight' || ev.key === 'ArrowUp') { target = clamp01(target + 0.1); ev.preventDefault(); }
-    if (ev.key === 'ArrowLeft' || ev.key === 'ArrowDown') { target = clamp01(target - 0.1); ev.preventDefault(); }
-  });
-  // dragging across the picture moves the transition too (slider mode)
-  var canvasDrag = false;
-  // mouse: press and drag; finger: only a sideways swipe moves the transition, an up/down swipe scrolls the page
-  var touchStart = null;
-  cv.addEventListener('pointerdown', function (ev) {
-    if (state.data.control !== 'slider') return;
-    if (ev.pointerType === 'mouse') { canvasDrag = true; cv.setPointerCapture(ev.pointerId); setFromClientX(ev.clientX, cv); }
-    else touchStart = { x: ev.clientX, y: ev.clientY, id: ev.pointerId };
-  });
-  cv.addEventListener('pointermove', function (ev) {
-    if (canvasDrag) return setFromClientX(ev.clientX, cv);
-    if (!touchStart) return;
-    var dx = ev.clientX - touchStart.x, dy = ev.clientY - touchStart.y;
-    if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) * 1.2) {
-      canvasDrag = true; touchStart = null;
-      try { cv.setPointerCapture(ev.pointerId); } catch (e) {}
-      wake(2500); setFromClientX(ev.clientX, cv);
-    } else if (Math.abs(dy) > 10) touchStart = null;
-  });
-  var endCanvasDrag = function () { canvasDrag = false; touchStart = null; };
-  cv.addEventListener('pointerup', endCanvasDrag);
-  cv.addEventListener('pointercancel', endCanvasDrag);
-  cv.addEventListener('click', function () {
-    // autoplay: a click on the picture flips to the other one right away
-    if (state.data.control !== 'auto') return;
-    if (autoPaused) setAutoPaused(false);
-    autoT0 = now() - (P > 0.5 ? AUTO.hold * 2 + AUTO.morph : AUTO.hold);
-  });
-  function setAutoPaused(v) {
-    autoPaused = v;
-    playBtn.innerHTML = v ? PLAY : PAUSE;
-    playBtn.setAttribute('aria-label', v ? '\u041F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C' : '\u041F\u0430\u0443\u0437\u0430');
-    autoText.textContent = v ? '\u041F\u0430\u0443\u0437\u0430' : '\u041C\u0435\u043D\u044F\u0435\u0442\u0441\u044F \u0441\u0430\u043C\u043E';
-    // resume from where it stopped: the next phase that starts at this picture
-    if (!v) autoT0 = now() - (P > 0.5 ? AUTO.hold + AUTO.morph : 0);
-  }
-  playBtn.addEventListener('click', function (ev) { ev.stopPropagation(); setAutoPaused(!autoPaused); });
-
-  var AUTO = { hold: 1.6, morph: 2.2 }, autoT0 = 0;
-  function sp() { return SPEED[state.data.speed] || 1; }
-  function syncSpeed() { AUTO.hold = 1.6 * sp(); AUTO.morph = 2.2 * sp(); }
-  function autoTarget(t) {
-    var cyc = AUTO.hold * 2 + AUTO.morph * 2, u = ((t - autoT0) % cyc + cyc) % cyc;
-    if (u < AUTO.hold) return 0;
-    if (u < AUTO.hold + AUTO.morph) return easeInOut((u - AUTO.hold) / AUTO.morph);
-    if (u < AUTO.hold * 2 + AUTO.morph) return 1;
-    return 1 - easeInOut((u - AUTO.hold * 2 - AUTO.morph) / AUTO.morph);
-  }
-  var lastScrollY = window.scrollY, scrollAcc = 0;
-  function onScroll() {
-    if (state.data.control !== 'scroll' || !visible) { lastScrollY = window.scrollY; return; }
-    var dy = window.scrollY - lastScrollY; lastScrollY = window.scrollY;
-    if (dy === 0) return;
-    // a new direction starts counting anew
-    if ((dy > 0) !== (scrollAcc > 0)) scrollAcc = 0;
-    scrollAcc += dy;
-    if (scrollAcc > 24) target = 1;
-    else if (scrollAcc < -24) target = 0;
-  }
-  window.addEventListener('scroll', onScroll, { passive: true });
-
-  // ---------- animation ----------
-  var t0 = performance.now(), last = 0, raf = 0, paused = false, visible = true, manual = false;
-  function now() { return (performance.now() - t0) / 1000; }
-
-  function frame(t, dt) {
-    if (!mesh) return;
-    var c = state.data.control;
-    if (!manual) {
-      if (c === 'auto') { if (!autoPaused) target = reduced ? (Math.floor(t / 4) % 2) : autoTarget(t); }
-    }
-    if (reduced) P = target;
-    // scroll: an even pace, the whole change takes ~1.5 s; the rest follows the target softly
-    else if (c === 'scroll' && !manual) { var pace = dt / (1.5 * sp()); P += Math.max(-pace, Math.min(pace, target - P)); }
-    else P += (target - P) * Math.min(1, dt * (c === 'auto' ? 30 : 9));
-    if (Math.abs(target - P) < 0.0005) P = target;
-    if (P !== lastP) { place(P); lastP = P; updateUi(); }
-    else if (uiDirty) { updateUi(); }
-    uiDirty = false;
-  }
-  function loop() {
-    raf = requestAnimationFrame(loop);
-    var t = now(), dt = Math.min(0.05, t - last); last = t;
-    if (!visible || paused) return;
-    frame(t, dt); renderer.render(scene, camera);
-  }
-
-  function resize() {
-    var w = container.clientWidth || 400, h = container.clientHeight || 300, aspect = w / h;
-    renderer.setSize(w, h, false); cv.style.width = '100%'; cv.style.height = '100%';
-    camera.aspect = aspect;
-    var tanV = Math.tan((camera.fov * Math.PI) / 360);
-    // the picture stays flat and fills the frame edge to edge: the front faces sit right on its border
-    var dist = Math.max(size.h / 2 / tanV, size.w / 2 / (tanV * aspect)) + D / 2;
-    camera.position.set(0, 0, dist); camera.lookAt(0, 0, 0);
-    camera.near = dist / 50; camera.far = dist * 4; camera.updateProjectionMatrix();
-  }
-
-  var ro = new ResizeObserver(resize); ro.observe(container);
-  var io = null;
-  if ('IntersectionObserver' in window) {
-    io = new IntersectionObserver(function (es) { var en = es[0]; visible = en ? en.isIntersecting : true; }, { threshold: [0, 0.01] });
-    io.observe(container);
-  }
-
-  syncSpeed(); build(); place(0); updateUi(); loop();
-
-  // ---------- public ----------
-  api.setData = function (d) {
-    var gridChanged = !state.data || d.w !== state.data.w || d.h !== state.data.h || d.a !== state.data.a || d.b !== state.data.b || d.depth !== state.data.depth;
-    var modeChanged = d.mode !== state.data.mode;
-    state.data = d;
-    if (gridChanged) build();
-    else if (modeChanged) setDelays();
-    curFace.fill(-1); lastP = -1; uiDirty = true;
-    scrollAcc = 0; lastScrollY = window.scrollY;
-    if (d.control === 'scroll' && !manual) target = 0;
-    syncSpeed();
-    if (d.control === 'auto') { autoT0 = now(); setAutoPaused(false); }
-    manual = false;
-  };
-  /** studio / checks: hold the transition at a point (0 = before, 1 = after) */
-  api.setProgress = function (v, instant) { manual = true; target = clamp01(v); if (instant) { P = target; lastP = -1; } };
-  api.release = function () { manual = false; if (state.data.control === 'auto') autoT0 = now(); };
-  api.setPaused = function (pz) { paused = pz; };
-  api.snapshot = function () {
-    frame(now(), 1 / 60); renderer.render(scene, camera);
-    var out = document.createElement('canvas'); out.width = cv.width; out.height = cv.height;
-    out.getContext('2d').drawImage(cv, 0, 0);
-    return out;
-  };
-  api.dispose = function () {
-    cancelAnimationFrame(raf); ro.disconnect(); if (io) io.disconnect(); window.removeEventListener('scroll', onScroll);
-    if (mesh) mesh.dispose(); cube.dispose(); mat.dispose(); renderer.dispose(); cv.remove(); ui.remove();
-  };
-  return api;
-}
+var morphRuntime_default = `/* Gridika \xB7 \u041C\u043E\u0440\u0444 \xAB\u0434\u043E / \u043F\u043E\u0441\u043B\u0435\xBB \u2014 runtime shared by the studio and the site snippet.\r
+ * Plain JS without imports: three.js is passed in. Both pictures come as colour grids of the same\r
+ * size (RGB565, base64), so the snippet carries no image files.\r
+ *\r
+ * data: { w, h, a: '<base64 RGB565>', b: '<base64 RGB565>', labels: ['\u0414\u043E', '\u041F\u043E\u0441\u043B\u0435'] | null,\r
+ *         speed: 'slow' | 'normal' | 'fast', labelStyle: 'dark' | 'light', depth: 'flat' | 'deep',\r
+ *         control: 'slider' | 'scroll' | 'auto', mode: 'wave' | 'burst' | 'pixel' }\r
+ */\r
+\r
+export var MORPH_MODES = {\r
+  wave: { label: '\u0412\u043E\u043B\u043D\u0430' },\r
+  burst: { label: '\u0412\u0437\u0440\u044B\u0432' },\r
+  pixel: { label: '\u041F\u0438\u043A\u0441\u0435\u043B\u044C' },\r
+  spiral: { label: '\u0421\u043F\u0438\u0440\u0430\u043B\u044C' },\r
+  rain: { label: '\u0414\u043E\u0436\u0434\u044C' },\r
+  mosaic: { label: '\u041C\u043E\u0437\u0430\u0438\u043A\u0430' },\r
+};\r
+var SPEED = { slow: 1.6, normal: 1, fast: 0.6 };\r
+\r
+/** base64 RGB565 \u2192 Float32Array of sRGB 0..1 triples */\r
+export function decodeMorphGrid(s, n) {\r
+  if (typeof s !== 'string' || !s) return new Float32Array(n * 3);\r
+  try {\r
+    var bin = atob(s), out = new Float32Array(n * 3);\r
+    for (var i = 0; i < n; i++) {\r
+      var v = bin.charCodeAt(i * 2) | (bin.charCodeAt(i * 2 + 1) << 8);\r
+      out[i * 3] = ((v >> 11) & 31) / 31;\r
+      out[i * 3 + 1] = ((v >> 5) & 63) / 63;\r
+      out[i * 3 + 2] = (v & 31) / 31;\r
+    }\r
+    return out;\r
+  } catch (e) {\r
+    return new Float32Array(n * 3);\r
+  }\r
+}\r
+\r
+export function createMorphViewer(THREE, container, init) {\r
+  var U = 0.5;\r
+  var state = { data: init.data };\r
+  var api = {};\r
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;\r
+  function clamp01(t) { return t < 0 ? 0 : t > 1 ? 1 : t; }\r
+  function easeInOut(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }\r
+  function smooth(t) { return t * t * (3 - 2 * t); }\r
+  function rnd(i) { var n = Math.sin(i * 127.1 + 311.7) * 43758.5453; return n - Math.floor(n); }\r
+\r
+  // ---------- renderer / scene ----------\r
+  var renderer;\r
+  try {\r
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'default' });\r
+  } catch (e1) {\r
+    try { renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true }); } catch (e2) {\r
+      console.warn('Morph WebGLRenderer init failed:', e2);\r
+      var noop = function () {};\r
+      return { setData: noop, setProgress: noop, setPaused: noop, snapshot: function () { return document.createElement('canvas'); }, dispose: noop };\r
+    }\r
+  }\r
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));\r
+  if ('outputColorSpace' in renderer) renderer.outputColorSpace = THREE.SRGBColorSpace;\r
+  if (getComputedStyle(container).position === 'static') container.style.position = 'relative';\r
+  container.appendChild(renderer.domElement);\r
+  var cv = renderer.domElement;\r
+  cv.style.display = 'block'; cv.style.width = '100%'; cv.style.height = '100%'; cv.style.touchAction = 'pan-y';\r
+\r
+  var scene = new THREE.Scene();\r
+  var camera = new THREE.PerspectiveCamera(28, 1, 0.1, 500);\r
+  var group = new THREE.Group(); scene.add(group);\r
+  var D = U * 0.6, cube = null;\r
+  function depthOf(d) { return d.depth === 'deep' ? U * 1.6 : U * 0.6; }\r
+\r
+  // Unlit colours with a fixed shade per face: the face looking at the camera keeps the exact photo\r
+  // colour, sides and tops darken a little so lifted cubes read as 3D.\r
+  var mat = new THREE.MeshBasicMaterial({ color: 0xffffff });\r
+  mat.onBeforeCompile = function (sh) {\r
+    sh.vertexShader = sh.vertexShader\r
+      .replace('#include <common>', '#include <common>\\nvarying vec3 vViewN;')\r
+      .replace('#include <begin_vertex>', [\r
+        '#include <begin_vertex>',\r
+        'vec3 nn = normal;',\r
+        '#ifdef USE_INSTANCING',\r
+        'nn = mat3(instanceMatrix) * nn;',\r
+        '#endif',\r
+        'vViewN = normalize(normalMatrix * nn);',\r
+      ].join('\\n'));\r
+    sh.fragmentShader = sh.fragmentShader\r
+      .replace('#include <common>', '#include <common>\\nvarying vec3 vViewN;')\r
+      .replace('#include <color_fragment>', [\r
+        '#include <color_fragment>',\r
+        'vec3 n = normalize(vViewN);',\r
+        'float shade = 0.58 + 0.42 * max(n.z, 0.0) + 0.12 * n.y;',\r
+        'diffuseColor.rgb *= clamp(shade, 0.4, 1.0);',\r
+      ].join('\\n'));\r
+  };\r
+  mat.customProgramCacheKey = function () { return 'gridika-morph-faces'; };\r
+\r
+  // ---------- overlay: labels, slider, scroll hint, autoplay pill (plain DOM on top of the canvas) ----------\r
+  var css = [\r
+    '.gmx{position:absolute;inset:0;pointer-events:none;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#fff}',\r
+    '.gmx-chip{position:absolute;top:12px;padding:5px 11px;border-radius:999px;background:rgba(18,16,26,.5);font-size:12px;font-weight:700;letter-spacing:.02em;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:opacity .3s}',\r
+    '.gmx-light .gmx-chip{background:rgba(255,255,255,.88);color:#1d1a24;box-shadow:0 2px 10px rgba(0,0,0,.12)}',\r
+    '.gmx-glass{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;border-radius:999px;background:rgba(18,16,26,.42);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,.2),inset 0 0 0 1px rgba(255,255,255,.14);transition:opacity .45s,transform .45s}',\r
+    '.gmx-slider{width:min(68%,400px);height:44px;padding:0 22px;box-sizing:border-box;pointer-events:auto;cursor:grab;touch-action:none;outline:none}',\r
+    '.gmx-slider:focus-visible{box-shadow:0 8px 24px rgba(0,0,0,.2),inset 0 0 0 2px #fff}',\r
+    '.gmx-track{position:relative;flex:1;height:6px;border-radius:6px;background:rgba(255,255,255,.26)}',\r
+    '.gmx-fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:linear-gradient(90deg,rgba(255,255,255,.55),#fff)}',\r
+    '.gmx-knob{position:absolute;top:50%;width:32px;height:32px;margin:-16px 0 0 -16px;border-radius:50%;background:#fff;color:#221d2c;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.32),0 0 0 5px rgba(255,255,255,.22);transition:transform .18s cubic-bezier(.34,1.56,.64,1)}',\r
+    '.gmx-slider:hover .gmx-knob{transform:scale(1.08)}',\r
+    '.gmx-drag{cursor:grabbing}.gmx-drag .gmx-knob{transform:scale(.92)}',\r
+    '.gmx-hint{padding:8px 15px 8px 11px;font-size:12.5px;font-weight:600;white-space:nowrap}',\r
+    '.gmx-mouse{position:relative;width:15px;height:23px;border:2px solid #fff;border-radius:9px;box-sizing:border-box;flex:none}',\r
+    '.gmx-mouse:after{content:"";position:absolute;left:50%;top:4px;width:2px;height:5px;margin-left:-1px;border-radius:2px;background:#fff;animation:gmx-wheel 1.5s ease-in-out infinite}',\r
+    '@keyframes gmx-wheel{0%{transform:translateY(0);opacity:1}65%{transform:translateY(7px);opacity:0}100%{transform:translateY(7px);opacity:0}}',\r
+    '.gmx-auto{padding:6px 15px 6px 6px;font-size:12px;font-weight:600;pointer-events:auto;white-space:nowrap;max-width:calc(100% - 24px);box-sizing:border-box}',\r
+    '.gmx-auto [data-t]{overflow:hidden;text-overflow:ellipsis}',\r
+    '.gmx-hint{max-width:calc(100% - 24px);box-sizing:border-box}',\r
+    '.gmx-play{width:28px;height:28px;border-radius:50%;border:0;background:#fff;color:#221d2c;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;padding:0}',\r
+    '.gmx-mini{position:relative;width:56px;height:4px;border-radius:4px;background:rgba(255,255,255,.28);overflow:hidden;flex:none}',\r
+    '.gmx-mini i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:#fff}',\r
+    '.gmx-slider,.gmx-auto{opacity:.45}',\r
+    '.gmx-on .gmx-slider,.gmx-on .gmx-auto,.gmx-slider:focus-visible,.gmx-drag{opacity:1}',\r
+    '.gmx-swipe{position:relative;width:14px;height:26px;flex:none}',\r
+    '.gmx-swipe:before{content:"";position:absolute;left:50%;top:3px;bottom:3px;width:2px;margin-left:-1px;border-radius:2px;background:rgba(255,255,255,.35)}',\r
+    '.gmx-swipe i{position:absolute;left:50%;top:14px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.28);animation:gmx-swipe 1.6s ease-in-out infinite}',\r
+    '.gmx-rev .gmx-swipe i{animation-name:gmx-swipe-down}',\r
+    '@keyframes gmx-swipe{0%{top:14px;opacity:0}20%{top:14px;opacity:1}75%{top:0;opacity:1}100%{top:0;opacity:0}}',\r
+    '@keyframes gmx-swipe-down{0%{top:0;opacity:0}20%{top:0;opacity:1}75%{top:14px;opacity:1}100%{top:14px;opacity:0}}',\r
+    '@media (prefers-reduced-motion: reduce){.gmx-mouse:after,.gmx-swipe i{animation:none}}',\r
+  ].join('');\r
+  var ui = document.createElement('div');\r
+  ui.className = 'gmx';\r
+  ui.innerHTML = '<style>' + css + '</style>';\r
+  container.appendChild(ui);\r
+  var el = function (tag, cls, html) { var x = document.createElement(tag); if (cls) x.className = cls; if (html) x.innerHTML = html; ui.appendChild(x); return x; };\r
+  var chipA = el('span', 'gmx-chip'), chipB = el('span', 'gmx-chip');\r
+  chipA.style.left = '12px'; chipB.style.right = '12px';\r
+  var CHEV = '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2 1 6l4 4M11 2l4 4-4 4"/></svg>';\r
+  // slider\r
+  var bar = el('div', 'gmx-glass gmx-slider', '<div class="gmx-track"><div class="gmx-fill"></div><div class="gmx-knob">' + CHEV + '</div></div>');\r
+  bar.setAttribute('role', 'slider'); bar.setAttribute('aria-label', '\u0414\u043E / \u043F\u043E\u0441\u043B\u0435'); bar.setAttribute('aria-valuemin', '0'); bar.setAttribute('aria-valuemax', '100'); bar.tabIndex = 0;\r
+  var track = bar.querySelector('.gmx-track'), fill = bar.querySelector('.gmx-fill'), knob = bar.querySelector('.gmx-knob');\r
+  // scroll: how to use it, and how far it has gone\r
+  var touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;\r
+  var hint = el('div', 'gmx-glass gmx-hint', (touch ? '<span class="gmx-swipe"><i></i></span>' : '<span class="gmx-mouse"></span>') + '<span data-h></span>');\r
+  var hintText = hint.querySelector('[data-h]');\r
+  var HINT_DOWN = touch ? '\u041B\u0438\u0441\u0442\u0430\u0439\u0442\u0435 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0443' : '\u041F\u0440\u043E\u043A\u0440\u0443\u0442\u0438\u0442\u0435 \u0432\u043D\u0438\u0437', HINT_UP = touch ? '\u041B\u0438\u0441\u0442\u0430\u0439\u0442\u0435 \u043D\u0430\u0437\u0430\u0434 \u2014 \u0432\u0435\u0440\u043D\u0443\u0442\u044C' : '\u041F\u0440\u043E\u043A\u0440\u0443\u0442\u0438\u0442\u0435 \u0432\u0432\u0435\u0440\u0445 \u2014 \u0432\u0435\u0440\u043D\u0443\u0442\u044C';\r
+  // autoplay: pause / play and where it is\r
+  var PLAY = '<svg width="12" height="12" viewBox="0 0 12 12"><path d="M3 1.5v9l7.5-4.5z" fill="currentColor"/></svg>';\r
+  var PAUSE = '<svg width="12" height="12" viewBox="0 0 12 12"><rect x="2" y="1.5" width="3" height="9" rx="1" fill="currentColor"/><rect x="7" y="1.5" width="3" height="9" rx="1" fill="currentColor"/></svg>';\r
+  var auto = el('div', 'gmx-glass gmx-auto', '<button type="button" class="gmx-play" aria-label="\u041F\u0430\u0443\u0437\u0430">' + PAUSE + '</button><span class="gmx-mini"><i></i></span><span data-t>\u041C\u0435\u043D\u044F\u0435\u0442\u0441\u044F \u0441\u0430\u043C\u043E</span>');\r
+  auto.title = '\u041D\u0430\u0436\u043C\u0438\u0442\u0435 \u043D\u0430 \u0444\u043E\u0442\u043E, \u0447\u0442\u043E\u0431\u044B \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u0441\u0440\u0430\u0437\u0443';\r
+  var playBtn = auto.querySelector('.gmx-play'), autoFill = auto.querySelector('.gmx-mini i'), autoText = auto.querySelector('[data-t]');\r
+  var autoPaused = false;\r
+\r
+  // the controls stay dim until the visitor comes to the block (hover, touch, keyboard)\r
+  var quietTimer = 0;\r
+  function wake(ms) {\r
+    clearTimeout(quietTimer);\r
+    ui.classList.add('gmx-on');\r
+    if (ms) quietTimer = setTimeout(function () { if (!dragging && !canvasDrag) ui.classList.remove('gmx-on'); }, ms);\r
+  }\r
+  container.addEventListener('pointerenter', function (ev) { if (ev.pointerType === 'mouse') wake(0); });\r
+  container.addEventListener('pointerleave', function (ev) { if (ev.pointerType === 'mouse') wake(1200); });\r
+  container.addEventListener('pointerdown', function (ev) { if (ev.pointerType !== 'mouse') wake(2500); });\r
+  container.addEventListener('focusin', function () { wake(0); });\r
+  container.addEventListener('focusout', function () { wake(1200); });\r
+\r
+  // ---------- grid ----------\r
+  var mesh = null, N = 0, colA, colB, delay, rx, ry, dirX, dirY, amp, curFace;\r
+  var size = { w: 1, h: 1 };\r
+  var col = new THREE.Color();\r
+\r
+  function build() {\r
+    if (mesh) { group.remove(mesh); mesh.dispose(); mesh = null; }\r
+    var d = state.data;\r
+    N = d.w * d.h;\r
+    size = { w: d.w * U, h: d.h * U };\r
+    if (cube) cube.dispose();\r
+    D = depthOf(d);\r
+    cube = new THREE.BoxGeometry(U, U, D);\r
+    colA = decodeMorphGrid(d.a, N); colB = decodeMorphGrid(d.b, N);\r
+    mesh = new THREE.InstancedMesh(cube, mat, N);\r
+    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);\r
+    delay = new Float32Array(N); rx = new Float32Array(N); ry = new Float32Array(N);\r
+    dirX = new Float32Array(N); dirY = new Float32Array(N); amp = new Float32Array(N);\r
+    curFace = new Int8Array(N).fill(-1);\r
+    var cx = (d.w - 1) / 2, cy = (d.h - 1) / 2, maxR = Math.hypot(cx, cy) || 1;\r
+    for (var y = 0, i = 0; y < d.h; y++) {\r
+      for (var x = 0; x < d.w; x++, i++) {\r
+        rx[i] = (x - cx) * U; ry[i] = (cy - y) * U;\r
+        var dx = x - cx, dy = cy - y, dl = Math.hypot(dx, dy) || 1;\r
+        dirX[i] = dx / dl; dirY[i] = dy / dl; amp[i] = 0.5 + rnd(i + 3) * 0.8;\r
+      }\r
+    }\r
+    setDelays();\r
+    group.add(mesh);\r
+    lastP = -1;\r
+    resize();\r
+  }\r
+  function setDelays() {\r
+    var d = state.data, cx = (d.w - 1) / 2, cy = (d.h - 1) / 2, maxR = Math.hypot(cx, cy) || 1;\r
+    for (var y = 0, i = 0; y < d.h; y++) {\r
+      for (var x = 0; x < d.w; x++, i++) {\r
+        var fx = x / Math.max(1, d.w - 1), fy = y / Math.max(1, d.h - 1);\r
+        if (d.mode === 'burst') delay[i] = (Math.hypot(x - cx, y - cy) / maxR) * 0.75 + rnd(i + 11) * 0.25;\r
+        else if (d.mode === 'pixel') delay[i] = fy * 0.7 + fx * 0.15 + rnd(i + 13) * 0.15;\r
+        else if (d.mode === 'spiral') {\r
+          // a spiral arm sweeping out from the centre\r
+          var ang = (Math.atan2(cy - y, x - cx) + Math.PI) / (Math.PI * 2);\r
+          delay[i] = (Math.hypot(x - cx, y - cy) / maxR) * 0.55 + ang * 0.35 + rnd(i + 19) * 0.1;\r
+        }\r
+        else if (d.mode === 'rain') delay[i] = fx * 0.2 + fy * 0.25 + rnd(i + 23) * 0.55;\r
+        else if (d.mode === 'mosaic') delay[i] = rnd(i + 29);\r
+        else delay[i] = fx * 0.88 + rnd(i + 17) * 0.12;\r
+      }\r
+    }\r
+  }\r
+\r
+  // ---------- progress ----------\r
+  var P = 0, target = 0, lastP = -1, dragging = false, uiDirty = true;\r
+  var m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), p = new THREE.Vector3(), one = new THREE.Vector3(1, 1, 1);\r
+  function windowFor(mode) {\r
+    return mode === 'pixel' ? 0.3 : mode === 'burst' ? 0.5 : mode === 'spiral' ? 0.42 : mode === 'rain' ? 0.4 : mode === 'mosaic' ? 0.22 : 0.36;\r
+  }\r
+\r
+  function place(Pv) {\r
+    if (!mesh) return;\r
+    var mode = state.data.mode, L = windowFor(mode);\r
+    for (var i = 0; i < N; i++) {\r
+      var l = clamp01((Pv - delay[i] * (1 - L)) / L), s = Math.sin(Math.PI * l);\r
+      var x = rx[i], y = ry[i], z = 0, ax = 0, ay = 0, az = 0, face;\r
+      if (mode === 'pixel') {\r
+        var k = easeInOut(l); ax = Math.PI * k; z = s * D * 1.2; face = k < 0.5 ? 0 : 1;\r
+      } else if (mode === 'burst') {\r
+        var a = amp[i];\r
+        x += dirX[i] * s * U * 5 * a; y += dirY[i] * s * U * 5 * a; z = s * U * 9 * a;\r
+        ax = s * (rnd(i + 21) - 0.5) * 5; ay = s * (rnd(i + 23) - 0.5) * 5; face = l < 0.5 ? 0 : 1;\r
+      } else if (mode === 'spiral') {\r
+        // the cube is carried round the centre and lifted, then set down in the new picture\r
+        var th = s * 1.4, cs = Math.cos(th), sn = Math.sin(th);\r
+        x = rx[i] * cs - ry[i] * sn; y = rx[i] * sn + ry[i] * cs;\r
+        z = s * U * 4.5 * amp[i]; az = s * 1.6; ax = s * 0.4; face = l < 0.5 ? 0 : 1;\r
+      } else if (mode === 'rain') {\r
+        // the old cube falls away, the new one drops in from above\r
+        if (l < 0.5) { var kf = l * 2; y -= kf * kf * U * 16; z = kf * U * 2; ax = kf * 1.4; face = 0; }\r
+        else { var kr = (l - 0.5) * 2, er = 1 - (1 - kr) * (1 - kr) * (1 - kr); y += (1 - er) * U * 16; z = (1 - er) * U * 2; ax = -(1 - er) * 1.4; face = 1; }\r
+        if (l <= 0) face = 0;\r
+      } else if (mode === 'mosaic') {\r
+        var km = easeInOut(l); ay = Math.PI * km; z = s * D * 1.4; face = km < 0.5 ? 0 : 1;\r
+      } else {\r
+        z = s * U * 3.2; ay = s * 0.5; ax = -s * 0.25; face = l < 0.5 ? 0 : 1;\r
+      }\r
+      e.set(ax, ay, az); q.setFromEuler(e); p.set(x, y, z);\r
+      m4.compose(p, q, one); mesh.setMatrixAt(i, m4);\r
+      if (face !== curFace[i]) {\r
+        var c = face ? colB : colA;\r
+        col.setRGB(c[i * 3], c[i * 3 + 1], c[i * 3 + 2], THREE.SRGBColorSpace);\r
+        mesh.setColorAt(i, col); curFace[i] = face;\r
+        if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;\r
+      }\r
+    }\r
+    mesh.instanceMatrix.needsUpdate = true;\r
+  }\r
+\r
+  function updateUi() {\r
+    var d = state.data, labels = d.labels, c = d.control;\r
+    ui.classList.toggle('gmx-light', d.labelStyle === 'light');\r
+    chipA.textContent = labels ? labels[0] : ''; chipB.textContent = labels ? labels[1] : '';\r
+    chipA.style.display = labels && labels[0] ? '' : 'none'; chipB.style.display = labels && labels[1] ? '' : 'none';\r
+    chipA.style.opacity = String(1 - smooth(clamp01(P * 1.6))); chipB.style.opacity = String(smooth(clamp01(P * 1.6 - 0.6)));\r
+    bar.style.display = c === 'slider' ? '' : 'none';\r
+    fill.style.width = (P * 100).toFixed(2) + '%'; knob.style.left = (P * 100).toFixed(2) + '%';\r
+    bar.setAttribute('aria-valuenow', String(Math.round(P * 100)));\r
+    // scroll: the hint says which way to scroll; it hides while the picture is changing\r
+    hint.style.display = c === 'scroll' ? '' : 'none';\r
+    if (c === 'scroll') {\r
+      var moving = P > 0.02 && P < 0.98;\r
+      hintText.textContent = target > 0.5 ? HINT_UP : HINT_DOWN;\r
+      hint.classList.toggle('gmx-rev', target > 0.5);\r
+      hint.style.opacity = moving ? '0' : '1';\r
+      hint.style.transform = 'translateX(-50%) translateY(' + (moving ? '10px' : '0') + ')';\r
+    }\r
+    auto.style.display = c === 'auto' ? '' : 'none';\r
+    autoFill.style.width = (P * 100).toFixed(2) + '%';\r
+  }\r
+\r
+  // ---------- controls ----------\r
+  function setFromClientX(clientX, el) {\r
+    var r = el.getBoundingClientRect();\r
+    target = clamp01((clientX - r.left) / r.width);\r
+  }\r
+  bar.addEventListener('pointerdown', function (ev) { dragging = true; bar.classList.add('gmx-drag'); bar.setPointerCapture(ev.pointerId); setFromClientX(ev.clientX, track); });\r
+  bar.addEventListener('pointermove', function (ev) { if (dragging) setFromClientX(ev.clientX, track); });\r
+  var endDrag = function () { dragging = false; bar.classList.remove('gmx-drag'); };\r
+  bar.addEventListener('pointerup', endDrag);\r
+  bar.addEventListener('pointercancel', endDrag);\r
+  bar.addEventListener('keydown', function (ev) {\r
+    if (ev.key === 'ArrowRight' || ev.key === 'ArrowUp') { target = clamp01(target + 0.1); ev.preventDefault(); }\r
+    if (ev.key === 'ArrowLeft' || ev.key === 'ArrowDown') { target = clamp01(target - 0.1); ev.preventDefault(); }\r
+  });\r
+  // dragging across the picture moves the transition too (slider mode)\r
+  var canvasDrag = false;\r
+  // mouse: press and drag; finger: only a sideways swipe moves the transition, an up/down swipe scrolls the page\r
+  var touchStart = null;\r
+  cv.addEventListener('pointerdown', function (ev) {\r
+    if (state.data.control !== 'slider') return;\r
+    if (ev.pointerType === 'mouse') { canvasDrag = true; cv.setPointerCapture(ev.pointerId); setFromClientX(ev.clientX, cv); }\r
+    else touchStart = { x: ev.clientX, y: ev.clientY, id: ev.pointerId };\r
+  });\r
+  cv.addEventListener('pointermove', function (ev) {\r
+    if (canvasDrag) return setFromClientX(ev.clientX, cv);\r
+    if (!touchStart) return;\r
+    var dx = ev.clientX - touchStart.x, dy = ev.clientY - touchStart.y;\r
+    if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) * 1.2) {\r
+      canvasDrag = true; touchStart = null;\r
+      try { cv.setPointerCapture(ev.pointerId); } catch (e) {}\r
+      wake(2500); setFromClientX(ev.clientX, cv);\r
+    } else if (Math.abs(dy) > 10) touchStart = null;\r
+  });\r
+  var endCanvasDrag = function () { canvasDrag = false; touchStart = null; };\r
+  cv.addEventListener('pointerup', endCanvasDrag);\r
+  cv.addEventListener('pointercancel', endCanvasDrag);\r
+  cv.addEventListener('click', function () {\r
+    // autoplay: a click on the picture flips to the other one right away\r
+    if (state.data.control !== 'auto') return;\r
+    if (autoPaused) setAutoPaused(false);\r
+    autoT0 = now() - (P > 0.5 ? AUTO.hold * 2 + AUTO.morph : AUTO.hold);\r
+  });\r
+  function setAutoPaused(v) {\r
+    autoPaused = v;\r
+    playBtn.innerHTML = v ? PLAY : PAUSE;\r
+    playBtn.setAttribute('aria-label', v ? '\u041F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C' : '\u041F\u0430\u0443\u0437\u0430');\r
+    autoText.textContent = v ? '\u041F\u0430\u0443\u0437\u0430' : '\u041C\u0435\u043D\u044F\u0435\u0442\u0441\u044F \u0441\u0430\u043C\u043E';\r
+    // resume from where it stopped: the next phase that starts at this picture\r
+    if (!v) autoT0 = now() - (P > 0.5 ? AUTO.hold + AUTO.morph : 0);\r
+  }\r
+  playBtn.addEventListener('click', function (ev) { ev.stopPropagation(); setAutoPaused(!autoPaused); });\r
+\r
+  var AUTO = { hold: 1.6, morph: 2.2 }, autoT0 = 0;\r
+  function sp() { return SPEED[state.data.speed] || 1; }\r
+  function syncSpeed() { AUTO.hold = 1.6 * sp(); AUTO.morph = 2.2 * sp(); }\r
+  function autoTarget(t) {\r
+    var cyc = AUTO.hold * 2 + AUTO.morph * 2, u = ((t - autoT0) % cyc + cyc) % cyc;\r
+    if (u < AUTO.hold) return 0;\r
+    if (u < AUTO.hold + AUTO.morph) return easeInOut((u - AUTO.hold) / AUTO.morph);\r
+    if (u < AUTO.hold * 2 + AUTO.morph) return 1;\r
+    return 1 - easeInOut((u - AUTO.hold * 2 - AUTO.morph) / AUTO.morph);\r
+  }\r
+  var lastScrollY = window.scrollY, scrollAcc = 0;\r
+  function onScroll() {\r
+    if (state.data.control !== 'scroll' || !visible) { lastScrollY = window.scrollY; return; }\r
+    var dy = window.scrollY - lastScrollY; lastScrollY = window.scrollY;\r
+    if (dy === 0) return;\r
+    // a new direction starts counting anew\r
+    if ((dy > 0) !== (scrollAcc > 0)) scrollAcc = 0;\r
+    scrollAcc += dy;\r
+    if (scrollAcc > 24) target = 1;\r
+    else if (scrollAcc < -24) target = 0;\r
+  }\r
+  window.addEventListener('scroll', onScroll, { passive: true });\r
+\r
+  // ---------- animation ----------\r
+  var t0 = performance.now(), last = 0, raf = 0, paused = false, visible = true, manual = false;\r
+  function now() { return (performance.now() - t0) / 1000; }\r
+\r
+  function frame(t, dt) {\r
+    if (!mesh) return;\r
+    var c = state.data.control;\r
+    if (!manual) {\r
+      if (c === 'auto') { if (!autoPaused) target = reduced ? (Math.floor(t / 4) % 2) : autoTarget(t); }\r
+    }\r
+    if (reduced) P = target;\r
+    // scroll: an even pace, the whole change takes ~1.5 s; the rest follows the target softly\r
+    else if (c === 'scroll' && !manual) { var pace = dt / (1.5 * sp()); P += Math.max(-pace, Math.min(pace, target - P)); }\r
+    else P += (target - P) * Math.min(1, dt * (c === 'auto' ? 30 : 9));\r
+    if (Math.abs(target - P) < 0.0005) P = target;\r
+    if (P !== lastP) { place(P); lastP = P; updateUi(); }\r
+    else if (uiDirty) { updateUi(); }\r
+    uiDirty = false;\r
+  }\r
+  function loop() {\r
+    raf = requestAnimationFrame(loop);\r
+    var t = now(), dt = Math.min(0.05, t - last); last = t;\r
+    if (!visible || paused) return;\r
+    frame(t, dt); renderer.render(scene, camera);\r
+  }\r
+\r
+  function resize() {\r
+    var w = container.clientWidth || 400, h = container.clientHeight || 300, aspect = w / h;\r
+    renderer.setSize(w, h, false); cv.style.width = '100%'; cv.style.height = '100%';\r
+    camera.aspect = aspect;\r
+    var tanV = Math.tan((camera.fov * Math.PI) / 360);\r
+    // the picture stays flat and fills the frame edge to edge: the front faces sit right on its border\r
+    var dist = Math.max(size.h / 2 / tanV, size.w / 2 / (tanV * aspect)) + D / 2;\r
+    camera.position.set(0, 0, dist); camera.lookAt(0, 0, 0);\r
+    camera.near = dist / 50; camera.far = dist * 4; camera.updateProjectionMatrix();\r
+  }\r
+\r
+  var ro = new ResizeObserver(resize); ro.observe(container);\r
+  var io = null;\r
+  if ('IntersectionObserver' in window) {\r
+    io = new IntersectionObserver(function (es) { var en = es[0]; visible = en ? en.isIntersecting : true; }, { threshold: [0, 0.01] });\r
+    io.observe(container);\r
+  }\r
+\r
+  syncSpeed(); build(); place(0); updateUi(); loop();\r
+\r
+  // ---------- public ----------\r
+  api.setData = function (d) {\r
+    var gridChanged = !state.data || d.w !== state.data.w || d.h !== state.data.h || d.a !== state.data.a || d.b !== state.data.b || d.depth !== state.data.depth;\r
+    var modeChanged = d.mode !== state.data.mode;\r
+    state.data = d;\r
+    if (gridChanged) build();\r
+    else if (modeChanged) setDelays();\r
+    curFace.fill(-1); lastP = -1; uiDirty = true;\r
+    scrollAcc = 0; lastScrollY = window.scrollY;\r
+    if (d.control === 'scroll' && !manual) target = 0;\r
+    syncSpeed();\r
+    if (d.control === 'auto') { autoT0 = now(); setAutoPaused(false); }\r
+    manual = false;\r
+  };\r
+  /** studio / checks: hold the transition at a point (0 = before, 1 = after) */\r
+  api.setProgress = function (v, instant) { manual = true; target = clamp01(v); if (instant) { P = target; lastP = -1; } };\r
+  api.release = function () { manual = false; if (state.data.control === 'auto') autoT0 = now(); };\r
+  api.setPaused = function (pz) { paused = pz; };\r
+  api.snapshot = function () {\r
+    frame(now(), 1 / 60); renderer.render(scene, camera);\r
+    var out = document.createElement('canvas'); out.width = cv.width; out.height = cv.height;\r
+    out.getContext('2d').drawImage(cv, 0, 0);\r
+    return out;\r
+  };\r
+  api.dispose = function () {\r
+    cancelAnimationFrame(raf); ro.disconnect(); if (io) io.disconnect(); window.removeEventListener('scroll', onScroll);\r
+    if (mesh) mesh.dispose(); cube.dispose(); mat.dispose(); renderer.dispose(); cv.remove(); ui.remove();\r
+  };\r
+  return api;\r
+}\r
 `;
 
 // src/engine/morphEmbedGenerator.ts

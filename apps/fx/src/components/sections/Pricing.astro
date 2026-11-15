@@ -12,18 +12,12 @@ const PACKS = [8, 10, 15, 20].map((n) => ({ n, total: rub(orderTotal(n)), per: `
 ---
 
 <section id="pricing" class="py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
-  <div class="flex flex-col items-center text-center mb-12">
-    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#DFF8EB] text-[#132A22] text-xs font-black tracking-wide border border-[#19C37D]/30 mb-4 shadow-sm">
-      <span class="w-2 h-2 rounded-full bg-[#19C37D] animate-pulse"></span>
-      <span>Цены раннего доступа · Разовая оплата</span>
-    </div>
-    <SectionHead
-      label="Цены"
-      title="Попробуйте в студии,"
-      accent="платите один раз"
-      lead="Собрать и посмотреть эффект можно бесплатно. Готовый код — сразу после оплаты: разово, без подписки и регистрации. Несколько эффектов в одном заказе — дешевле."
-    />
-  </div>
+  <SectionHead
+    label="Тарифы"
+    title="Попробуйте в студии,"
+    accent="платите один раз"
+    lead="Собрать и посмотреть эффект можно бесплатно. Готовый код — сразу после оплаты: разово, без подписки и регистрации. Несколько эффектов в одном заказе — дешевле."
+  />
 
   {/* 3 Unified Pricing Cards */}
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
