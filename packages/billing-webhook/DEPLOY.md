@@ -23,7 +23,9 @@
    - **Память:** `128 МБ`
 2. Загрузите файлы из папки `packages/billing-webhook/`:
    - `package.json`
+   - `index.js` *(точка входа)*
    - `index.mjs`
+   - `yookassa.mjs`
    - `signer.mjs`
    - `codeCompiler.mjs` *(серверный компилятор чистого кода без водяных знаков)*
    - `emailTemplate.mjs`
