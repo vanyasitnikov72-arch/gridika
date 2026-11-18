@@ -1,25 +1,21 @@
 {
-  "name": "Gridika — интерактивные 3D-эффекты и виджеты для сайта",
-  "short_name": "Gridika",
-  "description": "Gridika — готовые интерактивные 3D-виджеты для любого сайта: 3D QR-код, визитка, подарок с промокодом и воксели. Установка за минуту без программиста.",
-  "start_url": "/",
-  "scope": "/",
-  "display": "standalone",
-  "background_color": "#F0EBE9",
-  "theme_color": "#19C37D",
-  "lang": "ru",
+  "name": "MyWebSite",
+  "short_name": "MySite",
   "icons": [
     {
-      "src": "/gridika-radar-logo.png",
-      "sizes": "512x512",
+      "src": "/web-app-manifest-192x192.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     },
     {
-      "src": "/gridika-radar-logo.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
+      "src": "/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
-  ]
+  ],
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "display": "standalone"
 }
