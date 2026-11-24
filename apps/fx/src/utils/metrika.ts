@@ -12,9 +12,14 @@ export function trackGoal(goal: string, params?: Record<string, unknown>): void 
       } else {
         ym(114261124, 'reachGoal', goal);
       }
+      console.log(`[metrika] reachGoal: ${goal}`, params);
     }
   } catch (err) {
     // Fail silently in development/blocked ad environments
     console.debug('[Metrika] Goal tracking error:', err);
   }
+}
+
+if (typeof window !== 'undefined') {
+  (window as any).trackGoal = trackGoal;
 }

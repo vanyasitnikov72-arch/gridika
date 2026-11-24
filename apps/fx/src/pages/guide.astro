@@ -176,6 +176,9 @@ const breadcrumbs = {
                   </svg>
                   <span id="cms-copy-btn-text">Скопировать тестовый 3D-код</span>
                 </button>
+                <p class="mt-2 text-[11px] text-[#9ca3af] leading-snug">
+                  💡 Вставьте тестовый код на черновик, покажите заказчику для согласования, а чистый код купите после утверждения проекта.
+                </p>
               </div>
             </div>
 
@@ -2081,6 +2084,9 @@ const breadcrumbs = {
       const c = btn.dataset.cms;
       if (c && c !== currentCms) {
         currentCms = c;
+        if (c === 'tilda' && typeof (window as any).ym === 'function') {
+          (window as any).ym(114261124, 'reachGoal', 'open_tilda_guide', { source: 'guide_tab' });
+        }
         updateCmsUI();
       }
     });
@@ -2115,12 +2121,17 @@ const breadcrumbs = {
   cmsCopyTestBtn?.addEventListener('click', () => {
     const code = castleSnippet;
     navigator.clipboard.writeText(code).then(() => {
+      if (typeof (window as any).trackGoal === 'function') {
+        (window as any).trackGoal('copy_test_code');
+      } else if (typeof (window as any).ym === 'function') {
+        (window as any).ym(114261124, 'reachGoal', 'copy_test_code');
+      }
       if (cmsCopyBtnText) {
         const orig = cmsCopyBtnText.textContent;
-        cmsCopyBtnText.textContent = '✓ Скопировано в буфер!';
+        cmsCopyBtnText.textContent = '✓ Код скопирован — переходите к шагу 2';
         setTimeout(() => {
           cmsCopyBtnText.textContent = orig;
-        }, 2200);
+        }, 3000);
       }
     });
   });

@@ -121,6 +121,7 @@ const PACKS = [8, 10, 15, 20].map((n) => ({ n, total: rub(orderTotal(n)), per: `
           {[
             'Код для блока T123 и любых HTML-сайтов',
             'Навсегда — без подписки и привязки к сайту',
+            'Чистый код без пометки Gridika и без сторонних ссылок',
             'Любые цвета, стили и настройки без доплат',
             'Готовый код сразу и ссылка на почту с чеком',
           ].map((f) => (
@@ -165,6 +166,13 @@ const PACKS = [8, 10, 15, 20].map((n) => ({ n, total: rub(orderTotal(n)), per: `
         >
           Попробовать в студии ↑
         </a>
+        <a
+          href="/guide#install"
+          id="single-effect-test-guide"
+          class="text-center text-[11.5px] font-extrabold text-[#0f5c3c] hover:text-[#132A22] bg-[#DFF8EB]/80 hover:bg-[#DFF8EB] rounded-full py-1.5 px-3 transition-colors border border-[#19C37D]/30 flex items-center justify-center gap-1 mt-1"
+        >
+          <span>Бесплатный тестовый 3D-код в гайде ↓</span>
+        </a>
       </div>
     </article>
 
@@ -205,6 +213,7 @@ const PACKS = [8, 10, 15, 20].map((n) => ({ n, total: rub(orderTotal(n)), per: `
         <ul class="mt-5 flex flex-col gap-2.5">
           {[
             'Любые эффекты и их копии в одном заказе',
+            'Чистый код без пометки Gridika для каждого эффекта',
             'Второй код — 1 200 ₽, каждый следующий на 100 ₽ дешевле',
             'Код каждого эффекта — ваш навсегда, без подписки',
             'Готовый код сразу и ссылка на почту с чеком',
@@ -442,6 +451,13 @@ const PACKS = [8, 10, 15, 20].map((n) => ({ n, total: rub(orderTotal(n)), per: `
         const plan = a.dataset.plan;
         const prod = a.dataset.product;
 
+        // Track pricing plan choice in Yandex Metrika
+        if (typeof (window as any).ym === 'function') {
+          if (plan === 'single') (window as any).ym(114261124, 'reachGoal', 'select_plan_single', { product: prod });
+          if (plan === 'bundle') (window as any).ym(114261124, 'reachGoal', 'select_plan_kit');
+          if (plan === 'studio') (window as any).ym(114261124, 'reachGoal', 'select_plan_studio');
+        }
+
         // If choosing a specific single effect, switch the studio view to it
         if (plan === 'single' && prod) {
           window.dispatchEvent(new CustomEvent('fx:select-product', { detail: { productId: prod } }));
@@ -455,6 +471,13 @@ const PACKS = [8, 10, 15, 20].map((n) => ({ n, total: rub(orderTotal(n)), per: `
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       });
+    });
+
+    // 5. Test guide link from pricing
+    document.getElementById('single-effect-test-guide')?.addEventListener('click', () => {
+      if (typeof (window as any).ym === 'function') {
+        (window as any).ym(114261124, 'reachGoal', 'open_tilda_guide', { source: 'pricing_card' });
+      }
     });
 
     // 4. "Попробовать в студии" smoothly opens that product in the studio

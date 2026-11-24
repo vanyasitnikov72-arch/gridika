@@ -364,7 +364,12 @@ import { ChangeNote } from '../components/ChangeNote';
       pre.textContent = text;
       const copy = body.querySelector('[data-act="copy"]') as HTMLButtonElement;
       copy.addEventListener('click', async () => {
-        try { await navigator.clipboard.writeText(text); } catch {}
+        try {
+          await navigator.clipboard.writeText(text);
+          if (typeof (window as any).ym === 'function') {
+            (window as any).ym(114261124, 'reachGoal', 'copy_embed_code', { orderId });
+          }
+        } catch {}
         flash(copy, 'Код скопирован ✓', 'Скопировать код');
       });
       const dl = body.querySelector('[data-act="dl"]') as HTMLButtonElement;

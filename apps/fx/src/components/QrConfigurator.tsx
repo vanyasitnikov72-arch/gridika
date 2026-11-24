@@ -131,6 +131,7 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
   const markInteraction = (source?: string) => {
     if (!hasInteractedRef.current) {
       hasInteractedRef.current = true;
+      trackGoal('widget_interact', { product: activeProductRef.current, source: source || 'unknown' });
       trackGoal('sandbox_interact', { product: activeProductRef.current, source: source || 'unknown' });
     }
   };
@@ -718,6 +719,7 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
 
   const handleCopyCode = async () => {
     trackGoal('copy_code', { product: activeProduct });
+    trackGoal('copy_embed_code', { product: activeProduct });
     const code = embedCode || getEmbedCodeForProduct(activeProduct);
     try {
       await navigator.clipboard.writeText(code);
