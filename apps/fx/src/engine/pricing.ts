@@ -1,15 +1,15 @@
 /**
  * Prices, one-off (no subscriptions). One rule for the cart, the pricing section and the email:
- * the first code is 1 490 ₽, the second 1 200 ₽, and every next one is 100 ₽ cheaper,
- * down to 790 ₽ from the 7th code on (the studio pack).
- *   1 — 1 490 ₽ · 2 — 2 690 ₽ · 3 — 3 790 ₽ · 4 — 4 790 ₽ · 5 — 5 690 ₽ · 6 — 6 490 ₽ · +790 ₽ each
+ * the first code is 990 ₽, the second 800 ₽, and every next one is 100 ₽ cheaper,
+ * down to 300 ₽ from the 7th code on (the studio pack).
+ *   1 — 990 ₽ · 2 — 1 790 ₽ · 3 — 2 490 ₽ · 4 — 3 090 ₽ · 5 — 3 590 ₽ · 6 — 3 990 ₽ · +300 ₽ each
  * A "code" is one configured effect in the order; the same effect may be ordered several times.
  */
-export const PRICE_ONE = 1490;
+export const PRICE_ONE = 990;
 /** what the 2nd … 6th code adds to the order */
-const STEPS = [1200, 1100, 1000, 900, 800];
+const STEPS = [800, 700, 600, 500, 400];
 /** every code from the 7th on */
-export const EXTRA_CODE_PRICE = 790;
+export const EXTRA_CODE_PRICE = 300;
 /** all effects of the line: 6 codes */
 export const BUNDLE_MAX = 6;
 

@@ -9,6 +9,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { webcrypto } from 'node:crypto';
 import { newDb } from 'pg-mem';
 import nodemailer from 'nodemailer';
+import { orderTotal } from './pricing.mjs';
 
 // ---- environment ----
 const keyFile = new URL('../../apps/fx/.license/private.jwk', import.meta.url);
@@ -76,8 +77,26 @@ const bigMorph = { p: 'voxel-morph', morph: { data: { w: 64, h: 48, a: 'x'.repea
 const admin = { headers: { authorization: 'Bearer a-long-admin-secret-for-tests' } };
 
 // 1. honest purchase
+const controlTable = [
+  [1, 990],
+  [2, 1790],
+  [3, 2490],
+  [4, 3090],
+  [5, 3590],
+  [6, 3990],
+  [7, 4290],
+  [8, 4590],
+  [10, 5190],
+  [15, 6690],
+  [20, 8190],
+];
+for (const [count, expected] of controlTable) {
+  const actual = orderTotal(count);
+  check(`pricing formula for ${count} codes = ${expected} ₽`, actual === expected, actual === expected ? undefined : `${actual} !== ${expected}`);
+}
+
 const created = await call('create-payment', { email: 'Buyer@Example.com', items: [qr('https://one.ru'), qr('https://two.ru'), bigMorph] });
-check('payment is created; the price comes from the server', created.status === 200 && created.body.total === 3790, JSON.stringify(created.body.total));
+check('payment is created; the price comes from the server', created.status === 200 && created.body.total === 2490, JSON.stringify(created.body.total));
 const orderId = created.body.orderId;
 const order0 = await db.getOrder(orderId);
 check('order waits as "pending", effects stored in the DB (not in YooKassa metadata)', order0?.status === 'pending' && order0.items.length === 3);

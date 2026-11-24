@@ -1426,7 +1426,7 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
                                 Этот эффект · 1 сайт
                               </div>
                             </div>
-                            <div className="mt-2 text-[15px] font-black text-[#132A22]">1 490 ₽</div>
+                            <div className="mt-2 text-[15px] font-black text-[#132A22]">990 ₽</div>
                           </button>
 
                           {/* Option 2: Bundle */}
@@ -1572,7 +1572,7 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
                         className="h-11 rounded-full bg-[#132A22] text-white/70 font-extrabold text-sm cursor-not-allowed flex items-center justify-center gap-2"
                       >
                         <span>
-                          {selectedPlan === 'single' && `Купить ключ «${productById(activeProduct).title}» · 1 490 ₽ (оплата скоро)`}
+                          {selectedPlan === 'single' && `Купить ключ «${productById(activeProduct).title}» · 990 ₽ (оплата скоро)`}
                           {selectedPlan === 'bundle' && 'Купить «Все эффекты» · 3 990 ₽ (оплата скоро)'}
                           {selectedPlan === 'studio' && `Купить Studio Master (${studioSites} ${studioSites === 5 ? 'сайтов' : 'сайта'}) · ${
                             studioSites === 2 ? '6 990 ₽' : studioSites === 3 ? '8 990 ₽' : studioSites === 4 ? '10 990 ₽' : '12 990 ₽'
