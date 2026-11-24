@@ -1,7 +1,7 @@
 ---
 ---
 
-<div class="sticky top-2.5 sm:top-4 z-50 w-full px-2.5 sm:px-6 lg:px-8 pointer-events-none" transition:persist>
+<div id="navbar-root" class="sticky top-2.5 sm:top-4 z-50 w-full px-2.5 sm:px-6 lg:px-8 pointer-events-none" transition:persist="navbar">
   <header
     id="site-header"
     class="vx-header max-w-4xl mx-auto pl-1.5 pr-2 sm:pl-2 sm:pr-3 h-[64px] sm:h-[68px] flex items-center justify-between pointer-events-auto rounded-full border border-[#e9e3d7] bg-white/90 backdrop-blur-xl shadow-[0_10px_30px_-12px_rgba(19,42,34,0.18),0_1px_0_rgba(255,255,255,0.9)_inset]"
@@ -202,33 +202,106 @@
 <script>
   import { createMorphLogo } from '../brand/morphLogo';
 
+  let currentLogo: ReturnType<typeof createMorphLogo> | null = null;
+  let scrollHandler: (() => void) | null = null;
+
+  function cleanup() {
+    if (scrollHandler) {
+      window.removeEventListener('scroll', scrollHandler);
+      scrollHandler = null;
+    }
+    if (currentLogo) {
+      try {
+        currentLogo.dispose();
+      } catch (e) {
+        console.error('Error disposing morph logo:', e);
+      }
+      currentLogo = null;
+    }
+  }
+
   function initBrandMorph() {
     const host = document.getElementById('brand-morph');
     const name = document.getElementById('brand-name');
     const sub = document.getElementById('brand-sub');
     const tile = document.getElementById('brand-tile');
-    if (!host || !name || !sub || !tile) return;
-    const logo = createMorphLogo(host, name, { logoCenter: { x: 32, y: 32 }, logoSize: 44 });
-    const smooth = (a: number, b: number, t: number) => {
-      const k = Math.min(1, Math.max(0, (t - a) / (b - a)));
-      return k * k * (3 - 2 * k);
-    };
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const apply = () => {
+    if (!host || !name || !sub || !tile) {
+      cleanup();
+      return;
+    }
+
+    // If logo is already active with an attached canvas in this host, just re-sync scroll progress
+    const existingCanvas = host.querySelector('canvas');
+    if (existingCanvas && existingCanvas.isConnected && currentLogo) {
       const p = Math.min(1, window.scrollY / 420);
-      if (reduce) logo.snap(p > 0.5 ? 1 : 0);
-      else logo.setProgress(p);
-      sub.style.opacity = String(1 - smooth(0, 0.22, p));
-      const t = smooth(0.55, 0.95, p);
-      tile.style.opacity = String(t);
-      tile.style.transform = `scale(${0.7 + 0.3 * t})`;
-    };
-    window.addEventListener('scroll', apply, { passive: true });
-    logo.snap(Math.min(1, window.scrollY / 420));
-    apply();
+      currentLogo.snap(p);
+      return;
+    }
+
+    // Clean up any stale state or disconnected canvases
+    cleanup();
+    host.querySelectorAll('canvas').forEach((c) => c.remove());
+
+    try {
+      currentLogo = createMorphLogo(host, name, { logoCenter: { x: 32, y: 32 }, logoSize: 44 });
+      const smooth = (a: number, b: number, t: number) => {
+        const k = Math.min(1, Math.max(0, (t - a) / (b - a)));
+        return k * k * (3 - 2 * k);
+      };
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const apply = () => {
+        if (!currentLogo) return;
+        const p = Math.min(1, window.scrollY / 420);
+        if (reduce) currentLogo.snap(p > 0.5 ? 1 : 0);
+        else currentLogo.setProgress(p);
+        sub.style.opacity = String(1 - smooth(0, 0.22, p));
+        const t = smooth(0.55, 0.95, p);
+        tile.style.opacity = String(t);
+        tile.style.transform = `scale(${0.7 + 0.3 * t})`;
+      };
+      scrollHandler = apply;
+      window.addEventListener('scroll', apply, { passive: true });
+      currentLogo.snap(Math.min(1, window.scrollY / 420));
+      apply();
+    } catch (err) {
+      console.warn('Brand morph WebGL init failed, using fallback:', err);
+      // Fallback: make the HTML brand text visible so it never disappears
+      name.classList.remove('opacity-0');
+      name.style.opacity = '1';
+    }
   }
-  // the cube copy of the name is drawn with the site font: wait for Nunito
-  const go = () => (document.fonts ? document.fonts.load('900 24px Nunito').then(initBrandMorph, initBrandMorph) : initBrandMorph());
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go);
-  else go();
+
+  // Fallback watchdog: if canvas is not present within 1s, ensure text is visible
+  function ensureLogoVisible() {
+    setTimeout(() => {
+      const host = document.getElementById('brand-morph');
+      const name = document.getElementById('brand-name');
+      if (host && name && !host.querySelector('canvas')) {
+        name.classList.remove('opacity-0');
+        name.style.opacity = '1';
+      }
+    }, 1000);
+  }
+
+  const go = () => {
+    ensureLogoVisible();
+    if (document.fonts) {
+      document.fonts.load('900 24px Nunito').then(initBrandMorph, initBrandMorph);
+    } else {
+      initBrandMorph();
+    }
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', go);
+  } else {
+    go();
+  }
+  document.addEventListener('astro:page-load', go);
+  document.addEventListener('astro:before-swap', (e: Event) => {
+    const newDoc = (e as any).newDocument;
+    if (newDoc && !newDoc.getElementById('brand-morph')) {
+      cleanup();
+    }
+  });
 </script>

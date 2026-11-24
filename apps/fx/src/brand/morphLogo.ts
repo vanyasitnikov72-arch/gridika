@@ -335,6 +335,16 @@ export function createMorphLogo(host: HTMLElement, textEl: HTMLElement, o: Optio
     dispose() {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      if (mesh) {
+        scene.remove(mesh);
+        mesh.geometry.dispose();
+        if (Array.isArray(mesh.material)) {
+          mesh.material.forEach((m) => m.dispose());
+        } else {
+          mesh.material.dispose();
+        }
+      }
+      faceMats.forEach((m) => m.dispose());
       renderer.dispose();
       cv.remove();
     },

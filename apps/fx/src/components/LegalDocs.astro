@@ -296,12 +296,60 @@ const { initialTab = 'offer' } = Astro.props;
 <script>
   import { createMorphLogo } from '../brand/morphLogo';
 
+  let legalLogo: ReturnType<typeof createMorphLogo> | null = null;
+
+  function cleanupLegalLogo() {
+    if (legalLogo) {
+      try {
+        legalLogo.dispose();
+      } catch (e) {
+        console.error('Error disposing legal logo:', e);
+      }
+      legalLogo = null;
+    }
+  }
+
   function initBrandLogo() {
     const brandHost = document.getElementById('legal-brand');
     const brandName = document.getElementById('legal-brand-name');
-    if (brandHost && brandName) {
-      const build = () => createMorphLogo(brandHost, brandName, { logoCenter: { x: 24, y: 24 }, logoSize: 40 }).snap(0);
-      document.fonts ? document.fonts.load('900 30px Nunito').then(build, build) : build();
+    if (!brandHost || !brandName) {
+      cleanupLegalLogo();
+      return;
+    }
+
+    const existingCanvas = brandHost.querySelector('canvas');
+    if (existingCanvas && existingCanvas.isConnected && legalLogo) {
+      legalLogo.snap(0);
+      return;
+    }
+
+    cleanupLegalLogo();
+    brandHost.querySelectorAll('canvas').forEach((c) => c.remove());
+
+    const build = () => {
+      if (!brandHost || !brandName) return;
+      try {
+        legalLogo = createMorphLogo(brandHost, brandName, { logoCenter: { x: 24, y: 24 }, logoSize: 40 });
+        legalLogo.snap(0);
+      } catch (err) {
+        console.warn('Legal brand logo init failed, using fallback:', err);
+        brandName.classList.remove('opacity-0');
+        brandName.style.opacity = '1';
+      }
+    };
+
+    // Watchdog fallback: ensure name text is visible if canvas is not created
+    setTimeout(() => {
+      if (brandHost && brandName && !brandHost.querySelector('canvas')) {
+        brandName.classList.remove('opacity-0');
+        brandName.style.opacity = '1';
+      }
+    }, 1000);
+
+    if (document.fonts) {
+      document.fonts.load('900 30px Nunito').then(build, build);
+    } else {
+      build();
     }
   }
 
@@ -403,7 +451,21 @@ const { initialTab = 'offer' } = Astro.props;
     });
   }
 
-  // Run on page load
-  initBrandLogo();
-  initLegalTabs();
+  function setupLegal() {
+    initBrandLogo();
+    initLegalTabs();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupLegal);
+  } else {
+    setupLegal();
+  }
+  document.addEventListener('astro:page-load', setupLegal);
+  document.addEventListener('astro:before-swap', (e: Event) => {
+    const newDoc = (e as any).newDocument;
+    if (newDoc && !newDoc.getElementById('legal-brand')) {
+      cleanupLegalLogo();
+    }
+  });
 </script>
