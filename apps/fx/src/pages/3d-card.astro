@@ -1,0 +1,138 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import { QrConfigurator } from '../components/QrConfigurator';
+import InstallSteps from '../components/sections/InstallSteps.astro';
+import WidgetCrossLinks from '../components/sections/WidgetCrossLinks.astro';
+
+const pageTitle = "3D-визитка с QR-кодом для сайта — интерактивная визитка эксперта | Gridika";
+const pageDesc = "Интерактивная 3D-визитка для сайта: поворачивается за курсором и гироскопом, переворачивается кликом. QR-код vCard сохраняет контакт в телефон за 1 секунду. Без программиста.";
+const canonicalUrl = "https://gridika.ru/3d-card/";
+
+const faqItems = [
+  {
+    q: "Как работает сохранение контакта со смартфона?",
+    a: "На обороте карточки расположен 3D QR-код стандарта vCard 3.0. Посетитель наводит камеру смартфона — система мгновенно предлагает сохранить контакт с вашим именем, должностью, телефоном, почтой, Telegram и ссылкой на сайт.",
+  },
+  {
+    q: "Как визитка реагирует на движения пользователя?",
+    a: "На компьютере карточка плавно наклоняется вслед за курсором мыши, а по её граням пробегает объёмный блик. На смартфонах карточка поддерживает гироскоп и откликается на жесты свайпа.",
+  },
+  {
+    q: "Какие данные и стили можно настроить?",
+    a: "В студии доступно 8 премиальных палитр (Графит, Изумруд, Золото, Океан и др.) и 7 геометрических дизайнов. Вы можете загрузить свой логотип, заполнить контакты и скрыть ненужные поля кнопкой-глазиком.",
+  },
+  {
+    q: "Как вставить 3D-визитку на Tilda или другой сайт?",
+    a: "В Tilda добавьте стандартный блок T123 («HTML-код») и вставьте сгенерированный скрипт. В WordPress используйте блок «Произвольный HTML», в Webflow — элемент «Embed». Код автономен и весит ~36 КБ.",
+  },
+];
+
+const structuredData = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Главная',
+        item: 'https://gridika.ru/',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: '3D-визитка',
+        item: canonicalUrl,
+      },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: 'Интерактивная 3D-визитка с QR-кодом Gridika',
+    description: pageDesc,
+    image: 'https://gridika.ru/web-app-manifest-512x512.png',
+    offers: {
+      '@type': 'Offer',
+      price: '1490',
+      priceCurrency: 'RUB',
+      availability: 'https://schema.org/InStock',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a,
+      },
+    })),
+  },
+];
+---
+
+<Layout
+  title={pageTitle}
+  description={pageDesc}
+  canonicalUrl={canonicalUrl}
+  structuredData={structuredData}
+>
+  <Navbar />
+
+  <main class="flex-1 pb-20 relative overflow-hidden">
+    {/* HERO HEADER */}
+    <section class="pt-6 pb-6 sm:pt-8 md:pt-10 md:pb-8 max-w-4xl mx-auto px-4 sm:px-6 text-center">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E5F2FF] text-[#0055b3] text-[12px] font-extrabold mb-3 shadow-xs">
+        <span>Интерактивный 3D-эффект #02</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-black text-[#132A22] tracking-tight leading-[1.1]">
+        3D-визитка эксперта с QR-контактом vCard
+      </h1>
+      <p class="mt-3.5 text-base sm:text-lg text-[#6b645c] font-semibold max-w-2xl mx-auto leading-relaxed">
+        Премиальная интерактивная карта для страницы «Контакты» или личного портфолио. Наклон за мышью, переворот кликом и моментальное сохранение контакта в телефон.
+      </p>
+    </section>
+
+    {/* INTERACTIVE STUDIO */}
+    <section id="studio" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 scroll-mt-24">
+      <QrConfigurator client:load initialProduct="qr-card" />
+    </section>
+
+    {/* INSTALLATION STEPS */}
+    <InstallSteps />
+
+    {/* FAQ SECTION */}
+    <section class="py-14 max-w-4xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl sm:text-3xl font-black text-[#132A22]">
+          Частые вопросы о 3D-визитке
+        </h2>
+      </div>
+      <div class="space-y-3.5">
+        {faqItems.map((item) => (
+          <details class="group bg-white rounded-2xl border border-[#ece6da] p-5 shadow-xs transition-all [&_summary::-webkit-details-marker]:hidden">
+            <summary class="flex items-center justify-between font-extrabold text-[#132A22] text-base cursor-pointer list-none">
+              <span>{item.q}</span>
+              <span class="w-7 h-7 rounded-full bg-[#f6f3ee] flex items-center justify-center text-sm group-open:rotate-180 transition-transform">
+                ↓
+              </span>
+            </summary>
+            <p class="mt-3 text-sm text-[#6b645c] font-semibold leading-relaxed">
+              {item.a}
+            </p>
+          </details>
+        ))}
+      </div>
+    </section>
+
+    {/* CROSS LINKS */}
+    <WidgetCrossLinks currentPath={canonicalUrl} />
+  </main>
+
+  <Footer />
+</Layout>

@@ -1,0 +1,138 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import { QrConfigurator } from '../components/QrConfigurator';
+import InstallSteps from '../components/sections/InstallSteps.astro';
+import WidgetCrossLinks from '../components/sections/WidgetCrossLinks.astro';
+
+const pageTitle = "3D-подарок с промокодом для сайта — интерактивный виджет скидки | Gridika";
+const pageDesc = "Интерактивная 3D-коробка с подарком для сайта: лента развязывается, крышка взлетает и появляется промокод или скидка. Повышает вовлечение и продажи на Tilda и WordPress.";
+const canonicalUrl = "https://gridika.ru/promo-gift/";
+
+const faqItems = [
+  {
+    q: "Что можно поместить внутрь подарочной коробки?",
+    a: "Внутри коробки может собираться любой буквенно-цифровой промокод (до 14 символов), процент скидки (например, −20%) или трёхмерный QR-купон, открывающий целевую страницу акции.",
+  },
+  {
+    q: "Когда срабатывает анимация открытия коробки?",
+    a: "Вы можете выбрать режим срабатывания в студии: по клику пользователя или автоматически при прокрутке страницы, когда посетитель доскроллил до блока с подарком.",
+  },
+  {
+    q: "Как посетитель копирует промокод?",
+    a: "Сразу под 3D-сценой появляется аккуратная кнопка «Скопировать промокод». При клике промокод копируется в буфер обмена смартфона или компьютера, сопровождаясь праздничным эффектом конфетти.",
+  },
+  {
+    q: "Подходит ли виджет для мобильных устройств?",
+    a: "Да, сцена полностью адаптивна под любые экраны iOS и Android, поддерживает сенсорное управление и оптимизирована по весу для быстрой загрузки даже при слабом 4G/LTE.",
+  },
+];
+
+const structuredData = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Главная',
+        item: 'https://gridika.ru/',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Подарок с промокодом',
+        item: canonicalUrl,
+      },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: 'Интерактивный 3D-подарок с промокодом Gridika',
+    description: pageDesc,
+    image: 'https://gridika.ru/web-app-manifest-512x512.png',
+    offers: {
+      '@type': 'Offer',
+      price: '1490',
+      priceCurrency: 'RUB',
+      availability: 'https://schema.org/InStock',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a,
+      },
+    })),
+  },
+];
+---
+
+<Layout
+  title={pageTitle}
+  description={pageDesc}
+  canonicalUrl={canonicalUrl}
+  structuredData={structuredData}
+>
+  <Navbar />
+
+  <main class="flex-1 pb-20 relative overflow-hidden">
+    {/* HERO HEADER */}
+    <section class="pt-6 pb-6 sm:pt-8 md:pt-10 md:pb-8 max-w-4xl mx-auto px-4 sm:px-6 text-center">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#fde3e1] text-[#9b1c1c] text-[12px] font-extrabold mb-3 shadow-xs">
+        <span>Интерактивный 3D-эффект #03</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-black text-[#132A22] tracking-tight leading-[1.1]">
+        Интерактивный 3D-подарок с промокодом и скидкой
+      </h1>
+      <p class="mt-3.5 text-base sm:text-lg text-[#6b645c] font-semibold max-w-2xl mx-auto leading-relaxed">
+        Воксельная подарочная коробка с анимацией открытия, салютом из конфетти и воксельным промокодом. Превращает скучный купон в эффектную механику для лидогенерации и распродаж на Tilda, WordPress и Webflow.
+      </p>
+    </section>
+
+    {/* INTERACTIVE STUDIO */}
+    <section id="studio" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 scroll-mt-24">
+      <QrConfigurator client:load initialProduct="gift-box" />
+    </section>
+
+    {/* INSTALLATION STEPS */}
+    <InstallSteps />
+
+    {/* FAQ SECTION */}
+    <section class="py-14 max-w-4xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl sm:text-3xl font-black text-[#132A22]">
+          Частые вопросы о 3D-подарке
+        </h2>
+      </div>
+      <div class="space-y-3.5">
+        {faqItems.map((item) => (
+          <details class="group bg-white rounded-2xl border border-[#ece6da] p-5 shadow-xs transition-all [&_summary::-webkit-details-marker]:hidden">
+            <summary class="flex items-center justify-between font-extrabold text-[#132A22] text-base cursor-pointer list-none">
+              <span>{item.q}</span>
+              <span class="w-7 h-7 rounded-full bg-[#f6f3ee] flex items-center justify-center text-sm group-open:rotate-180 transition-transform">
+                ↓
+              </span>
+            </summary>
+            <p class="mt-3 text-sm text-[#6b645c] font-semibold leading-relaxed">
+              {item.a}
+            </p>
+          </details>
+        ))}
+      </div>
+    </section>
+
+    {/* CROSS LINKS */}
+    <WidgetCrossLinks currentPath={canonicalUrl} />
+  </main>
+
+  <Footer />
+</Layout>

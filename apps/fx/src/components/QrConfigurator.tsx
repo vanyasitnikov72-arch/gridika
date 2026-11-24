@@ -35,6 +35,7 @@ const LOGO_EMBED_HEIGHT = 440;
 import { CartModal } from './CartModal';
 import { CartFloatingPill } from './CartFloatingPill';
 import confetti from 'canvas-confetti';
+import { trackGoal } from '../utils/metrika';
 
 export type ActiveProductType = ProductId;
 
@@ -105,14 +106,18 @@ const SHAPE_OPTIONS: ShapeOption[] = [
   { id: 'castle', label: 'Замок', desc: 'Крепость' },
 ];
 
-export function QrConfigurator() {
+export interface QrConfiguratorProps {
+  initialProduct?: ActiveProductType;
+}
+
+export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const waveRef = useRef<SVGSVGElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const stageColRef = useRef<HTMLDivElement>(null);
 
   // Active Studio Product
-  const [activeProduct, setActiveProduct] = useState<ActiveProductType>('qr-morph');
+  const [activeProduct, setActiveProduct] = useState<ActiveProductType>(initialProduct || 'qr-morph');
   const active = productById(activeProduct);
   const activeProductRef = useRef(activeProduct);
   activeProductRef.current = activeProduct;
@@ -122,9 +127,18 @@ export function QrConfigurator() {
   const morph = useMorphState();
   const timer = useTimerState();
 
+  const hasInteractedRef = useRef(false);
+  const markInteraction = (source?: string) => {
+    if (!hasInteractedRef.current) {
+      hasInteractedRef.current = true;
+      trackGoal('sandbox_interact', { product: activeProductRef.current, source: source || 'unknown' });
+    }
+  };
+
   useEffect(() => applyProductTheme(activeProduct), [activeProduct]);
 
   const selectProduct = (id: ProductId) => {
+    markInteraction('product_switch');
     setActiveProduct(id);
     try {
       const url = new URL(window.location.href);
@@ -346,6 +360,8 @@ export function QrConfigurator() {
       const p = new URLSearchParams(window.location.search).get('fx') as ActiveProductType;
       if (p && STUDIO_PRODUCTS.some((sp) => sp.id === p)) {
         setActiveProduct(p);
+      } else if (initialProduct && STUDIO_PRODUCTS.some((sp) => sp.id === initialProduct)) {
+        setActiveProduct(initialProduct);
       }
     } catch {}
 
@@ -359,6 +375,7 @@ export function QrConfigurator() {
 
     const handleOpenBuyModal = () => {
       const cfg = currentConfig();
+      trackGoal('cart_add', { product: cfg.p });
       const linked = editingItem.current.get(cfg.p);
       if (!linked || !getCart().some((it) => it.id === linked)) {
         const item = addToCart({ ...cfg, site: buySite });
@@ -436,6 +453,7 @@ export function QrConfigurator() {
 
   /** adds what the studio shows as a new code of the order and keeps editing it */
   const addCurrentAsNew = () => {
+    trackGoal('cart_add', { product: activeProduct });
     const item = addToCart({ ...currentConfig(), site: buySite });
     editingItem.current.set(activeProduct, item.id);
     seenInStudio.current.add(activeProduct);
@@ -690,6 +708,7 @@ export function QrConfigurator() {
 
   const [downloaded, setDownloaded] = useState(false);
   const handleDownloadCode = () => {
+    trackGoal('download_code', { product: activeProduct });
     const code = embedCode || getEmbedCodeForProduct(activeProduct);
     if (!code) return;
     downloadCode(code, codeFileName(activeProduct, proDomain || ''));
@@ -698,6 +717,7 @@ export function QrConfigurator() {
   };
 
   const handleCopyCode = async () => {
+    trackGoal('copy_code', { product: activeProduct });
     const code = embedCode || getEmbedCodeForProduct(activeProduct);
     try {
       await navigator.clipboard.writeText(code);
@@ -843,7 +863,7 @@ export function QrConfigurator() {
             </div>
 
             {/* 2. CENTER ZONE: Expansive Stage (Switches depending on activeProduct) */}
-            <div ref={stageColRef} className="lg:col-span-5 flex flex-col items-center justify-center relative my-1 lg:my-0">
+            <div ref={stageColRef} onPointerDown={() => markInteraction('stage')} className="lg:col-span-5 flex flex-col items-center justify-center relative my-1 lg:my-0">
               <div className="relative w-full h-[460px] sm:h-[480px] lg:h-[520px] flex flex-col items-center justify-center overflow-hidden sm:overflow-visible">
 
                 {/* MODE 01: QR MORPH STAGE (Permanently mounted for persistent Three.js context) */}

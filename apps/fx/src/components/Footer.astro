@@ -3,25 +3,39 @@
 
 <footer class="w-full overflow-hidden mt-auto border-t border-[#dfd8d4] bg-[#eae4e1] py-8 sm:py-12">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-8">
-    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-      <div class="flex flex-col items-center md:items-start gap-1">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      {/* Brand & mission */}
+      <div class="md:col-span-2 flex flex-col items-start gap-2">
         <div class="flex items-center gap-2">
-          <a href="/" class="text-sm font-black text-[#1c1917] tracking-tight hover:opacity-80 transition-opacity">Grid<span class="text-[#19C37D]">ika</span></a>
+          <a href="/" class="text-base font-black text-[#1c1917] tracking-tight hover:opacity-80 transition-opacity">Grid<span class="text-[#19C37D]">ika</span></a>
           <span class="text-xs text-[#a8a29e]">•</span>
           <span class="text-xs text-[#57534e] font-bold">3D-эффекты для любого сайта</span>
         </div>
-        <p class="text-xs text-[#78716c] font-medium text-center md:text-left">
-          Автономный клиентский WebGL рендеринг. Совместимость с любыми сайтами.
+        <p class="text-xs text-[#78716c] font-medium leading-relaxed max-w-sm">
+          Автономный клиентский WebGL рендеринг без серверов. 100% считываемость QR-кодов, высокая производительность и быстрая установка на Tilda, WordPress, Webflow и Wix.
         </p>
       </div>
 
-      <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs font-bold text-[#57534e]">
-        <span class="flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-[#19C37D]"></span>
-          Автономный код
-        </span>
-        <span class="hidden sm:inline text-[#a8a29e]">•</span>
-        <span>Для дизайнеров</span>
+      {/* 3D Widgets links */}
+      <div class="flex flex-col gap-2.5">
+        <h4 class="text-xs font-black uppercase tracking-wider text-[#1c1917]">3D-виджеты</h4>
+        <ul class="flex flex-col gap-2 text-xs font-semibold text-[#57534e]">
+          <li><a href="/3d-qr-code/" class="hover:text-[#19C37D] transition-colors">3D QR-код</a></li>
+          <li><a href="/3d-card/" class="hover:text-[#19C37D] transition-colors">3D-визитка с QR</a></li>
+          <li><a href="/promo-gift/" class="hover:text-[#19C37D] transition-colors">Подарок с промокодом</a></li>
+          <li><a href="/voxels/" class="hover:text-[#19C37D] transition-colors">Воксели и 3D-логотипы</a></li>
+        </ul>
+      </div>
+
+      {/* Guides & Platforms */}
+      <div class="flex flex-col gap-2.5">
+        <h4 class="text-xs font-black uppercase tracking-wider text-[#1c1917]">Интеграции и база</h4>
+        <ul class="flex flex-col gap-2 text-xs font-semibold text-[#57534e]">
+          <li><a href="/tilda/" class="hover:text-[#19C37D] transition-colors">Виджеты для Tilda</a></li>
+          <li><a href="/guide" class="hover:text-[#19C37D] transition-colors">Интерактивный гайд</a></li>
+          <li><a href="/#studio" class="hover:text-[#19C37D] transition-colors">3D Студия</a></li>
+          <li><a href="/#pricing" class="hover:text-[#19C37D] transition-colors">Тарифы</a></li>
+        </ul>
       </div>
     </div>
 

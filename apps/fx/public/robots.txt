@@ -1,6 +1,11 @@
 # https://gridika.ru robots.txt
 User-agent: *
 Allow: /
+Allow: /3d-qr-code/
+Allow: /promo-gift/
+Allow: /3d-card/
+Allow: /voxels/
+Allow: /tilda/
 Allow: /guide
 Allow: /offer
 Allow: /privacy
@@ -15,6 +20,11 @@ Disallow: /test-widget.html
 # Yandex bot specifics
 User-agent: Yandex
 Allow: /
+Allow: /3d-qr-code/
+Allow: /promo-gift/
+Allow: /3d-card/
+Allow: /voxels/
+Allow: /tilda/
 Allow: /guide
 Allow: /offer
 Allow: /privacy

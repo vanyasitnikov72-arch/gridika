@@ -1,0 +1,197 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import { QrConfigurator } from '../components/QrConfigurator';
+import WidgetCrossLinks from '../components/sections/WidgetCrossLinks.astro';
+
+const pageTitle = "Интерактивные 3D-виджеты для Tilda — установка в T123 и Zero Block | Gridika";
+const pageDesc = "Готовые интерактивные 3D-виджеты для Tilda Publishing: 3D QR-код, визитка, подарок с промокодом и воксели. Пошаговая инструкция по установке в блоки T123 и Zero Block.";
+const canonicalUrl = "https://gridika.ru/tilda/";
+
+const faqItems = [
+  {
+    q: "На каком тарифе Tilda работает вставка HTML-кода?",
+    a: "Возможность добавления произвольного HTML/JS-кода (блок T123 или элемент HTML в Zero Block) доступна на официальных тарифах Tilda Personal и Business.",
+  },
+  {
+    q: "В чём разница между установкой в блок T123 и в Zero Block?",
+    a: "Блок T123 вставляется как отдельная стандартная секция сайта и автоматически растягивается по ширине контейнера. В Zero Block вы добавляете элемент «HTML» и можете точно позиционировать 3D-виджет в пикселях среди текста и кнопок вашего уникального макета.",
+  },
+  {
+    q: "Будет ли работать 3D-виджет в мобильной версии на Tilda?",
+    a: "Да, абсолютно. Все виджеты Gridika адаптивны, поддерживают touch-жесты и гироскоп смартфонов. В Zero Block достаточно настроить адаптивность HTML-элемента под мобильные разрешения экрана.",
+  },
+  {
+    q: "Можно ли разместить несколько 3D-виджетов на одной странице?",
+    a: "Да. Каждый виджет вставляется в свой блок T123 или отдельный HTML-элемент Zero Block. Их скрипты изолированы и работают независимо друг от друга.",
+  },
+  {
+    q: "Не замедлит ли 3D-эффект скорость загрузки сайта на Tilda?",
+    a: "Нет. Скрипт загружает трёхмерную графику асинхронно с CDN, а движок останавливает цикл рендеринга (freeze), когда блок находится вне зоны видимости пользователя.",
+  },
+];
+
+const structuredData = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Главная',
+        item: 'https://gridika.ru/',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Интеграция с Tilda',
+        item: canonicalUrl,
+      },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a,
+      },
+    })),
+  },
+];
+---
+
+<Layout
+  title={pageTitle}
+  description={pageDesc}
+  canonicalUrl={canonicalUrl}
+  structuredData={structuredData}
+>
+  <Navbar />
+
+  <main class="flex-1 pb-20 relative overflow-hidden">
+    {/* HERO HEADER */}
+    <section class="pt-6 pb-6 sm:pt-8 md:pt-10 md:pb-8 max-w-4xl mx-auto px-4 sm:px-6 text-center">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FFEAE8] text-[#c2362b] text-[12px] font-extrabold mb-3 shadow-xs">
+        <span>Tilda Publishing Guide</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-black text-[#132A22] tracking-tight leading-[1.1]">
+        Интерактивные 3D-виджеты для сайтов на Tilda
+      </h1>
+      <p class="mt-3.5 text-base sm:text-lg text-[#6b645c] font-semibold max-w-2xl mx-auto leading-relaxed">
+        Установите живой 3D QR-код, визитку с vCard, подарок с промокодом или воксельный логотип на Тильду за 1 минуту: через блок T123 или прямо в Zero Block.
+      </p>
+    </section>
+
+    {/* INTERACTIVE STUDIO */}
+    <section id="studio" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 scroll-mt-24">
+      <QrConfigurator client:load initialProduct="qr-morph" />
+    </section>
+
+    {/* TILDA INSTALLATION METHODS */}
+    <section class="py-12 max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <h2 class="text-2xl sm:text-3xl font-black text-[#132A22] tracking-tight">
+          Два способа вставки в Tilda
+        </h2>
+        <p class="mt-2 text-sm text-[#6b645c] font-semibold">
+          Выберите подходящий вариант под структуру вашего сайта
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* METHOD 1: T123 */}
+        <div class="soft-3d-card p-6 sm:p-7 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-3 py-1 rounded-full bg-[#DFF8EB] text-[#0f5c3c] text-xs font-black">
+                Способ №1 • Рекомендуемый
+              </span>
+              <span class="text-xs font-bold text-[#8a8276]">Блок T123</span>
+            </div>
+            <h3 class="text-xl font-black text-[#132A22] mb-2.5">
+              Стандартный блок «HTML-код»
+            </h3>
+            <p class="text-sm text-[#6b645c] font-semibold leading-relaxed mb-4">
+              Самый быстрый и надёжный метод. Подходит для вставки 3D-сцен между другими блоками страницы.
+            </p>
+            <ol class="space-y-2.5 text-xs text-[#524c44] font-semibold list-decimal list-inside">
+              <li>Откройте библиотеку блоков Tilda → категория <strong>«Другое»</strong>.</li>
+              <li>Выберите блок <strong>T123 «HTML-код»</strong>.</li>
+              <li>Нажмите оранжевую кнопку <strong>«Контент»</strong> на блоке.</li>
+              <li>Вставьте скопированный код Gridika и нажмите <strong>«Сохранить»</strong>.</li>
+              <li>Опубликуйте страницу — 3D-виджет сразу оживёт!</li>
+            </ol>
+          </div>
+          <div class="mt-6 pt-4 border-t border-[#ece6da] flex items-center justify-between text-xs text-[#8a8276] font-bold">
+            <span>Тариф: Personal / Business</span>
+            <span class="text-[#19C37D]">✓ 1 минута</span>
+          </div>
+        </div>
+
+        {/* METHOD 2: ZERO BLOCK */}
+        <div class="soft-3d-card p-6 sm:p-7 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-3 py-1 rounded-full bg-[#E5F2FF] text-[#0055b3] text-xs font-black">
+                Способ №2 • Для дизайнеров
+              </span>
+              <span class="text-xs font-bold text-[#8a8276]">Zero Block</span>
+            </div>
+            <h3 class="text-xl font-black text-[#132A22] mb-2.5">
+              Элемент HTML внутри Zero Block
+            </h3>
+            <p class="text-sm text-[#6b645c] font-semibold leading-relaxed mb-4">
+              Идеально, если вам нужно расположить 3D-эффект в произвольной точке макета поверх фонов или рядом с текстом.
+            </p>
+            <ol class="space-y-2.5 text-xs text-[#524c44] font-semibold list-decimal list-inside">
+              <li>Откройте нужный <strong>Zero Block</strong> и нажмите <strong>«Редактировать блок»</strong>.</li>
+              <li>В меню добавления элементов выберите <strong>«Add HTML»</strong>.</li>
+              <li>Дважды кликните по элементу или откройте панель настроек элемента.</li>
+              <li>Вставьте код виджета в поле HTML и задайте нужные размеры контейнера.</li>
+              <li>Сохраните изменения и опубликуйте страницу.</li>
+            </ol>
+          </div>
+          <div class="mt-6 pt-4 border-t border-[#ece6da] flex items-center justify-between text-xs text-[#8a8276] font-bold">
+            <span>Тариф: Personal / Business</span>
+            <span class="text-[#0070f3]">✓ Полный контроль дизайна</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* FAQ SECTION */}
+    <section class="py-14 max-w-4xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl sm:text-3xl font-black text-[#132A22]">
+          Вопросы и ответы по установке на Tilda
+        </h2>
+      </div>
+      <div class="space-y-3.5">
+        {faqItems.map((item) => (
+          <details class="group bg-white rounded-2xl border border-[#ece6da] p-5 shadow-xs transition-all [&_summary::-webkit-details-marker]:hidden">
+            <summary class="flex items-center justify-between font-extrabold text-[#132A22] text-base cursor-pointer list-none">
+              <span>{item.q}</span>
+              <span class="w-7 h-7 rounded-full bg-[#f6f3ee] flex items-center justify-center text-sm group-open:rotate-180 transition-transform">
+                ↓
+              </span>
+            </summary>
+            <p class="mt-3 text-sm text-[#6b645c] font-semibold leading-relaxed">
+              {item.a}
+            </p>
+          </details>
+        ))}
+      </div>
+    </section>
+
+    {/* CROSS LINKS */}
+    <WidgetCrossLinks currentPath={canonicalUrl} />
+  </main>
+
+  <Footer />
+</Layout>

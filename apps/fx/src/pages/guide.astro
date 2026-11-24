@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Footer from '../components/Footer.astro';
 import Navbar from '../components/Navbar.astro';
+import WidgetCrossLinks from '../components/sections/WidgetCrossLinks.astro';
 import { EFFECT_GUIDES } from '../engine/effectGuides';
 import { PRODUCTS } from '../data/products';
 import { CMS_GUIDES } from '../engine/cmsGuides';
@@ -1128,6 +1129,8 @@ const breadcrumbs = {
       </div>
     </section>
 
+    {/* WIDGET CROSS LINKS */}
+    <WidgetCrossLinks currentPath="/guide" />
   </main>
 
   <Footer />

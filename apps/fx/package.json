@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "prebuild": "node scripts/build-server-compiler.mjs",
+    "prebuild": "node scripts/build-server-compiler.mjs && node scripts/generate-sitemap.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",

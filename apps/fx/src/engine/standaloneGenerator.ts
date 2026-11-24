@@ -2,6 +2,7 @@ import { codeHeader } from './codeNotice';
 import { generateQrMatrix, isFinderPattern } from './qrMatrix';
 import { generateTargetShapePositions, type TargetShapeType } from './shapes';
 import { THEMES } from './QrMorphViewer';
+import { domainLockJs, widgetBadgeHtml } from './domainLock';
 
 export interface EmbedOptions {
   text: string;
@@ -63,6 +64,9 @@ export function generateEmbedCode(options: EmbedOptions): string {
   };
 
   const instanceId = 'gridika-qr-' + Math.random().toString(36).substring(2, 8);
+  const badgeId = 'gridika-b-' + Math.random().toString(36).substring(2, 8);
+  const badgeHtml = showBadge ? widgetBadgeHtml('qr-morph', badgeId) : '';
+  const lockScript = license ? `<script>${domainLockJs(badgeId, license.domain)}<\/script>` : '';
 
   const header = license
     ? codeHeader('3D интерактивный QR-код', license)
@@ -70,7 +74,8 @@ export function generateEmbedCode(options: EmbedOptions): string {
 
   return `${header}
 <div id="${instanceId}" style="width:100%; height:${height}px; position:relative; overflow:hidden; border-radius:16px; background:${theme.bgColor};">
-</div>
+${badgeHtml}</div>
+${lockScript}
 <script>
 (function() {
   var data = ${JSON.stringify(payload)};
