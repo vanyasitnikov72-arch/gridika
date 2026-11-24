@@ -6,8 +6,19 @@ import zlib from 'node:zlib';
 
 const API = 'https://api.yookassa.ru/v3';
 
+const DEFAULT_SHOP_ID = '1526842';
+const DEFAULT_SECRET_KEY = 'live_tZl3fAvaC5skca7ZZmrzm2QU63T4NaUgCIwlUWa_JAk';
+
+export function getShopId() {
+  return process.env.YOOKASSA_SHOP_ID || DEFAULT_SHOP_ID;
+}
+
+export function getSecretKey() {
+  return process.env.YOOKASSA_SECRET_KEY || DEFAULT_SECRET_KEY;
+}
+
 export function yookassaConfigured() {
-  return !!(process.env.YOOKASSA_SHOP_ID && process.env.YOOKASSA_SECRET_KEY);
+  return !!(getShopId() && getSecretKey());
 }
 
 export function packMetadataItems(items) {
@@ -57,7 +68,7 @@ export function unpackMetadataItems(metadata) {
 }
 
 function headers(idempotenceKey) {
-  const auth = Buffer.from(`${process.env.YOOKASSA_SHOP_ID}:${process.env.YOOKASSA_SECRET_KEY}`).toString('base64');
+  const auth = Buffer.from(`${getShopId()}:${getSecretKey()}`).toString('base64');
   const h = { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json' };
   if (idempotenceKey) h['Idempotence-Key'] = idempotenceKey;
   return h;

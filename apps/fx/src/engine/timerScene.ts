@@ -86,20 +86,22 @@ export function buildTimerData(s: TimerSettings, mode: TimerMode): TimerData | n
   const personal = s.endType === 'personal' ? Math.max(1, Math.min(720, s.hours || 24)) : 0;
   const end = personal ? 0 : timerEndMs(s);
   if (!personal && !Number.isFinite(end)) return null;
+  const title = (s.title || 'Акция').trim();
   // the same campaign keeps the same id, so returning visitors keep their countdown after a code update
   let hash = 5381;
-  for (const ch of `${s.title}|${personal}`) hash = ((hash * 33) ^ ch.charCodeAt(0)) >>> 0;
-  const bt = s.buttonText.trim();
+  for (const ch of `${title}|${personal}`) hash = ((hash * 33) ^ ch.charCodeAt(0)) >>> 0;
+  const bt = (s.buttonText || '').trim();
+  const bUrl = (s.buttonUrl || '').trim();
   return {
     end,
-    format: s.format,
+    format: s.format || 'dhms',
     personal,
     pid: personal ? hash.toString(36) : undefined,
-    title: s.title.trim(),
-    button: bt ? { text: bt, url: s.buttonUrl.trim() } : null,
-    endAction: s.endAction,
-    endText: s.endText.trim(),
-    endUrl: s.endUrl.trim(),
+    title,
+    button: bt ? { text: bt, url: bUrl } : null,
+    endAction: s.endAction || 'text',
+    endText: (s.endText || '').trim(),
+    endUrl: (s.endUrl || '').trim(),
     mode,
   };
 }

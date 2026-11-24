@@ -15829,10 +15829,13 @@ function generateMorphEmbedCode(o) {
   const id = "gridika-morph-" + Math.random().toString(36).slice(2, 8);
   const maxW = o.maxWidth ?? 480;
   const runtime = morphRuntime_default.replace(/^export /gm, "");
+  const data = o.data || { w: 32, h: 32, a: [], b: [] };
+  const w = data.w || 32;
+  const h = data.h || 32;
   return `${codeHeader("\u043C\u043E\u0440\u0444 \xAB\u0434\u043E / \u043F\u043E\u0441\u043B\u0435\xBB", o.license)}
-<div id="${id}" style="position:relative;width:100%;max-width:${maxW}px;aspect-ratio:${o.data.w}/${o.data.h};margin:0 auto;border-radius:18px;overflow:hidden;"></div>
+<div id="${id}" style="position:relative;width:100%;max-width:${maxW}px;aspect-ratio:${w}/${h};margin:0 auto;border-radius:18px;overflow:hidden;"></div>
 <script type="module">
-var GRIDIKA = ${safeJson4({ data: o.data })};
+var GRIDIKA = ${safeJson4({ data })};
 ${runtime}
 (async function () {
   var el = document.getElementById("${id}");
@@ -16315,19 +16318,21 @@ function buildTimerData(s, mode) {
   const personal = s.endType === "personal" ? Math.max(1, Math.min(720, s.hours || 24)) : 0;
   const end = personal ? 0 : timerEndMs(s);
   if (!personal && !Number.isFinite(end)) return null;
+  const title = (s.title || "\u0410\u043A\u0446\u0438\u044F").trim();
   let hash = 5381;
-  for (const ch of `${s.title}|${personal}`) hash = (hash * 33 ^ ch.charCodeAt(0)) >>> 0;
-  const bt = s.buttonText.trim();
+  for (const ch of `${title}|${personal}`) hash = (hash * 33 ^ ch.charCodeAt(0)) >>> 0;
+  const bt = (s.buttonText || "").trim();
+  const bUrl = (s.buttonUrl || "").trim();
   return {
     end,
-    format: s.format,
+    format: s.format || "dhms",
     personal,
     pid: personal ? hash.toString(36) : void 0,
-    title: s.title.trim(),
-    button: bt ? { text: bt, url: s.buttonUrl.trim() } : null,
-    endAction: s.endAction,
-    endText: s.endText.trim(),
-    endUrl: s.endUrl.trim(),
+    title,
+    button: bt ? { text: bt, url: bUrl } : null,
+    endAction: s.endAction || "text",
+    endText: (s.endText || "").trim(),
+    endUrl: (s.endUrl || "").trim(),
     mode
   };
 }

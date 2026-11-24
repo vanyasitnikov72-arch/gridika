@@ -34,11 +34,14 @@ export function generateMorphEmbedCode(o: MorphEmbedOptions): string {
   const id = 'gridika-morph-' + Math.random().toString(36).slice(2, 8);
   const maxW = o.maxWidth ?? 480;
   const runtime = runtimeSource.replace(/^export /gm, '');
+  const data = o.data || { w: 32, h: 32, a: [], b: [] };
+  const w = data.w || 32;
+  const h = data.h || 32;
 
   return `${codeHeader('морф «до / после»', o.license)}
-<div id="${id}" style="position:relative;width:100%;max-width:${maxW}px;aspect-ratio:${o.data.w}/${o.data.h};margin:0 auto;border-radius:18px;overflow:hidden;"></div>
+<div id="${id}" style="position:relative;width:100%;max-width:${maxW}px;aspect-ratio:${w}/${h};margin:0 auto;border-radius:18px;overflow:hidden;"></div>
 <script type="module">
-var GRIDIKA = ${safeJson({ data: o.data })};
+var GRIDIKA = ${safeJson({ data })};
 ${runtime}
 (async function () {
   var el = document.getElementById("${id}");

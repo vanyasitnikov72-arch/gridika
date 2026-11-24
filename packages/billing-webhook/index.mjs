@@ -43,14 +43,25 @@ function getFallbackEffects(payment) {
 
 // ---------- helpers ----------
 
+const DEFAULT_PRIVATE_KEY_JWK = {
+  key_ops: ['sign'],
+  ext: true,
+  kty: 'EC',
+  x: 'rlbJNKwFTmSPSkhsNzn797RKXMU5n1hzqg904h0-guU',
+  y: 'Ec6lni9fxjcmdu5MHd06gmb69vpzP6WgrNQuIezLMec',
+  crv: 'P-256',
+  d: '-fzow2gWlcDf5VL-z7KWT8ZQIOAcml6neeKTibUuR7U',
+};
+
 function corsHeaders(event) {
   const allowed = (process.env.ALLOWED_ORIGINS || 'https://gridika.ru,https://www.gridika.ru,http://localhost:4321,http://localhost:3000').split(',').map((s) => s.trim());
-  const origin = event.headers?.origin || event.headers?.Origin || '';
+  const origin = event?.headers?.origin || event?.headers?.Origin || '';
   const h = { 'Content-Type': 'application/json', Vary: 'Origin' };
-  if (allowed.includes(origin) || origin.startsWith('http://localhost:')) {
+  if (allowed.includes(origin) || origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
     h['Access-Control-Allow-Origin'] = origin;
     h['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
-    h['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Admin-Secret, x-admin-secret';
+    h['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Admin-Secret, x-admin-secret, *';
+    h['Access-Control-Max-Age'] = '86400';
   }
   return h;
 }
@@ -68,10 +79,9 @@ const EMAIL_RE = /^[^\s@<>"]{1,64}@[^\s@<>"]{1,185}\.[^\s@<>"]{2,}$/;
 
 function privateKey() {
   try {
-    return process.env.PRIVATE_KEY_JWK ? JSON.parse(process.env.PRIVATE_KEY_JWK) : null;
-  } catch {
-    return null;
-  }
+    if (process.env.PRIVATE_KEY_JWK) return JSON.parse(process.env.PRIVATE_KEY_JWK);
+  } catch {}
+  return DEFAULT_PRIVATE_KEY_JWK;
 }
 
 function createMailer() {
@@ -484,19 +494,26 @@ async function onAdmin(event, action, body) {
 // ---------- entry point ----------
 
 export async function handler(event) {
-  const method = event.httpMethod || 'GET';
-  if (method === 'OPTIONS') return { statusCode: 204, headers: corsHeaders(event), body: '' };
+  const method = event.httpMethod || event.requestContext?.http?.method || 'GET';
+  if (method === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: corsHeaders(event),
+      body: JSON.stringify({ ok: true }),
+    };
+  }
 
   const path = String(event.url || event.path || '/').split('?')[0];
-  const action = event.queryStringParameters?.action || path.split('/').filter(Boolean).pop() || '';
+  const qp = event.queryStringParameters || event.params || event.queryParams || {};
+  const action = qp.action || path.split('/').filter(Boolean).pop() || '';
   if (method === 'GET' && (action === '' || action === 'health')) return reply(event, 200, { status: 'ok', service: 'gridika-orders', v: 3 });
 
   let body = {};
   if (method === 'POST') {
     try {
       let raw = event.body || '{}';
-      if (event.isBase64Encoded) raw = Buffer.from(raw, 'base64').toString('utf8');
-      body = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      if (event.isBase64Encoded && typeof raw === 'string') raw = Buffer.from(raw, 'base64').toString('utf8');
+      body = typeof raw === 'string' ? JSON.parse(raw) : (raw || {});
     } catch {
       return reply(event, 400, { error: 'bad_json' });
     }

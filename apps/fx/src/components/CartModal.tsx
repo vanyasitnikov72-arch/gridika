@@ -135,7 +135,11 @@ export function CartModal({ isOpen, onClose, items, onRemoveItem, onEditItem, on
       throw new Error('ЮKassa не вернула ссылку на оплату');
     } catch (err: any) {
       console.warn('Payment API error:', err);
-      setErrorMsg(err.message || 'Не удалось связаться с платежным шлюзом. Попробуйте ещё раз.');
+      let msg = err.message || '';
+      if (!msg || msg === 'Failed to fetch' || err.name === 'TypeError') {
+        msg = 'Не удалось связаться с платёжным сервером. Пожалуйста, повторите попытку через минуту.';
+      }
+      setErrorMsg(msg);
     } finally {
       setLoading(false);
     }
