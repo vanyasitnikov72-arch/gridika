@@ -1,17 +1,50 @@
 ---
 import SectionHead from './SectionHead.astro';
-import { ProductPreview } from '../ProductPreview';
+import { ProductPreview, type QrVariant } from '../ProductPreview';
+import type { ProductId } from '../../data/products';
 
-/** Mock landing pages showing where a 3D QR block sits on a real site. */
-const sites = [
+interface SiteExample {
+  url: string;
+  brand: string;
+  kind: string;
+  title: string;
+  text: string;
+  cta: string;
+  productId: ProductId;
+  variant?: QrVariant;
+  bg: string;
+  ink: string;
+  sub: string;
+  btn: string;
+  btnInk: string;
+  stage: string;
+}
+
+const sites: SiteExample[] = [
+  {
+    url: 'luma-store.ru',
+    brand: 'LUMA',
+    kind: 'Интернет-магазин',
+    title: 'Скидка — по клику',
+    text: 'Посетитель кликает по 3D-коробке, вылетает конфетти и открывается промокод на первый заказ.',
+    cta: 'Открыть в студии →',
+    productId: 'gift-box',
+    bg: 'linear-gradient(160deg,#fff1f0,#fbd9d7)',
+    ink: '#4f1216',
+    sub: '#8c3b40',
+    btn: '#e5484d',
+    btnInk: '#fff5f2',
+    stage: 'rgba(255,255,255,0.55)',
+  },
   {
     url: 'zerno-coffee.ru',
     brand: 'Зерно',
     kind: 'Кофейня',
     title: 'Меню — в один скан',
     text: 'Наведите камеру на дерево у кассы и откройте меню с сезонными напитками.',
-    cta: 'Открыть меню',
-    variant: 'tree' as const,
+    cta: 'Открыть в студии →',
+    productId: 'qr-morph',
+    variant: 'tree',
     bg: 'linear-gradient(160deg,#fbf3e6,#f1e1c8)',
     ink: '#3b2516',
     sub: '#7a5a3f',
@@ -20,34 +53,19 @@ const sites = [
     stage: 'rgba(255,255,255,0.55)',
   },
   {
-    url: 'nord.studio',
-    brand: 'NORD',
-    kind: 'Архитектурное бюро',
-    title: 'Портфолио в кармане',
-    text: 'QR на визитке собирается в город из наших проектов и ведёт в портфолио.',
-    cta: 'Смотреть проекты',
-    variant: 'city' as const,
+    url: 'skill-sprint.ru',
+    brand: 'SPRINT',
+    kind: 'Онлайн-школа',
+    title: 'До конца скидки',
+    text: 'Цифры обратного отсчёта пересыпаются из кубиков каждую секунду — блок держит внимание лучше баннера.',
+    cta: 'Открыть в студии →',
+    productId: 'sale-timer',
     bg: 'linear-gradient(160deg,#1b2233,#10141f)',
     ink: '#eef1f7',
     sub: '#9aa6bf',
-    btn: '#f2c14e',
-    btnInk: '#10141f',
+    btn: '#f5a524',
+    btnInk: '#2a1a05',
     stage: 'rgba(255,255,255,0.06)',
-  },
-  {
-    url: 'fest-krepost.ru',
-    brand: 'Крепость',
-    kind: 'Фестиваль',
-    title: 'Билеты по QR',
-    text: 'Замок собирается из кубиков, а сверху — QR на покупку билета.',
-    cta: 'Купить билет',
-    variant: 'castle' as const,
-    bg: 'linear-gradient(160deg,#fde9f0,#f6d3e0)',
-    ink: '#4a1230',
-    sub: '#8f4a6a',
-    btn: '#d0507f',
-    btnInk: '#fff4f8',
-    stage: 'rgba(255,255,255,0.5)',
   },
 ];
 ---
@@ -57,7 +75,7 @@ const sites = [
     label="Примеры"
     title="Как это выглядит"
     accent="на настоящем сайте"
-    lead="Эффект встаёт обычным блоком между другими блоками страницы — на Тильде или любом другом сайте. Ниже — макеты трёх лендингов."
+    lead="Эффект встаёт обычным блоком между другими блоками страницы — на Тильде или любом другом сайте. Нажмите на пример, чтобы покрутить его в студии."
   />
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
@@ -86,11 +104,36 @@ const sites = [
 
           {/* the Gridika block */}
           <div class="relative mt-auto rounded-2xl h-40 flex items-center justify-center" style={`background:${s.stage}`}>
-            <ProductPreview id="qr-morph" variant={s.variant} className="h-32 w-auto drop-shadow-[0_14px_18px_rgba(0,0,0,0.18)]" />
+            <ProductPreview id={s.productId} variant={s.variant} className="h-32 w-auto drop-shadow-[0_14px_18px_rgba(0,0,0,0.18)]" />
           </div>
-          <span class="mt-3 self-start px-3.5 py-1.5 rounded-full text-[11px] font-extrabold" style={`background:${s.btn};color:${s.btnInk}`}>{s.cta}</span>
+          <a
+            href={`/?fx=${s.productId}#studio`}
+            data-select-fx={s.productId}
+            class="mt-3 self-start px-3.5 py-1.5 rounded-full text-[11px] font-extrabold transition-opacity hover:opacity-90"
+            style={`background:${s.btn};color:${s.btnInk}`}
+          >
+            {s.cta}
+          </a>
         </div>
       </figure>
     ))}
   </div>
 </section>
+
+<script>
+  if (!(window as any).__gridikaExampleNavBound) {
+    (window as any).__gridikaExampleNavBound = true;
+    document.addEventListener('click', (e) => {
+      const link = (e.target as HTMLElement | null)?.closest?.('[data-select-fx]') as HTMLAnchorElement | null;
+      if (!link) return;
+      const studio = document.getElementById('studio');
+      if (!studio) return;
+      e.preventDefault();
+      const productId = link.getAttribute('data-select-fx');
+      if (productId) {
+        window.dispatchEvent(new CustomEvent('fx:select-product', { detail: { productId } }));
+      }
+      studio.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+</script>

@@ -46,19 +46,19 @@ const URLS = [
     priority: '0.9',
   },
   {
-    loc: 'https://gridika.ru/guide',
+    loc: 'https://gridika.ru/guide/',
     lastmod: today,
     changefreq: 'weekly',
     priority: '0.8',
   },
   {
-    loc: 'https://gridika.ru/offer',
+    loc: 'https://gridika.ru/offer/',
     lastmod: today,
     changefreq: 'monthly',
     priority: '0.5',
   },
   {
-    loc: 'https://gridika.ru/privacy',
+    loc: 'https://gridika.ru/privacy/',
     lastmod: today,
     changefreq: 'monthly',
     priority: '0.5',

@@ -9,26 +9,24 @@ import { type EqMode } from '../engine/equalizerScene';
 import { type CakeFlavor } from '../engine/cakeScene';
 import { type CastleMode } from '../engine/castleScene';
 import { generateQrMatrix } from '../engine/qrMatrix';
-import { validateQrScan, type ValidationResult } from '../engine/qrValidator';
-import { verifyLicense, normalizeDomain, isValidDomain, loadSavedKey, saveKey, licenseCovers, cardNameOk, LICENSE_ERRORS, type LicensePayload } from '../engine/license';
+import { validateQrScan } from '../engine/qrValidator';
+import { verifyLicense, normalizeDomain, isValidDomain, loadSavedKey, saveKey, licenseCovers, LICENSE_ERRORS, type LicensePayload } from '../engine/license';
 import { PRODUCTS, productById, applyProductTheme, type ProductId } from '../data/products';
 import { ProductPreview } from './ProductPreview';
 import { LiquidNav } from './LiquidNav';
 import { InstallGuide } from './InstallGuide';
 import { codeFileName, downloadCode } from '../engine/codeNotice';
-import { readHash, buildHash, guessSite, WIDGET_SIZE_MAP, type PurchaseConfig, type WidgetSize } from '../engine/purchase';
+import { readHash, buildHash, guessSite, type PurchaseConfig, type WidgetSize } from '../engine/purchase';
 import { DEMO_KEYS, DEMO_KEY } from '../emails/keyEmail';
 import { SizePill } from './SizePill';
-import { CardStage, CardPanel, useCardState, visibleContact } from './CardStudio';
+import { CardStage, CardPanel, useCardState } from './CardStudio';
 import { GiftStage, GiftPanel, useGiftState } from './GiftStudio';
 import { LogoStage, LogoPanel, useLogoState } from './LogoStudio';
 import { DarkStage } from './DarkStage';
-import { contentMatches } from '../engine/fingerprint.js';
 import { MorphStage, MorphPanel, useMorphState } from './MorphStudio';
 import { TimerStage, TimerPanel, useTimerState } from './TimerStudio';
 import { timerEmbedHeight } from '../engine/timerScene';
 import { morphEmbedHeight } from '../engine/morphScene';
-import { logoToDataUrl } from '../engine/cardScene';
 import { getCart, addToCart, updateCartItem, removeFromCart, subscribeCart, type CartItem } from '../engine/cartStore';
 
 const LOGO_EMBED_HEIGHT = 440;
@@ -116,8 +114,20 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
   const cardRef = useRef<HTMLDivElement>(null);
   const stageColRef = useRef<HTMLDivElement>(null);
 
+
   // Active Studio Product
   const [activeProduct, setActiveProduct] = useState<ActiveProductType>(initialProduct || 'qr-morph');
+  const [mountedProducts, setMountedProducts] = useState<Set<ProductId>>(
+    () => new Set([initialProduct || 'qr-morph']),
+  );
+  useEffect(() => {
+    setMountedProducts((prev) => {
+      if (prev.has(activeProduct)) return prev;
+      const next = new Set(prev);
+      next.add(activeProduct);
+      return next;
+    });
+  }, [activeProduct]);
   const active = productById(activeProduct);
   const activeProductRef = useRef(activeProduct);
   activeProductRef.current = activeProduct;
@@ -206,7 +216,6 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
   const [cakeFlavor, setCakeFlavor] = useState<CakeFlavor>('chocolate');
   const [castleMode, setCastleMode] = useState<CastleMode>('day');
   const [currentState, setCurrentState] = useState<'qr' | 'morphed'>('morphed');
-  const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [copied, setCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [embedCode, setEmbedCode] = useState('');
@@ -326,7 +335,6 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
     : license.p === 'all' || license.p === 'pro'
       ? 'все эффекты'
       : '«' + (PRODUCTS.find((x) => x.id === license.p)?.label ?? license.p) + '»';
-  const currentShapeLabel = SHAPE_OPTIONS.find((s) => s.id === shape)?.label || 'Форма';
 
   // Arrived from the "thank you" page or the email: #key=GRD1-… in the address.
   // The hash never reaches a server or analytics; we drop it from the address right away.
@@ -542,9 +550,11 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
     }
   };
 
-  // Initialize 3D Viewer once mounted
+  // Initialize 3D Viewer only when qr-morph is active; destroy on unmount
   useEffect(() => {
-    initViewer();
+    if (activeProductRef.current === 'qr-morph') {
+      initViewer();
+    }
     return () => {
       viewerRef.current?.destroy();
       viewerRef.current = null;
@@ -618,8 +628,7 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
     try {
       const { modules } = generateQrMatrix(url);
       const th = THEMES[theme] || THEMES['velvet-emerald'];
-      const result = validateQrScan(modules, url, th.voxelColor, th.bgColor, th.finderColor);
-      setValidation(result);
+      validateQrScan(modules, url, th.voxelColor, th.bgColor, th.finderColor);
     } catch (e) {
       console.warn('QR scan validation warning:', e);
     }
@@ -1052,50 +1061,60 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
               </div>
 
               {/* PLANNED PRODUCTS: voxel preview */}
-              {/* 02: business card (kept mounted, paused when hidden) */}
-              <div
-                className={`w-full h-full transition-opacity duration-300 ${
-                  activeProduct === 'qr-card' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
-                }`}
-              >
-                <CardStage state={card} active={activeProduct === 'qr-card'} size={activeSize} onSizeChange={setActiveSize} />
-              </div>
+              {/* 02: business card (lazy-mounted on first visit, then paused when hidden) */}
+              {mountedProducts.has('qr-card') && (
+                <div
+                  className={`w-full h-full transition-opacity duration-300 ${
+                    activeProduct === 'qr-card' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
+                  }`}
+                >
+                  <CardStage state={card} active={activeProduct === 'qr-card'} size={activeSize} onSizeChange={setActiveSize} />
+                </div>
+              )}
 
-              {/* 03: gift box (kept mounted, paused when hidden) */}
-              <div
-                className={`w-full h-full transition-opacity duration-300 ${
-                  activeProduct === 'gift-box' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
-                }`}
-              >
-                <GiftStage state={gift} active={activeProduct === 'gift-box'} size={activeSize} onSizeChange={setActiveSize} />
-              </div>
+              {/* 03: gift box */}
+              {mountedProducts.has('gift-box') && (
+                <div
+                  className={`w-full h-full transition-opacity duration-300 ${
+                    activeProduct === 'gift-box' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
+                  }`}
+                >
+                  <GiftStage state={gift} active={activeProduct === 'gift-box'} size={activeSize} onSizeChange={setActiveSize} />
+                </div>
+              )}
 
-              {/* 04: voxel logo (kept mounted, paused when hidden) */}
-              <div
-                className={`w-full h-full transition-opacity duration-300 ${
-                  activeProduct === 'voxel-logo' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
-                }`}
-              >
-                <LogoStage state={logo} active={activeProduct === 'voxel-logo'} size={activeSize} onSizeChange={setActiveSize} />
-              </div>
+              {/* 04: voxel logo */}
+              {mountedProducts.has('voxel-logo') && (
+                <div
+                  className={`w-full h-full transition-opacity duration-300 ${
+                    activeProduct === 'voxel-logo' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
+                  }`}
+                >
+                  <LogoStage state={logo} active={activeProduct === 'voxel-logo'} size={activeSize} onSizeChange={setActiveSize} />
+                </div>
+              )}
 
-              {/* 05: before / after morph (kept mounted, paused when hidden) */}
-              <div
-                className={`w-full h-full transition-opacity duration-300 ${
-                  activeProduct === 'voxel-morph' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
-                }`}
-              >
-                <MorphStage state={morph} active={activeProduct === 'voxel-morph'} size={activeSize} onSizeChange={setActiveSize} />
-              </div>
+              {/* 05: before / after morph */}
+              {mountedProducts.has('voxel-morph') && (
+                <div
+                  className={`w-full h-full transition-opacity duration-300 ${
+                    activeProduct === 'voxel-morph' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
+                  }`}
+                >
+                  <MorphStage state={morph} active={activeProduct === 'voxel-morph'} size={activeSize} onSizeChange={setActiveSize} />
+                </div>
+              )}
 
-              {/* 06: sale countdown (kept mounted, paused when hidden) */}
-              <div
-                className={`w-full h-full transition-opacity duration-300 ${
-                  activeProduct === 'sale-timer' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
-                }`}
-              >
-                <TimerStage state={timer} active={activeProduct === 'sale-timer'} size={activeSize} onSizeChange={setActiveSize} />
-              </div>
+              {/* 06: sale countdown */}
+              {mountedProducts.has('sale-timer') && (
+                <div
+                  className={`w-full h-full transition-opacity duration-300 ${
+                    activeProduct === 'sale-timer' ? 'relative z-10 opacity-100' : 'absolute inset-0 opacity-0 pointer-events-none -z-10'
+                  }`}
+                >
+                  <TimerStage state={timer} active={activeProduct === 'sale-timer'} size={activeSize} onSizeChange={setActiveSize} />
+                </div>
+              )}
 
                 {!BUILT.includes(activeProduct) && (
                   <div key={activeProduct} className="w-full h-full flex flex-col items-center justify-center gap-5 fx-fade-in select-none">
@@ -1111,7 +1130,10 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
             </div>
 
             {/* 3. RIGHT ZONE: Dynamic Configuration Controls based on activeProduct */}
-            <div className="lg:col-span-4 lg:h-full lg:overflow-y-auto overflow-x-hidden lg:-mr-3 lg:pr-3 [scrollbar-width:thin] flex flex-col justify-center [justify-content:safe_center] gap-3 text-left">
+            <div
+              onPointerDown={() => markInteraction('controls')}
+              className="lg:col-span-4 lg:h-full lg:overflow-y-auto overflow-x-hidden lg:-mr-3 lg:pr-3 [scrollbar-width:thin] flex flex-col justify-center [justify-content:safe_center] gap-3 text-left"
+            >
               
               {/* CONTROLS: 01 3D QR */}
               {activeProduct === 'qr-morph' && (
@@ -1330,6 +1352,7 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
               id="studio-get-code-btn"
               onClick={() => {
                 if (!isCurrentInCart) addCurrentAsNew();
+                trackGoal('cart_open', { product: activeProduct, source: 'studio_cta' });
                 setShowCartModal(true);
               }}
               className="relative h-10 pl-4 sm:pl-5 pr-1.5 rounded-full bg-[#132A22] hover:bg-[#1d3a2f] text-[#F0EBE9] text-[13px] sm:text-[13.5px] font-extrabold inline-flex items-center gap-2.5 sm:gap-3 whitespace-nowrap transition-colors shadow-md active:scale-[0.97] cursor-pointer shrink-0"
@@ -1686,7 +1709,13 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
         )}
 
         {/* Floating Cart Dock Pill & Order Modal */}
-        <CartFloatingPill items={cartItems} onOpenCart={() => setShowCartModal(true)} />
+        <CartFloatingPill
+          items={cartItems}
+          onOpenCart={() => {
+            trackGoal('cart_open', { product: activeProduct, items_count: cartItems.length, source: 'floating_pill' });
+            setShowCartModal(true);
+          }}
+        />
         <CartModal
           isOpen={showCartModal}
           onClose={() => setShowCartModal(false)}

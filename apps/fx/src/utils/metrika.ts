@@ -12,7 +12,9 @@ export function trackGoal(goal: string, params?: Record<string, unknown>): void 
       } else {
         ym(114261124, 'reachGoal', goal);
       }
-      console.log(`[metrika] reachGoal: ${goal}`, params);
+      if (import.meta.env.DEV) {
+        console.log(`[metrika] reachGoal: ${goal}`, params);
+      }
     }
   } catch (err) {
     // Fail silently in development/blocked ad environments

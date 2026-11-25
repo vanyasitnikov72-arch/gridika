@@ -15,18 +15,19 @@ interface Props {
 
 const { 
   title, 
-  description = "Gridika — готовые интерактивные 3D-виджеты для любого сайта: 3D QR-код, визитка, подарок с промокодом и воксели.",
-  keywords = "3d эффекты для сайта, 3d qr код, виджеты для тильды, интерактивные виджеты, 3d для tilda, 3d для wordpress, webflow 3d, voxel logo, qr визитка 3d, 3d виджеты",
+  description = "Gridika — готовые интерактивные 3D-виджеты для любого сайта: 3D QR-код, подарок с промокодом, таймер акции, визитка и воксели.",
+  keywords = "3d эффекты для сайта, 3d qr код, виджеты для тильды, интерактивные виджеты, подарок с промокодом на сайт, таймер акции 3d, 3d для tilda, 3d для wordpress, webflow 3d, voxel logo",
   noindex = false,
   canonicalUrl,
   ogType = 'website',
-  ogImage = 'https://gridika.ru/web-app-manifest-512x512.png',
+  ogImage = 'https://gridika.ru/og-cover.png',
   structuredData
 } = Astro.props;
 
 const siteUrl = 'https://gridika.ru';
-const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
-const computedCanonical = canonicalUrl || (currentPath === '/' ? `${siteUrl}/` : `${siteUrl}${currentPath}`);
+const cleanPath = Astro.url.pathname.replace(/\/+$/, '');
+const normalizedPath = cleanPath ? `${cleanPath}/` : '/';
+const computedCanonical = canonicalUrl || `${siteUrl}${normalizedPath}`;
 ---
 
 <!doctype html>
@@ -73,13 +74,13 @@ const computedCanonical = canonicalUrl || (currentPath === '/' ? `${siteUrl}/` :
     <meta property="og:description" content={description} />
     <meta property="og:url" content={computedCanonical} />
     <meta property="og:image" content={ogImage} />
-    <meta property="og:image:width" content="512" />
-    <meta property="og:image:height" content="512" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Gridika — интерактивные 3D-эффекты и виджеты для сайта" />
     <meta property="og:locale" content="ru_RU" />
 
     {/* Twitter / X Cards */}
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
@@ -106,13 +107,16 @@ const computedCanonical = canonicalUrl || (currentPath === '/' ? `${siteUrl}/` :
       ym(114261124, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
 
       var ymFirst = true;
+      var ymPrevUrl = document.referrer;
       document.addEventListener('astro:page-load', function() {
         if (ymFirst) {
           ymFirst = false;
+          ymPrevUrl = window.location.href;
           return;
         }
         if (typeof ym === 'function') {
-          ym(114261124, 'hit', window.location.href);
+          ym(114261124, 'hit', window.location.href, { referer: ymPrevUrl });
+          ymPrevUrl = window.location.href;
         }
       });
     </script>

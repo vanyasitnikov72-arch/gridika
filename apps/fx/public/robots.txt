@@ -1,41 +1,14 @@
 # https://gridika.ru robots.txt
 User-agent: *
 Allow: /
-Allow: /3d-qr-code/
-Allow: /promo-gift/
-Allow: /3d-card/
-Allow: /voxels/
-Allow: /tilda/
-Allow: /guide
-Allow: /offer
-Allow: /privacy
-Disallow: /manage-7q4k2d
-Disallow: /thanks
-Disallow: /preview
-Disallow: /logo-lab
-Disallow: /email-preview
-Disallow: /test
+Disallow: /thanks/
+Disallow: /preview/
+Disallow: /logo-lab/
+Disallow: /email-preview/
+Disallow: /test/
 Disallow: /test-widget.html
 
-# Yandex bot specifics
 User-agent: Yandex
-Allow: /
-Allow: /3d-qr-code/
-Allow: /promo-gift/
-Allow: /3d-card/
-Allow: /voxels/
-Allow: /tilda/
-Allow: /guide
-Allow: /offer
-Allow: /privacy
-Disallow: /manage-7q4k2d
-Disallow: /thanks
-Disallow: /preview
-Disallow: /logo-lab
-Disallow: /email-preview
-Disallow: /test
-Disallow: /test-widget.html
+Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term&fx /
 
-# Sitemap
 Sitemap: https://gridika.ru/sitemap.xml
-
