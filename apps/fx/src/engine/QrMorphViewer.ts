@@ -814,7 +814,8 @@ export class QrMorphViewer {
     const vh = Math.max(fitH, fitW / aspect);
     // In studio on desktop, nudge right away from jade wave; in standalone or on mobile, stay dead-center (shift = 0)
     const isDesktop = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches;
-    const shift = this.standalone || !isDesktop ? 0 : vh * aspect * THREE.MathUtils.lerp(0.11, 0.06, e);
+    const inSitePreview = Boolean(this.renderer?.domElement?.closest('.gx-site-preview-slot'));
+    const shift = this.standalone || !isDesktop || inSitePreview ? 0 : vh * aspect * THREE.MathUtils.lerp(0.11, 0.06, e);
     this.orthoCam.left = (-vh * aspect) / 2 - shift;
     this.orthoCam.right = (vh * aspect) / 2 - shift;
     this.orthoCam.top = vh / 2;

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'preact/hooks';
+import { useState, useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import { QrMorphViewer, THEMES } from '../engine/QrMorphViewer';
 import { type TargetShapeType } from '../engine/shapes';
 import { type TreeSeason } from '../engine/treeScene';
@@ -32,6 +32,7 @@ import { getCart, addToCart, updateCartItem, removeFromCart, subscribeCart, type
 const LOGO_EMBED_HEIGHT = 440;
 import { CartModal } from './CartModal';
 import { CartFloatingPill } from './CartFloatingPill';
+import { SitePreviewModal } from './SitePreviewModal';
 import confetti from 'canvas-confetti';
 import { trackGoal } from '../utils/metrika';
 
@@ -113,6 +114,56 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
   const waveRef = useRef<SVGSVGElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const stageColRef = useRef<HTMLDivElement>(null);
+const stageHomeRef = useRef<HTMLDivElement>(null);
+  const stageContentRef = useRef<HTMLDivElement>(null);
+  const modalSlotRef = useRef<HTMLDivElement>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const showPreviewRef = useRef(false);
+  showPreviewRef.current = showPreview;
+
+
+  const restoreStageToHome = () => {
+    const content = stageContentRef.current;
+    const home = stageHomeRef.current;
+    if (content && home && content.parentElement !== home) {
+      home.appendChild(content);
+    }
+  };
+
+  const closePreview = () => {
+    // Return live WebGL nodes to the studio BEFORE unmounting the modal
+    restoreStageToHome();
+    showPreviewRef.current = false;
+    setShowPreview(false);
+    requestAnimationFrame(() => {
+      viewerRef.current?.handleResize();
+      window.dispatchEvent(new Event('resize'));
+      window.setTimeout(() => {
+        viewerRef.current?.handleResize();
+        window.dispatchEvent(new Event('resize'));
+      }, 120);
+    });
+  };
+
+  useLayoutEffect(() => {
+    if (!showPreview) return;
+    const content = stageContentRef.current;
+    const slot = modalSlotRef.current;
+    if (!content || !slot) return;
+    if (containerRef.current) {
+      containerRef.current.style.maskImage = '';
+      containerRef.current.style.webkitMaskImage = '';
+    }
+    slot.appendChild(content);
+    const t = window.setTimeout(() => {
+      viewerRef.current?.handleResize();
+      window.dispatchEvent(new Event('resize'));
+    }, 40);
+    return () => {
+      window.clearTimeout(t);
+      restoreStageToHome();
+    };
+  }, [showPreview]);
 
 
   // Active Studio Product
@@ -165,7 +216,7 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
     if (!el || !wave) return;
     const desktop = window.matchMedia('(min-width: 1024px)');
     const update = () => {
-      if (!desktop.matches) {
+      if (showPreviewRef.current || !desktop.matches) {
         el.style.maskImage = '';
         el.style.webkitMaskImage = '';
         return;
@@ -875,7 +926,8 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
 
             {/* 2. CENTER ZONE: Expansive Stage (Switches depending on activeProduct) */}
             <div ref={stageColRef} onPointerDown={() => markInteraction('stage')} className="lg:col-span-5 flex flex-col items-center justify-center relative my-1 lg:my-0">
-              <div className="relative w-full h-[460px] sm:h-[480px] lg:h-[520px] flex flex-col items-center justify-center overflow-hidden sm:overflow-visible">
+              <div ref={stageHomeRef} className="relative w-full h-[460px] sm:h-[480px] lg:h-[520px] flex flex-col items-center justify-center overflow-hidden sm:overflow-visible">
+                <div ref={stageContentRef} className="relative w-full h-full flex flex-col items-center justify-center">
 
                 {/* MODE 01: QR MORPH STAGE (Permanently mounted for persistent Three.js context) */}
                 <div
@@ -887,14 +939,12 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
                 >
                   <div
                     ref={containerRef}
-                    className={`w-full h-full pb-20 cursor-grab active:cursor-grabbing z-10 relative select-none transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                      activeSize === 's' ? 'scale-[0.86]' : activeSize === 'l' ? 'scale-[1.12]' : 'scale-100'
-                    }`}
+                    className={`w-full h-full ${showPreview ? 'pb-0 scale-100' : `pb-20 ${activeSize === 's' ? 'scale-[0.86]' : activeSize === 'l' ? 'scale-[1.12]' : 'scale-100'}`} cursor-grab active:cursor-grabbing z-10 relative select-none transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]`}
                     style={{ transformOrigin: 'center center' }}
                   />
 
                   {/* Sub-toolbar under the QR stage */}
-                  <div className="absolute bottom-2 left-0 right-0 z-20 flex flex-col items-center gap-1.5 pointer-events-auto lg:translate-x-12">
+                  <div className={`absolute bottom-2 left-0 right-0 z-20 flex flex-col items-center gap-1.5 pointer-events-auto lg:translate-x-12 ${showPreview ? 'hidden' : ''}`}>
                     <div className="flex flex-nowrap items-center justify-center gap-2 sm:gap-2.5 h-9 max-w-full">
                     <div className="relative w-[68px] h-9 p-1 rounded-full bg-white/95 border border-[#e5dfd2] shadow-[0_6px_20px_rgba(85,70,50,0.08)] backdrop-blur-md select-none flex items-center gap-1 shrink-0">
                       <div
@@ -1128,6 +1178,7 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
                 )}
               </div>
             </div>
+          </div>
 
             {/* 3. RIGHT ZONE: Dynamic Configuration Controls based on activeProduct */}
             <div
@@ -1315,6 +1366,21 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
               @media (prefers-reduced-motion: reduce) { .gx-cart, .gx-cart .gx-ico, .gx-cart .gx-lbl { transition: none; } }
             `}</style>
 
+            {/* Live preview on a sample landing page */}
+            <button
+              type="button"
+              onClick={() => {
+                trackGoal('preview_open', { product: activeProduct });
+                setShowPreview(true);
+              }}
+              className="h-10 px-3.5 rounded-full inline-flex items-center gap-2 text-[13px] font-extrabold cursor-pointer select-none shrink-0 active:scale-[0.96] bg-white border border-[#e5dfd2] text-[#132A22] hover:border-[color-mix(in_srgb,var(--vx-accent)_55%,#e5dfd2)] hover:shadow-[0_6px_16px_-10px_rgba(19,42,34,0.45)] transition-all"
+            >
+              <svg className="w-3.5 h-3.5 text-[#78716c]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="16" rx="3" />
+                <path d="M3 9h18" />
+              </svg>
+              <span>На сайте</span>
+            </button>
             {/* add to the order / in the order / remove — one button, no pop-ups */}
             <button
               ref={cartBtnRef}
@@ -1729,6 +1795,39 @@ export function QrConfigurator({ initialProduct }: QrConfiguratorProps = {}) {
           }}
           currentProductTitle={productById(activeProduct).title}
           isCurrentInCart={isCurrentInCart}
+        />
+        <SitePreviewModal
+          isOpen={showPreview}
+          onClose={closePreview}
+          productId={activeProduct}
+          qrShape={shape}
+          qrMode={
+            shape === 'tree'
+              ? season
+              : shape === 'city'
+                ? timeOfDay
+                : shape === 'island'
+                  ? islandMode
+                  : shape === 'maze'
+                    ? gardenMode
+                    : shape === 'equalizer'
+                      ? eqMode
+                      : shape === 'cake'
+                        ? cakeFlavor
+                        : castleMode
+          }
+          size={activeSize}
+          onSizeChange={setActiveSize}
+          slotRef={modalSlotRef}
+          onGetCode={() => {
+            if (!isCurrentInCart) addCurrentAsNew();
+            trackGoal('cart_open', { product: activeProduct, source: 'site_preview' });
+            setShowCartModal(true);
+          }}
+          onViewportChange={() => {
+            viewerRef.current?.handleResize();
+            window.dispatchEvent(new Event('resize'));
+          }}
         />
       </div>
     </div>
