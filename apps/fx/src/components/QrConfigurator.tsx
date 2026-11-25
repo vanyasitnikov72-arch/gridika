@@ -1341,7 +1341,7 @@ const stageHomeRef = useRef<HTMLDivElement>(null);
           </div>
 
           {/* BOTTOM DOCK: Action controls (Add to cart & Checkout) */}
-          <div className={`mt-3 sm:mt-4 flex items-center justify-end gap-2.5 sm:gap-3 relative z-10 transition-opacity ${BUILT.includes(activeProduct) ? '' : 'opacity-0 pointer-events-none'}`}>
+          <div className={`mt-3 sm:mt-4 grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-2.5 sm:gap-3 relative z-10 transition-opacity ${BUILT.includes(activeProduct) ? '' : 'opacity-0 pointer-events-none'}`}>
             
             <style>{`
               .gx-cart { transition: background-color .35s ease, border-color .35s ease, color .35s ease, box-shadow .35s ease, transform .15s ease; }
@@ -1373,7 +1373,7 @@ const stageHomeRef = useRef<HTMLDivElement>(null);
                 trackGoal('preview_open', { product: activeProduct });
                 setShowPreview(true);
               }}
-              className="h-10 px-3.5 rounded-full inline-flex items-center gap-2 text-[13px] font-extrabold cursor-pointer select-none shrink-0 active:scale-[0.96] bg-white border border-[#e5dfd2] text-[#132A22] hover:border-[color-mix(in_srgb,var(--vx-accent)_55%,#e5dfd2)] hover:shadow-[0_6px_16px_-10px_rgba(19,42,34,0.45)] transition-all"
+              className= "w-full sm:w-auto justify-center h-10 px-3.5 rounded-full inline-flex items-center gap-2 text-[13px] font-extrabold cursor-pointer select-none shrink-0 active:scale-[0.96] bg-white border border-[#e5dfd2] text-[#132A22] hover:border-[color-mix(in_srgb,var(--vx-accent)_55%,#e5dfd2)] hover:shadow-[0_6px_16px_-10px_rgba(19,42,34,0.45)] transition-all"
             >
               <svg className="w-3.5 h-3.5 text-[#78716c]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <rect x="3" y="4" width="18" height="16" rx="3" />
@@ -1389,7 +1389,7 @@ const stageHomeRef = useRef<HTMLDivElement>(null);
               data-on={isCurrentInCart ? '1' : '0'}
               aria-pressed={isCurrentInCart}
               aria-label={isCurrentInCart ? 'В заказе — убрать из заказа' : 'Добавить в заказ'}
-              className={`gx-cart group relative h-10 w-[128px] pl-1.5 pr-3 rounded-full inline-flex items-center gap-2 text-[13px] font-black cursor-pointer select-none shrink-0 active:scale-[0.96] border ${
+              className={`gx-cart group relative h-10 w-full sm:w-[128px] justify-center pl-1.5 pr-3 rounded-full inline-flex items-center gap-2 text-[13px] font-black cursor-pointer select-none shrink-0 active:scale-[0.96] border ${
                 isCurrentInCart
                   ? 'bg-[var(--vx-soft)] border-[color-mix(in_srgb,var(--vx-accent)_55%,transparent)] text-[#132A22] [@media(hover:hover)]:hover:bg-[#fdf1f3] [@media(hover:hover)]:hover:border-[#f3c4cd] [@media(hover:hover)]:hover:text-[#a3263f]'
                   : 'bg-white border-[#e5dfd2] text-[#132A22] hover:border-[color-mix(in_srgb,var(--vx-accent)_55%,#e5dfd2)] hover:shadow-[0_6px_16px_-10px_rgba(19,42,34,0.45)]'
@@ -1421,7 +1421,7 @@ const stageHomeRef = useRef<HTMLDivElement>(null);
                 trackGoal('cart_open', { product: activeProduct, source: 'studio_cta' });
                 setShowCartModal(true);
               }}
-              className="relative h-10 pl-4 sm:pl-5 pr-1.5 rounded-full bg-[#132A22] hover:bg-[#1d3a2f] text-[#F0EBE9] text-[13px] sm:text-[13.5px] font-extrabold inline-flex items-center gap-2.5 sm:gap-3 whitespace-nowrap transition-colors shadow-md active:scale-[0.97] cursor-pointer shrink-0"
+              className= "col-span-2 sm:col-span-1 w-full sm:w-auto justify-center relative h-10 pl-4 sm:pl-5 pr-1.5 rounded-full bg-[#132A22] hover:bg-[#1d3a2f] text-[#F0EBE9] text-[13px] sm:text-[13.5px] font-extrabold inline-flex items-center gap-2.5 sm:gap-3 whitespace-nowrap transition-colors shadow-md active:scale-[0.97] cursor-pointer shrink-0"
             >
               <span className="whitespace-nowrap">Получить код</span>
               <span className="relative w-7 h-7 rounded-full bg-[var(--vx-accent)] text-[var(--vx-on)] flex items-center justify-center shadow-sm shrink-0" aria-hidden="true">
